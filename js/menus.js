@@ -11,6 +11,10 @@ function rTitulo(){
       <span class="moneda">⛁ ${S.pts} PTS</span>
     </div>
     <button class="btn" id="t-jugar" type="button">${t('jugar')}</button>
+    <p class="mini">${t('dificultad')}</p>
+    <div class="dif-sel">
+      ${DIFS.map(d=>`<button class="dif-op ${S.dif===d.id?'sel':''}" data-dif="${d.id}" type="button"><span class="dif-ico">${d.ico}</span>${tj(d)}</button>`).join('')}
+    </div>
     <div class="custom-fila">
       <button class="btn btn2" id="t-tienda" type="button">🛒 ${t('tienda')}</button>
       <button class="btn btn2" id="t-logros" type="button">🏆 ${t('logros')}</button>
@@ -19,10 +23,15 @@ function rTitulo(){
       <button class="btn btn2" id="t-records" type="button">📊 ${t('records')}</button>
       <button class="btn btn3" id="t-perso" type="button">🎨 ${t('perso')}</button>
     </div>
-    <button class="btn btn2" id="t-modo" type="button">${S.hd?t('modo_retro'):t('modo_hd')}</button>
+    <div class="custom-fila">
+      <button class="btn btn2" id="t-stats" type="button">${t('estadisticas')}</button>
+      <button class="btn btn2" id="t-modo" type="button">${S.hd?t('modo_retro'):t('modo_hd')}</button>
+    </div>
     <p class="mini blink">${t('start')}</p>
     <button class="cut-skip" id="t-borrar" type="button">${t('borrar')}</button>
   </div>`);
+  $$('.dif-op').forEach(b=>b.onclick=()=>{S.dif=+b.dataset.dif;guardar();SFX.click();rTitulo()});
+  $('#t-stats').onclick=()=>{SFX.click();rStats()};
   $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};
   $('#t-borrar').onclick=()=>{SFX.click();rBorrar()};
   $('#t-jugar').onclick=()=>{
@@ -152,6 +161,7 @@ function rMapa(){
     <h2>${t('mapa')}</h2>
     <div class="rango-linea">
       <span class="rango-badge">${t('rango')}: ${rangoNom()}</span>
+      <span class="dif-badge">${difActual().ico} ${tj(difActual())}</span>
       <span class="moneda">⛁ ${S.pts}</span>
     </div>
     <div class="etapas">${cards}</div>
@@ -203,7 +213,25 @@ function registrarRecord(){
   S.records.sort((a,b)=>b.p-a.p);
   S.records=S.records.slice(0,5);
 }
+function compartir(){
+  const url='https://antoniyesidpabonpenalosa-bit.github.io/aprendiz-en-apuros/';
+  const txt=t('compartexto').replace('{p}',S.pts).replace('{r}',rangoNom())+' '+url;
+  SFX.click();
+  const aviso=()=>{
+    const p=$('#logro-popup');
+    p.querySelector('.ico-l').textContent='📤';
+    p.querySelector('p').textContent=t('copiado');
+    p.hidden=false;setTimeout(()=>{p.hidden=true},2200);
+  };
+  if(navigator.share){navigator.share({text:txt}).catch(()=>{});return}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(aviso).catch(()=>{try{prompt(t('copiado'),txt)}catch(e){}});
+    return;
+  }
+  try{prompt(t('copiado'),txt)}catch(e){}
+}
 function rCertificado(){
+  sumaStat('partidas');
   const hoy=new Date().toLocaleDateString(S.lang==='es'?'es-CO':'en-US');
   pantalla('cert',`
   <div class="centro">
@@ -222,10 +250,12 @@ function rCertificado(){
       <p class="sub">${t('firma')} · ${t('fecha')}: ${hoy}</p>
       <span class="rango-badge grande">${rangoNom()}</span>
     </div>
-    <button class="btn" id="c-volver" type="button">${t('volver')}</button>
+    <button class="btn btn-share" id="c-share" type="button">${t('compartir')}</button>
+    <button class="btn btn2" id="c-volver" type="button">${t('volver')}</button>
   </div>`);
   cara($('#c-cara'),Object.assign(CARAS.yo(true),{medalla:true}));
   confeti();
+  $('#c-share').onclick=compartir;
   $('#c-volver').onclick=()=>{SFX.click();rTitulo()};
 }
 
@@ -265,7 +295,9 @@ function rTienda(){
     if(S.accs.includes(a.id)){S.acc=S.acc===a.id?'':a.id;guardar();SFX.click();rTienda();return}
     if(S.pts<a.precio){SFX.mal();return}
     S.pts-=a.precio;S.accs.push(a.id);S.acc=a.id;guardar();
-    SFX.moneda();darLogro('comprador');rTienda();
+    SFX.moneda();darLogro('comprador');
+    if(ACCS.every(x=>S.accs.includes(x.id)))darLogro('coleccionista');
+    rTienda();
   });
   $$('[data-mej]').forEach(el=>el.onclick=()=>{
     const m=MEJORAS.find(x=>x.id===el.dataset.mej);
@@ -312,6 +344,27 @@ function rRecords(){
     <button class="btn btn2" id="re-volver" type="button">${t('volver')}</button>
   </div>`);
   $('#re-volver').onclick=()=>{SFX.click();rTitulo()};
+}
+
+/* ── ESTADÍSTICAS DE POR VIDA ── */
+function rStats(){
+  const st=S.stats;
+  const filas=[
+    ['🐛',st.bugs,'st_bugs'],['☕',st.cafes,'st_cafes'],['⌨️',st.palabras,'st_palabras'],
+    ['👾',st.jefes,'st_jefes'],['🌟',st.perfectos,'st_perfectos'],['🔥',st.racha,'st_racha'],
+    ['🎓',st.partidas,'st_partidas'],
+  ];
+  const vacio=filas.every(f=>!f[1]);
+  pantalla('stats',`
+  <div class="centro">
+    <h2>${t('estadisticas')}</h2>
+    ${vacio?`<p class="desc" style="text-align:center">${t('st_sinreg')}</p>`:''}
+    <div class="stats-grid">
+      ${filas.map(f=>`<div><span style="font-size:16px">${f[0]}</span><b>${f[1]}</b><span>${t(f[2])}</span></div>`).join('')}
+    </div>
+    <button class="btn btn2" id="es-volver" type="button">${t('volver')}</button>
+  </div>`);
+  $('#es-volver').onclick=()=>{SFX.click();rTitulo()};
 }
 
 /* ── PERSONALIZAR ── */

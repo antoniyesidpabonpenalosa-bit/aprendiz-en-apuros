@@ -18,6 +18,7 @@ $('#b-lang').onclick=()=>{
   else if(pantallaId==='logros')rLogros();
   else if(pantallaId==='records')rRecords();
   else if(pantallaId==='perso')rPerso();
+  else if(pantallaId==='stats')rStats();
   else if(pantallaId==='borrar')rBorrar();
   else hud();
 };
