@@ -649,6 +649,10 @@ const TXT={
   aprobar:'✔ APROBAR',rechazar:'✘ RECHAZAR',lineasrev:'LÍNEAS',
   eligebuena:'Toca la línea que SÍ compila',
   modo_hd:'✨ MODO 4K HD OLED',modo_retro:'🕹 MODO RETRO 32-BIT',
+  borrar:'🗑 BORRAR PROGRESO',seguro:'¿ESTÁS SEGURO?',
+  borrartxt:'Se borrará TODO tu progreso: días, estrellas, puntos, logros, compras y récords. El idioma, el sonido y el modo visual se conservan. Esta acción NO se puede deshacer.',
+  perderas:'PERDERÁS',sioborrar:'SÍ, BORRAR TODO',cancelar:'CANCELAR',
+  borrado:'PROGRESO BORRADO. ¡PARTIDA NUEVA!',
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'AVATAR',
   sub:'THE APPRENTICE ADVENTURE · CHAPTER 4',mapa:'INTERNSHIP MAP',volver:'← BACK',continuar:'CONTINUE',
@@ -675,6 +679,10 @@ const TXT={
   aprobar:'✔ APPROVE',rechazar:'✘ REJECT',lineasrev:'LINES',
   eligebuena:'Tap the line that DOES compile',
   modo_hd:'✨ 4K HD OLED MODE',modo_retro:'🕹 RETRO 32-BIT MODE',
+  borrar:'🗑 DELETE PROGRESS',seguro:'ARE YOU SURE?',
+  borrartxt:'ALL your progress will be deleted: days, stars, points, achievements, purchases and records. Language, sound and visual mode are kept. This CANNOT be undone.',
+  perderas:'YOU WILL LOSE',sioborrar:'YES, DELETE EVERYTHING',cancelar:'CANCEL',
+  borrado:'PROGRESS DELETED. FRESH START!',
  }
 };
 
@@ -863,8 +871,10 @@ function rTitulo(){
     </div>
     <button class="btn btn2" id="t-modo" type="button">${S.hd?t('modo_retro'):t('modo_hd')}</button>
     <p class="mini blink">${t('start')}</p>
+    <button class="cut-skip" id="t-borrar" type="button">${t('borrar')}</button>
   </div>`);
   $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};
+  $('#t-borrar').onclick=()=>{SFX.click();rBorrar()};
   $('#t-jugar').onclick=()=>{
     SFX.click();
     const go=()=>S.intro?rMapa():rCutscene(INTRO[S.lang],()=>{S.intro=true;guardar();rMapa()});
@@ -874,6 +884,39 @@ function rTitulo(){
   $('#t-logros').onclick=()=>{SFX.click();rLogros()};
   $('#t-records').onclick=()=>{SFX.click();rRecords()};
   $('#t-perso').onclick=()=>{SFX.click();rPerso()};
+}
+
+/* ── BORRAR PROGRESO ── */
+function rBorrar(){
+  pantalla('borrar',`
+  <div class="centro">
+    <span class="ico">💣</span>
+    <h2 class="rojo">${t('seguro')}</h2>
+    <p class="desc" style="text-align:center">${t('borrartxt')}</p>
+    <div class="stats-grid">
+      <div><b>${progreso()}</b><span>${t('diascomp')}</span></div>
+      <div><b>${totalStars()}</b><span>${t('estrellas')}</span></div>
+      <div><b>${S.pts}</b><span>${t('ptstotal')}</span></div>
+    </div>
+    <p class="sub rojo">▲ ${t('perderas')} ▲</p>
+    <button class="btn btn2" id="bo-no" type="button">${t('cancelar')}</button>
+    <button class="btn-r" id="bo-si" type="button">${t('sioborrar')}</button>
+  </div>`);
+  $('#bo-no').onclick=()=>{SFX.click();rTitulo()};
+  $('#bo-si').onclick=()=>{
+    const prefs={lang:S.lang,snd:S.snd,hd:S.hd};
+    S=Object.assign({},DEF,{dias:Array(10).fill(-1),logros:[],accs:[],mejoras:[],records:[]},prefs);
+    guardar();
+    vidas=maxVidas();
+    SFX.lose();
+    rTitulo();
+    /* aviso rápido de partida nueva */
+    const p=$('#logro-popup');
+    p.querySelector('.ico-l').textContent='🌱';
+    p.querySelector('p').textContent=t('borrado');
+    p.hidden=false;
+    setTimeout(()=>{p.hidden=true},2600);
+  };
 }
 
 /* ── NOMBRE DEL JUGADOR ── */
@@ -1719,6 +1762,7 @@ $('#b-lang').onclick=()=>{
   else if(pantallaId==='logros')rLogros();
   else if(pantallaId==='records')rRecords();
   else if(pantallaId==='perso')rPerso();
+  else if(pantallaId==='borrar')rBorrar();
   else hud();
 };
 
