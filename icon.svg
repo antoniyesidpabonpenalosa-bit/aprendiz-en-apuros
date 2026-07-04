@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0e1120"/>
+  <rect x="8" y="8" width="48" height="48" rx="8" fill="#181d36" stroke="#39a900" stroke-width="2"/>
+  <!-- gorro de graduación -->
+  <rect x="14" y="12" width="36" height="6" fill="#39a900"/>
+  <rect x="28" y="8" width="8" height="6" fill="#39a900"/>
+  <!-- cara pixel -->
+  <rect x="20" y="20" width="24" height="22" fill="#f4c898"/>
+  <rect x="20" y="18" width="24" height="5" fill="#2a1c10"/>
+  <rect x="25" y="28" width="4" height="4" fill="#101018"/>
+  <rect x="35" y="28" width="4" height="4" fill="#101018"/>
+  <rect x="28" y="36" width="8" height="3" fill="#8a4030"/>
+  <!-- camisa -->
+  <rect x="17" y="44" width="30" height="10" fill="#39a900"/>
+</svg>

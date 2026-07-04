@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090a1c">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Practicante en Apuros 3 · SENA 32-BIT</title>
+<title>Practicante en Apuros 4 · SENA</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
 /* ══════════════════════════════════════════════
@@ -319,6 +321,94 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 .item-tienda.activa{border-color:#39a900;background:#102a16;opacity:1}
 .item-tienda.activa .precio{color:#6fd62b}
 
+/* ── CODE REVIEW / MERGE ── */
+.code-line{font-family:'VT323',monospace;font-size:clamp(20px,6vw,27px);color:var(--tx4);
+  min-height:38px;text-align:left;line-height:1.3;word-break:break-all}
+.rev-botones{display:flex;gap:10px;width:100%}
+.rev-botones .btn,.rev-botones .btn-r{flex:1}
+.btn-r{font-family:inherit;font-size:12px;color:#fff;cursor:pointer;letter-spacing:1px;
+  padding:15px 22px;min-height:48px;border:2px solid var(--bd);background:var(--r2);
+  box-shadow:inset 0 3px 0 var(--r3),inset 0 -3px 0 var(--r1),0 4px 0 var(--bd);
+  text-shadow:1px 1px 0 var(--r1)}
+.btn-r:active{transform:translateY(4px);box-shadow:inset 0 3px 0 var(--r3),inset 0 -3px 0 var(--r1)}
+.conflicto-marca{font-family:'VT323',monospace;font-size:17px;color:var(--o3);text-align:left}
+
+/* ══════════════════════════════════════════════
+   MODO ✨ 4K HD PRO OLED ✨
+   negros profundos · neón · sin píxeles
+   ══════════════════════════════════════════════ */
+html.hd .crt,html.hd #fx64{display:none}
+html.hd body{font-family:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  background:radial-gradient(130% 120% at 50% -10%,#131b38 0%,#04050c 68%,#000 100%)}
+html.hd #app{border-radius:26px;border:1px solid rgba(140,160,255,.14);padding:14px;
+  background:linear-gradient(165deg,#111631 0%,#0a0e20 55%,#0c1226 100%);
+  box-shadow:0 30px 80px rgba(0,0,0,.8),0 0 70px rgba(57,169,0,.07),inset 0 1px 0 rgba(255,255,255,.06)}
+html.hd #hud{border-bottom:1px solid rgba(84,196,26,.5);font-size:12px}
+html.hd #b-lang,html.hd #b-snd,html.hd #b-pause{border-radius:12px;box-shadow:none;
+  border:1px solid rgba(140,160,255,.2);background:rgba(255,255,255,.05)}
+html.hd h1{font-weight:800;font-size:clamp(26px,7.5vw,42px);line-height:1.2;
+  text-shadow:0 0 26px rgba(255,207,63,.4)}
+html.hd h2{font-weight:800;text-shadow:0 0 18px rgba(255,207,63,.35)}
+html.hd h3{font-weight:700;font-size:14px}
+html.hd .mini,html.hd .desc,html.hd .linea,html.hd .pregunta,html.hd .op,
+html.hd .term-line,html.hd .xp-txt,html.hd .rec-tabla td,html.hd .rango-fila,
+html.hd .cv-msg,html.hd .code-line,html.hd .conflicto-marca{font-family:inherit}
+html.hd .sub{font-size:13px;letter-spacing:2px}
+html.hd .dia{font-size:13px}
+html.hd .hablante{font-size:11px}
+html.hd .tope{font-size:13px}
+html.hd .pts-final{font-size:20px;text-shadow:0 0 16px rgba(255,207,63,.5)}
+html.hd .rango{text-shadow:0 0 24px rgba(138,255,79,.55)}
+html.hd .stars-row{font-size:18px}
+html.hd .stars-row .on{text-shadow:0 0 16px rgba(255,207,63,.85)}
+html.hd .logo-px{font-size:11px;font-weight:700}
+html.hd .modo{font-size:11px}
+html.hd .rango-badge{font-size:11px}
+html.hd .rango-badge.grande{font-size:13px}
+html.hd .moneda{font-size:12px}
+html.hd .logro p{font-size:10px}
+html.hd .item-tienda .nom-t{font-size:11px}
+html.hd .item-tienda .precio{font-size:12px}
+html.hd .stats-grid span{font-size:10px}
+html.hd .stats-grid b{font-size:18px}
+html.hd .rec-tabla th{font-size:11px}
+html.hd .mej-titulo{font-size:13px}
+html.hd .acc-precio{font-family:inherit;font-size:9px}
+html.hd .etapa-num{font-size:13px}
+html.hd .cut-prog,html.hd .cut-skip{font-size:12px;font-family:inherit}
+html.hd .btn,html.hd .btn2,html.hd .btn3,html.hd .btn-r{border-radius:14px;border:none;
+  font-weight:700;font-size:14px;text-shadow:none;font-family:inherit}
+html.hd .btn{background:linear-gradient(180deg,#5ad124,#2c8a06);box-shadow:0 10px 28px rgba(57,169,0,.4)}
+html.hd .btn2{background:linear-gradient(180deg,#3c4577,#242b52);box-shadow:0 10px 26px rgba(0,0,0,.45)}
+html.hd .btn3{background:linear-gradient(180deg,#a86bff,#7326e0);box-shadow:0 10px 26px rgba(140,61,240,.4)}
+html.hd .btn-r{background:linear-gradient(180deg,#e0475e,#a01c30);box-shadow:0 10px 26px rgba(194,46,68,.4)}
+html.hd .btn:active,html.hd .btn2:active,html.hd .btn3:active,html.hd .btn-r:active{
+  transform:scale(.96);box-shadow:none}
+html.hd .dialogo,html.hd .term,html.hd .cert,html.hd .item-tienda,html.hd .logro,
+html.hd .celda,html.hd .carta,html.hd .op,html.hd .entrada,html.hd .modo,
+html.hd .logo-px,html.hd .rango-badge,html.hd .moneda,html.hd .menu-inner,
+html.hd #logro-popup,html.hd #interrupcion,html.hd .acc-op,html.hd .skin-op,
+html.hd .camisa-op,html.hd .dp,html.hd .cmd,html.hd .stats-grid>div,
+html.hd .rango-fila{border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.4)}
+html.hd .barra,html.hd .xp-bar{border-radius:99px;border:1px solid rgba(140,160,255,.18);overflow:hidden}
+html.hd .barra-fill,html.hd .xp-fill{border-radius:99px;box-shadow:0 0 14px rgba(84,196,26,.6)}
+html.hd .barra-fill.peligro{box-shadow:0 0 14px rgba(255,84,104,.7)}
+html.hd .entrada{border-radius:12px;font-family:inherit;letter-spacing:1px}
+html.hd .op{border-radius:12px;font-size:16px}
+html.hd .carta{font-size:14px;font-weight:700}
+html.hd .cmd{font-size:12px;font-weight:700;opacity:.8}
+html.hd .cmd.activo{box-shadow:0 0 26px rgba(255,255,255,.35)}
+html.hd .palabra{letter-spacing:3px;font-weight:700}
+html.hd .code-line{font-size:clamp(17px,5vw,22px)}
+html.hd .cert{border-radius:20px;border-style:solid;border-width:1px;
+  border-color:rgba(84,196,26,.5);box-shadow:0 0 40px rgba(57,169,0,.15)}
+html.hd canvas.juego{image-rendering:auto;border-radius:16px;
+  border:1px solid rgba(140,160,255,.22);box-shadow:0 18px 46px rgba(0,0,0,.55)}
+html.hd .etapa-card{border-radius:16px;border-width:1px;background:rgba(255,255,255,.03)}
+html.hd .etapa-card.ok{background:rgba(57,169,0,.1)}
+html.hd .etapa-card.open{box-shadow:0 0 22px rgba(255,210,60,.22)}
+html.hd .ico{filter:drop-shadow(0 0 18px rgba(255,255,255,.2))}
+
 /* ── CAPA 64-BIT: iluminación de pantalla ── */
 #fx64{position:fixed;inset:0;pointer-events:none;z-index:15;
   background:
@@ -397,14 +487,42 @@ const NIVELES=[
   {ico:'🧠', tipo:'memoria',  es:'MEMORIA TÉCNICA',    en:'TECH MEMORY',      ses:'Empareja tecnologías',       sen:'Match the tech pairs'},
   {ico:'🔀', tipo:'simon',    es:'FLUJO GIT',          en:'GIT FLOW',         ses:'Repite la secuencia',        sen:'Repeat the sequence'},
   {ico:'📋', tipo:'quiz',     es:'SUSTENTACIÓN',       en:'ORAL EXAM',        ses:'Responde al jurado',         sen:'Answer the panel'},
-  {ico:'⌨️', tipo:'escribir', es:'SPRINT DE CÓDIGO',   en:'CODE SPRINT',      ses:'Teclea sin piedad',          sen:'Type like the wind'},
+  {ico:'🔍', tipo:'review',   es:'CODE REVIEW',        en:'CODE REVIEW',      ses:'Aprueba o rechaza',          sen:'Approve or reject'},
   {ico:'🔥', tipo:'bugs',     es:'BUGS EN PRODUCCIÓN', en:'BUGS IN PROD',     ses:'¡Deploy en viernes!',        sen:'Friday deploy!'},
-  {ico:'🗄️', tipo:'memoria',  es:'BASE DE DATOS',      en:'DATABASE',         ses:'Reconstruye las tablas',     sen:'Rebuild the tables'},
+  {ico:'🧬', tipo:'merge',    es:'CONFLICTO GIT',      en:'MERGE CONFLICT',   ses:'Elige la línea buena',       sen:'Pick the right line'},
   {ico:'🚀', tipo:'simon',    es:'DESPLIEGUE',         en:'DEPLOYMENT',       ses:'Un error y se cae todo',     sen:'One slip and it all falls'},
   {ico:'🎓', tipo:'runner',   es:'EVALUACIÓN FINAL',   en:'FINAL EXAM',       ses:'Sobrevive al último día',    sen:'Survive the last day'},
 ];
 const PALABRAS=['git push','commit','variable','funcion','deploy','servidor','consola','arreglo','objeto','html','css','javascript','python','api rest','frontend','backend','navegador','framework','base de datos','npm install','git status','git clone','console.log','debug','import','export','localhost','software','bucle for','teclado'];
 const PAREJAS=['HTML','CSS','JS','SQL','GIT','API','PHP','SENA'];
+const CODIGO=[
+ {c:'const suma = a + b;',ok:1},
+ {c:'console.log("hola mundo");',ok:1},
+ {c:'for(let i=0; i<10; i++){ }',ok:1},
+ {c:'if(x === 5){ y++; }',ok:1},
+ {c:'let lista = [1, 2, 3];',ok:1},
+ {c:'function saludar(){ return "hey"; }',ok:1},
+ {c:'const PI = 3.1416;',ok:1},
+ {c:'document.querySelector("#app");',ok:1},
+ {c:'if(x = 5){ y++; }',ok:0},
+ {c:'console.log("hola mundo"',ok:0},
+ {c:'const 1nombre = "ana";',ok:0},
+ {c:'retrun x + 1;',ok:0},
+ {c:'let a == 3;',ok:0},
+ {c:'if(x > 5 { y--; }',ok:0},
+ {c:'costn b = 2;',ok:0},
+ {c:'for(let i=0; i<10; i++{ }',ok:0},
+];
+const CONFLICTOS=[
+ ['const total = a + b;','const total = a ++ b;'],
+ ['console.log("listo");','console.log("listo);'],
+ ['if(edad >= 18){ entrar(); }','if(edad >= 18){ entrar(; }'],
+ ['let datos = [];','let datos = ][;'],
+ ['function init(){ start(); }','function init(){ start( }'],
+ ['const url = "api/v1";','const url = api/v1";'],
+ ['for(const x of lista){ usar(x); }','for(const x on lista){ usar(x); }'],
+ ['return respuesta.json();','return respuesta.jsno();'],
+];
 const CMDS=[
   {id:'pull',  cls:'c-pull',  txt:'GIT PULL',  f:330},
   {id:'commit',cls:'c-commit',txt:'GIT COMMIT',f:392},
@@ -448,9 +566,9 @@ const DIALOGOS={
   ['COMPAÑERA','Examen sorpresa del instructor: ¿recuerdas qué tecnologías van en pareja?'],
   ['LÍDER TÉCNICO','Te voy a mostrar el flujo de Git del equipo. Repítelo EXACTAMENTE igual.'],
   ['INSTRUCTOR','Hoy sustentas ante el jurado. Respira. No digas "eeeh". Tú puedes.'],
-  ['LÍDER TÉCNICO','¡SPRINT! El cliente quiere todo para AYER. Los dedos a la máquina.'],
+  ['LÍDER TÉCNICO','Hoy revisas los pull requests del equipo. Aprueba el código bueno, rechaza el malo. RÁPIDO.'],
   ['LÍDER TÉCNICO','¡¿QUIÉN HIZO DEPLOY UN VIERNES?! ¡Hay bugs en producción! ¡CORRE!'],
-  ['COMPAÑERA','Se corrompió la base de datos... toca reconstruir las tablas de memoria. Literalmente.'],
+  ['COMPAÑERA','Dos ramas tocaron el mismo archivo... resuelve los conflictos eligiendo la línea que sí compila.'],
   ['LÍDER TÉCNICO','Despliegue final. Un comando fuera de orden y se cae TODO. Sin presión.'],
   ['INSTRUCTOR','Evaluación final: sobrevive tu último día en la oficina y el contrato es tuyo.'],
  ],
@@ -460,9 +578,9 @@ const DIALOGOS={
   ['COWORKER','Pop quiz from the instructor: do you remember which technologies pair up?'],
   ['TECH LEAD',"I'll show you the team's Git flow. Repeat it EXACTLY as shown."],
   ['INSTRUCTOR',"Today you present to the panel. Breathe. Don't say 'uhh'. You got this."],
-  ['TECH LEAD','SPRINT! The client wants everything for YESTERDAY. Fingers on keys.'],
+  ['TECH LEAD',"Today you review the team's pull requests. Approve the good code, reject the bad. FAST."],
   ['TECH LEAD','WHO DEPLOYED ON A FRIDAY?! Bugs in production! RUN!'],
-  ['COWORKER','The database got corrupted... time to rebuild the tables from memory. Literally.'],
+  ['COWORKER','Two branches touched the same file... resolve the conflicts by picking the line that compiles.'],
   ['TECH LEAD','Final deployment. One command out of order and EVERYTHING falls. No pressure.'],
   ['INSTRUCTOR','Final exam: survive your last day at the office and the contract is yours.'],
  ]
@@ -501,11 +619,13 @@ const LOGROS=[
   {id:'veloz',  ico:'⚡', es:'DEDOS VELOCES',en:'FAST FINGERS'},
   {id:'cerebro',ico:'🧠', es:'MEMORIA ÉLITE',en:'ELITE MEMORY'},
   {id:'gitmaster',ico:'🔀',es:'GIT MASTER',  en:'GIT MASTER'},
+  {id:'revisor', ico:'🔍', es:'OJO DE HALCÓN',en:'HAWK EYE'},
+  {id:'resolutor',ico:'🧬',es:'SIN CONFLICTOS',en:'NO CONFLICTS'},
   {id:'titulado',ico:'🎓', es:'TITULADO',    en:'GRADUATE'},
 ];
 const TXT={
  es:{dia:'DÍA',start:'PULSA START',jugar:'▶ JUGAR',tienda:'TIENDA',logros:'LOGROS',records:'RÉCORDS',perso:'AVATAR',
-  sub:'LA AVENTURA DEL APRENDIZ · CAPÍTULO 3',mapa:'MAPA DE PRÁCTICA',volver:'← VOLVER',continuar:'CONTINUAR',
+  sub:'LA AVENTURA DEL APRENDIZ · CAPÍTULO 4',mapa:'MAPA DE PRÁCTICA',volver:'← VOLVER',continuar:'CONTINUAR',
   pausa:'PAUSA',salirmapa:'SALIR AL MAPA',empezar:'¡EMPEZAR!',listo:'¿LISTO?',aqui:'AQUÍ',
   aprobado:'¡DÍA SUPERADO!',fallado:'¡DÍA FALLIDO!',reintentar:'REINTENTAR',siguiente:'SIGUIENTE DÍA ▶',
   gameover:'GAME OVER',gameovertxt:'Te quedaste sin vidas. El instructor te manda a tomar aire y volver mañana.',
@@ -526,9 +646,12 @@ const TXT={
   vidas_txt:'VIDAS',
   nombreq:'¿CÓMO TE LLAMAS?',tunombre:'TU NOMBRE',ok:'¡LISTO!',
   combo:'RACHA',
+  aprobar:'✔ APROBAR',rechazar:'✘ RECHAZAR',lineasrev:'LÍNEAS',
+  eligebuena:'Toca la línea que SÍ compila',
+  modo_hd:'✨ MODO 4K HD OLED',modo_retro:'🕹 MODO RETRO 32-BIT',
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'AVATAR',
-  sub:'THE APPRENTICE ADVENTURE · CHAPTER 3',mapa:'INTERNSHIP MAP',volver:'← BACK',continuar:'CONTINUE',
+  sub:'THE APPRENTICE ADVENTURE · CHAPTER 4',mapa:'INTERNSHIP MAP',volver:'← BACK',continuar:'CONTINUE',
   pausa:'PAUSED',salirmapa:'EXIT TO MAP',empezar:'START!',listo:'READY?',aqui:'HERE',
   aprobado:'DAY CLEARED!',fallado:'DAY FAILED!',reintentar:'RETRY',siguiente:'NEXT DAY ▶',
   gameover:'GAME OVER',gameovertxt:'You ran out of lives. The instructor sends you home to try again tomorrow.',
@@ -549,12 +672,15 @@ const TXT={
   vidas_txt:'LIVES',
   nombreq:'WHAT IS YOUR NAME?',tunombre:'YOUR NAME',ok:'DONE!',
   combo:'STREAK',
+  aprobar:'✔ APPROVE',rechazar:'✘ REJECT',lineasrev:'LINES',
+  eligebuena:'Tap the line that DOES compile',
+  modo_hd:'✨ 4K HD OLED MODE',modo_retro:'🕹 RETRO 32-BIT MODE',
  }
 };
 
 /* ── ESTADO ── */
 const DEF={pts:0,xp:0,dias:Array(10).fill(-1),logros:[],accs:[],acc:'',skin:0,camisa:0,
-  mejoras:[],records:[],lang:'es',snd:true,intro:false,nombre:''};
+  mejoras:[],records:[],lang:'es',snd:true,intro:false,nombre:'',hd:false};
 let S;
 try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('pa3')||'{}'))}catch(e){S=Object.assign({},DEF)}
 if(!Array.isArray(S.dias)||S.dias.length!==10)S.dias=Array(10).fill(-1);
@@ -570,6 +696,7 @@ function limpiarT(){tms.forEach(i=>{clearTimeout(i);clearInterval(i)});tms=[];
   if(raf){cancelAnimationFrame(raf);raf=0}
   alLimpiar.forEach(f=>{try{f()}catch(e){}});alLimpiar=[];}
 
+const aplicarModo=()=>document.documentElement.classList.toggle('hd',!!S.hd);
 const maxVidas=()=>3+(S.mejoras.includes('vida')?1:0);
 const facTiempo=()=>S.mejoras.includes('tiempo')?1.2:1;
 const facPts=()=>S.mejoras.includes('doble')?2:1;
@@ -718,8 +845,8 @@ function starsHtml(n,tot=3){let s='';for(let i=0;i<tot;i++)s+='<span class="'+(i
 function rTitulo(){
   pantalla('titulo',`
   <div class="centro">
-    <div class="logo-px">SENA · 32-BIT · v3.0</div>
-    <h1>PRACTICANTE<br>EN APUROS <span class="verde">3</span></h1>
+    <div class="logo-px">SENA · ${S.hd?'4K OLED':'32-BIT'} · v4.0</div>
+    <h1>PRACTICANTE<br>EN APUROS <span class="verde">4</span></h1>
     <p class="sub">${t('sub')}</p>
     <div class="rango-linea">
       <span class="rango-badge grande">${rangoNom()}</span>
@@ -734,8 +861,10 @@ function rTitulo(){
       <button class="btn btn2" id="t-records" type="button">📊 ${t('records')}</button>
       <button class="btn btn3" id="t-perso" type="button">🎨 ${t('perso')}</button>
     </div>
+    <button class="btn btn2" id="t-modo" type="button">${S.hd?t('modo_retro'):t('modo_hd')}</button>
     <p class="mini blink">${t('start')}</p>
   </div>`);
+  $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};
   $('#t-jugar').onclick=()=>{
     SFX.click();
     const go=()=>S.intro?rMapa():rCutscene(INTRO[S.lang],()=>{S.intro=true;guardar();rMapa()});
@@ -855,7 +984,8 @@ function rDialogo(i){
 }
 function jugarNivel(i){
   const tipo=NIVELES[i].tipo;
-  ({escribir:nvEscribir,bugs:nvBugs,memoria:nvMemoria,simon:nvSimon,quiz:nvQuiz,runner:nvRunner})[tipo](i);
+  ({escribir:nvEscribir,bugs:nvBugs,memoria:nvMemoria,simon:nvSimon,quiz:nvQuiz,
+    review:nvReview,merge:nvMerge,runner:nvRunner})[tipo](i);
 }
 
 /* ── RESULTADO ── */
@@ -1186,7 +1316,129 @@ function nvQuiz(dia){
   pinta();
 }
 
-/* ══════════ MINIJUEGO 6 · RUNNER FINAL ══════════ */
+/* ══════════ MINIJUEGO 6 · CODE REVIEW ══════════ */
+function nvReview(dia){
+  const lista=az(CODIGO).slice(0,10);
+  const tickMax=Math.round(45*facTiempo());
+  let i=0,ticks=tickMax,errores=0,pts=0;
+  pantalla('nivel',`
+  <div class="l1">
+    <div class="tope"><span>${t('lineasrev')}: <b id="v-prog">1</b>/10</span><span>${t('errores')}: <b id="v-err">0</b>/3</span></div>
+    <div class="term">
+      <div class="term-bar"><i style="background:#ff5468"></i><i style="background:#ffcf3f"></i><i style="background:#54c41a"></i>
+        <span class="term-line" style="margin-left:6px">pull-request #${dia+1}0${Math.floor(Math.random()*9)}</span></div>
+      <div class="term-cuerpo">
+        <p class="code-line" id="v-code"></p>
+        <div class="barra"><div class="barra-fill" id="v-barra"></div></div>
+      </div>
+    </div>
+    <div class="rev-botones">
+      <button class="btn-r" id="v-no" type="button">${t('rechazar')}</button>
+      <button class="btn" id="v-si" type="button">${t('aprobar')}</button>
+    </div>
+  </div>`);
+  const code=$('#v-code'),bar=$('#v-barra');
+  function pinta(){code.textContent=lista[i].c;$('#v-prog').textContent=i+1}
+  function responde(aprueba){
+    if(pausado)return;
+    const bien=aprueba===!!lista[i].ok;
+    if(bien){pts+=50+Math.round(ticks*1.5);SFX.pop()}
+    else{
+      errores++;$('#v-err').textContent=errores;SFX.mal();
+      code.classList.add('shake');setTimeout(()=>code.classList.remove('shake'),250);
+      if(errores>=3)return fallo(dia);
+    }
+    i++;
+    if(i>=lista.length){
+      if(errores===0)darLogro('revisor');
+      return resultado(dia,errores===0?3:errores===1?2:1,pts+150);
+    }
+    ticks=tickMax;pinta();
+  }
+  $('#v-si').onclick=()=>responde(true);
+  $('#v-no').onclick=()=>responde(false);
+  const kd=e=>{if(e.code==='ArrowRight')responde(true);if(e.code==='ArrowLeft')responde(false)};
+  document.addEventListener('keydown',kd);
+  alLimpiar.push(()=>document.removeEventListener('keydown',kd));
+  tcada(()=>{
+    if(pausado)return;
+    ticks--;
+    bar.style.width=Math.max(0,ticks/tickMax*100)+'%';
+    bar.classList.toggle('peligro',ticks<tickMax*.3);
+    /* tiempo agotado cuenta como respuesta equivocada */
+    if(ticks<=0)responde(!lista[i].ok);
+  },100);
+  pinta();
+  programarInterrupcion();
+}
+
+/* ══════════ MINIJUEGO 7 · MERGE CONFLICT ══════════ */
+function nvMerge(dia){
+  const rondas=az(CONFLICTOS).slice(0,6);
+  const dur=Math.round(60*facTiempo());
+  let i=0,errores=0,pts=0,seg=dur,bloq=false;
+  pantalla('nivel',`
+  <div class="l1">
+    <div class="tope"><span>${t('ronda')}: <b id="g-prog">1</b>/6</span><span>${t('tiempo')}: <b id="g-seg">${dur}</b>s</span></div>
+    <div class="barra"><div class="barra-fill" id="g-barra"></div></div>
+    <p class="mini">${t('eligebuena')}</p>
+    <div class="term">
+      <div class="term-bar"><i style="background:#ff5468"></i><i style="background:#ffcf3f"></i><i style="background:#54c41a"></i>
+        <span class="term-line" style="margin-left:6px">app.js — merge</span></div>
+      <div class="term-cuerpo">
+        <p class="conflicto-marca">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
+        <button class="op" id="g-a" type="button"></button>
+        <p class="conflicto-marca">=======</p>
+        <button class="op" id="g-b" type="button"></button>
+        <p class="conflicto-marca">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/practicante</p>
+      </div>
+    </div>
+  </div>`);
+  const A=$('#g-a'),B=$('#g-b');
+  let buenaEs='a';
+  function pinta(){
+    const [buena,mala]=rondas[i];
+    buenaEs=Math.random()<.5?'a':'b';
+    A.textContent=buenaEs==='a'?buena:mala;
+    B.textContent=buenaEs==='b'?buena:mala;
+    A.className='op';B.className='op';
+    $('#g-prog').textContent=i+1;
+    bloq=false;
+  }
+  function elige(cual){
+    if(pausado||bloq)return;
+    bloq=true;
+    const el=cual==='a'?A:B, otro=cual==='a'?B:A;
+    if(cual===buenaEs){
+      el.classList.add('bien');pts+=100;SFX.ok();
+    }else{
+      el.classList.add('mal');otro.classList.add('bien');
+      errores++;SFX.mal();
+      if(errores>=3)return tvez(()=>fallo(dia),600);
+    }
+    tvez(()=>{
+      i++;
+      if(i>=rondas.length){
+        if(errores===0)darLogro('resolutor');
+        return resultado(dia,errores===0?3:errores===1?2:1,pts+seg*4+100);
+      }
+      pinta();
+    },700);
+  }
+  A.onclick=()=>elige('a');
+  B.onclick=()=>elige('b');
+  tcada(()=>{
+    if(pausado)return;
+    seg--;$('#g-seg').textContent=seg;
+    $('#g-barra').style.width=(seg/dur*100)+'%';
+    $('#g-barra').classList.toggle('peligro',seg<dur*.3);
+    if(seg<=0)fallo(dia);
+  },1000);
+  pinta();
+  programarInterrupcion();
+}
+
+/* ══════════ MINIJUEGO 8 · RUNNER FINAL ══════════ */
 function nvRunner(dia){
   const durF=Math.round(40*60*facTiempo());
   pantalla('nivel',`
@@ -1206,6 +1458,8 @@ function nvRunner(dia){
     </div>
   </div>`);
   const cv=$('#r-cv'),c=cv.getContext('2d');
+  const HD=!!S.hd;
+  if(HD){cv.width=640;cv.height=360;c.scale(2,2)}
   const SUELO=140;
   const p={x:44,y:SUELO,vy:0,duck:0};
   let obs=[],frame=0,golpes=0,cafes=0,pts=0,spawn=0,inv=0;
@@ -1257,11 +1511,18 @@ function nvRunner(dia){
       return resultado(dia,stars,pts+400+cafes*20);
     }
     /* dibujo */
-    c.fillStyle='#0b0e22';c.fillRect(0,0,320,180);
-    c.fillStyle='#141a38';
+    if(HD){
+      const g=c.createLinearGradient(0,0,0,180);
+      g.addColorStop(0,'#131c3a');g.addColorStop(.7,'#070a16');g.addColorStop(1,'#03040a');
+      c.fillStyle=g;
+    }else c.fillStyle='#0b0e22';
+    c.fillRect(0,0,320,180);
+    c.fillStyle=HD?'rgba(90,110,200,.14)':'#141a38';
     for(let k=0;k<5;k++){const bx=(320-((frame*.5+k*90)%400));c.fillRect(bx,40+k*8%30,34,60)}
+    if(HD){c.shadowColor='#39a900';c.shadowBlur=10}
     c.fillStyle='#39a900';c.fillRect(0,SUELO+2,320,3);
-    c.fillStyle='#11152a';c.fillRect(0,SUELO+5,320,40);
+    c.shadowBlur=0;
+    c.fillStyle=HD?'#0a0d1c':'#11152a';c.fillRect(0,SUELO+5,320,40);
     /* jugador */
     const fy=p.y-30+p.duck;
     if(inv%12<8){
@@ -1462,8 +1723,12 @@ $('#b-lang').onclick=()=>{
 };
 
 /* ── ARRANQUE ── */
+aplicarModo();
 vidas=maxVidas();
 rTitulo();
+if('serviceWorker' in navigator&&location.protocol==='https:'){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
 </script>
 </body>
 </html>
