@@ -273,7 +273,11 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 .acc-op.bloq .acc-ico{filter:grayscale(.6) brightness(.65)}
 .acc-precio{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:7px;color:var(--y2);background:var(--bd);padding:2px 4px;white-space:nowrap}
 .acc-op.shake{animation:shake .3s}
-@media (prefers-reduced-motion:reduce){.blink,#screen>*{animation:none}}
+.confeti{position:absolute;top:-24px;z-index:40;pointer-events:none;line-height:1;
+  animation:confeti-cae 2.8s linear forwards}
+@keyframes confeti-cae{to{transform:translateY(105vh) rotate(720deg);opacity:.1}}
+.combo-txt{color:var(--y2)}
+@media (prefers-reduced-motion:reduce){.blink,#screen>*,.confeti{animation:none}}
 
 /* ── MAPA DE CARRERA ── */
 .mapa h2{margin:.15em 0}
@@ -399,7 +403,7 @@ const NIVELES=[
   {ico:'🚀', tipo:'simon',    es:'DESPLIEGUE',         en:'DEPLOYMENT',       ses:'Un error y se cae todo',     sen:'One slip and it all falls'},
   {ico:'🎓', tipo:'runner',   es:'EVALUACIÓN FINAL',   en:'FINAL EXAM',       ses:'Sobrevive al último día',    sen:'Survive the last day'},
 ];
-const PALABRAS=['git push','commit','variable','funcion','deploy','servidor','consola','arreglo','objeto','html','css','javascript','python','api rest','frontend','backend','navegador','framework','base de datos','npm install'];
+const PALABRAS=['git push','commit','variable','funcion','deploy','servidor','consola','arreglo','objeto','html','css','javascript','python','api rest','frontend','backend','navegador','framework','base de datos','npm install','git status','git clone','console.log','debug','import','export','localhost','software','bucle for','teclado'];
 const PAREJAS=['HTML','CSS','JS','SQL','GIT','API','PHP','SENA'];
 const CMDS=[
   {id:'pull',  cls:'c-pull',  txt:'GIT PULL',  f:330},
@@ -415,6 +419,12 @@ const QUIZ={
   {q:'¿Qué lenguaje da estilos a la web?',o:['CSS','SQL','BIOS'],r:0},
   {q:'¿Qué es una API?',o:['Un tipo de café','Interfaz para comunicar sistemas','Una carpeta oculta'],r:1},
   {q:'¿Qué hace "git push"?',o:['Borra el proyecto','Empuja al practicante','Sube commits al remoto'],r:2},
+  {q:'¿Qué es el frontend?',o:['La parte visible de la web','El servidor','El cable de red'],r:0},
+  {q:'¿Qué base de datos usa tablas?',o:['MongoDB','MySQL','Excel 97'],r:1},
+  {q:'¿Qué es un "commit"?',o:['Una reunión','Un error grave','Una foto de tus cambios'],r:2},
+  {q:'¿Para qué sirve CSS Grid?',o:['Maquetar en filas y columnas','Conectar a internet','Comprimir imágenes'],r:0},
+  {q:'¿Qué es un pull request?',o:['Un tirón de orejas','Propuesta para integrar cambios','Una petición de vacaciones'],r:1},
+  {q:'¿Qué significa "deploy"?',o:['Borrar el código','Renunciar con estilo','Publicar la aplicación'],r:2},
  ],
  en:[
   {q:'What does HTML stand for?',o:['HyperText Markup Language','High Tech Modern Language','Home Tool Markup List'],r:0},
@@ -423,6 +433,12 @@ const QUIZ={
   {q:'Which language styles the web?',o:['CSS','SQL','BIOS'],r:0},
   {q:'What is an API?',o:['A type of coffee','An interface between systems','A hidden folder'],r:1},
   {q:'What does "git push" do?',o:['Deletes the project','Pushes the intern','Uploads commits to the remote'],r:2},
+  {q:'What is the frontend?',o:['The visible part of the web','The server','The network cable'],r:0},
+  {q:'Which database uses tables?',o:['MongoDB','MySQL','Excel 97'],r:1},
+  {q:'What is a "commit"?',o:['A meeting','A serious error','A snapshot of your changes'],r:2},
+  {q:'What is CSS Grid for?',o:['Layout in rows and columns','Connecting to the internet','Compressing images'],r:0},
+  {q:'What is a pull request?',o:['An ear pull','A proposal to merge changes','A vacation request'],r:1},
+  {q:'What does "deploy" mean?',o:['Delete the code','Quit with style','Publish the application'],r:2},
  ]
 };
 const DIALOGOS={
@@ -508,6 +524,8 @@ const TXT={
   rec_nom:'NOMBRE',rec_pts:'PTS',rec_rango:'RANGO',tu:'TÚ',
   quiznec:'Necesitas 4 de 6 para aprobar',
   vidas_txt:'VIDAS',
+  nombreq:'¿CÓMO TE LLAMAS?',tunombre:'TU NOMBRE',ok:'¡LISTO!',
+  combo:'RACHA',
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'AVATAR',
   sub:'THE APPRENTICE ADVENTURE · CHAPTER 3',mapa:'INTERNSHIP MAP',volver:'← BACK',continuar:'CONTINUE',
@@ -529,12 +547,14 @@ const TXT={
   rec_nom:'NAME',rec_pts:'PTS',rec_rango:'RANK',tu:'YOU',
   quiznec:'You need 4 of 6 to pass',
   vidas_txt:'LIVES',
+  nombreq:'WHAT IS YOUR NAME?',tunombre:'YOUR NAME',ok:'DONE!',
+  combo:'STREAK',
  }
 };
 
 /* ── ESTADO ── */
 const DEF={pts:0,xp:0,dias:Array(10).fill(-1),logros:[],accs:[],acc:'',skin:0,camisa:0,
-  mejoras:[],records:[],lang:'es',snd:true,intro:false};
+  mejoras:[],records:[],lang:'es',snd:true,intro:false,nombre:''};
 let S;
 try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('pa3')||'{}'))}catch(e){S=Object.assign({},DEF)}
 if(!Array.isArray(S.dias)||S.dias.length!==10)S.dias=Array(10).fill(-1);
@@ -573,10 +593,11 @@ function beep(f,d=0.08,tipo='square',v=0.12){
     o.start();o.stop(AC.currentTime+d);
   }catch(e){}
 }
+const vibra=ms=>{try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
 const SFX={
   click:()=>beep(440,.05),
   ok:()=>{beep(660,.07);setTimeout(()=>beep(880,.1),80)},
-  mal:()=>beep(130,.22,'sawtooth',.15),
+  mal:()=>{beep(130,.22,'sawtooth',.15);vibra(70)},
   pop:()=>beep(760,.05,'triangle',.18),
   star:()=>{beep(523,.09);setTimeout(()=>beep(659,.09),90);setTimeout(()=>beep(784,.14),180)},
   win:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.13),i*130))},
@@ -584,6 +605,36 @@ const SFX={
   logro:()=>{[784,988,1175].forEach((f,i)=>setTimeout(()=>beep(f,.1,'triangle',.16),i*90))},
   moneda:()=>{beep(988,.05,'triangle',.16);setTimeout(()=>beep(1319,.09,'triangle',.16),60)},
 };
+
+/* ── MÚSICA DE FONDO (secuenciador chiptune) ── */
+const MEL=[392,0,523,0,659,523,659,784,659,0,523,659,523,0,440,494,
+           392,0,523,0,659,523,659,784,880,0,784,659,523,0,494,440];
+const BAJ=[131,165,196,165,147,175,220,175];
+let musPaso=0;
+setInterval(()=>{
+  if(!S.snd||pausado||document.hidden)return;
+  const n=MEL[musPaso%MEL.length];
+  if(n)beep(n,.14,'triangle',.035);
+  if(musPaso%2===0)beep(BAJ[(musPaso>>2)%BAJ.length],.18,'square',.028);
+  musPaso++;
+},170);
+
+/* ── CONFETI ── */
+function confeti(){
+  const cont=document.createElement('div');
+  cont.style.cssText='position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40';
+  const em=['★','✦','●','▲','■'],cols=['#ffcf3f','#54c41a','#a86bff','#6fd2f0','#ff5468'];
+  for(let k=0;k<26;k++){
+    const s=document.createElement('span');
+    s.className='confeti';s.textContent=em[k%5];
+    s.style.left=Math.random()*100+'%';s.style.color=cols[(k+1)%5];
+    s.style.fontSize=(10+Math.random()*10)+'px';
+    s.style.animationDelay=(Math.random()*.8)+'s';
+    cont.appendChild(s);
+  }
+  $('#app').appendChild(cont);
+  setTimeout(()=>cont.remove(),3800);
+}
 
 /* ── HUD ── */
 function hud(){
@@ -685,11 +736,36 @@ function rTitulo(){
     </div>
     <p class="mini blink">${t('start')}</p>
   </div>`);
-  $('#t-jugar').onclick=()=>{SFX.click();S.intro?rMapa():rCutscene(INTRO[S.lang],()=>{S.intro=true;guardar();rMapa()})};
+  $('#t-jugar').onclick=()=>{
+    SFX.click();
+    const go=()=>S.intro?rMapa():rCutscene(INTRO[S.lang],()=>{S.intro=true;guardar();rMapa()});
+    S.nombre?go():rNombre(go);
+  };
   $('#t-tienda').onclick=()=>{SFX.click();rTienda()};
   $('#t-logros').onclick=()=>{SFX.click();rLogros()};
   $('#t-records').onclick=()=>{SFX.click();rRecords()};
   $('#t-perso').onclick=()=>{SFX.click();rPerso()};
+}
+
+/* ── NOMBRE DEL JUGADOR ── */
+function rNombre(next){
+  pantalla('nombre',`
+  <div class="centro">
+    <span class="ico">🪪</span>
+    <h2>${t('nombreq')}</h2>
+    <div style="width:min(300px,100%)">
+      <input class="entrada" id="n-in" maxlength="10" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${t('tunombre')}">
+    </div>
+    <button class="btn" id="n-ok" type="button">${t('ok')}</button>
+  </div>`);
+  const inp=$('#n-in');
+  const listo=()=>{
+    S.nombre=(inp.value.trim()||t('tu')).toUpperCase().slice(0,10);
+    guardar();SFX.ok();next();
+  };
+  $('#n-ok').onclick=listo;
+  inp.onkeydown=e=>{if(e.key==='Enter')listo()};
+  inp.focus();
 }
 
 /* ── CUTSCENE ── */
@@ -809,6 +885,7 @@ function resultado(i,stars,pts){
     <button class="btn btn2" id="r-mapa" type="button">${t('salirmapa')}</button>
   </div>`);
   tvez(SFX.star,300);
+  confeti();
   if(i===9)$('#r-fin').onclick=()=>{SFX.click();rCutscene(FINAL[S.lang],rCertificado)};
   else $('#r-sig').onclick=()=>{SFX.click();empezarDia(Math.min(i+1,9))};
   $('#r-mapa').onclick=()=>{SFX.click();rMapa()};
@@ -903,10 +980,10 @@ function nvEscribir(dia){
 function nvBugs(dia){
   const dif=dia>=5?1:0;
   const meta=dif?18:12, dur=Math.round((dif?28:32)*facTiempo());
-  let hits=0,escapes=0,pts=0,seg=dur,activa=-1,esCafe=false;
+  let hits=0,escapes=0,pts=0,seg=dur,activa=-1,esCafe=false,combo=0;
   pantalla('nivel',`
   <div class="l3">
-    <div class="tope"><span>${t('meta')}: <b id="b-hits">0</b>/${meta} 🐛</span><span>${t('tiempo')}: <b id="b-seg">${dur}</b>s</span></div>
+    <div class="tope"><span>${t('meta')}: <b id="b-hits">0</b>/${meta} 🐛</span><span>🔥<b id="b-combo" class="combo-txt">0</b></span><span>${t('tiempo')}: <b id="b-seg">${dur}</b>s</span></div>
     <div class="barra" style="width:100%"><div class="barra-fill" id="b-barra"></div></div>
     <div class="grilla" id="b-grilla">${Array(9).fill(0).map((_,k)=>`<div class="celda" data-k="${k}"><span class="px"></span></div>`).join('')}</div>
     <p class="mini">🐛 = +pts · ☕ = bonus</p>
@@ -915,7 +992,7 @@ function nvBugs(dia){
   function apagar(){if(activa>=0){celdas[activa].classList.remove('on');activa=-1}}
   function brotar(){
     if(pausado)return;
-    if(activa>=0){if(!esCafe){escapes++}apagar()}
+    if(activa>=0){if(!esCafe){escapes++;combo=0;$('#b-combo').textContent=combo}apagar()}
     activa=Math.floor(Math.random()*9);
     esCafe=Math.random()<.18;
     celdas[activa].querySelector('.px').textContent=esCafe?'☕':'🐛';
@@ -927,8 +1004,11 @@ function nvBugs(dia){
     if(k!==activa)return;
     c.classList.add('plaf');const px=c.querySelector('.px');px.textContent='✨';
     setTimeout(()=>{c.classList.remove('plaf');},180);
-    if(esCafe){pts+=80;SFX.moneda()}else{hits++;pts+=40;SFX.pop()}
+    if(esCafe){pts+=80;SFX.moneda()}
+    else{hits++;combo++;pts+=40+(combo>=3?combo*5:0);SFX.pop();
+      if(combo>0&&combo%5===0)SFX.moneda()}
     $('#b-hits').textContent=hits;
+    $('#b-combo').textContent=combo;
     apagar();
     if(hits>=meta){
       const stars=escapes<=2?3:escapes<=5?2:1;
@@ -1025,12 +1105,9 @@ function nvSimon(dia){
         tms.forEach(clearInterval);
         fase='jugador';pos=0;cont.classList.remove('muestra');
         $('#s-msg').textContent=t('turno');
-        armarTimers();
       }
     },vel);
   }
-  /* re-arma el temporizador de interrupciones tras limpiar dentro de muestra */
-  function armarTimers(){}
   Object.values(botones).forEach(b=>b.onclick=()=>{
     if(pausado||fase!=='jugador')return;
     const id=b.dataset.id;
@@ -1066,7 +1143,7 @@ function nvSimon(dia){
 
 /* ══════════ MINIJUEGO 5 · QUIZ ══════════ */
 function nvQuiz(dia){
-  const pregs=az(QUIZ[S.lang].map((q,i)=>i));
+  const pregs=az(QUIZ[S.lang].map((q,i)=>i)).slice(0,6);
   let i=0,buenas=0,malas=0,pts=0;
   pantalla('nivel',`
   <div class="quiz">
@@ -1207,7 +1284,7 @@ function nvRunner(dia){
 
 /* ── CERTIFICADO ── */
 function registrarRecord(){
-  S.records.push({n:t('tu'),p:S.pts,x:S.xp});
+  S.records.push({n:S.nombre||t('tu'),p:S.pts,x:S.xp,yo:1});
   S.records.sort((a,b)=>b.p-a.p);
   S.records=S.records.slice(0,5);
 }
@@ -1219,7 +1296,7 @@ function rCertificado(){
       <p class="dia">🎓 ${t('cert')} 🎓</p>
       <div class="retrato-wrap"><canvas class="retrato" id="c-cara" width="64" height="64"></canvas></div>
       <p class="sub">${t('certde')}</p>
-      <p class="rango">${t('tu')}</p>
+      <p class="rango">${S.nombre||t('tu')}</p>
       <p class="desc" style="text-align:center">${t('certtxt')}</p>
       ${starsHtml(Math.min(3,Math.round(totalStars()/10)))}
       <div class="stats-grid">
@@ -1233,6 +1310,7 @@ function rCertificado(){
     <button class="btn" id="c-volver" type="button">${t('volver')}</button>
   </div>`);
   cara($('#c-cara'),Object.assign(CARAS.yo(true),{medalla:true}));
+  confeti();
   $('#c-volver').onclick=()=>{SFX.click();rTitulo()};
 }
 
@@ -1308,7 +1386,7 @@ function rRecords(){
     <h2>📊 ${t('records')}</h2>
     <table class="rec-tabla">
       <tr><th>#</th><th>${t('rec_nom')}</th><th>${t('rec_pts')}</th><th>${t('rec_rango')}</th></tr>
-      ${todos.map((r,i)=>`<tr class="${r.n===t('tu')?'yo':''}"><td>${i+1}</td><td>${r.n}</td><td>${r.p}</td><td>${tj(rangoDe(r.x))}</td></tr>`).join('')}
+      ${todos.map((r,i)=>`<tr class="${r.yo?'yo':''}"><td>${i+1}</td><td>${r.n}</td><td>${r.p}</td><td>${tj(rangoDe(r.x))}</td></tr>`).join('')}
     </table>
     <h3>${t('rangos')}</h3>
     <div class="rango-lista">
