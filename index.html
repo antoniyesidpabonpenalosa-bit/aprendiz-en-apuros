@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090a1c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Practicante en Apuros 3 · SENA 32-BIT</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   TOKENS · RETRO LIMPIO Y LEGIBLE
+   Verde SENA protagonista · alto contraste
+   ══════════════════════════════════════════════ */
+:root{
+  --void:#0e1120; --void2:#11152a; --pan:#181d36; --pan2:#1f2542; --pan3:#262d52;
+  --g0:#1c5400; --g1:#2e7a10; --g2:#39a900; --g3:#54c41a; --g4:#8aff4f;
+  --y1:#b88a00; --y2:#ffcf3f; --y3:#ffe27a; --y4:#fff3c4;
+  --v0:#241048; --v1:#5a1bb0; --v2:#8c3df0; --v3:#a86bff; --v4:#d9c2ff;
+  --o1:#a04000; --o2:#e06020; --o3:#ff8c44; --o4:#ffbf94;
+  --b1:#0c3550; --b2:#13648c; --b3:#1ea0c8; --b4:#6fd2f0;
+  --r1:#6e1224; --r2:#c22e44; --r3:#ff5468; --r4:#ff9aa6;
+  --tx1:#55608f; --tx2:#9fb0d8; --tx3:#cdd8f6; --tx4:#f2f5ff;
+  --bl:#39426e; --bd:#07080f;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--void);
+  font-family:'Press Start 2P','Courier New',monospace;
+  color:var(--tx4);
+  display:flex;align-items:center;justify-content:center;
+  padding:6px;touch-action:manipulation;
+}
+.crt{position:fixed;inset:0;pointer-events:none;z-index:60;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.06)0 1px,transparent 1px 3px);}
+.crt::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,transparent 62%,rgba(0,0,10,.35)100%);}
+#app{
+  width:min(600px,100%);
+  height:calc(100dvh - 12px);
+  max-height:880px;
+  background:var(--pan);
+  border:3px solid var(--bl);
+  box-shadow:0 0 0 2px var(--bd),0 8px 0 rgba(0,0,0,.45),
+    inset 0 2px 0 rgba(255,255,255,.05);
+  padding:10px;display:flex;flex-direction:column;gap:10px;
+  position:relative;
+}
+#hud{
+  display:flex;align-items:center;gap:8px;font-size:10px;
+  border-bottom:3px solid var(--g2);padding-bottom:10px;
+}
+#h-nivel{color:var(--g3);letter-spacing:1px;flex:0 0 auto}
+#h-estrellas{flex:1;font-size:12px;letter-spacing:2px;color:var(--y2);text-align:center}
+#h-pts{color:var(--y2);letter-spacing:1px;flex:0 0 auto}
+#h-vidas{color:var(--r3);font-size:12px;flex:0 0 auto}
+#b-lang,#b-snd,#b-pause{
+  font-family:inherit;font-size:11px;min-width:38px;min-height:36px;
+  background:var(--void2);cursor:pointer;
+  border:2px solid var(--bl);
+  box-shadow:0 2px 0 var(--bd);
+}
+#b-lang{color:var(--y2)} #b-snd{color:var(--b4)} #b-pause{color:var(--tx3)}
+#b-lang:active,#b-snd:active,#b-pause:active{transform:translateY(2px);box-shadow:none}
+#screen{flex:1;display:flex;min-height:0;overflow:auto}
+#screen>*{margin:auto;width:100%;animation:aparecer .25s ease-out}
+.overlay{
+  position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
+  background:rgba(10,12,24,.92);
+}
+#pausa{z-index:55!important;touch-action:auto}
+#pausa .menu-inner{
+  display:flex;flex-direction:column;gap:14px;align-items:center;width:min(320px,90%);
+  background:var(--pan2);
+  border:3px solid var(--g2);box-shadow:0 0 0 2px var(--bd),0 6px 0 rgba(0,0,0,.4);
+  padding:26px 20px;pointer-events:all;
+}
+#logro-popup{
+  position:absolute;bottom:74px;left:50%;transform:translateX(-50%);z-index:30;
+  background:var(--pan3);
+  border:2px solid var(--v3);box-shadow:0 0 0 2px var(--bd),0 4px 0 rgba(0,0,0,.4);
+  padding:12px 18px;display:flex;gap:12px;align-items:center;
+  animation:logro-entra .35s ease-out;pointer-events:none;
+}
+#logro-popup .ico-l{font-size:24px;line-height:1}
+#logro-popup p{font-size:9px;color:var(--v4);line-height:1.8}
+#interrupcion{
+  position:absolute;top:64px;left:50%;transform:translateX(-50%);z-index:30;
+  background:var(--r1);
+  border:2px solid var(--r3);box-shadow:0 0 0 2px var(--bd),0 4px 0 rgba(0,0,0,.4);
+  padding:14px 22px;text-align:center;white-space:nowrap;
+  animation:aparece-int .25s ease-out;
+}
+#interrupcion p{font-size:10px;color:var(--r4);letter-spacing:1px}
+.centro{display:flex;flex-direction:column;align-items:center;gap:14px;
+  text-align:center;padding:10px 6px;}
+.logo-px{font-size:9px;color:var(--g3);border:2px solid var(--bl);
+  background:var(--void2);padding:8px 12px;letter-spacing:2px}
+h1{font-size:clamp(18px,5.6vw,26px);line-height:1.55;color:var(--y2);
+  text-shadow:3px 3px 0 var(--g0)}
+h2{font-size:clamp(13px,4.4vw,20px);line-height:1.55;color:var(--y2);
+  text-shadow:2px 2px 0 var(--bd)}
+h3{font-size:12px;color:var(--g3);letter-spacing:2px}
+.verde{color:var(--g4)} .rojo{color:var(--r3)} .violeta{color:var(--v3)} .azul{color:var(--b4)}
+.sub{font-size:9px;color:var(--tx2);line-height:2;letter-spacing:1px}
+.mini{font-family:'VT323',monospace;font-size:18px;color:var(--tx2);line-height:1.4}
+.desc{font-family:'VT323',monospace;font-size:20px;line-height:1.45;max-width:460px;color:var(--tx3)}
+.dia{font-size:9px;color:var(--g3);letter-spacing:2px}
+.modo{font-size:9px;color:var(--b4);background:var(--void2);
+  border:2px solid var(--bl);padding:8px 13px}
+.ico{font-size:46px;line-height:1;filter:drop-shadow(0 4px 0 rgba(0,0,0,.45))}
+.pts-final{font-size:14px;color:var(--y2);text-shadow:2px 2px 0 var(--g0)}
+.rango{font-size:30px;color:var(--g4);text-shadow:3px 3px 0 var(--g0)}
+.blink{animation:blink 1s steps(2) infinite}
+.stars-row{font-size:14px;letter-spacing:2px}
+.stars-row .on{color:var(--y2)} .stars-row .off{color:var(--tx1)}
+.btn{
+  font-family:inherit;font-size:12px;color:#fff;cursor:pointer;letter-spacing:1px;
+  padding:15px 22px;min-height:48px;border:2px solid var(--bd);
+  background:var(--g2);
+  box-shadow:inset 0 3px 0 var(--g4),inset 0 -3px 0 var(--g0),0 4px 0 var(--bd);
+  text-shadow:1px 1px 0 var(--g0);
+}
+.btn:active{transform:translateY(4px);box-shadow:inset 0 3px 0 var(--g4),inset 0 -3px 0 var(--g0)}
+.btn2{background:#2c3460;
+  box-shadow:inset 0 3px 0 #4a548e,inset 0 -3px 0 #161b38,0 4px 0 var(--bd);
+  text-shadow:1px 1px 0 #161b38}
+.btn2:active{transform:translateY(4px);box-shadow:inset 0 3px 0 #4a548e,inset 0 -3px 0 #161b38}
+.btn3{background:var(--v2);
+  box-shadow:inset 0 3px 0 var(--v3),inset 0 -3px 0 var(--v0),0 4px 0 var(--bd);
+  text-shadow:1px 1px 0 var(--v0)}
+.btn3:active{transform:translateY(4px);box-shadow:inset 0 3px 0 var(--v3),inset 0 -3px 0 var(--v0)}
+.btn-ico{padding:12px 16px;font-size:15px}
+.dialogo{display:flex;gap:12px;width:min(460px,100%);text-align:left;
+  background:var(--pan2);
+  padding:13px;border:2px solid var(--g1);
+  box-shadow:0 0 0 2px var(--bd),0 4px 0 rgba(0,0,0,.4);}
+.retrato-wrap{width:68px;height:68px;flex:0 0 68px;position:relative;overflow:hidden}
+canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
+  border:2px solid var(--bd);background:#0b0e22}
+.hablante{font-size:8px;color:var(--g3);letter-spacing:1px;margin-bottom:8px}
+.linea{font-family:'VT323',monospace;font-size:21px;line-height:1.35;color:var(--tx4)}
+.cert{border:3px dashed var(--g2);padding:18px 14px;
+  display:flex;width:min(440px,100%);flex-direction:column;gap:12px;
+  background:rgba(57,169,0,.06);align-items:center}
+.rec-tabla{width:min(450px,100%);border-collapse:collapse}
+.rec-tabla th{font-size:8px;color:var(--g3);padding:8px;border-bottom:2px solid var(--g1)}
+.rec-tabla td{font-family:'VT323',monospace;font-size:18px;padding:7px 8px;
+  border-bottom:1px solid var(--bl);color:var(--tx3)}
+.rec-tabla tr.yo td{color:var(--y2)}
+.tienda-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(430px,100%)}
+.item-tienda{display:flex;flex-direction:column;gap:8px;align-items:center;
+  background:var(--void2);border:2px solid var(--bl);box-shadow:0 3px 0 var(--bd);
+  padding:14px 8px;cursor:pointer}
+.item-tienda:active{transform:translateY(3px);box-shadow:none}
+.item-tienda .ico-t{font-size:30px}
+.item-tienda .nom-t{font-size:8px;color:var(--tx3);text-align:center;line-height:1.7}
+.item-tienda .precio{font-size:10px;color:var(--y2)}
+.item-tienda.sin-pts{opacity:.35;pointer-events:none}
+.logros-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:min(450px,100%)}
+.logro{display:flex;flex-direction:column;align-items:center;gap:6px;
+  background:var(--void2);border:2px solid var(--bl);padding:11px 5px;text-align:center}
+.logro.on{border-color:var(--v3);background:var(--pan3)}
+.logro .ico-lg{font-size:22px;filter:grayscale(1);opacity:.3}
+.logro.on .ico-lg{filter:none;opacity:1}
+.logro p{font-size:7px;color:var(--tx2);line-height:1.6}
+.logro.on p{color:var(--v4)}
+.custom-fila{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.skin-op,.camisa-op{width:46px;height:46px;cursor:pointer;border:3px solid var(--bl);
+  image-rendering:pixelated;background:var(--void2)}
+.skin-op.sel,.camisa-op.sel{border-color:var(--y2)}
+.l1{display:flex;flex-direction:column;gap:13px;padding:6px}
+.tope{display:flex;justify-content:space-between;font-size:10px;color:var(--b4)}
+.term{background:#070a12;border:2px solid var(--bl);box-shadow:0 0 0 2px var(--bd);}
+.term-bar{display:flex;gap:6px;align-items:center;
+  background:var(--pan2);padding:8px 10px;border-bottom:2px solid var(--bd)}
+.term-bar i{width:9px;height:9px;border-radius:50%;display:block}
+.term-cuerpo{padding:16px 12px;display:flex;flex-direction:column;gap:14px}
+.term-line{font-family:'VT323',monospace;font-size:18px;color:var(--g3);text-align:left}
+.palabra{font-size:clamp(18px,6.5vw,28px);letter-spacing:5px;color:var(--tx4);min-height:34px}
+.palabra .ok{color:var(--g3)} .palabra .mal{color:var(--r3)}
+.palabra.shake{animation:shake .22s}
+.barra{height:12px;background:var(--void2);border:2px solid var(--bd)}
+.barra-fill{height:100%;width:100%;transition:width .1s linear;background:var(--g2);
+  box-shadow:inset 0 3px 0 var(--g4)}
+.barra-fill.peligro{background:var(--r3);box-shadow:inset 0 3px 0 var(--r4)}
+.entrada{font-family:inherit;font-size:16px;text-align:center;letter-spacing:3px;
+  background:#070a12;color:var(--g3);border:2px solid var(--g2);
+  box-shadow:0 0 0 2px var(--bd);
+  padding:14px 8px;outline:none;width:100%;text-transform:lowercase;}
+.entrada::placeholder{color:#33406a;font-size:10px;letter-spacing:1px}
+.entrada:focus{border-color:var(--g4)}
+.l3,.l4{display:flex;flex-direction:column;gap:12px;padding:6px;align-items:center}
+.l3 .tope,.l4 .tope{width:100%}
+.grilla{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(350px,100%)}
+.celda{aspect-ratio:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--bl);background:var(--void2);
+  box-shadow:0 4px 0 var(--bd);}
+.celda .px{font-size:34px;line-height:1;transform:scale(.15);opacity:0;
+  transition:transform .1s,opacity .1s}
+.celda.on{border-color:var(--g2)}
+.celda.on .px{transform:scale(1);opacity:1}
+.celda.plaf{border-color:var(--y2)}
+.memo{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;width:min(360px,100%)}
+.carta{aspect-ratio:1;font-family:inherit;font-size:11px;cursor:pointer;
+  color:var(--tx1);border:2px solid var(--bl);
+  background:var(--void2);box-shadow:0 3px 0 var(--bd);
+  display:flex;align-items:center;justify-content:center;transition:transform .1s;}
+.carta.vista{background:var(--b1);color:var(--b4);
+  border-color:var(--b3);transform:scale(1.04)}
+.carta.fija{background:#143518;color:var(--g4);
+  border-color:var(--g2);cursor:default;transform:none}
+.simon{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(350px,100%)}
+.cmd{font-family:inherit;font-size:10px;color:#fff;cursor:pointer;padding:26px 8px;
+  border:2px solid var(--bd);letter-spacing:1px;text-shadow:1px 1px 0 rgba(0,0,0,.7);
+  opacity:.5;transition:opacity .1s,transform .1s;text-align:center}
+.cmd:active,.cmd.activo{opacity:1;transform:scale(1.04)}
+.simon.muestra{pointer-events:none}
+.c-pull  {background:var(--b2);box-shadow:inset 0 3px 0 var(--b3),inset 0 -3px 0 var(--b1)}
+.c-commit{background:#8a6a10;box-shadow:inset 0 3px 0 #c4a030,inset 0 -3px 0 #544010}
+.c-push  {background:var(--g1);box-shadow:inset 0 3px 0 var(--g3),inset 0 -3px 0 var(--g0)}
+.c-deploy{background:var(--v1);box-shadow:inset 0 3px 0 var(--v2),inset 0 -3px 0 var(--v0)}
+.quiz{display:flex;flex-direction:column;gap:12px;padding:6px;align-items:center}
+.jurado{display:flex;gap:12px}
+.jurado canvas{width:52px;height:52px;image-rendering:pixelated;
+  border:2px solid var(--bd);background:#0b0e22}
+.pregunta{font-family:'VT323',monospace;font-size:23px;line-height:1.3;text-align:center;
+  min-height:56px;display:flex;align-items:center;justify-content:center;padding:4px;color:var(--tx4)}
+.opciones{display:flex;flex-direction:column;gap:9px;width:min(420px,100%)}
+.op{font-family:'VT323',monospace;font-size:21px;color:var(--tx4);cursor:pointer;
+  text-align:left;padding:13px 15px;border:2px solid var(--bl);
+  background:var(--pan2);box-shadow:0 3px 0 var(--bd);}
+.op:active{transform:translateY(3px);box-shadow:none}
+.op.bien{background:#143518;border-color:var(--g3)}
+.op.mal {background:#3d1219;border-color:var(--r3)}
+.cv-wrap{display:flex;flex-direction:column;gap:10px;padding:6px;align-items:center}
+canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:block;
+  background:#000;border:2px solid var(--bd);
+  box-shadow:0 0 0 2px var(--bl);touch-action:none}
+.cv-msg{font-family:'VT323',monospace;font-size:16px;color:var(--tx2);text-align:center;line-height:1.3}
+.fila-cv{display:flex;gap:14px;align-items:center;justify-content:center;width:100%}
+.dpad{display:grid;gap:6px;
+  grid-template-areas:'. up .' 'left mid right' '. down .';}
+.dp{width:54px;height:46px;font-family:inherit;font-size:15px;color:var(--b4);cursor:pointer;
+  border:2px solid var(--bl);background:var(--pan2);
+  box-shadow:0 3px 0 var(--bd);}
+.dp:active{transform:translateY(3px);box-shadow:none}
+.dp-arriba{grid-area:up}.dp-abajo{grid-area:down}.dp-izq{grid-area:left}.dp-der{grid-area:right}
+@keyframes aparecer{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:.25}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes logro-entra{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes aparece-int{from{opacity:0;transform:translateX(-50%) scale(.9)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+.rango-linea{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+.rango-badge{font-size:8px;color:var(--g3);background:var(--void2);border:2px solid var(--g1);padding:6px 10px;letter-spacing:1px}
+.rango-badge.grande{font-size:11px;padding:9px 14px;color:var(--y2);border-color:var(--y1)}
+.moneda{font-size:9px;color:var(--y2);background:var(--void2);border:2px solid var(--bl);padding:6px 10px}
+.xp-bar{height:10px;width:min(300px,80%);background:var(--void2);border:2px solid var(--bd);margin:0 auto;overflow:hidden}
+.xp-fill{height:100%;background:var(--v2);box-shadow:inset 0 3px 0 var(--v3);transition:width .5s ease-out}
+.xp-txt{font-family:'VT323',monospace;font-size:15px;color:var(--tx2);letter-spacing:1px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(420px,100%)}
+.stats-grid>div{background:var(--void2);border:2px solid var(--bl);padding:10px 4px;display:flex;flex-direction:column;gap:4px;align-items:center}
+.stats-grid b{font-size:15px;color:var(--y2)}
+.stats-grid span{font-size:7px;color:var(--tx2);text-align:center;line-height:1.5}
+.rango-lista{display:flex;flex-direction:column;gap:4px;width:min(420px,100%)}
+.rango-fila{display:flex;justify-content:space-between;font-family:'VT323',monospace;font-size:16px;color:var(--tx1);background:var(--void2);border:2px solid transparent;padding:7px 11px}
+.rango-fila.hecho{color:var(--g3)}
+.rango-fila.act{color:var(--y2);border-color:var(--y1);background:var(--pan2)}
+.acc-op{position:relative;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--void2);border:3px solid var(--bl);cursor:pointer;font-size:22px}
+.acc-op.sel{border-color:var(--y2)}
+.acc-op.bloq .acc-ico{filter:grayscale(.6) brightness(.65)}
+.acc-precio{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:7px;color:var(--y2);background:var(--bd);padding:2px 4px;white-space:nowrap}
+.acc-op.shake{animation:shake .3s}
+@media (prefers-reduced-motion:reduce){.blink,#screen>*{animation:none}}
+
+/* ── MAPA DE CARRERA ── */
+.mapa h2{margin:.15em 0}
+.etapas{display:flex;flex-direction:column;gap:0;width:min(440px,94vw);margin:14px auto 6px}
+.etapa-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  background:#141a38;border:3px solid #2a3260;border-radius:12px;padding:12px 14px;color:#cdd6f4;
+  font-family:inherit;cursor:pointer;position:relative;transition:transform .08s,border-color .15s}
+.etapa-card:not([disabled]):active{transform:scale(.98)}
+.etapa-card:not([disabled]):hover{transform:translateY(-2px);border-color:#6fd62b}
+.etapa-card.ok{border-color:#39a900;background:#102a16}
+.etapa-card.open{border-color:#ffd23c;box-shadow:0 0 0 1px #ffd23c inset}
+.etapa-card.lock{opacity:.45;filter:grayscale(.7);cursor:not-allowed}
+.etapa-num{font-size:12px;color:#7a86c8;font-weight:bold;width:16px;text-align:center}
+.etapa-ico{font-size:32px;width:42px;text-align:center;line-height:1}
+.etapa-body{flex:1;min-width:0}
+.etapa-nom{font-size:15px;color:#fff;font-weight:bold;letter-spacing:.5px}
+.etapa-sub{font-size:11px;color:#9aa6e0;margin-top:1px}
+.etapa-rango{font-size:10px;color:#ffd23c;margin-top:3px;letter-spacing:.5px}
+.etapa-badge{font-size:20px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:30px}
+.etapa-badge .aqui{font-size:8px;color:#6fd62b;border:1px solid #6fd62b;border-radius:4px;padding:0 3px;letter-spacing:.5px}
+.etapa-link{width:4px;height:14px;background:#2a3260;margin:0 auto}
+.etapa-card.ok + .etapa-link{background:#39a900}
+
+/* ── CUTSCENES ── */
+.cut{cursor:pointer}
+.cut-nav{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px}
+.cut-prog{font-size:11px;color:#7a86c8;letter-spacing:1px}
+.cut-skip{margin-top:12px;background:none;border:none;color:#5a6498;font-family:inherit;font-size:11px;cursor:pointer;text-decoration:underline;opacity:.85}
+.cut-skip:hover{color:#9aa6e0}
+
+/* ── TIENDA DEL MENÚ ── */
+.accs-tienda{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;max-width:min(420px,92vw);margin:12px auto}
+.acc-op{position:relative}
+.acc-eq{position:absolute;top:-7px;right:-7px;background:#39a900;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid #0c1024}
+
+/* ── MEJORAS EN TIENDA ── */
+.mej-titulo{font-size:12px;color:#9aa6e0;letter-spacing:1px;margin:14px 0 4px;text-align:center}
+.mejoras-tienda{display:flex;flex-direction:column;gap:8px;max-width:min(420px,92vw);margin:0 auto}
+.item-tienda.activa{border-color:#39a900;background:#102a16;opacity:1}
+.item-tienda.activa .precio{color:#6fd62b}
+
+/* ── CAPA 64-BIT: iluminación de pantalla ── */
+#fx64{position:fixed;inset:0;pointer-events:none;z-index:15;
+  background:
+    radial-gradient(125% 105% at 50% 36%, transparent 56%, rgba(3,4,16,.26) 100%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.045) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, rgba(180,200,255,.04), transparent 16%);
+}
+@media (max-width:520px){ #fx64{background:
+    radial-gradient(130% 110% at 50% 36%, transparent 58%, rgba(3,4,16,.22) 100%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.04) 0 1px, transparent 1px 3px);} }
+</style>
+</head>
+<body>
+<div class="crt"></div>
+<div id="fx64"></div>
+<div id="app">
+  <div id="hud">
+    <span id="h-nivel">DÍA 1/10</span>
+    <span id="h-estrellas"></span>
+    <span id="h-pts">0000</span>
+    <span id="h-vidas">♥♥♥</span>
+    <button id="b-lang" type="button" aria-label="idioma">EN</button>
+    <button id="b-snd" type="button" aria-label="sonido">♪</button>
+    <button id="b-pause" type="button" aria-label="pausa">Ⅱ</button>
+  </div>
+  <div id="screen"></div>
+  <div id="pausa" class="overlay" hidden>
+    <div class="menu-inner">
+      <h2 id="p-titulo">PAUSA</h2>
+      <button class="btn" id="p-cont" type="button">CONTINUAR</button>
+      <button class="btn btn2" id="p-mapa" type="button">SALIR AL MAPA</button>
+    </div>
+  </div>
+  <div id="logro-popup" hidden>
+    <span class="ico-l"></span>
+    <p></p>
+  </div>
+  <div id="interrupcion" hidden><p></p></div>
+</div>
+<script>
+'use strict';
+/* ══════════════════════════════════════════
+   PRACTICANTE EN APUROS 3 · SENA 32-BIT
+   10 días de etapa productiva · 5 minijuegos
+   ══════════════════════════════════════════ */
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const az=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+
+/* ── DATOS ── */
+const SKINS=['#f4c898','#d99b66','#a86a3c','#6f4526'];
+const CAMISAS=['#39a900','#13648c','#8c3df0','#c22e44'];
+const ACCS=[
+  {id:'cafe',    ico:'☕', precio:150},
+  {id:'gafas',   ico:'🤓', precio:250},
+  {id:'corbata', ico:'👔', precio:350},
+  {id:'gorra',   ico:'🧢', precio:400},
+  {id:'audifonos',ico:'🎧',precio:500},
+  {id:'medalla', ico:'🏅', precio:800},
+];
+const MEJORAS=[
+  {id:'vida',  ico:'💖', precio:600},
+  {id:'tiempo',ico:'⏰', precio:700},
+  {id:'doble', ico:'💰', precio:1000},
+];
+const RANGOS=[
+  {xp:0,   es:'ASPIRANTE',   en:'APPLICANT'},
+  {xp:400, es:'APRENDIZ',    en:'APPRENTICE'},
+  {xp:1000,es:'PRACTICANTE', en:'INTERN'},
+  {xp:1800,es:'DEV JUNIOR',  en:'JUNIOR DEV'},
+  {xp:2800,es:'TITULADO SENA',en:'SENA GRADUATE'},
+];
+const NIVELES=[
+  {ico:'☕', tipo:'escribir', es:'PRIMER DÍA',        en:'FIRST DAY',        ses:'Configura tu terminal',      sen:'Set up your terminal'},
+  {ico:'🐛', tipo:'bugs',     es:'CAZA-BUGS',          en:'BUG HUNT',         ses:'Aplasta los bugs',           sen:'Squash the bugs'},
+  {ico:'🧠', tipo:'memoria',  es:'MEMORIA TÉCNICA',    en:'TECH MEMORY',      ses:'Empareja tecnologías',       sen:'Match the tech pairs'},
+  {ico:'🔀', tipo:'simon',    es:'FLUJO GIT',          en:'GIT FLOW',         ses:'Repite la secuencia',        sen:'Repeat the sequence'},
+  {ico:'📋', tipo:'quiz',     es:'SUSTENTACIÓN',       en:'ORAL EXAM',        ses:'Responde al jurado',         sen:'Answer the panel'},
+  {ico:'⌨️', tipo:'escribir', es:'SPRINT DE CÓDIGO',   en:'CODE SPRINT',      ses:'Teclea sin piedad',          sen:'Type like the wind'},
+  {ico:'🔥', tipo:'bugs',     es:'BUGS EN PRODUCCIÓN', en:'BUGS IN PROD',     ses:'¡Deploy en viernes!',        sen:'Friday deploy!'},
+  {ico:'🗄️', tipo:'memoria',  es:'BASE DE DATOS',      en:'DATABASE',         ses:'Reconstruye las tablas',     sen:'Rebuild the tables'},
+  {ico:'🚀', tipo:'simon',    es:'DESPLIEGUE',         en:'DEPLOYMENT',       ses:'Un error y se cae todo',     sen:'One slip and it all falls'},
+  {ico:'🎓', tipo:'runner',   es:'EVALUACIÓN FINAL',   en:'FINAL EXAM',       ses:'Sobrevive al último día',    sen:'Survive the last day'},
+];
+const PALABRAS=['git push','commit','variable','funcion','deploy','servidor','consola','arreglo','objeto','html','css','javascript','python','api rest','frontend','backend','navegador','framework','base de datos','npm install'];
+const PAREJAS=['HTML','CSS','JS','SQL','GIT','API','PHP','SENA'];
+const CMDS=[
+  {id:'pull',  cls:'c-pull',  txt:'GIT PULL',  f:330},
+  {id:'commit',cls:'c-commit',txt:'GIT COMMIT',f:392},
+  {id:'push',  cls:'c-push',  txt:'GIT PUSH',  f:494},
+  {id:'deploy',cls:'c-deploy',txt:'DEPLOY',    f:587},
+];
+const QUIZ={
+ es:[
+  {q:'¿Qué significa HTML?',o:['HyperText Markup Language','High Tech Modern Language','Home Tool Markup List'],r:0},
+  {q:'¿Qué comando guarda cambios en Git?',o:['git save','git commit','git keep'],r:1},
+  {q:'¿Qué es un bug?',o:['Un insecto de oficina','Una función secreta','Un error en el código'],r:2},
+  {q:'¿Qué lenguaje da estilos a la web?',o:['CSS','SQL','BIOS'],r:0},
+  {q:'¿Qué es una API?',o:['Un tipo de café','Interfaz para comunicar sistemas','Una carpeta oculta'],r:1},
+  {q:'¿Qué hace "git push"?',o:['Borra el proyecto','Empuja al practicante','Sube commits al remoto'],r:2},
+ ],
+ en:[
+  {q:'What does HTML stand for?',o:['HyperText Markup Language','High Tech Modern Language','Home Tool Markup List'],r:0},
+  {q:'Which command saves changes in Git?',o:['git save','git commit','git keep'],r:1},
+  {q:'What is a bug?',o:['An office insect','A secret feature','An error in the code'],r:2},
+  {q:'Which language styles the web?',o:['CSS','SQL','BIOS'],r:0},
+  {q:'What is an API?',o:['A type of coffee','An interface between systems','A hidden folder'],r:1},
+  {q:'What does "git push" do?',o:['Deletes the project','Pushes the intern','Uploads commits to the remote'],r:2},
+ ]
+};
+const DIALOGOS={
+ es:[
+  ['INSTRUCTOR','¡Bienvenido a tu etapa productiva! Primero: configura tu terminal. Escribe rápido y sin errores.'],
+  ['LÍDER TÉCNICO','El practicante anterior dejó bugs por TODAS partes. ¡Aplástalos antes de que se reproduzcan!'],
+  ['COMPAÑERA','Examen sorpresa del instructor: ¿recuerdas qué tecnologías van en pareja?'],
+  ['LÍDER TÉCNICO','Te voy a mostrar el flujo de Git del equipo. Repítelo EXACTAMENTE igual.'],
+  ['INSTRUCTOR','Hoy sustentas ante el jurado. Respira. No digas "eeeh". Tú puedes.'],
+  ['LÍDER TÉCNICO','¡SPRINT! El cliente quiere todo para AYER. Los dedos a la máquina.'],
+  ['LÍDER TÉCNICO','¡¿QUIÉN HIZO DEPLOY UN VIERNES?! ¡Hay bugs en producción! ¡CORRE!'],
+  ['COMPAÑERA','Se corrompió la base de datos... toca reconstruir las tablas de memoria. Literalmente.'],
+  ['LÍDER TÉCNICO','Despliegue final. Un comando fuera de orden y se cae TODO. Sin presión.'],
+  ['INSTRUCTOR','Evaluación final: sobrevive tu último día en la oficina y el contrato es tuyo.'],
+ ],
+ en:[
+  ['INSTRUCTOR','Welcome to your internship! First: set up your terminal. Type fast and clean.'],
+  ['TECH LEAD','The last intern left bugs EVERYWHERE. Squash them before they multiply!'],
+  ['COWORKER','Pop quiz from the instructor: do you remember which technologies pair up?'],
+  ['TECH LEAD',"I'll show you the team's Git flow. Repeat it EXACTLY as shown."],
+  ['INSTRUCTOR',"Today you present to the panel. Breathe. Don't say 'uhh'. You got this."],
+  ['TECH LEAD','SPRINT! The client wants everything for YESTERDAY. Fingers on keys.'],
+  ['TECH LEAD','WHO DEPLOYED ON A FRIDAY?! Bugs in production! RUN!'],
+  ['COWORKER','The database got corrupted... time to rebuild the tables from memory. Literally.'],
+  ['TECH LEAD','Final deployment. One command out of order and EVERYTHING falls. No pressure.'],
+  ['INSTRUCTOR','Final exam: survive your last day at the office and the contract is yours.'],
+ ]
+};
+const INTRO={
+ es:[
+  {ico:'🏢',t:'AÑO 2026. Después de mil hojas de vida, conseguiste tu etapa productiva en TechNova S.A.S.'},
+  {ico:'📅',t:'Tienes 10 días para demostrar que mereces el contrato de aprendizaje.'},
+  {ico:'😅',t:'Sin presión... bueno, sí. MUCHA presión. ¡Suerte, practicante!'},
+ ],
+ en:[
+  {ico:'🏢',t:'YEAR 2026. After a thousand résumés, you landed your internship at TechNova Inc.'},
+  {ico:'📅',t:'You have 10 days to prove you deserve the apprenticeship contract.'},
+  {ico:'😅',t:'No pressure... well, yes. A LOT of pressure. Good luck, intern!'},
+ ]
+};
+const FINAL={
+ es:[
+  {ico:'🎉',t:'Lo lograste. Diez días de bugs, cafés fríos y reuniones que pudieron ser un correo.'},
+  {ico:'🤝',t:'El líder técnico sonríe por primera vez en la historia: "Firma aquí, practicante."'},
+ ],
+ en:[
+  {ico:'🎉',t:'You made it. Ten days of bugs, cold coffee and meetings that could have been an email.'},
+  {ico:'🤝',t:'The tech lead smiles for the first time in recorded history: "Sign here, intern."'},
+ ]
+};
+const INTERRUPCIONES={
+ es:['¡SE CAYÓ EL WIFI!','¡REUNIÓN SORPRESA EN 5 MIN!','¡EL LÍDER PASA POR TU PUESTO!','¡WINDOWS SE ESTÁ ACTUALIZANDO!','¡LLEGÓ EL DE CALIDAD!'],
+ en:['WIFI IS DOWN!','SURPRISE MEETING IN 5 MIN!','THE LEAD IS WALKING BY!','WINDOWS IS UPDATING!','QA JUST SHOWED UP!']
+};
+const LOGROS=[
+  {id:'primer', ico:'🌱', es:'PRIMER DÍA',   en:'FIRST DAY'},
+  {id:'perfecto',ico:'🌟',es:'DÍA PERFECTO', en:'PERFECT DAY'},
+  {id:'mitad',  ico:'✅', es:'MEDIA ETAPA',  en:'HALFWAY'},
+  {id:'comprador',ico:'🛍️',es:'COMPRADOR',  en:'SHOPPER'},
+  {id:'veloz',  ico:'⚡', es:'DEDOS VELOCES',en:'FAST FINGERS'},
+  {id:'cerebro',ico:'🧠', es:'MEMORIA ÉLITE',en:'ELITE MEMORY'},
+  {id:'gitmaster',ico:'🔀',es:'GIT MASTER',  en:'GIT MASTER'},
+  {id:'titulado',ico:'🎓', es:'TITULADO',    en:'GRADUATE'},
+];
+const TXT={
+ es:{dia:'DÍA',start:'PULSA START',jugar:'▶ JUGAR',tienda:'TIENDA',logros:'LOGROS',records:'RÉCORDS',perso:'AVATAR',
+  sub:'LA AVENTURA DEL APRENDIZ · CAPÍTULO 3',mapa:'MAPA DE PRÁCTICA',volver:'← VOLVER',continuar:'CONTINUAR',
+  pausa:'PAUSA',salirmapa:'SALIR AL MAPA',empezar:'¡EMPEZAR!',listo:'¿LISTO?',aqui:'AQUÍ',
+  aprobado:'¡DÍA SUPERADO!',fallado:'¡DÍA FALLIDO!',reintentar:'REINTENTAR',siguiente:'SIGUIENTE DÍA ▶',
+  gameover:'GAME OVER',gameovertxt:'Te quedaste sin vidas. El instructor te manda a tomar aire y volver mañana.',
+  ptsgan:'PTS GANADOS',mejor:'MEJOR',bloqueado:'Completa el día anterior',
+  tiempo:'TIEMPO',meta:'META',errores:'ERRORES',ronda:'RONDA',pares:'PARES',golpes:'GOLPES',cafes:'CAFÉS',
+  escribeaqui:'ESCRIBE AQUÍ',observa:'OBSERVA...',turno:'¡TU TURNO!',
+  toca:'TOCA PARA SEGUIR',saltar:'SALTAR ▶▶',pagina:'PÁG',
+  runmsg:'▲ SALTA · ▼ AGÁCHATE · esquiva bugs y papeleo, agarra café',
+  cert:'CERTIFICADO OFICIAL',certde:'Se certifica que',certtxt:'completó sus 10 días de etapa productiva sin llorar (mucho)',
+  firma:'FIRMA: EL INSTRUCTOR',fecha:'FECHA',
+  rango:'RANGO',rangos:'ESCALAFÓN',stats:'ESTADÍSTICAS',diascomp:'DÍAS',estrellas:'ESTRELLAS',ptstotal:'PTS TOTALES',
+  comprar:'COMPRAR',equipado:'EQUIPADO',mejoras:'MEJORAS DE OFICINA',
+  mejvida:'VIDA EXTRA',mejtiempo:'+20% TIEMPO',mejdoble:'PUNTOS ×2',
+  acc_cafe:'CAFÉ ETERNO',acc_gafas:'GAFAS DEV',acc_corbata:'CORBATA',acc_gorra:'GORRA',acc_audifonos:'AUDÍFONOS',acc_medalla:'MEDALLA',
+  logro:'¡LOGRO DESBLOQUEADO!',sinacc:'SIN ACCESORIO',piel:'PIEL',camisa:'CAMISA',accesorio:'ACCESORIO',
+  rec_nom:'NOMBRE',rec_pts:'PTS',rec_rango:'RANGO',tu:'TÚ',
+  quiznec:'Necesitas 4 de 6 para aprobar',
+  vidas_txt:'VIDAS',
+ },
+ en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'AVATAR',
+  sub:'THE APPRENTICE ADVENTURE · CHAPTER 3',mapa:'INTERNSHIP MAP',volver:'← BACK',continuar:'CONTINUE',
+  pausa:'PAUSED',salirmapa:'EXIT TO MAP',empezar:'START!',listo:'READY?',aqui:'HERE',
+  aprobado:'DAY CLEARED!',fallado:'DAY FAILED!',reintentar:'RETRY',siguiente:'NEXT DAY ▶',
+  gameover:'GAME OVER',gameovertxt:'You ran out of lives. The instructor sends you home to try again tomorrow.',
+  ptsgan:'PTS EARNED',mejor:'BEST',bloqueado:'Clear the previous day',
+  tiempo:'TIME',meta:'GOAL',errores:'ERRORS',ronda:'ROUND',pares:'PAIRS',golpes:'HITS',cafes:'COFFEES',
+  escribeaqui:'TYPE HERE',observa:'WATCH...',turno:'YOUR TURN!',
+  toca:'TAP TO CONTINUE',saltar:'SKIP ▶▶',pagina:'PAGE',
+  runmsg:'▲ JUMP · ▼ DUCK · dodge bugs and paperwork, grab coffee',
+  cert:'OFFICIAL CERTIFICATE',certde:'This certifies that',certtxt:'completed 10 days of internship without crying (much)',
+  firma:'SIGNED: THE INSTRUCTOR',fecha:'DATE',
+  rango:'RANK',rangos:'RANKS',stats:'STATS',diascomp:'DAYS',estrellas:'STARS',ptstotal:'TOTAL PTS',
+  comprar:'BUY',equipado:'EQUIPPED',mejoras:'OFFICE UPGRADES',
+  mejvida:'EXTRA LIFE',mejtiempo:'+20% TIME',mejdoble:'POINTS ×2',
+  acc_cafe:'ETERNAL COFFEE',acc_gafas:'DEV GLASSES',acc_corbata:'TIE',acc_gorra:'CAP',acc_audifonos:'HEADPHONES',acc_medalla:'MEDAL',
+  logro:'ACHIEVEMENT UNLOCKED!',sinacc:'NO ACCESSORY',piel:'SKIN',camisa:'SHIRT',accesorio:'ACCESSORY',
+  rec_nom:'NAME',rec_pts:'PTS',rec_rango:'RANK',tu:'YOU',
+  quiznec:'You need 4 of 6 to pass',
+  vidas_txt:'LIVES',
+ }
+};
+
+/* ── ESTADO ── */
+const DEF={pts:0,xp:0,dias:Array(10).fill(-1),logros:[],accs:[],acc:'',skin:0,camisa:0,
+  mejoras:[],records:[],lang:'es',snd:true,intro:false};
+let S;
+try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('pa3')||'{}'))}catch(e){S=Object.assign({},DEF)}
+if(!Array.isArray(S.dias)||S.dias.length!==10)S.dias=Array(10).fill(-1);
+const guardar=()=>{try{localStorage.setItem('pa3',JSON.stringify(S))}catch(e){}};
+const t=k=>TXT[S.lang][k]||k;
+const tj=o=>o[S.lang]||o.es;
+
+let diaAct=0, vidas=3, pausado=false, raf=0, pantallaId='titulo';
+let tms=[], alLimpiar=[];
+const tvez=(f,ms)=>{const i=setTimeout(f,ms);tms.push(i);return i};
+const tcada=(f,ms)=>{const i=setInterval(f,ms);tms.push(i);return i};
+function limpiarT(){tms.forEach(i=>{clearTimeout(i);clearInterval(i)});tms=[];
+  if(raf){cancelAnimationFrame(raf);raf=0}
+  alLimpiar.forEach(f=>{try{f()}catch(e){}});alLimpiar=[];}
+
+const maxVidas=()=>3+(S.mejoras.includes('vida')?1:0);
+const facTiempo=()=>S.mejoras.includes('tiempo')?1.2:1;
+const facPts=()=>S.mejoras.includes('doble')?2:1;
+const progreso=()=>{let p=0;while(p<10&&S.dias[p]>=1)p++;return p};
+const totalStars=()=>S.dias.reduce((a,b)=>a+Math.max(0,b),0);
+const rangoDe=xp=>{let r=RANGOS[0];for(const x of RANGOS)if(xp>=x.xp)r=x;return r};
+const rangoNom=()=>tj(rangoDe(S.xp));
+
+/* ── SONIDO ── */
+let AC=null;
+function beep(f,d=0.08,tipo='square',v=0.12){
+  if(!S.snd)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==='suspended')AC.resume();
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.type=tipo;o.frequency.value=f;
+    g.gain.setValueAtTime(v,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);
+    o.connect(g);g.connect(AC.destination);
+    o.start();o.stop(AC.currentTime+d);
+  }catch(e){}
+}
+const SFX={
+  click:()=>beep(440,.05),
+  ok:()=>{beep(660,.07);setTimeout(()=>beep(880,.1),80)},
+  mal:()=>beep(130,.22,'sawtooth',.15),
+  pop:()=>beep(760,.05,'triangle',.18),
+  star:()=>{beep(523,.09);setTimeout(()=>beep(659,.09),90);setTimeout(()=>beep(784,.14),180)},
+  win:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.13),i*130))},
+  lose:()=>{[392,330,262,196].forEach((f,i)=>setTimeout(()=>beep(f,.16,'sawtooth'),i*150))},
+  logro:()=>{[784,988,1175].forEach((f,i)=>setTimeout(()=>beep(f,.1,'triangle',.16),i*90))},
+  moneda:()=>{beep(988,.05,'triangle',.16);setTimeout(()=>beep(1319,.09,'triangle',.16),60)},
+};
+
+/* ── HUD ── */
+function hud(){
+  const d=pantallaId==='nivel'?diaAct+1:Math.min(progreso()+1,10);
+  $('#h-nivel').textContent=t('dia')+' '+d+'/10';
+  $('#h-estrellas').textContent='★ '+totalStars()+'/30';
+  $('#h-pts').textContent=String(Math.min(S.pts,9999)).padStart(4,'0');
+  $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas))+'♡'.repeat(Math.max(0,maxVidas()-vidas));
+  $('#b-lang').textContent=S.lang==='es'?'EN':'ES';
+  $('#b-snd').textContent=S.snd?'♪':'✕';
+}
+
+/* ── RETRATOS PIXEL ── */
+function cara(cv,o){
+  const c=cv.getContext('2d'),P=cv.width/16;
+  const R=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x*P,y*P,w*P,h*P)};
+  R(0,0,16,16,'#0b0e22');
+  R(3,12,10,4,o.camisa);
+  R(4,3,8,8,o.skin);
+  if(o.pelo){R(4,2,8,2,o.pelo);R(4,4,1,2,o.pelo);R(11,4,1,2,o.pelo);}
+  if(o.largo&&o.pelo){R(3,3,1,7,o.pelo);R(12,3,1,7,o.pelo);}
+  R(6,6,1,1,'#101018');R(9,6,1,1,'#101018');
+  if(o.feliz){R(6,9,1,1,'#8a4030');R(7,10,2,1,'#8a4030');R(9,9,1,1,'#8a4030');}
+  else R(6,9,4,1,'#8a4030');
+  if(o.gafas){R(5,5,3,2,'rgba(111,210,240,.55)');R(8,5,1,1,'#222');R(9,5,3,2,'rgba(111,210,240,.55)');}
+  if(o.corbata)R(7,12,2,3,'#c22e44');
+  if(o.gorra){R(3,1,10,2,'#2e7a10');R(3,3,5,1,'#1c5400');}
+  if(o.audifonos){R(3,5,1,4,'#15151f');R(12,5,1,4,'#15151f');R(3,2,10,1,'#15151f');}
+  if(o.medalla){R(7,13,2,2,'#ffcf3f');}
+  if(o.cafe){R(12,12,3,3,'#f4f4f8');R(12,11,3,1,'#6b4226');}
+}
+const CARAS={
+  yo:(f)=>({skin:SKINS[S.skin],camisa:CAMISAS[S.camisa],pelo:'#2a1c10',feliz:f,
+    gafas:S.acc==='gafas',gorra:S.acc==='gorra',cafe:S.acc==='cafe',
+    audifonos:S.acc==='audifonos',corbata:S.acc==='corbata',medalla:S.acc==='medalla'}),
+  instructor:()=>({skin:'#e0b088',camisa:'#2c3460',pelo:'#9aa0aa',gafas:true}),
+  lider:()=>({skin:'#d99b66',camisa:'#5a1bb0',pelo:'#241810',corbata:true}),
+  compa:()=>({skin:'#f4c898',camisa:'#c22e44',pelo:'#a05224',largo:true,feliz:true}),
+};
+function quienCara(nom){
+  if(/INSTRUCTOR/.test(nom))return CARAS.instructor();
+  if(/LÍDER|LEAD/.test(nom))return CARAS.lider();
+  if(/COMPA|COWORK/.test(nom))return CARAS.compa();
+  return CARAS.yo(true);
+}
+
+/* ── LOGROS ── */
+function darLogro(id){
+  if(S.logros.includes(id))return;
+  S.logros.push(id);guardar();
+  const L=LOGROS.find(l=>l.id===id);
+  const p=$('#logro-popup');
+  p.querySelector('.ico-l').textContent=L.ico;
+  p.querySelector('p').innerHTML=t('logro')+'<br>'+tj(L);
+  p.hidden=false;SFX.logro();
+  setTimeout(()=>{p.hidden=true},2800);
+}
+
+/* ── INTERRUPCIONES ── */
+function programarInterrupcion(){
+  if(Math.random()<0.35)return;
+  tvez(()=>{
+    if(pantallaId!=='nivel')return;
+    const msgs=INTERRUPCIONES[S.lang];
+    $('#interrupcion p').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+    $('#interrupcion').hidden=false;SFX.mal();
+    tvez(()=>{$('#interrupcion').hidden=true},2200);
+  },5000+Math.random()*12000);
+}
+
+/* ── ROUTER ── */
+function pantalla(id,html){
+  limpiarT();pausado=false;$('#pausa').hidden=true;$('#interrupcion').hidden=true;
+  pantallaId=id;
+  $('#screen').innerHTML=html;
+  hud();
+}
+function starsHtml(n,tot=3){let s='';for(let i=0;i<tot;i++)s+='<span class="'+(i<n?'on':'off')+'">★</span>';return '<span class="stars-row">'+s+'</span>'}
+
+/* ── TÍTULO ── */
+function rTitulo(){
+  pantalla('titulo',`
+  <div class="centro">
+    <div class="logo-px">SENA · 32-BIT · v3.0</div>
+    <h1>PRACTICANTE<br>EN APUROS <span class="verde">3</span></h1>
+    <p class="sub">${t('sub')}</p>
+    <div class="rango-linea">
+      <span class="rango-badge grande">${rangoNom()}</span>
+      <span class="moneda">⛁ ${S.pts} PTS</span>
+    </div>
+    <button class="btn" id="t-jugar" type="button">${t('jugar')}</button>
+    <div class="custom-fila">
+      <button class="btn btn2" id="t-tienda" type="button">🛒 ${t('tienda')}</button>
+      <button class="btn btn2" id="t-logros" type="button">🏆 ${t('logros')}</button>
+    </div>
+    <div class="custom-fila">
+      <button class="btn btn2" id="t-records" type="button">📊 ${t('records')}</button>
+      <button class="btn btn3" id="t-perso" type="button">🎨 ${t('perso')}</button>
+    </div>
+    <p class="mini blink">${t('start')}</p>
+  </div>`);
+  $('#t-jugar').onclick=()=>{SFX.click();S.intro?rMapa():rCutscene(INTRO[S.lang],()=>{S.intro=true;guardar();rMapa()})};
+  $('#t-tienda').onclick=()=>{SFX.click();rTienda()};
+  $('#t-logros').onclick=()=>{SFX.click();rLogros()};
+  $('#t-records').onclick=()=>{SFX.click();rRecords()};
+  $('#t-perso').onclick=()=>{SFX.click();rPerso()};
+}
+
+/* ── CUTSCENE ── */
+function rCutscene(paginas,fin){
+  let i=0;
+  function pag(){
+    pantalla('cut',`
+    <div class="centro cut" id="cut-zona">
+      <span class="ico">${paginas[i].ico}</span>
+      <p class="desc">${paginas[i].t}</p>
+      <div class="cut-nav"><span class="cut-prog">${t('pagina')} ${i+1}/${paginas.length}</span></div>
+      <p class="mini blink">${t('toca')}</p>
+      <button class="cut-skip" id="cut-skip" type="button">${t('saltar')}</button>
+    </div>`);
+    $('#cut-zona').onclick=e=>{
+      if(e.target.id==='cut-skip')return;
+      SFX.click();i++;
+      i<paginas.length?pag():fin();
+    };
+    $('#cut-skip').onclick=e=>{e.stopPropagation();SFX.click();fin()};
+  }
+  pag();
+}
+
+/* ── MAPA ── */
+function rMapa(){
+  const p=progreso();
+  let cards='';
+  NIVELES.forEach((N,i)=>{
+    const st=S.dias[i];
+    const estado=st>=1?'ok':(i<=p?'open':'lock');
+    const badge=st>=1?'★'.repeat(st):(estado==='lock'?'🔒':'▶');
+    cards+=`
+    <button class="etapa-card ${estado}" data-i="${i}" ${estado==='lock'?'disabled':''} type="button">
+      <span class="etapa-num">${i+1}</span>
+      <span class="etapa-ico">${N.ico}</span>
+      <span class="etapa-body">
+        <span class="etapa-nom">${tj({es:N.es,en:N.en})}</span>
+        <span class="etapa-sub" style="display:block">${tj({es:N.ses,en:N.sen})}</span>
+        ${st>=1?`<span class="etapa-rango" style="display:block">${t('mejor')}: ${'★'.repeat(st)}</span>`:''}
+      </span>
+      <span class="etapa-badge">${badge}${estado==='open'&&i===p?`<span class="aqui">${t('aqui')}</span>`:''}</span>
+    </button>
+    ${i<9?'<div class="etapa-link"></div>':''}`;
+  });
+  pantalla('mapa',`
+  <div class="centro mapa">
+    <h2>${t('mapa')}</h2>
+    <div class="rango-linea">
+      <span class="rango-badge">${t('rango')}: ${rangoNom()}</span>
+      <span class="moneda">⛁ ${S.pts}</span>
+    </div>
+    <div class="etapas">${cards}</div>
+    <button class="btn btn2" id="m-volver" type="button">${t('volver')}</button>
+  </div>`);
+  $$('.etapa-card:not([disabled])').forEach(b=>b.onclick=()=>{SFX.click();empezarDia(+b.dataset.i)});
+  $('#m-volver').onclick=()=>{SFX.click();rTitulo()};
+}
+
+/* ── FLUJO DE DÍA ── */
+function empezarDia(i){
+  diaAct=i;vidas=maxVidas();
+  rDialogo(i);
+}
+function rDialogo(i){
+  const [quien,linea]=DIALOGOS[S.lang][i];
+  const N=NIVELES[i];
+  pantalla('dialogo',`
+  <div class="centro">
+    <p class="dia">${t('dia')} ${i+1}/10</p>
+    <h2>${N.ico} ${tj({es:N.es,en:N.en})}</h2>
+    <div class="dialogo">
+      <div class="retrato-wrap"><canvas class="retrato" id="d-cara" width="64" height="64"></canvas></div>
+      <div>
+        <p class="hablante">${quien}</p>
+        <p class="linea" id="d-linea"></p>
+      </div>
+    </div>
+    <span class="modo">${tj({es:N.ses,en:N.sen})}</span>
+    <button class="btn" id="d-go" type="button">${t('empezar')}</button>
+  </div>`);
+  cara($('#d-cara'),quienCara(quien));
+  /* máquina de escribir */
+  let j=0;const el=$('#d-linea');
+  tcada(()=>{if(pausado)return;if(j<linea.length){el.textContent=linea.slice(0,++j);if(j%3===0)beep(700+Math.random()*200,.02,'triangle',.05)}},28);
+  $('#d-go').onclick=()=>{SFX.click();jugarNivel(i)};
+}
+function jugarNivel(i){
+  const tipo=NIVELES[i].tipo;
+  ({escribir:nvEscribir,bugs:nvBugs,memoria:nvMemoria,simon:nvSimon,quiz:nvQuiz,runner:nvRunner})[tipo](i);
+}
+
+/* ── RESULTADO ── */
+function resultado(i,stars,pts){
+  const gan=Math.round(pts*facPts());
+  S.pts+=gan;S.xp+=gan;
+  if(stars>S.dias[i])S.dias[i]=stars;
+  if(i===0)darLogro('primer');
+  if(stars===3)darLogro('perfecto');
+  if(progreso()>=5)darLogro('mitad');
+  guardar();SFX.win();
+  const r=rangoDe(S.xp);
+  const sig=RANGOS[RANGOS.indexOf(r)+1];
+  const pc=sig?Math.min(100,Math.round((S.xp-r.xp)/(sig.xp-r.xp)*100)):100;
+  if(i===9){darLogro('titulado');registrarRecord();guardar();}
+  pantalla('resultado',`
+  <div class="centro">
+    <span class="ico">${NIVELES[i].ico}</span>
+    <h2 class="verde">${t('aprobado')}</h2>
+    ${starsHtml(stars)}
+    <p class="pts-final">+${gan} ${t('ptsgan')}</p>
+    <div class="xp-bar"><div class="xp-fill" style="width:${pc}%"></div></div>
+    <p class="xp-txt">${S.xp} XP · ${rangoNom()}${sig?' → '+tj(sig)+' ('+sig.xp+' XP)':''}</p>
+    ${i===9
+      ?`<button class="btn" id="r-fin" type="button">🎓 ${t('continuar')}</button>`
+      :`<button class="btn" id="r-sig" type="button">${t('siguiente')}</button>`}
+    <button class="btn btn2" id="r-mapa" type="button">${t('salirmapa')}</button>
+  </div>`);
+  tvez(SFX.star,300);
+  if(i===9)$('#r-fin').onclick=()=>{SFX.click();rCutscene(FINAL[S.lang],rCertificado)};
+  else $('#r-sig').onclick=()=>{SFX.click();empezarDia(Math.min(i+1,9))};
+  $('#r-mapa').onclick=()=>{SFX.click();rMapa()};
+}
+function fallo(i){
+  vidas--;hud();SFX.lose();
+  if(vidas<=0){
+    pantalla('gameover',`
+    <div class="centro">
+      <span class="ico">💀</span>
+      <h2 class="rojo">${t('gameover')}</h2>
+      <p class="desc">${t('gameovertxt')}</p>
+      <button class="btn btn2" id="g-mapa" type="button">${t('salirmapa')}</button>
+    </div>`);
+    $('#g-mapa').onclick=()=>{SFX.click();rMapa()};
+    return;
+  }
+  pantalla('fallo',`
+  <div class="centro">
+    <span class="ico">😵</span>
+    <h2 class="rojo">${t('fallado')}</h2>
+    <p class="mini">${t('vidas_txt')}: ${'♥'.repeat(vidas)}</p>
+    <button class="btn" id="f-re" type="button">${t('reintentar')}</button>
+    <button class="btn btn2" id="f-mapa" type="button">${t('salirmapa')}</button>
+  </div>`);
+  $('#f-re').onclick=()=>{SFX.click();jugarNivel(i)};
+  $('#f-mapa').onclick=()=>{SFX.click();rMapa()};
+}
+
+/* ══════════ MINIJUEGO 1 · ESCRIBIR ══════════ */
+function nvEscribir(dia){
+  const dif=dia>=5?1:0;
+  const lista=az(PALABRAS).slice(0,8);
+  const tickMax=Math.round((dif?52:70)*facTiempo());
+  let w=0,ticks=tickMax,fallas=0,pts=0,perfecto=true;
+  pantalla('nivel',`
+  <div class="l1">
+    <div class="tope"><span>${t('dia')} ${dia+1}</span><span id="e-prog">1/8</span></div>
+    <div class="term">
+      <div class="term-bar"><i style="background:#ff5468"></i><i style="background:#ffcf3f"></i><i style="background:#54c41a"></i>
+        <span class="term-line" style="margin-left:6px">practicante@sena:~$</span></div>
+      <div class="term-cuerpo">
+        <p class="term-line">&gt; ${S.lang==='es'?'escribe el comando:':'type the command:'}</p>
+        <p class="palabra" id="e-palabra"></p>
+        <div class="barra"><div class="barra-fill" id="e-barra"></div></div>
+      </div>
+    </div>
+    <input class="entrada" id="e-in" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${t('escribeaqui')}">
+  </div>`);
+  const inp=$('#e-in'),pal=$('#e-palabra'),bar=$('#e-barra');
+  function pinta(){
+    const obj=lista[w],val=inp.value;
+    let h='';
+    for(let k=0;k<obj.length;k++){
+      const ch=obj[k]===' '?'·':obj[k];
+      if(k<val.length)h+='<span class="'+(val[k]===obj[k]?'ok':'mal')+'">'+ch+'</span>';
+      else h+=ch;
+    }
+    pal.innerHTML=h;
+    $('#e-prog').textContent=(w+1)+'/8';
+  }
+  function sigPal(gano){
+    if(gano){pts+=60+Math.round(ticks*2);SFX.ok()}
+    else{fallas++;perfecto=false;SFX.mal();pal.classList.add('shake');setTimeout(()=>pal.classList.remove('shake'),250);
+      if(fallas>=3)return fallo(dia)}
+    w++;
+    if(w>=lista.length){
+      if(perfecto)darLogro('veloz');
+      return resultado(dia,fallas===0?3:fallas===1?2:1,pts+150);
+    }
+    ticks=tickMax;inp.value='';pinta();
+  }
+  inp.oninput=()=>{
+    if(pausado){return}
+    pinta();
+    const obj=lista[w];
+    if(inp.value===obj)sigPal(true);
+    else if(!obj.startsWith(inp.value))beep(200,.03,'sawtooth',.06);
+  };
+  tcada(()=>{
+    if(pausado)return;
+    ticks--;
+    bar.style.width=Math.max(0,ticks/tickMax*100)+'%';
+    bar.classList.toggle('peligro',ticks<tickMax*.3);
+    if(ticks<=0)sigPal(false);
+  },100);
+  pinta();inp.focus();
+  programarInterrupcion();
+}
+
+/* ══════════ MINIJUEGO 2 · CAZA-BUGS ══════════ */
+function nvBugs(dia){
+  const dif=dia>=5?1:0;
+  const meta=dif?18:12, dur=Math.round((dif?28:32)*facTiempo());
+  let hits=0,escapes=0,pts=0,seg=dur,activa=-1,esCafe=false;
+  pantalla('nivel',`
+  <div class="l3">
+    <div class="tope"><span>${t('meta')}: <b id="b-hits">0</b>/${meta} 🐛</span><span>${t('tiempo')}: <b id="b-seg">${dur}</b>s</span></div>
+    <div class="barra" style="width:100%"><div class="barra-fill" id="b-barra"></div></div>
+    <div class="grilla" id="b-grilla">${Array(9).fill(0).map((_,k)=>`<div class="celda" data-k="${k}"><span class="px"></span></div>`).join('')}</div>
+    <p class="mini">🐛 = +pts · ☕ = bonus</p>
+  </div>`);
+  const celdas=$$('#b-grilla .celda');
+  function apagar(){if(activa>=0){celdas[activa].classList.remove('on');activa=-1}}
+  function brotar(){
+    if(pausado)return;
+    if(activa>=0){if(!esCafe){escapes++}apagar()}
+    activa=Math.floor(Math.random()*9);
+    esCafe=Math.random()<.18;
+    celdas[activa].querySelector('.px').textContent=esCafe?'☕':'🐛';
+    celdas[activa].classList.add('on');
+  }
+  celdas.forEach(c=>c.onclick=()=>{
+    if(pausado)return;
+    const k=+c.dataset.k;
+    if(k!==activa)return;
+    c.classList.add('plaf');const px=c.querySelector('.px');px.textContent='✨';
+    setTimeout(()=>{c.classList.remove('plaf');},180);
+    if(esCafe){pts+=80;SFX.moneda()}else{hits++;pts+=40;SFX.pop()}
+    $('#b-hits').textContent=hits;
+    apagar();
+    if(hits>=meta){
+      const stars=escapes<=2?3:escapes<=5?2:1;
+      return resultado(dia,stars,pts+120);
+    }
+  });
+  const paso=dif?650:850;
+  tcada(brotar,paso);
+  tcada(()=>{
+    if(pausado)return;
+    seg--;$('#b-seg').textContent=seg;
+    $('#b-barra').style.width=(seg/dur*100)+'%';
+    $('#b-barra').classList.toggle('peligro',seg<dur*.3);
+    if(seg<=0)fallo(dia);
+  },1000);
+  programarInterrupcion();
+}
+
+/* ══════════ MINIJUEGO 3 · MEMORIA ══════════ */
+function nvMemoria(dia){
+  const dif=dia>=5?1:0;
+  const dur=Math.round((dif?45:60)*facTiempo());
+  const mazo=az([...PAREJAS,...PAREJAS]);
+  let vistaA=-1,bloq=false,pares=0,flips=0,seg=dur,pts=0;
+  pantalla('nivel',`
+  <div class="l4">
+    <div class="tope"><span>${t('pares')}: <b id="m-par">0</b>/8</span><span>${t('tiempo')}: <b id="m-seg">${dur}</b>s</span></div>
+    <div class="barra" style="width:100%"><div class="barra-fill" id="m-barra"></div></div>
+    <div class="memo" id="m-memo">${mazo.map((v,k)=>`<button class="carta" data-k="${k}" type="button">?</button>`).join('')}</div>
+  </div>`);
+  const cartas=$$('#m-memo .carta');
+  cartas.forEach(c=>c.onclick=()=>{
+    if(pausado||bloq)return;
+    const k=+c.dataset.k;
+    if(c.classList.contains('fija')||c.classList.contains('vista'))return;
+    c.classList.add('vista');c.textContent=mazo[k];flips++;SFX.click();
+    if(vistaA<0){vistaA=k;return}
+    const a=cartas[vistaA],ka=vistaA;vistaA=-1;
+    if(mazo[ka]===mazo[k]){
+      a.classList.replace('vista','fija');c.classList.replace('vista','fija');
+      pares++;pts+=90;SFX.ok();
+      $('#m-par').textContent=pares;
+      if(pares>=8){
+        if(flips<=22)darLogro('cerebro');
+        const stars=flips<=20?3:flips<=26?2:1;
+        resultado(dia,stars,pts+Math.max(0,seg*5)+100);
+      }
+    }else{
+      bloq=true;SFX.mal();
+      tvez(()=>{a.classList.remove('vista');c.classList.remove('vista');a.textContent='?';c.textContent='?';bloq=false},650);
+    }
+  });
+  tcada(()=>{
+    if(pausado)return;
+    seg--;$('#m-seg').textContent=seg;
+    $('#m-barra').style.width=(seg/dur*100)+'%';
+    $('#m-barra').classList.toggle('peligro',seg<dur*.3);
+    if(seg<=0)fallo(dia);
+  },1000);
+  programarInterrupcion();
+}
+
+/* ══════════ MINIJUEGO 4 · SIMON GIT ══════════ */
+function nvSimon(dia){
+  const dif=dia>=5?1:0;
+  const metaRondas=dif?7:5;
+  let sec=[],pos=0,errores=0,pts=0,fase='muestra';
+  pantalla('nivel',`
+  <div class="l3">
+    <div class="tope"><span>${t('ronda')}: <b id="s-ronda">1</b>/${metaRondas}</span><span>${t('errores')}: <b id="s-err">0</b>/3</span></div>
+    <p class="mini" id="s-msg">${t('observa')}</p>
+    <div class="simon muestra" id="s-simon">
+      ${CMDS.map(c=>`<button class="cmd ${c.cls}" data-id="${c.id}" type="button">${c.txt}</button>`).join('')}
+    </div>
+  </div>`);
+  const cont=$('#s-simon');
+  const botones={};$$('#s-simon .cmd').forEach(b=>botones[b.dataset.id]=b);
+  function ilumina(id,ms=420){
+    const b=botones[id],c=CMDS.find(x=>x.id===id);
+    b.classList.add('activo');beep(c.f,.25,'square',.14);
+    tvez(()=>b.classList.remove('activo'),ms-80);
+  }
+  function muestra(){
+    fase='muestra';cont.classList.add('muestra');
+    $('#s-msg').textContent=t('observa');
+    sec.push(CMDS[Math.floor(Math.random()*4)].id);
+    $('#s-ronda').textContent=sec.length;
+    let k=0;
+    const vel=dif?470:580;
+    tcada(function paso(){
+      if(pausado)return;
+      if(k<sec.length){ilumina(sec[k],vel);k++}
+      else{
+        tms.forEach(clearInterval);
+        fase='jugador';pos=0;cont.classList.remove('muestra');
+        $('#s-msg').textContent=t('turno');
+        armarTimers();
+      }
+    },vel);
+  }
+  /* re-arma el temporizador de interrupciones tras limpiar dentro de muestra */
+  function armarTimers(){}
+  Object.values(botones).forEach(b=>b.onclick=()=>{
+    if(pausado||fase!=='jugador')return;
+    const id=b.dataset.id;
+    ilumina(id,300);
+    if(id===sec[pos]){
+      pos++;pts+=25;
+      if(pos>=sec.length){
+        if(sec.length>=metaRondas){
+          if(errores===0)darLogro('gitmaster');
+          const stars=errores===0?3:errores===1?2:1;
+          return resultado(dia,stars,pts+200);
+        }
+        SFX.ok();tvez(muestra,700);
+      }
+    }else{
+      errores++;SFX.mal();$('#s-err').textContent=errores;
+      if(errores>=3)return fallo(dia);
+      fase='muestra';cont.classList.add('muestra');
+      $('#s-msg').textContent=t('observa');
+      /* repite la misma secuencia */
+      tvez(()=>{
+        let k=0;const vel=dif?470:580;
+        tcada(()=>{
+          if(pausado)return;
+          if(k<sec.length){ilumina(sec[k],vel);k++}
+          else{tms.forEach(clearInterval);fase='jugador';pos=0;cont.classList.remove('muestra');$('#s-msg').textContent=t('turno')}
+        },vel);
+      },800);
+    }
+  });
+  muestra();
+}
+
+/* ══════════ MINIJUEGO 5 · QUIZ ══════════ */
+function nvQuiz(dia){
+  const pregs=az(QUIZ[S.lang].map((q,i)=>i));
+  let i=0,buenas=0,malas=0,pts=0;
+  pantalla('nivel',`
+  <div class="quiz">
+    <div class="tope" style="width:100%"><span>${t('dia')} ${dia+1}</span><span id="q-prog">1/6</span></div>
+    <div class="jurado">
+      <canvas id="j1" width="48" height="48"></canvas>
+      <canvas id="j2" width="48" height="48"></canvas>
+      <canvas id="j3" width="48" height="48"></canvas>
+    </div>
+    <p class="pregunta" id="q-preg"></p>
+    <div class="opciones" id="q-ops"></div>
+    <p class="mini">${t('quiznec')}</p>
+  </div>`);
+  cara($('#j1'),CARAS.instructor());
+  cara($('#j2'),CARAS.lider());
+  cara($('#j3'),CARAS.compa());
+  function pinta(){
+    const Q=QUIZ[S.lang][pregs[i]];
+    $('#q-prog').textContent=(i+1)+'/6';
+    $('#q-preg').textContent=Q.q;
+    $('#q-ops').innerHTML=Q.o.map((o,k)=>`<button class="op" data-k="${k}" type="button">${String.fromCharCode(65+k)}) ${o}</button>`).join('');
+    $$('#q-ops .op').forEach(b=>b.onclick=()=>{
+      if(pausado)return;
+      const k=+b.dataset.k;
+      $$('#q-ops .op').forEach(x=>x.onclick=null);
+      if(k===Q.r){b.classList.add('bien');buenas++;pts+=120;SFX.ok()}
+      else{
+        b.classList.add('mal');malas++;SFX.mal();
+        $$('#q-ops .op')[Q.r].classList.add('bien');
+      }
+      tvez(()=>{
+        i++;
+        if(i>=6){
+          if(buenas>=4)resultado(dia,buenas===6?3:buenas===5?2:1,pts+100);
+          else fallo(dia);
+        }else pinta();
+      },900);
+    });
+  }
+  pinta();
+}
+
+/* ══════════ MINIJUEGO 6 · RUNNER FINAL ══════════ */
+function nvRunner(dia){
+  const durF=Math.round(40*60*facTiempo());
+  pantalla('nivel',`
+  <div class="cv-wrap">
+    <div class="tope" style="width:100%">
+      <span>${t('golpes')}: <b id="r-gol">0</b>/3</span>
+      <span>☕ <b id="r-caf">0</b></span>
+      <span>${t('tiempo')}: <b id="r-seg">40</b>s</span>
+    </div>
+    <canvas class="juego" id="r-cv" width="320" height="180"></canvas>
+    <p class="cv-msg">${t('runmsg')}</p>
+    <div class="fila-cv">
+      <div class="dpad">
+        <button class="dp dp-arriba" id="r-up" type="button">▲</button>
+        <button class="dp dp-abajo" id="r-dn" type="button">▼</button>
+      </div>
+    </div>
+  </div>`);
+  const cv=$('#r-cv'),c=cv.getContext('2d');
+  const SUELO=140;
+  const p={x:44,y:SUELO,vy:0,duck:0};
+  let obs=[],frame=0,golpes=0,cafes=0,pts=0,spawn=0,inv=0;
+  function salta(){if(p.y>=SUELO&&!pausado){p.vy=-8.2;beep(500,.07,'triangle',.1)}}
+  function agacha(v){p.duck=v?26:0}
+  $('#r-up').onpointerdown=e=>{e.preventDefault();salta()};
+  $('#r-dn').onpointerdown=e=>{e.preventDefault();agacha(1)};
+  $('#r-dn').onpointerup=()=>agacha(0);
+  $('#r-dn').onpointerleave=()=>agacha(0);
+  cv.onpointerdown=e=>{e.preventDefault();salta()};
+  const kd=e=>{if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();salta()}if(e.code==='ArrowDown'){e.preventDefault();agacha(1)}};
+  const ku=e=>{if(e.code==='ArrowDown')agacha(0)};
+  document.addEventListener('keydown',kd);document.addEventListener('keyup',ku);
+  alLimpiar.push(()=>{document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku)});
+  function loop(){
+    raf=requestAnimationFrame(loop);
+    if(pausado)return;
+    frame++;
+    const vel=2.4+frame/900;
+    /* física */
+    p.vy+=0.42;p.y+=p.vy;
+    if(p.y>SUELO){p.y=SUELO;p.vy=0}
+    if(inv>0)inv--;
+    /* spawns */
+    if(--spawn<=0){
+      spawn=Math.max(38,90-frame/40)+Math.random()*40;
+      const r=Math.random();
+      obs.push({x:340,tipo:r<.5?'bug':r<.75?'papel':'cafe'});
+    }
+    obs.forEach(o=>o.x-=vel);
+    obs=obs.filter(o=>o.x>-24);
+    /* colisiones */
+    const py=p.y-30+p.duck, ph=30-p.duck;
+    obs.forEach(o=>{
+      const oy=o.tipo==='papel'?SUELO-34:SUELO-14;
+      const oh=o.tipo==='papel'?14:14;
+      if(o.x<p.x+14&&o.x+16>p.x&&oy<py+ph&&oy+oh>py){
+        if(o.tipo==='cafe'){cafes++;pts+=60;SFX.moneda();$('#r-caf').textContent=cafes;o.x=-99}
+        else if(inv<=0){golpes++;inv=60;SFX.mal();$('#r-gol').textContent=golpes;o.x=-99;
+          if(golpes>=3){limpiarRun();return fallo(dia)}}
+      }
+    });
+    /* fin */
+    const segRest=Math.max(0,Math.ceil((durF-frame)/60));
+    $('#r-seg').textContent=segRest;
+    if(frame>=durF){
+      limpiarRun();
+      const stars=golpes===0?3:golpes===1?2:1;
+      return resultado(dia,stars,pts+400+cafes*20);
+    }
+    /* dibujo */
+    c.fillStyle='#0b0e22';c.fillRect(0,0,320,180);
+    c.fillStyle='#141a38';
+    for(let k=0;k<5;k++){const bx=(320-((frame*.5+k*90)%400));c.fillRect(bx,40+k*8%30,34,60)}
+    c.fillStyle='#39a900';c.fillRect(0,SUELO+2,320,3);
+    c.fillStyle='#11152a';c.fillRect(0,SUELO+5,320,40);
+    /* jugador */
+    const fy=p.y-30+p.duck;
+    if(inv%12<8){
+      c.fillStyle=CAMISAS[S.camisa];c.fillRect(p.x,fy+12,14,18-p.duck*0.4);
+      c.fillStyle=SKINS[S.skin];c.fillRect(p.x+1,fy,12,12);
+      c.fillStyle='#101018';c.fillRect(p.x+8,fy+4,2,2);
+    }
+    /* obstáculos */
+    c.font='16px serif';c.textBaseline='top';
+    obs.forEach(o=>{
+      const oy=o.tipo==='papel'?SUELO-36:SUELO-16;
+      c.fillText(o.tipo==='bug'?'🐛':o.tipo==='papel'?'📄':'☕',o.x,oy);
+    });
+    c.fillStyle='#54c41a';c.font='8px monospace';
+  }
+  function limpiarRun(){if(raf){cancelAnimationFrame(raf);raf=0}}
+  loop();
+  programarInterrupcion();
+}
+
+/* ── CERTIFICADO ── */
+function registrarRecord(){
+  S.records.push({n:t('tu'),p:S.pts,x:S.xp});
+  S.records.sort((a,b)=>b.p-a.p);
+  S.records=S.records.slice(0,5);
+}
+function rCertificado(){
+  const hoy=new Date().toLocaleDateString(S.lang==='es'?'es-CO':'en-US');
+  pantalla('cert',`
+  <div class="centro">
+    <div class="cert">
+      <p class="dia">🎓 ${t('cert')} 🎓</p>
+      <div class="retrato-wrap"><canvas class="retrato" id="c-cara" width="64" height="64"></canvas></div>
+      <p class="sub">${t('certde')}</p>
+      <p class="rango">${t('tu')}</p>
+      <p class="desc" style="text-align:center">${t('certtxt')}</p>
+      ${starsHtml(Math.min(3,Math.round(totalStars()/10)))}
+      <div class="stats-grid">
+        <div><b>${progreso()}</b><span>${t('diascomp')}</span></div>
+        <div><b>${totalStars()}</b><span>${t('estrellas')}</span></div>
+        <div><b>${S.pts}</b><span>${t('ptstotal')}</span></div>
+      </div>
+      <p class="sub">${t('firma')} · ${t('fecha')}: ${hoy}</p>
+      <span class="rango-badge grande">${rangoNom()}</span>
+    </div>
+    <button class="btn" id="c-volver" type="button">${t('volver')}</button>
+  </div>`);
+  cara($('#c-cara'),Object.assign(CARAS.yo(true),{medalla:true}));
+  $('#c-volver').onclick=()=>{SFX.click();rTitulo()};
+}
+
+/* ── TIENDA ── */
+function rTienda(){
+  const nAcc=id=>t('acc_'+id);
+  const nMej={vida:t('mejvida'),tiempo:t('mejtiempo'),doble:t('mejdoble')};
+  pantalla('tienda',`
+  <div class="centro">
+    <h2>🛒 ${t('tienda')}</h2>
+    <span class="moneda">⛁ ${S.pts} PTS</span>
+    <div class="tienda-grid">
+      ${ACCS.map(a=>{
+        const tiene=S.accs.includes(a.id);
+        const puede=S.pts>=a.precio;
+        return `<div class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')}" data-id="${a.id}">
+          <span class="ico-t">${a.ico}</span>
+          <span class="nom-t">${nAcc(a.id)}</span>
+          <span class="precio">${tiene?(S.acc===a.id?'✔ '+t('equipado'):'✔'):'⛁'+a.precio}</span>
+        </div>`}).join('')}
+    </div>
+    <p class="mej-titulo">⚙ ${t('mejoras')}</p>
+    <div class="mejoras-tienda">
+      ${MEJORAS.map(m=>{
+        const tiene=S.mejoras.includes(m.id);
+        const puede=S.pts>=m.precio;
+        return `<div class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')}" data-mej="${m.id}" style="flex-direction:row;justify-content:space-between;width:100%">
+          <span class="ico-t">${m.ico}</span>
+          <span class="nom-t">${nMej[m.id]}</span>
+          <span class="precio">${tiene?'✔':'⛁'+m.precio}</span>
+        </div>`}).join('')}
+    </div>
+    <button class="btn btn2" id="ti-volver" type="button">${t('volver')}</button>
+  </div>`);
+  $$('[data-id]').forEach(el=>el.onclick=()=>{
+    const a=ACCS.find(x=>x.id===el.dataset.id);
+    if(S.accs.includes(a.id)){S.acc=S.acc===a.id?'':a.id;guardar();SFX.click();rTienda();return}
+    if(S.pts<a.precio){SFX.mal();return}
+    S.pts-=a.precio;S.accs.push(a.id);S.acc=a.id;guardar();
+    SFX.moneda();darLogro('comprador');rTienda();
+  });
+  $$('[data-mej]').forEach(el=>el.onclick=()=>{
+    const m=MEJORAS.find(x=>x.id===el.dataset.mej);
+    if(S.mejoras.includes(m.id))return;
+    if(S.pts<m.precio){SFX.mal();return}
+    S.pts-=m.precio;S.mejoras.push(m.id);guardar();
+    SFX.moneda();darLogro('comprador');rTienda();
+  });
+  $('#ti-volver').onclick=()=>{SFX.click();rTitulo()};
+}
+
+/* ── LOGROS ── */
+function rLogros(){
+  pantalla('logros',`
+  <div class="centro">
+    <h2>🏆 ${t('logros')}</h2>
+    <p class="sub">${S.logros.length}/${LOGROS.length}</p>
+    <div class="logros-grid">
+      ${LOGROS.map(l=>`<div class="logro ${S.logros.includes(l.id)?'on':''}">
+        <span class="ico-lg">${l.ico}</span><p>${tj(l)}</p></div>`).join('')}
+    </div>
+    <button class="btn btn2" id="lo-volver" type="button">${t('volver')}</button>
+  </div>`);
+  $('#lo-volver').onclick=()=>{SFX.click();rTitulo()};
+}
+
+/* ── RÉCORDS ── */
+function rRecords(){
+  const base=[{n:'MARIA_DEV',p:9500,x:3200},{n:'CARLOS.JS',p:7800,x:2500},{n:'LUISA_SQL',p:5900,x:1600},{n:'PEPE_HTML',p:3400,x:900}];
+  const todos=[...base,...S.records].sort((a,b)=>b.p-a.p).slice(0,8);
+  pantalla('records',`
+  <div class="centro">
+    <h2>📊 ${t('records')}</h2>
+    <table class="rec-tabla">
+      <tr><th>#</th><th>${t('rec_nom')}</th><th>${t('rec_pts')}</th><th>${t('rec_rango')}</th></tr>
+      ${todos.map((r,i)=>`<tr class="${r.n===t('tu')?'yo':''}"><td>${i+1}</td><td>${r.n}</td><td>${r.p}</td><td>${tj(rangoDe(r.x))}</td></tr>`).join('')}
+    </table>
+    <h3>${t('rangos')}</h3>
+    <div class="rango-lista">
+      ${RANGOS.map(r=>{
+        const cls=S.xp>=r.xp?(rangoDe(S.xp)===r?'act':'hecho'):'';
+        return `<div class="rango-fila ${cls}"><span>${tj(r)}</span><span>${r.xp} XP</span></div>`}).join('')}
+    </div>
+    <button class="btn btn2" id="re-volver" type="button">${t('volver')}</button>
+  </div>`);
+  $('#re-volver').onclick=()=>{SFX.click();rTitulo()};
+}
+
+/* ── PERSONALIZAR ── */
+function rPerso(){
+  pantalla('perso',`
+  <div class="centro">
+    <h2>🎨 ${t('perso')}</h2>
+    <div class="retrato-wrap" style="width:96px;height:96px;flex:none">
+      <canvas class="retrato" id="pe-cara" width="64" height="64" style="width:96px;height:96px"></canvas>
+    </div>
+    <h3>${t('piel')}</h3>
+    <div class="custom-fila">
+      ${SKINS.map((s,i)=>`<button class="skin-op ${S.skin===i?'sel':''}" data-s="${i}" style="background:${s}" type="button"></button>`).join('')}
+    </div>
+    <h3>${t('camisa')}</h3>
+    <div class="custom-fila">
+      ${CAMISAS.map((s,i)=>`<button class="camisa-op ${S.camisa===i?'sel':''}" data-c="${i}" style="background:${s}" type="button"></button>`).join('')}
+    </div>
+    <h3>${t('accesorio')}</h3>
+    <div class="accs-tienda">
+      <button class="acc-op ${S.acc===''?'sel':''}" data-a="" type="button"><span class="acc-ico">🚫</span></button>
+      ${ACCS.map(a=>{
+        const tiene=S.accs.includes(a.id);
+        return `<button class="acc-op ${S.acc===a.id?'sel':''} ${tiene?'':'bloq'}" data-a="${a.id}" type="button">
+          <span class="acc-ico">${a.ico}</span>
+          ${tiene?(S.acc===a.id?'<span class="acc-eq">✔</span>':''):`<span class="acc-precio">⛁${a.precio}</span>`}
+        </button>`}).join('')}
+    </div>
+    <button class="btn btn2" id="pe-volver" type="button">${t('volver')}</button>
+  </div>`);
+  const pinta=()=>cara($('#pe-cara'),CARAS.yo(true));
+  pinta();
+  $$('.skin-op').forEach(b=>b.onclick=()=>{S.skin=+b.dataset.s;guardar();SFX.click();rPerso()});
+  $$('.camisa-op').forEach(b=>b.onclick=()=>{S.camisa=+b.dataset.c;guardar();SFX.click();rPerso()});
+  $$('.acc-op').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.a;
+    if(id&&!S.accs.includes(id)){b.classList.add('shake');SFX.mal();setTimeout(()=>b.classList.remove('shake'),320);return}
+    S.acc=id;guardar();SFX.click();rPerso();
+  });
+  $('#pe-volver').onclick=()=>{SFX.click();rTitulo()};
+}
+
+/* ── PAUSA / BOTONES GLOBALES ── */
+$('#b-pause').onclick=()=>{
+  if(pantallaId!=='nivel'&&pantallaId!=='dialogo')return;
+  pausado=true;$('#p-titulo').textContent=t('pausa');
+  $('#p-cont').textContent=t('continuar');$('#p-mapa').textContent=t('salirmapa');
+  $('#pausa').hidden=false;SFX.click();
+};
+$('#p-cont').onclick=()=>{pausado=false;$('#pausa').hidden=true;SFX.click()};
+$('#p-mapa').onclick=()=>{SFX.click();rMapa()};
+$('#b-snd').onclick=()=>{S.snd=!S.snd;guardar();hud();SFX.click()};
+$('#b-lang').onclick=()=>{
+  S.lang=S.lang==='es'?'en':'es';guardar();SFX.click();
+  /* re-render de pantallas de menú; en juego solo cambia el HUD */
+  if(['titulo'].includes(pantallaId))rTitulo();
+  else if(pantallaId==='mapa')rMapa();
+  else if(pantallaId==='tienda')rTienda();
+  else if(pantallaId==='logros')rLogros();
+  else if(pantallaId==='records')rRecords();
+  else if(pantallaId==='perso')rPerso();
+  else hud();
+};
+
+/* ── ARRANQUE ── */
+vidas=maxVidas();
+rTitulo();
+</script>
+</body>
+</html>
