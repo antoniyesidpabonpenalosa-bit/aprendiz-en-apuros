@@ -32,7 +32,7 @@ function nvEscribir(dia){
     $('#e-prog').textContent=(w+1)+'/8';
   }
   function sigPal(gano){
-    if(gano){pts+=60+Math.round(ticks*2);SFX.ok()}
+    if(gano){pts+=60+Math.round(ticks*2);sumaStat('palabras');SFX.ok()}
     else{fallas++;perfecto=false;SFX.mal();pal.classList.add('shake');setTimeout(()=>pal.classList.remove('shake'),250);
       if(fallas>=3)return fallo(dia)}
     w++;
@@ -89,7 +89,7 @@ function nvBugs(dia){
     c.classList.add('plaf');const px=c.querySelector('.px');px.textContent='✨';
     setTimeout(()=>{c.classList.remove('plaf');},180);
     if(esCafe){pts+=80;SFX.moneda()}
-    else{hits++;combo++;pts+=40+(combo>=3?combo*5:0);SFX.pop();
+    else{hits++;combo++;sumaStat('bugs');pts+=40+(combo>=3?combo*5:0);SFX.pop();
       if(combo>0&&combo%5===0)SFX.moneda()}
     $('#b-hits').textContent=hits;
     $('#b-combo').textContent=combo;
@@ -416,7 +416,13 @@ function nvRunner(dia){
   if(HD){cv.width=640;cv.height=360;c.scale(2,2)}
   const SUELO=140;
   const p={x:44,y:SUELO,vy:0,duck:0};
-  let obs=[],frame=0,golpes=0,cafes=0,pts=0,spawn=0,inv=0,prevA=false,prevAbajo=false;
+  let obs=[],frame=0,golpes=0,cafes=0,pts=0,spawn=0,inv=0,prevA=false,prevAbajo=false,combo=0;
+  function comboFly(n){
+    const w=$('.cv-wrap');if(!w)return;
+    const el=document.createElement('span');
+    el.className='combo-fly';el.textContent='🔥 '+t('combo')+' x'+n;
+    w.appendChild(el);setTimeout(()=>{el.remove()},700);
+  }
   function salta(){if(p.y>=SUELO&&!pausado){p.vy=-8.2;beep(500,.07,'triangle',.1)}}
   function agacha(v){p.duck=v?26:0}
   $('#r-up').onpointerdown=e=>{e.preventDefault();salta()};
@@ -430,6 +436,7 @@ function nvRunner(dia){
   alLimpiar.push(()=>{document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku)});
   function loop(){
     raf=requestAnimationFrame(loop);
+    if(!$('#r-cv')){cancelAnimationFrame(raf);raf=0;return}
     if(pausado)return;
     frame++;
     /* mando: A o cruceta-arriba salta, cruceta-abajo agacha */
@@ -459,8 +466,14 @@ function nvRunner(dia){
       const oy=o.tipo==='papel'?SUELO-34:SUELO-14;
       const oh=o.tipo==='papel'?14:14;
       if(o.x<p.x+14&&o.x+16>p.x&&oy<py+ph&&oy+oh>py){
-        if(o.tipo==='cafe'){cafes++;pts+=60;SFX.moneda();$('#r-caf').textContent=cafes;o.x=-99}
-        else if(inv<=0){golpes++;inv=60;SFX.mal();$('#r-gol').textContent=golpes;o.x=-99;
+        if(o.tipo==='cafe'){
+          cafes++;combo++;sumaStat('cafes');mejorStat('racha',combo);
+          pts+=60+(combo>=3?combo*15:0);SFX.moneda();
+          $('#r-caf').textContent=cafes;o.x=-99;
+          if(combo>=3)comboFly(combo);
+          if(combo>=5)darLogro('combo');
+        }
+        else if(inv<=0){golpes++;combo=0;inv=60;SFX.mal();$('#r-gol').textContent=golpes;o.x=-99;
           if(golpes>=3){limpiarRun();return fallo(dia)}}
       }
     });

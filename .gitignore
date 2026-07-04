@@ -1,0 +1,9 @@
+# Capturas y artefactos de prueba locales (no forman parte del juego)
+/*.png
+
+# Dependencias instaladas localmente para pruebas (Playwright, etc.)
+node_modules/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db

@@ -59,12 +59,20 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
 
 - **2 modos visuales**: 🕹 RETRO 32-BIT (pixel art + CRT) y ✨ 4K HD PRO OLED
   (negros profundos, neón y alta resolución) — cambia desde la pantalla de título
+- **3 niveles de dificultad**: 🌱 Práctica, ⚔️ Normal y 💀 Pesadilla — ajustan
+  vidas, tiempo y la agresividad del jefe final
 - **10 días** de etapa productiva con **7 minijuegos** + un **jefe final oculto** 👾:
   mecanografía, caza-bugs, memoria, simon de Git, quiz, code review,
   conflictos de merge, runner y la batalla contra EL BUG FINAL
+- **Jefe final con 3 fases reales**: lluvia de errores, ráfagas en abanico y un
+  **láser telegrafiado** que avisa antes de disparar · música chiptune tensa
+  propia · casilla oculta **"???"** en el mapa para repetir la pelea
+- **Racha/combo** en el runner: encadena cafés sin recibir golpes para multiplicar
 - Diálogos con retratos pixel-art, cutscenes e interrupciones de oficina
 - Puntos, XP, rangos (Aspirante → Titulado SENA), vidas, estrellas y certificado
-- Tienda, 11 logros, récords, avatar personalizable y borrado de progreso
+- Tienda, **15 logros**, récords, **estadísticas de por vida**, avatar
+  personalizable, borrado de progreso y **botón de compartir** el resultado
+- Transiciones suaves entre pantallas (respetan *prefers-reduced-motion*)
 - Música chiptune y efectos con WebAudio, idiomas ES/EN
 - **PWA instalable** con soporte offline
 - Progreso guardado en el navegador (localStorage)
@@ -92,10 +100,16 @@ aprendiz-en-apuros/
     ├── minijuegos.js     → los 8 minijuegos de los 10 días
     ├── jefe.js           → la batalla final contra EL BUG FINAL
     └── principal.js      → arranque del juego y botones globales
+scripts/
+└── validar.mjs           → chequeo de sintaxis y referencias (CI + local)
 ```
 
 Los módulos se cargan en orden como scripts clásicos (sin `type="module"`)
 para que el juego siga funcionando al abrir `index.html` con doble clic.
+
+**Validación:** `node scripts/validar.mjs` comprueba la sintaxis de todos los
+`.js` y que `index.html` no referencie archivos inexistentes. Se ejecuta
+automáticamente en cada push mediante GitHub Actions (`.github/workflows/validar.yml`).
 
 ---
 

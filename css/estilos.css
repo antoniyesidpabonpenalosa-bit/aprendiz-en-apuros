@@ -225,7 +225,7 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .op:active{transform:translateY(3px);box-shadow:none}
 .op.bien{background:#143518;border-color:var(--g3)}
 .op.mal {background:#3d1219;border-color:var(--r3)}
-.cv-wrap{display:flex;flex-direction:column;gap:10px;padding:6px;align-items:center}
+.cv-wrap{position:relative;display:flex;flex-direction:column;gap:10px;padding:6px;align-items:center}
 canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:block;
   background:#000;border:2px solid var(--bd);
   box-shadow:0 0 0 2px var(--bl);touch-action:none}
@@ -267,7 +267,7 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
   animation:confeti-cae 2.8s linear forwards}
 @keyframes confeti-cae{to{transform:translateY(105vh) rotate(720deg);opacity:.1}}
 .combo-txt{color:var(--y2)}
-@media (prefers-reduced-motion:reduce){.blink,#screen>*,.confeti{animation:none}}
+@media (prefers-reduced-motion:reduce){.blink,#screen>*,.confeti,.fade-in,.etapa-jefe{animation:none}}
 
 /* ── MAPA DE CARRERA ── */
 .mapa h2{margin:.15em 0}
@@ -290,6 +290,35 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 .etapa-badge .aqui{font-size:8px;color:#6fd62b;border:1px solid #6fd62b;border-radius:4px;padding:0 3px;letter-spacing:.5px}
 .etapa-link{width:4px;height:14px;background:#2a3260;margin:0 auto}
 .etapa-card.ok + .etapa-link{background:#39a900}
+.etapa-link-jefe{background:linear-gradient(#39a900,#c22e44);height:18px}
+.etapa-jefe{border-color:#c22e44;background:#1a0613;animation:pulsarJefe 2s ease-in-out infinite}
+.etapa-jefe:hover{border-color:#ff5468;transform:translateY(-2px)}
+.etapa-jefe .etapa-num{color:#ff5468}
+.etapa-jefe .etapa-badge{color:#ff9900;font-size:18px}
+@keyframes pulsarJefe{0%,100%{box-shadow:0 0 0 0 rgba(194,46,68,.4)}50%{box-shadow:0 0 0 6px rgba(194,46,68,0)}}
+
+/* ── TRANSICIÓN DE PANTALLA ── */
+.fade-in{animation:fadeIn .28s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── SELECTOR DE DIFICULTAD ── */
+.dif-sel{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:2px 0}
+.dif-op{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:.5px;color:var(--tx2);
+  background:var(--void2);border:2px solid var(--bl);padding:8px 9px;cursor:pointer;display:flex;
+  flex-direction:column;align-items:center;gap:4px;min-width:74px;line-height:1.4}
+.dif-op .dif-ico{font-size:16px}
+.dif-op.sel{color:var(--y2);border-color:var(--y1);background:var(--pan2);box-shadow:0 0 0 1px var(--y1) inset}
+.dif-op:active{transform:scale(.96)}
+.dif-badge{font-size:8px;color:var(--tx2);background:var(--void2);border:2px solid var(--bl);padding:6px 10px;letter-spacing:1px}
+
+/* ── RACHA / COMBO FLOTANTE (runner) ── */
+.combo-fly{position:absolute;left:50%;top:34%;transform:translateX(-50%);z-index:35;pointer-events:none;
+  font-family:'Press Start 2P',monospace;font-size:13px;color:var(--y2);text-shadow:0 2px 0 #7a3b00;
+  animation:comboPop .7s ease-out forwards}
+@keyframes comboPop{0%{opacity:0;transform:translateX(-50%) scale(.5)}30%{opacity:1;transform:translateX(-50%) scale(1.15)}100%{opacity:0;transform:translateX(-50%) translateY(-26px) scale(1)}}
+
+/* ── BOTÓN COMPARTIR ── */
+.btn-share{background:var(--bl);color:#fff}
 
 /* ── CUTSCENES ── */
 .cut{cursor:pointer}

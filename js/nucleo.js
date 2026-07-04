@@ -25,9 +25,11 @@ function programarInterrupcion(){
 
 /* ── ROUTER ── */
 function pantalla(id,html){
-  limpiarT();pausado=false;$('#pausa').hidden=true;$('#interrupcion').hidden=true;
+  limpiarT();pausado=false;modoJefe=false;$('#pausa').hidden=true;$('#interrupcion').hidden=true;
   pantallaId=id;
-  $('#screen').innerHTML=html;
+  const sc=$('#screen');
+  sc.innerHTML=html;
+  sc.classList.remove('fade-in');void sc.offsetWidth;sc.classList.add('fade-in');
   hud();
 }
 function starsHtml(n,tot=3){let s='';for(let i=0;i<tot;i++)s+='<span class="'+(i<n?'on':'off')+'">★</span>';return '<span class="stars-row">'+s+'</span>'}
@@ -38,8 +40,9 @@ function resultado(i,stars,pts){
   S.pts+=gan;S.xp+=gan;
   if(stars>S.dias[i])S.dias[i]=stars;
   if(i===0)darLogro('primer');
-  if(stars===3)darLogro('perfecto');
+  if(stars===3){darLogro('perfecto');sumaStat('perfectos');}
   if(progreso()>=5)darLogro('mitad');
+  if(S.dif===2)darLogro('pesadilla');
   guardar();SFX.win();
   const r=rangoDe(S.xp);
   const sig=RANGOS[RANGOS.indexOf(r)+1];

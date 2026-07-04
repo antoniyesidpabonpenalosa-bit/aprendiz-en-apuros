@@ -23,6 +23,12 @@ const MEJORAS=[
   {id:'tiempo',ico:'⏰', precio:700},
   {id:'doble', ico:'💰', precio:1000},
 ];
+/* Dificultad: vida = vidas extra/menos · tiempo = factor de tiempo · jefe = factor de agresividad */
+const DIFS=[
+  {id:0, ico:'🌱', es:'PRÁCTICA',  en:'PRACTICE',  vida:1,  tiempo:1.3, jefe:0.75},
+  {id:1, ico:'⚔️', es:'NORMAL',    en:'NORMAL',    vida:0,  tiempo:1,   jefe:1},
+  {id:2, ico:'💀', es:'PESADILLA', en:'NIGHTMARE', vida:-1, tiempo:0.8, jefe:1.35},
+];
 const RANGOS=[
   {xp:0,   es:'ASPIRANTE',   en:'APPLICANT'},
   {xp:400, es:'APRENDIZ',    en:'APPRENTICE'},
@@ -182,6 +188,10 @@ const LOGROS=[
   {id:'resolutor',ico:'🧬',es:'SIN CONFLICTOS',en:'NO CONFLICTS'},
   {id:'jefe',   ico:'👾', es:'CAZA JEFES',   en:'BOSS HUNTER'},
   {id:'titulado',ico:'🎓', es:'TITULADO',    en:'GRADUATE'},
+  {id:'intacto', ico:'🛡️', es:'INTOCABLE',   en:'UNTOUCHABLE'},
+  {id:'combo',   ico:'🔥', es:'EN RACHA',    en:'ON FIRE'},
+  {id:'coleccionista',ico:'🎁',es:'COLECCIONISTA',en:'COLLECTOR'},
+  {id:'pesadilla',ico:'💀', es:'MODO PESADILLA',en:'NIGHTMARE MODE'},
 ];
 const TXT={
  es:{dia:'DÍA',start:'PULSA START',jugar:'▶ JUGAR',tienda:'TIENDA',logros:'LOGROS',records:'RÉCORDS',perso:'AVATAR',
@@ -215,6 +225,14 @@ const TXT={
   borrado:'PROGRESO BORRADO. ¡PARTIDA NUEVA!',
   jefemsg:'◀ ▶ MUÉVETE · disparas solo · esquiva los ❌ · sirve mando 🎮 o inclinar 📱',
   girar:'📱 GIRO',mando:'¡MANDO CONECTADO!',
+  jefereplay:'Repetir batalla del jefe',
+  dificultad:'DIFICULTAD',estadisticas:'📈 ESTADÍSTICAS',
+  st_bugs:'BUGS APLASTADOS',st_cafes:'CAFÉS TOMADOS',st_palabras:'PALABRAS ESCRITAS',
+  st_jefes:'JEFES VENCIDOS',st_perfectos:'DÍAS PERFECTOS',st_racha:'MEJOR RACHA',
+  st_partidas:'PARTIDAS TERMINADAS',st_sinreg:'Aún no hay datos. ¡A jugar!',
+  compartir:'📤 COMPARTIR',copiado:'¡COPIADO AL PORTAPAPELES!',
+  compartexto:'Terminé Practicante en Apuros 4 con {p} pts como {r} 🎓 ¡Juégalo!',
+  jefefase:'FASE',avisolaser:'¡LÁSER!',
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'AVATAR',
   sub:'THE APPRENTICE ADVENTURE · CHAPTER 4',mapa:'INTERNSHIP MAP',volver:'← BACK',continuar:'CONTINUE',
@@ -247,5 +265,13 @@ const TXT={
   borrado:'PROGRESS DELETED. FRESH START!',
   jefemsg:'◀ ▶ MOVE · auto-fire · dodge the ❌ · gamepad 🎮 or tilt 📱 works',
   girar:'📱 TILT',mando:'GAMEPAD CONNECTED!',
+  jefereplay:'Replay the final boss',
+  dificultad:'DIFFICULTY',estadisticas:'📈 STATISTICS',
+  st_bugs:'BUGS SQUASHED',st_cafes:'COFFEES DRUNK',st_palabras:'WORDS TYPED',
+  st_jefes:'BOSSES BEATEN',st_perfectos:'PERFECT DAYS',st_racha:'BEST STREAK',
+  st_partidas:'GAMES FINISHED',st_sinreg:'No data yet. Go play!',
+  compartir:'📤 SHARE',copiado:'COPIED TO CLIPBOARD!',
+  compartexto:'I finished Intern in Trouble 4 with {p} pts as {r} 🎓 Play it!',
+  jefefase:'PHASE',avisolaser:'LASER!',
  }
 };

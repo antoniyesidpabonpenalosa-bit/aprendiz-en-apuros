@@ -31,11 +31,17 @@ const SFX={
 const MEL=[392,0,523,0,659,523,659,784,659,0,523,659,523,0,440,494,
            392,0,523,0,659,523,659,784,880,0,784,659,523,0,494,440];
 const BAJ=[131,165,196,165,147,175,220,175];
+/* tema del jefe: menor, tenso y más rápido */
+const MEL_J=[440,0,523,0,415,0,523,622,415,0,523,415,392,0,466,415,
+             440,523,622,523,415,523,622,740,698,0,622,523,466,0,415,392];
+const BAJ_J=[110,110,138,138,104,104,123,146];
+let modoJefe=false;
 let musPaso=0;
 setInterval(()=>{
   if(!S.snd||pausado||document.hidden)return;
-  const n=MEL[musPaso%MEL.length];
-  if(n)beep(n,.14,'triangle',.035);
-  if(musPaso%2===0)beep(BAJ[(musPaso>>2)%BAJ.length],.18,'square',.028);
+  const mel=modoJefe?MEL_J:MEL, baj=modoJefe?BAJ_J:BAJ;
+  const n=mel[musPaso%mel.length];
+  if(n)beep(n,.13,modoJefe?'square':'triangle',modoJefe?.04:.035);
+  if(musPaso%2===0)beep(baj[(musPaso>>2)%baj.length],.18,'square',modoJefe?.036:.028);
   musPaso++;
 },170);
