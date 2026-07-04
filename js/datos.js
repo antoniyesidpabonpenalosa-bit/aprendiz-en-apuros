@@ -215,6 +215,7 @@ const TXT={
   borrado:'PROGRESO BORRADO. ¡PARTIDA NUEVA!',
   jefemsg:'◀ ▶ MUÉVETE · disparas solo · esquiva los ❌ · sirve mando 🎮 o inclinar 📱',
   girar:'📱 GIRO',mando:'¡MANDO CONECTADO!',
+  jefereplay:'Repetir batalla del jefe',
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'AVATAR',
   sub:'THE APPRENTICE ADVENTURE · CHAPTER 4',mapa:'INTERNSHIP MAP',volver:'← BACK',continuar:'CONTINUE',
@@ -247,5 +248,6 @@ const TXT={
   borrado:'PROGRESS DELETED. FRESH START!',
   jefemsg:'◀ ▶ MOVE · auto-fire · dodge the ❌ · gamepad 🎮 or tilt 📱 works',
   girar:'📱 TILT',mando:'GAMEPAD CONNECTED!',
+  jefereplay:'Replay the final boss',
  }
 };

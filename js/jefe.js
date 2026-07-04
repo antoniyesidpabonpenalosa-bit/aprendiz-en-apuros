@@ -52,6 +52,7 @@ function nvJefe(dia,ptsBase){
   function loop(){
     if(fin)return;
     raf=requestAnimationFrame(loop);
+    if(!$('#j-cv')){cancelAnimationFrame(raf);raf=0;fin=true;return}
     if(pausado)return;
     frame++;
     const fase=jefe.hp>66?1:jefe.hp>33?2:3;
@@ -84,27 +85,30 @@ function nvJefe(dia,ptsBase){
     if(inv>0)inv--;
     /* ── colisiones: balas contra jefe ── */
     balas.forEach(b=>{
+      if(fin)return;
       if(Math.abs(b.x-jefe.x)<24&&Math.abs(b.y-jefe.y)<18){
         jefe.hp=Math.max(0,jefe.hp-2);pts+=10;b.y=-9;
         prevGolpe=frame;
-        $('#j-hp').textContent=jefe.hp;
-        $('#j-pts').textContent=pts;
         if(jefe.hp<=0){
           terminar();
           darLogro('jefe');
           SFX.win();
           const stars=golpes===0?3:golpes===1?2:1;
-          return resultado(dia,stars,ptsBase+pts+500);
+          resultado(dia,stars,ptsBase+pts+500);
+          return;
         }
+        $('#j-hp').textContent=jefe.hp;
+        $('#j-pts').textContent=pts;
       }
     });
     if(fin)return;
     /* ── colisiones: errores contra jugador ── */
     errores.forEach(o=>{
+      if(fin)return;
       if(inv<=0&&o.y>150&&o.y<176&&Math.abs(o.x-(p.x+8))<14){
         golpes++;inv=55;o.y=999;SFX.mal();
+        if(golpes>=3){terminar();fallo(dia,()=>nvJefe(dia,ptsBase));return}
         $('#j-gol').textContent=3-golpes;
-        if(golpes>=3){terminar();return fallo(dia,()=>nvJefe(dia,ptsBase))}
       }
     });
     if(fin)return;

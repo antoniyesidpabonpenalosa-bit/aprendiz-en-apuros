@@ -133,6 +133,20 @@ function rMapa(){
     </button>
     ${i<9?'<div class="etapa-link"></div>':''}`;
   });
+  /* casilla 11 ??? — solo visible tras completar el día 10 */
+  if(S.dias[9]>=1){
+    cards+=`
+    <div class="etapa-link etapa-link-jefe"></div>
+    <button class="etapa-card etapa-jefe" id="m-jefe" type="button">
+      <span class="etapa-num">11</span>
+      <span class="etapa-ico">👾</span>
+      <span class="etapa-body">
+        <span class="etapa-nom">??? · EL BUG FINAL</span>
+        <span class="etapa-sub" style="display:block">${t('jefereplay')}</span>
+      </span>
+      <span class="etapa-badge">⚔</span>
+    </button>`;
+  }
   pantalla('mapa',`
   <div class="centro mapa">
     <h2>${t('mapa')}</h2>
@@ -144,6 +158,8 @@ function rMapa(){
     <button class="btn btn2" id="m-volver" type="button">${t('volver')}</button>
   </div>`);
   $$('.etapa-card:not([disabled])').forEach(b=>b.onclick=()=>{SFX.click();empezarDia(+b.dataset.i)});
+  const btnJefe=$('#m-jefe');
+  if(btnJefe)btnJefe.onclick=()=>{SFX.click();rCutscene(JEFE_INTRO[S.lang],()=>nvJefe(9,0))};
   $('#m-volver').onclick=()=>{SFX.click();rTitulo()};
 }
 

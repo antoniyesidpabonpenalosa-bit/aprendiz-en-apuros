@@ -290,6 +290,12 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 .etapa-badge .aqui{font-size:8px;color:#6fd62b;border:1px solid #6fd62b;border-radius:4px;padding:0 3px;letter-spacing:.5px}
 .etapa-link{width:4px;height:14px;background:#2a3260;margin:0 auto}
 .etapa-card.ok + .etapa-link{background:#39a900}
+.etapa-link-jefe{background:linear-gradient(#39a900,#c22e44);height:18px}
+.etapa-jefe{border-color:#c22e44;background:#1a0613;animation:pulsarJefe 2s ease-in-out infinite}
+.etapa-jefe:hover{border-color:#ff5468;transform:translateY(-2px)}
+.etapa-jefe .etapa-num{color:#ff5468}
+.etapa-jefe .etapa-badge{color:#ff9900;font-size:18px}
+@keyframes pulsarJefe{0%,100%{box-shadow:0 0 0 0 rgba(194,46,68,.4)}50%{box-shadow:0 0 0 6px rgba(194,46,68,0)}}
 
 /* ── CUTSCENES ── */
 .cut{cursor:pointer}

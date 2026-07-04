@@ -430,6 +430,7 @@ function nvRunner(dia){
   alLimpiar.push(()=>{document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku)});
   function loop(){
     raf=requestAnimationFrame(loop);
+    if(!$('#r-cv')){cancelAnimationFrame(raf);raf=0;return}
     if(pausado)return;
     frame++;
     /* mando: A o cruceta-arriba salta, cruceta-abajo agacha */
