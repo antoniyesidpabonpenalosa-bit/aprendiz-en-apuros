@@ -24,7 +24,13 @@ function hud(){
   $('#h-pts').textContent=String(Math.min(S.pts,9999)).padStart(4,'0');
   $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas))+'♡'.repeat(Math.max(0,maxVidas()-vidas));
   $('#b-lang').textContent=S.lang==='es'?'EN':'ES';
-  $('#b-snd').textContent=S.snd?'♪':'✕';
+  $('#b-snd').textContent=!S.snd?'🔇':(S.mus?'🔊':'🔉');
+}
+
+/* ── SACUDIDA DE PANTALLA (al recibir daño) ── */
+function sacudir(){
+  const s=$('#screen');if(!s)return;
+  s.classList.remove('sacudida');void s.offsetWidth;s.classList.add('sacudida');
 }
 
 /* ── RETRATOS PIXEL ── */

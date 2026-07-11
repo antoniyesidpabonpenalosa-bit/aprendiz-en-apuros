@@ -1,5 +1,6 @@
 # Capturas y artefactos de prueba locales (no forman parte del juego)
 /*.png
+!/portada.png
 
 # Dependencias instaladas localmente para pruebas (Playwright, etc.)
 node_modules/

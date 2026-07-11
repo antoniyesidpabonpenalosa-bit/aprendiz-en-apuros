@@ -362,8 +362,33 @@ function rStats(){
     <div class="stats-grid">
       ${filas.map(f=>`<div><span style="font-size:16px">${f[0]}</span><b>${f[1]}</b><span>${t(f[2])}</span></div>`).join('')}
     </div>
+    <h3>${t('guardado')}</h3>
+    <p class="mini" style="text-align:center">${t('guardatxt')}</p>
+    <div class="guardado-zona">
+      <button class="btn btn2" id="es-exp" type="button">${t('exportar')}</button>
+      <textarea class="entrada cod-guardado" id="es-code" rows="3" spellcheck="false" placeholder="${t('pegacodigo')}"></textarea>
+      <button class="btn btn2" id="es-imp" type="button">${t('importar')}</button>
+    </div>
     <button class="btn btn2" id="es-volver" type="button">${t('volver')}</button>
   </div>`);
+  const aviso=(ico,txt)=>{
+    const p=$('#logro-popup');
+    p.querySelector('.ico-l').textContent=ico;
+    p.querySelector('p').textContent=txt;
+    p.hidden=false;setTimeout(()=>{p.hidden=true},2200);
+  };
+  $('#es-exp').onclick=()=>{
+    const cod=exportarCodigo();
+    const ta=$('#es-code');ta.value=cod;ta.select();
+    if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(cod).then(()=>aviso('💾',t('copiado'))).catch(()=>aviso('💾',t('guardado')));
+    else aviso('💾',t('guardado'));
+    SFX.moneda();
+  };
+  $('#es-imp').onclick=()=>{
+    if(importarCodigo($('#es-code').value)){SFX.win();aviso('✅',t('impok'));rTitulo()}
+    else{SFX.mal();aviso('❌',t('impmal'))}
+  };
   $('#es-volver').onclick=()=>{SFX.click();rTitulo()};
 }
 

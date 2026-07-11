@@ -2,11 +2,12 @@
 /* ── ESTADO ── */
 const STATS0={bugs:0,cafes:0,palabras:0,jefes:0,perfectos:0,racha:0,partidas:0};
 const DEF={pts:0,xp:0,dias:Array(10).fill(-1),logros:[],accs:[],acc:'',skin:0,camisa:0,
-  mejoras:[],records:[],lang:'es',snd:true,intro:false,nombre:'',hd:false,dif:1,stats:Object.assign({},STATS0)};
+  mejoras:[],records:[],lang:'es',snd:true,mus:true,intro:false,nombre:'',hd:false,dif:1,stats:Object.assign({},STATS0)};
 let S;
 try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('pa3')||'{}'))}catch(e){S=Object.assign({},DEF)}
 if(!Array.isArray(S.dias)||S.dias.length!==10)S.dias=Array(10).fill(-1);
 if(typeof S.dif!=='number'||S.dif<0||S.dif>2)S.dif=1;
+if(typeof S.mus!=='boolean')S.mus=true;
 if(!S.stats||typeof S.stats!=='object')S.stats={};
 S.stats=Object.assign({},STATS0,S.stats);
 const guardar=()=>{try{localStorage.setItem('pa3',JSON.stringify(S))}catch(e){}};
@@ -29,6 +30,28 @@ const facPts=()=>S.mejoras.includes('doble')?2:1;
 const facJefe=()=>difActual().jefe;
 const sumaStat=(k,n)=>{S.stats[k]=(S.stats[k]||0)+(n||1);guardar()};
 const mejorStat=(k,n)=>{if(n>(S.stats[k]||0)){S.stats[k]=n;guardar()}};
+
+/* ── CÓDIGO DE GUARDADO (exportar/importar entre dispositivos) ── */
+function sumaCod(b64){let s=0;for(let i=0;i<b64.length;i++)s=(s+b64.charCodeAt(i)*(i+1))%9973;return s.toString(36).toUpperCase()}
+function exportarCodigo(){
+  const b64=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+  return 'PA4.'+sumaCod(b64)+'.'+b64;
+}
+function importarCodigo(cod){
+  try{
+    const p=String(cod||'').trim().split('.');
+    if(p.length!==3||p[0]!=='PA4')return false;
+    if(sumaCod(p[2])!==p[1])return false;
+    const d=JSON.parse(decodeURIComponent(escape(atob(p[2]))));
+    if(!d||typeof d!=='object'||!Array.isArray(d.dias))return false;
+    S=Object.assign({},DEF,d);
+    if(S.dias.length!==10)S.dias=Array(10).fill(-1);
+    if(typeof S.dif!=='number'||S.dif<0||S.dif>2)S.dif=1;
+    S.stats=Object.assign({},STATS0,(S.stats&&typeof S.stats==='object')?S.stats:{});
+    guardar();vidas=maxVidas();aplicarModo();
+    return true;
+  }catch(e){return false}
+}
 const progreso=()=>{let p=0;while(p<10&&S.dias[p]>=1)p++;return p};
 const totalStars=()=>S.dias.reduce((a,b)=>a+Math.max(0,b),0);
 const rangoDe=xp=>{let r=RANGOS[0];for(const x of RANGOS)if(xp>=x.xp)r=x;return r};

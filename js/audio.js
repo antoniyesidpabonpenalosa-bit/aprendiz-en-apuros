@@ -38,7 +38,7 @@ const BAJ_J=[110,110,138,138,104,104,123,146];
 let modoJefe=false;
 let musPaso=0;
 setInterval(()=>{
-  if(!S.snd||pausado||document.hidden)return;
+  if(!S.snd||!S.mus||pausado||document.hidden)return;
   const mel=modoJefe?MEL_J:MEL, baj=modoJefe?BAJ_J:BAJ;
   const n=mel[musPaso%mel.length];
   if(n)beep(n,.13,modoJefe?'square':'triangle',modoJefe?.04:.035);
