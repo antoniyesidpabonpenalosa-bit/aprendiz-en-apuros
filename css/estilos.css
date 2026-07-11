@@ -267,7 +267,7 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
   animation:confeti-cae 2.8s linear forwards}
 @keyframes confeti-cae{to{transform:translateY(105vh) rotate(720deg);opacity:.1}}
 .combo-txt{color:var(--y2)}
-@media (prefers-reduced-motion:reduce){.blink,#screen>*,.confeti,.fade-in,.etapa-jefe{animation:none}}
+@media (prefers-reduced-motion:reduce){.blink,#screen>*,.confeti,.fade-in,.etapa-jefe,.sacudida{animation:none}}
 
 /* ── MAPA DE CARRERA ── */
 .mapa h2{margin:.15em 0}
@@ -300,6 +300,15 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 /* ── TRANSICIÓN DE PANTALLA ── */
 .fade-in{animation:fadeIn .28s ease-out}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── SACUDIDA AL RECIBIR DAÑO ── */
+.sacudida{animation:sacudir .3s}
+@keyframes sacudir{0%,100%{transform:translate(0,0)}20%{transform:translate(-6px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,2px)}80%{transform:translate(4px,-2px)}}
+
+/* ── CÓDIGO DE GUARDADO ── */
+.guardado-zona{display:flex;flex-direction:column;gap:8px;width:min(420px,100%);align-items:center}
+.cod-guardado{width:100%;font-family:'VT323',monospace;font-size:14px;resize:none;
+  background:var(--void2);color:var(--tx1);border:2px solid var(--bl);padding:8px;word-break:break-all}
 
 /* ── SELECTOR DE DIFICULTAD ── */
 .dif-sel{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:2px 0}

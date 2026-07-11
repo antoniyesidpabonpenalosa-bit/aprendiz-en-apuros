@@ -73,6 +73,11 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
 - Tienda, **15 logros**, récords, **estadísticas de por vida**, avatar
   personalizable, borrado de progreso y **botón de compartir** el resultado
 - Transiciones suaves entre pantallas (respetan *prefers-reduced-motion*)
+- **Código de guardado**: exporta tu partida y continúala en otro dispositivo
+  (pantalla 📈 Estadísticas → 💾 Código de guardado)
+- **Sonido en 3 estados**: 🔊 todo · 🔉 solo efectos · 🔇 silencio
+- Sacudida de pantalla al recibir daño y vista previa bonita al compartir el
+  enlace (Open Graph)
 - Música chiptune y efectos con WebAudio, idiomas ES/EN
 - **PWA instalable** con soporte offline
 - Progreso guardado en el navegador (localStorage)
@@ -87,6 +92,7 @@ aprendiz-en-apuros/
 ├── manifest.webmanifest  → configuración de la app instalable (PWA)
 ├── sw.js                 → service worker: caché y modo offline
 ├── icon.svg              → ícono de la app
+├── portada.png           → vista previa al compartir el enlace (Open Graph)
 ├── css/
 │   └── estilos.css       → todos los estilos (temas retro y 4K OLED)
 └── js/

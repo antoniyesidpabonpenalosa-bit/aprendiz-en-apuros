@@ -473,7 +473,7 @@ function nvRunner(dia){
           if(combo>=3)comboFly(combo);
           if(combo>=5)darLogro('combo');
         }
-        else if(inv<=0){golpes++;combo=0;inv=60;SFX.mal();$('#r-gol').textContent=golpes;o.x=-99;
+        else if(inv<=0){golpes++;combo=0;inv=60;SFX.mal();sacudir();$('#r-gol').textContent=golpes;o.x=-99;
           if(golpes>=3){limpiarRun();return fallo(dia)}}
       }
     });

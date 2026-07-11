@@ -8,7 +8,13 @@ $('#b-pause').onclick=()=>{
 };
 $('#p-cont').onclick=()=>{pausado=false;$('#pausa').hidden=true;SFX.click()};
 $('#p-mapa').onclick=()=>{SFX.click();rMapa()};
-$('#b-snd').onclick=()=>{S.snd=!S.snd;guardar();hud();SFX.click()};
+/* sonido en 3 estados: 🔊 todo → 🔉 solo efectos → 🔇 silencio */
+$('#b-snd').onclick=()=>{
+  if(S.snd&&S.mus)S.mus=false;
+  else if(S.snd&&!S.mus)S.snd=false;
+  else{S.snd=true;S.mus=true}
+  guardar();hud();SFX.click();
+};
 $('#b-lang').onclick=()=>{
   S.lang=S.lang==='es'?'en':'es';guardar();SFX.click();
   /* re-render de pantallas de menú; en juego solo cambia el HUD */

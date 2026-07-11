@@ -233,6 +233,9 @@ const TXT={
   compartir:'📤 COMPARTIR',copiado:'¡COPIADO AL PORTAPAPELES!',
   compartexto:'Terminé Practicante en Apuros 4 con {p} pts como {r} 🎓 ¡Juégalo!',
   jefefase:'FASE',avisolaser:'¡LÁSER!',
+  guardado:'💾 CÓDIGO DE GUARDADO',exportar:'📤 EXPORTAR PARTIDA',importar:'📥 IMPORTAR',
+  pegacodigo:'Pega aquí tu código PA4...',impok:'¡PARTIDA IMPORTADA!',impmal:'CÓDIGO INVÁLIDO',
+  guardatxt:'Exporta tu partida y pégala en otro dispositivo para continuar allí.',
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'AVATAR',
   sub:'THE APPRENTICE ADVENTURE · CHAPTER 4',mapa:'INTERNSHIP MAP',volver:'← BACK',continuar:'CONTINUE',
@@ -273,5 +276,8 @@ const TXT={
   compartir:'📤 SHARE',copiado:'COPIED TO CLIPBOARD!',
   compartexto:'I finished Intern in Trouble 4 with {p} pts as {r} 🎓 Play it!',
   jefefase:'PHASE',avisolaser:'LASER!',
+  guardado:'💾 SAVE CODE',exportar:'📤 EXPORT SAVE',importar:'📥 IMPORT',
+  pegacodigo:'Paste your PA4 code here...',impok:'SAVE IMPORTED!',impmal:'INVALID CODE',
+  guardatxt:'Export your save and paste it on another device to continue there.',
  }
 };
