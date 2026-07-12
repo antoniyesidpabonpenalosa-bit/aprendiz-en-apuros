@@ -17,11 +17,16 @@ const ACCS=[
   {id:'gorra',   ico:'🧢', precio:400},
   {id:'audifonos',ico:'🎧',precio:500},
   {id:'medalla', ico:'🏅', precio:800},
+  {id:'capa',    ico:'🦸', precio:1200},
+  {id:'gato',    ico:'🐱', precio:1500},
+  {id:'corona',  ico:'👑', precio:2500},
 ];
 const MEJORAS=[
   {id:'vida',  ico:'💖', precio:600},
   {id:'tiempo',ico:'⏰', precio:700},
+  {id:'iman',  ico:'🧲', precio:900},
   {id:'doble', ico:'💰', precio:1000},
+  {id:'escudo',ico:'🛡️', precio:1200},
 ];
 /* Dificultad: vida = vidas extra/menos · tiempo = factor de tiempo · jefe = factor de agresividad */
 const DIFS=[
@@ -35,6 +40,7 @@ const RANGOS=[
   {xp:1000,es:'PRACTICANTE', en:'INTERN'},
   {xp:1800,es:'DEV JUNIOR',  en:'JUNIOR DEV'},
   {xp:2800,es:'TITULADO SENA',en:'SENA GRADUATE'},
+  {xp:4500,es:'DEV SENIOR',  en:'SENIOR DEV'},
 ];
 const NIVELES=[
   {ico:'☕', tipo:'escribir', es:'PRIMER DÍA',        en:'FIRST DAY',        ses:'Configura tu terminal',      sen:'Set up your terminal'},
@@ -47,6 +53,31 @@ const NIVELES=[
   {ico:'🧬', tipo:'merge',    es:'CONFLICTO GIT',      en:'MERGE CONFLICT',   ses:'Elige la línea buena',       sen:'Pick the right line'},
   {ico:'🚀', tipo:'simon',    es:'DESPLIEGUE',         en:'DEPLOYMENT',       ses:'Un error y se cae todo',     sen:'One slip and it all falls'},
   {ico:'🎓', tipo:'runner',   es:'EVALUACIÓN FINAL',   en:'FINAL EXAM',       ses:'Sobrevive al último día',    sen:'Survive the last day'},
+  /* ── TEMPORADA 2 · EL CONTRATO (días 11-15) ── */
+  {ico:'🗄', tipo:'sql',      es:'CONSULTA SQL',       en:'SQL QUERY',        ses:'Arma la consulta en orden',  sen:'Build the query in order'},
+  {ico:'🧩', tipo:'regex',    es:'CAZA PATRONES',      en:'PATTERN HUNT',     ses:'Atrapa lo que cumple',       sen:'Catch what matches'},
+  {ico:'💣', tipo:'bugs',     es:'BUGS NIVEL 2',       en:'BUGS LEVEL 2',     ses:'Cuidado con las bombas',     sen:'Watch out for bombs'},
+  {ico:'🌊', tipo:'simon',    es:'GIT AVANZADO',       en:'ADVANCED GIT',     ses:'Rebase y stash incluidos',   sen:'Rebase and stash included'},
+  {ico:'🌙', tipo:'runner',   es:'DEPLOY NOCTURNO',    en:'NIGHT DEPLOY',     ses:'La última prueba',           sen:'The final trial'},
+];
+/* piezas de consulta en orden correcto (minijuego SQL) */
+const SQLS=[
+ ['SELECT nombre','FROM aprendices','WHERE nota >= 3','ORDER BY nombre'],
+ ['SELECT *','FROM cursos','WHERE activo = 1'],
+ ['SELECT email','FROM usuarios','WHERE rol = "admin"','LIMIT 10'],
+ ['INSERT INTO logros','(nombre, fecha)','VALUES ("titulado", NOW())'],
+ ['UPDATE practicantes','SET contrato = 1','WHERE dias = 10'],
+ ['SELECT curso, COUNT(*)','FROM inscritos','GROUP BY curso','HAVING COUNT(*) > 5'],
+ ['DELETE FROM bugs','WHERE estado = "resuelto"'],
+];
+/* rondas del minijuego regex: patrón + descripción + opciones (se evalúan con RegExp real) */
+const REGEXS=[
+ {p:'^git',    des:'empieza por "git"',     den:'starts with "git"',  opts:['git push','git status','digit','legit','git!','agitar']},
+ {p:'[0-9]',   des:'contiene un número',    den:'contains a digit',   opts:['error 404','v2.0','café','deploy','http 500','commit']},
+ {p:'\\.js$',  des:'termina en .js',        den:'ends with .js',      opts:['app.js','index.js','main.css','app.json','node.js','estilos.css']},
+ {p:'^[A-Z]+$',des:'solo MAYÚSCULAS',       den:'UPPERCASE only',     opts:['SENA','HTML','Sena','css','API','JsOn']},
+ {p:'oo',      des:'tiene doble "o"',       den:'has a double "o"',   opts:['google','loop','ping','logo','cool','polo']},
+ {p:'^#',      des:'empieza por "#"',       den:'starts with "#"',    opts:['#app','#id-btn','app#','css #','#fff','col#or']},
 ];
 const PALABRAS=['git push','commit','variable','funcion','deploy','servidor','consola','arreglo','objeto','html','css','javascript','python','api rest','frontend','backend','navegador','framework','base de datos','npm install','git status','git clone','console.log','debug','import','export','localhost','software','bucle for','teclado'];
 const PAREJAS=['HTML','CSS','JS','SQL','GIT','API','PHP','SENA'];
@@ -83,6 +114,9 @@ const CMDS=[
   {id:'commit',cls:'c-commit',txt:'GIT COMMIT',f:392},
   {id:'push',  cls:'c-push',  txt:'GIT PUSH',  f:494},
   {id:'deploy',cls:'c-deploy',txt:'DEPLOY',    f:587},
+  /* solo en GIT AVANZADO (día 14) */
+  {id:'rebase',cls:'c-rebase',txt:'GIT REBASE',f:659},
+  {id:'stash', cls:'c-stash', txt:'GIT STASH', f:740},
 ];
 const QUIZ={
  es:[
@@ -126,6 +160,11 @@ const DIALOGOS={
   ['COMPAÑERA','Dos ramas tocaron el mismo archivo... resuelve los conflictos eligiendo la línea que sí compila.'],
   ['LÍDER TÉCNICO','Despliegue final. Un comando fuera de orden y se cae TODO. Sin presión.'],
   ['INSTRUCTOR','Evaluación final: sobrevive tu último día en la oficina y el contrato es tuyo.'],
+  ['LÍDER TÉCNICO','¡Firmaste! Primera tarea como junior: el reporte necesita una consulta SQL. Ármala en orden.'],
+  ['COMPAÑERA','Hay que filtrar mil logs. Con expresiones regulares es un momento... si sabes leerlas.'],
+  ['LÍDER TÉCNICO','Volvieron los bugs... y trajeron BOMBAS de imitación. ¡No las toques!'],
+  ['INSTRUCTOR','Vine de visita. Veamos si ya dominas el Git avanzado: rebase y stash incluidos.'],
+  ['LÍDER TÉCNICO','Deploy nocturno de fin de mes. Sobrevive la noche y esta empresa es tu casa.'],
  ],
  en:[
   ['INSTRUCTOR','Welcome to your internship! First: set up your terminal. Type fast and clean.'],
@@ -138,6 +177,11 @@ const DIALOGOS={
   ['COWORKER','Two branches touched the same file... resolve the conflicts by picking the line that compiles.'],
   ['TECH LEAD','Final deployment. One command out of order and EVERYTHING falls. No pressure.'],
   ['INSTRUCTOR','Final exam: survive your last day at the office and the contract is yours.'],
+  ['TECH LEAD','You signed! First task as a junior: the report needs an SQL query. Build it in order.'],
+  ['COWORKER','We must filter a thousand logs. With regular expressions it takes a second... if you can read them.'],
+  ['TECH LEAD','The bugs are back... and they brought fake BOMBS. Do NOT touch those!'],
+  ['INSTRUCTOR','Just visiting. Let\'s see if you master advanced Git now: rebase and stash included.'],
+  ['TECH LEAD','End-of-month night deploy. Survive the night and this company is your home.'],
  ]
 };
 const INTRO={
@@ -172,6 +216,36 @@ const JEFE_INTRO={
   {ico:'👾',t:'THE FINAL BUG has awakened! Nobody graduates without defeating it. Grab the keyboard, intern!'},
  ]
 };
+const T2_INTRO={
+ es:[
+  {ico:'📝',t:'¡Firmaste el contrato! Pero relajarte no es opción: ahora las tareas son DE VERDAD.'},
+  {ico:'💼',t:'TEMPORADA 2 · EL CONTRATO: cinco días como dev junior. SQL, regex y deploys nocturnos te esperan.'},
+ ],
+ en:[
+  {ico:'📝',t:'You signed the contract! But relaxing is not an option: now the tasks are REAL.'},
+  {ico:'💼',t:'SEASON 2 · THE CONTRACT: five days as a junior dev. SQL, regex and night deploys await.'},
+ ]
+};
+const JEFE2_INTRO={
+ es:[
+  {ico:'🌙',t:'3:00 AM. El deploy terminó... pero algo se mueve en los logs del servidor.'},
+  {ico:'👾',t:'¡EL BUG FINAL volvió con sed de venganza! Termina lo que empezaste, junior.'},
+ ],
+ en:[
+  {ico:'🌙',t:'3:00 AM. The deploy is done... but something is moving in the server logs.'},
+  {ico:'👾',t:'THE FINAL BUG is back for revenge! Finish what you started, junior.'},
+ ]
+};
+const FINAL2={
+ es:[
+  {ico:'🌅',t:'Amanece. El servidor respira tranquilo y el café sabe a victoria.'},
+  {ico:'🚀',t:'El líder técnico te da la mano: "Ya no eres el nuevo. Eres del equipo."'},
+ ],
+ en:[
+  {ico:'🌅',t:'Dawn breaks. The server hums peacefully and the coffee tastes like victory.'},
+  {ico:'🚀',t:'The tech lead shakes your hand: "You are not the new kid anymore. You are one of us."'},
+ ]
+};
 const INTERRUPCIONES={
  es:['¡SE CAYÓ EL WIFI!','¡REUNIÓN SORPRESA EN 5 MIN!','¡EL LÍDER PASA POR TU PUESTO!','¡WINDOWS SE ESTÁ ACTUALIZANDO!','¡LLEGÓ EL DE CALIDAD!'],
  en:['WIFI IS DOWN!','SURPRISE MEETING IN 5 MIN!','THE LEAD IS WALKING BY!','WINDOWS IS UPDATING!','QA JUST SHOWED UP!']
@@ -192,6 +266,9 @@ const LOGROS=[
   {id:'combo',   ico:'🔥', es:'EN RACHA',    en:'ON FIRE'},
   {id:'coleccionista',ico:'🎁',es:'COLECCIONISTA',en:'COLLECTOR'},
   {id:'pesadilla',ico:'💀', es:'MODO PESADILLA',en:'NIGHTMARE MODE'},
+  {id:'sql',     ico:'🗄', es:'DATA MASTER', en:'DATA MASTER'},
+  {id:'regex',   ico:'🧩', es:'REGEX NINJA', en:'REGEX NINJA'},
+  {id:'contrato',ico:'📝', es:'CONTRATADO',  en:'HIRED'},
 ];
 const TXT={
  es:{dia:'DÍA',start:'PULSA START',jugar:'▶ JUGAR',tienda:'TIENDA',logros:'LOGROS',records:'RÉCORDS',perso:'AVATAR',
@@ -236,6 +313,16 @@ const TXT={
   guardado:'💾 CÓDIGO DE GUARDADO',exportar:'📤 EXPORTAR PARTIDA',importar:'📥 IMPORTAR',
   pegacodigo:'Pega aquí tu código PA4...',impok:'¡PARTIDA IMPORTADA!',impmal:'CÓDIGO INVÁLIDO',
   guardatxt:'Exporta tu partida y pégala en otro dispositivo para continuar allí.',
+  t1sec:'🎓 ETAPA PRODUCTIVA',t2sec:'📝 EL CONTRATO',
+  sqlmsg:'Toca las piezas en ORDEN para armar la consulta',objetivo:'OBJETIVO',
+  regexmsg:'Toca TODO lo que cumpla el patrón',patron:'PATRÓN',
+  acc_capa:'CAPA DE HÉROE',acc_gato:'GATO DE OFICINA',acc_corona:'CORONA DEV',
+  mejiman:'CAFÉ PREMIUM',mejescudo:'ESCUDO DEV',
+  d_vida:'Una vida extra cada día',d_tiempo:'+20% de tiempo en los retos',
+  d_doble:'Ganas el doble de puntos',d_iman:'Los cafés valen más puntos',
+  d_escudo:'El primer golpe de cada nivel no te daña',
+  ascenso:'¡CONTRATO INDEFINIDO!',ascensode:'La empresa confirma que',
+  ascensotxt:'sobrevivió sus primeros 5 días como dev junior y ya es parte del equipo',
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'AVATAR',
   sub:'THE APPRENTICE ADVENTURE · CHAPTER 4',mapa:'INTERNSHIP MAP',volver:'← BACK',continuar:'CONTINUE',
@@ -279,5 +366,15 @@ const TXT={
   guardado:'💾 SAVE CODE',exportar:'📤 EXPORT SAVE',importar:'📥 IMPORT',
   pegacodigo:'Paste your PA4 code here...',impok:'SAVE IMPORTED!',impmal:'INVALID CODE',
   guardatxt:'Export your save and paste it on another device to continue there.',
+  t1sec:'🎓 INTERNSHIP',t2sec:'📝 THE CONTRACT',
+  sqlmsg:'Tap the pieces IN ORDER to build the query',objetivo:'GOAL',
+  regexmsg:'Tap EVERYTHING that matches the pattern',patron:'PATTERN',
+  acc_capa:'HERO CAPE',acc_gato:'OFFICE CAT',acc_corona:'DEV CROWN',
+  mejiman:'PREMIUM COFFEE',mejescudo:'DEV SHIELD',
+  d_vida:'One extra life each day',d_tiempo:'+20% time on challenges',
+  d_doble:'Earn double points',d_iman:'Coffees are worth more points',
+  d_escudo:'The first hit of each level does not hurt you',
+  ascenso:'PERMANENT CONTRACT!',ascensode:'The company confirms that',
+  ascensotxt:'survived their first 5 days as a junior dev and is now part of the team',
  }
 };

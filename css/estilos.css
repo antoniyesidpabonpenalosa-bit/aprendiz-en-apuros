@@ -212,6 +212,8 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .c-commit{background:#8a6a10;box-shadow:inset 0 3px 0 #c4a030,inset 0 -3px 0 #544010}
 .c-push  {background:var(--g1);box-shadow:inset 0 3px 0 var(--g3),inset 0 -3px 0 var(--g0)}
 .c-deploy{background:var(--v1);box-shadow:inset 0 3px 0 var(--v2),inset 0 -3px 0 var(--v0)}
+.c-rebase{background:#a1341f;box-shadow:inset 0 3px 0 #d4603f,inset 0 -3px 0 #611c0e}
+.c-stash {background:#0f7a6a;box-shadow:inset 0 3px 0 #3fa898,inset 0 -3px 0 #084840}
 .quiz{display:flex;flex-direction:column;gap:12px;padding:6px;align-items:center}
 .jurado{display:flex;gap:12px}
 .jurado canvas{width:52px;height:52px;image-rendering:pixelated;
@@ -328,6 +330,33 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 
 /* ── BOTÓN COMPARTIR ── */
 .btn-share{background:var(--bl);color:#fff}
+
+/* ── SECCIONES DEL MAPA ── */
+.mapa-sec{font-size:10px;color:#9aa6e0;letter-spacing:2px;text-align:center;margin:10px 0 4px;
+  display:flex;align-items:center;gap:10px;width:100%}
+.mapa-sec::before,.mapa-sec::after{content:'';flex:1;height:2px;background:#2a3260}
+
+/* ── TIENDA: descripciones de mejoras ── */
+.mej-info{flex:1;display:flex;flex-direction:column;gap:3px;text-align:left;padding:0 8px}
+.mej-desc{font-family:'VT323',monospace;font-size:14px;color:var(--tx2);line-height:1.2}
+
+/* ── MINIJUEGO SQL ── */
+.sql-armada{font-family:'VT323',monospace;font-size:18px;color:var(--tx1);word-break:break-word;min-height:24px}
+.sql-ok{color:#6fd62b}
+.sql-piezas{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:100%}
+.sql-pieza{font-family:'VT323',monospace;font-size:17px;color:var(--tx1);cursor:pointer;
+  background:var(--void2);border:2px solid var(--bl);padding:9px 12px}
+.sql-pieza:not(.usada):hover{border-color:#6fd62b}
+.sql-pieza.usada{opacity:.28;pointer-events:none;border-color:#39a900}
+.sql-pieza.shake{animation:shake .25s}
+
+/* ── MINIJUEGO REGEX ── */
+.rx-patron{display:flex;flex-direction:column;align-items:center;gap:6px;
+  background:var(--void2);border:2px solid var(--bl);padding:12px 18px;width:min(380px,100%)}
+.rx-re{font-family:'VT323',monospace;font-size:24px;color:#ffcf3f;letter-spacing:1px}
+.rx-desc{font-family:'VT323',monospace;font-size:16px;color:var(--tx2)}
+.rx-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:min(380px,100%)}
+.rx-op{font-family:'VT323',monospace;font-size:17px}
 
 /* ── CUTSCENES ── */
 .cut{cursor:pointer}

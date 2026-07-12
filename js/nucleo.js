@@ -48,6 +48,8 @@ function resultado(i,stars,pts){
   const sig=RANGOS[RANGOS.indexOf(r)+1];
   const pc=sig?Math.min(100,Math.round((S.xp-r.xp)/(sig.xp-r.xp)*100)):100;
   if(i===9){darLogro('titulado');registrarRecord();guardar();}
+  if(i===14){darLogro('contrato');registrarRecord();guardar();}
+  const esFinal=i===9||i===14;
   pantalla('resultado',`
   <div class="centro">
     <span class="ico">${NIVELES[i].ico}</span>
@@ -56,15 +58,16 @@ function resultado(i,stars,pts){
     <p class="pts-final">+${gan} ${t('ptsgan')}</p>
     <div class="xp-bar"><div class="xp-fill" style="width:${pc}%"></div></div>
     <p class="xp-txt">${S.xp} XP · ${rangoNom()}${sig?' → '+tj(sig)+' ('+sig.xp+' XP)':''}</p>
-    ${i===9
-      ?`<button class="btn" id="r-fin" type="button">🎓 ${t('continuar')}</button>`
+    ${esFinal
+      ?`<button class="btn" id="r-fin" type="button">${i===9?'🎓':'🚀'} ${t('continuar')}</button>`
       :`<button class="btn" id="r-sig" type="button">${t('siguiente')}</button>`}
     <button class="btn btn2" id="r-mapa" type="button">${t('salirmapa')}</button>
   </div>`);
   tvez(SFX.star,300);
   confeti();
   if(i===9)$('#r-fin').onclick=()=>{SFX.click();rCutscene(FINAL[S.lang],rCertificado)};
-  else $('#r-sig').onclick=()=>{SFX.click();empezarDia(Math.min(i+1,9))};
+  else if(i===14)$('#r-fin').onclick=()=>{SFX.click();rCutscene(FINAL2[S.lang],rAscenso)};
+  else $('#r-sig').onclick=()=>{SFX.click();empezarDia(Math.min(i+1,NIVELES.length-1))};
   $('#r-mapa').onclick=()=>{SFX.click();rMapa()};
 }
 function fallo(i,reintento){

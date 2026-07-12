@@ -64,7 +64,7 @@ function rBorrar(){
   $('#bo-no').onclick=()=>{SFX.click();rTitulo()};
   $('#bo-si').onclick=()=>{
     const prefs={lang:S.lang,snd:S.snd,hd:S.hd};
-    S=Object.assign({},DEF,{dias:Array(10).fill(-1),logros:[],accs:[],mejoras:[],records:[]},prefs);
+    S=Object.assign({},DEF,{dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],mejoras:[],records:[],stats:Object.assign({},STATS0)},prefs);
     guardar();
     vidas=maxVidas();
     SFX.lose();
@@ -124,13 +124,15 @@ function rCutscene(paginas,fin){
 /* ── MAPA ── */
 function rMapa(){
   const p=progreso();
-  let cards='';
+  let cards=`<p class="mapa-sec">${t('t1sec')}</p>`;
   NIVELES.forEach((N,i)=>{
     const st=S.dias[i];
     const estado=st>=1?'ok':(i<=p?'open':'lock');
     const badge=st>=1?'★'.repeat(st):(estado==='lock'?'🔒':'▶');
+    /* separador de temporada 2 */
+    if(i===10)cards+=`<p class="mapa-sec">${t('t2sec')}</p>`;
     cards+=`
-    <button class="etapa-card ${estado}" data-i="${i}" ${estado==='lock'?'disabled':''} type="button">
+    <button class="etapa-card ${estado} ${i>=10?'t2':''}" data-i="${i}" ${estado==='lock'?'disabled':''} type="button">
       <span class="etapa-num">${i+1}</span>
       <span class="etapa-ico">${N.ico}</span>
       <span class="etapa-body">
@@ -140,14 +142,14 @@ function rMapa(){
       </span>
       <span class="etapa-badge">${badge}${estado==='open'&&i===p?`<span class="aqui">${t('aqui')}</span>`:''}</span>
     </button>
-    ${i<9?'<div class="etapa-link"></div>':''}`;
+    ${i<NIVELES.length-1&&i!==9?'<div class="etapa-link"></div>':''}`;
   });
-  /* casilla 11 ??? — solo visible tras completar el día 10 */
+  /* casilla extra ??? — repetir al jefe tras completar el día 10 */
   if(S.dias[9]>=1){
     cards+=`
     <div class="etapa-link etapa-link-jefe"></div>
     <button class="etapa-card etapa-jefe" id="m-jefe" type="button">
-      <span class="etapa-num">11</span>
+      <span class="etapa-num">★</span>
       <span class="etapa-ico">👾</span>
       <span class="etapa-body">
         <span class="etapa-nom">??? · EL BUG FINAL</span>
@@ -175,6 +177,10 @@ function rMapa(){
 
 /* ── FLUJO DE DÍA ── */
 function empezarDia(i){
+  /* primera vez que entras a la temporada 2: cutscene del contrato */
+  if(i===10&&!S.t2){
+    return rCutscene(T2_INTRO[S.lang],()=>{S.t2=true;guardar();diaAct=i;vidas=maxVidas();rDialogo(i)});
+  }
   diaAct=i;vidas=maxVidas();
   rDialogo(i);
 }
@@ -183,7 +189,7 @@ function rDialogo(i){
   const N=NIVELES[i];
   pantalla('dialogo',`
   <div class="centro">
-    <p class="dia">${t('dia')} ${i+1}/10</p>
+    <p class="dia">${t('dia')} ${i+1}/${NIVELES.length}</p>
     <h2>${N.ico} ${tj({es:N.es,en:N.en})}</h2>
     <div class="dialogo">
       <div class="retrato-wrap"><canvas class="retrato" id="d-cara" width="64" height="64"></canvas></div>
@@ -204,7 +210,7 @@ function rDialogo(i){
 function jugarNivel(i){
   const tipo=NIVELES[i].tipo;
   ({escribir:nvEscribir,bugs:nvBugs,memoria:nvMemoria,simon:nvSimon,quiz:nvQuiz,
-    review:nvReview,merge:nvMerge,runner:nvRunner})[tipo](i);
+    review:nvReview,merge:nvMerge,runner:nvRunner,sql:nvSQL,regex:nvRegex})[tipo](i);
 }
 
 /* ── CERTIFICADO ── */
@@ -259,10 +265,39 @@ function rCertificado(){
   $('#c-volver').onclick=()=>{SFX.click();rTitulo()};
 }
 
+/* ── ASCENSO (final de la temporada 2) ── */
+function rAscenso(){
+  const hoy=new Date().toLocaleDateString(S.lang==='es'?'es-CO':'en-US');
+  pantalla('ascenso',`
+  <div class="centro">
+    <div class="cert">
+      <p class="dia">🚀 ${t('ascenso')} 🚀</p>
+      <div class="retrato-wrap"><canvas class="retrato" id="a-cara" width="64" height="64"></canvas></div>
+      <p class="sub">${t('ascensode')}</p>
+      <p class="rango">${S.nombre||t('tu')}</p>
+      <p class="desc" style="text-align:center">${t('ascensotxt')}</p>
+      ${starsHtml(Math.min(3,Math.round(totalStars()/15)))}
+      <div class="stats-grid">
+        <div><b>${progreso()}</b><span>${t('diascomp')}</span></div>
+        <div><b>${totalStars()}</b><span>${t('estrellas')}</span></div>
+        <div><b>${S.pts}</b><span>${t('ptstotal')}</span></div>
+      </div>
+      <p class="sub">${t('firma')} · ${t('fecha')}: ${hoy}</p>
+      <span class="rango-badge grande">${rangoNom()}</span>
+    </div>
+    <button class="btn btn-share" id="a-share" type="button">${t('compartir')}</button>
+    <button class="btn btn2" id="a-volver" type="button">${t('volver')}</button>
+  </div>`);
+  cara($('#a-cara'),Object.assign(CARAS.yo(true),{medalla:true,corona:S.accs.includes('corona')}));
+  confeti();
+  $('#a-share').onclick=compartir;
+  $('#a-volver').onclick=()=>{SFX.click();rTitulo()};
+}
+
 /* ── TIENDA ── */
 function rTienda(){
   const nAcc=id=>t('acc_'+id);
-  const nMej={vida:t('mejvida'),tiempo:t('mejtiempo'),doble:t('mejdoble')};
+  const nMej={vida:t('mejvida'),tiempo:t('mejtiempo'),doble:t('mejdoble'),iman:t('mejiman'),escudo:t('mejescudo')};
   pantalla('tienda',`
   <div class="centro">
     <h2>🛒 ${t('tienda')}</h2>
@@ -284,7 +319,10 @@ function rTienda(){
         const puede=S.pts>=m.precio;
         return `<div class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')}" data-mej="${m.id}" style="flex-direction:row;justify-content:space-between;width:100%">
           <span class="ico-t">${m.ico}</span>
-          <span class="nom-t">${nMej[m.id]}</span>
+          <span class="mej-info">
+            <span class="nom-t" style="text-align:left">${nMej[m.id]}</span>
+            <span class="mej-desc">${t('d_'+m.id)}</span>
+          </span>
           <span class="precio">${tiene?'✔':'⛁'+m.precio}</span>
         </div>`}).join('')}
     </div>
