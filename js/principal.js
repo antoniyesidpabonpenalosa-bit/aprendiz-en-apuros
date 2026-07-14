@@ -25,6 +25,7 @@ $('#b-lang').onclick=()=>{
   else if(pantallaId==='records')rRecords();
   else if(pantallaId==='perso')rPerso();
   else if(pantallaId==='stats')rStats();
+  else if(pantallaId==='ascenso')rAscenso();
   else if(pantallaId==='borrar')rBorrar();
   else hud();
 };

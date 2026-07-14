@@ -18,9 +18,9 @@ function confeti(){
 
 /* ── HUD ── */
 function hud(){
-  const d=pantallaId==='nivel'?diaAct+1:Math.min(progreso()+1,10);
-  $('#h-nivel').textContent=t('dia')+' '+d+'/10';
-  $('#h-estrellas').textContent='★ '+totalStars()+'/30';
+  const d=pantallaId==='nivel'?diaAct+1:Math.min(progreso()+1,TOT_DIAS);
+  $('#h-nivel').textContent=t('dia')+' '+d+'/'+TOT_DIAS;
+  $('#h-estrellas').textContent='★ '+totalStars()+'/'+(TOT_DIAS*3);
   $('#h-pts').textContent=String(Math.min(S.pts,9999)).padStart(4,'0');
   $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas))+'♡'.repeat(Math.max(0,maxVidas()-vidas));
   $('#b-lang').textContent=S.lang==='es'?'EN':'ES';
@@ -51,11 +51,15 @@ function cara(cv,o){
   if(o.audifonos){R(3,5,1,4,'#15151f');R(12,5,1,4,'#15151f');R(3,2,10,1,'#15151f');}
   if(o.medalla){R(7,13,2,2,'#ffcf3f');}
   if(o.cafe){R(12,12,3,3,'#f4f4f8');R(12,11,3,1,'#6b4226');}
+  if(o.capa){R(2,12,1,4,'#c22e44');R(13,12,1,4,'#c22e44');R(3,12,1,2,'#8c1c2e');R(12,12,1,2,'#8c1c2e');}
+  if(o.corona){R(4,0,8,2,'#ffcf3f');R(5,0,1,1,'#ff5468');R(8,0,1,1,'#6fd2f0');R(11,0,1,1,'#ff5468');}
+  if(o.gato){R(13,13,1,1,'#e08030');R(15,13,1,1,'#e08030');R(13,14,3,2,'#e08030');R(14,15,1,1,'#f4f4f8');}
 }
 const CARAS={
   yo:(f)=>({skin:SKINS[S.skin],camisa:CAMISAS[S.camisa],pelo:'#2a1c10',feliz:f,
     gafas:S.acc==='gafas',gorra:S.acc==='gorra',cafe:S.acc==='cafe',
-    audifonos:S.acc==='audifonos',corbata:S.acc==='corbata',medalla:S.acc==='medalla'}),
+    audifonos:S.acc==='audifonos',corbata:S.acc==='corbata',medalla:S.acc==='medalla',
+    capa:S.acc==='capa',corona:S.acc==='corona',gato:S.acc==='gato'}),
   instructor:()=>({skin:'#e0b088',camisa:'#2c3460',pelo:'#9aa0aa',gafas:true}),
   lider:()=>({skin:'#d99b66',camisa:'#5a1bb0',pelo:'#241810',corbata:true}),
   compa:()=>({skin:'#f4c898',camisa:'#c22e44',pelo:'#a05224',largo:true,feliz:true}),

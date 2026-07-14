@@ -28,7 +28,9 @@ function nvJefe(dia,ptsBase){
   const HD=!!S.hd;
   if(HD){cv.width=640;cv.height=360;c.scale(2,2)}
   modoJefe=true; /* activa el tema musical tenso */
-  const fj=facJefe(); /* factor de agresividad según dificultad */
+  /* factor de agresividad: dificultad × revancha nocturna (día 15) */
+  const fj=facJefe()*(dia===14?1.25:1);
+  let escudo=S.mejoras.includes('escudo')?1:0;
   const p={x:152,ancho:16};
   const jefe={x:160,y:36,hp:100,dir:1};
   let balas=[],errores=[],frame=0,golpes=0,pts=0,inv=0,fin=false;
@@ -99,9 +101,12 @@ function nvJefe(dia,ptsBase){
     if(laserEstado===1){if(--laserT<=0){laserEstado=2;laserT=fase===3?34:26;beep(300,.25,'sawtooth',.12)}}
     else if(laserEstado===2){
       if(inv<=0&&Math.abs((p.x+8)-laserX)<13){
-        golpes++;inv=55;SFX.mal();sacudir();
-        const ge=$('#j-gol');if(ge)ge.textContent=3-golpes;
-        if(golpes>=3){terminar();fallo(dia,()=>nvJefe(dia,ptsBase));return}
+        if(escudo>0){escudo--;inv=60;SFX.pop()}
+        else{
+          golpes++;inv=55;SFX.mal();sacudir();
+          const ge=$('#j-gol');if(ge)ge.textContent=3-golpes;
+          if(golpes>=3){terminar();fallo(dia,()=>nvJefe(dia,ptsBase));return}
+        }
       }
       if(--laserT<=0)laserEstado=0;
     }
@@ -133,7 +138,9 @@ function nvJefe(dia,ptsBase){
     errores.forEach(o=>{
       if(fin)return;
       if(inv<=0&&o.y>150&&o.y<176&&Math.abs(o.x-(p.x+8))<14){
-        golpes++;inv=55;o.y=999;SFX.mal();sacudir();
+        o.y=999;
+        if(escudo>0){escudo--;inv=60;SFX.pop();return}
+        golpes++;inv=55;SFX.mal();sacudir();
         if(golpes>=3){terminar();fallo(dia,()=>nvJefe(dia,ptsBase));return}
         $('#j-gol').textContent=3-golpes;
       }

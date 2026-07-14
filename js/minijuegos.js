@@ -62,9 +62,10 @@ function nvEscribir(dia){
 
 /* ══════════ MINIJUEGO 2 · CAZA-BUGS ══════════ */
 function nvBugs(dia){
+  const t2=dia>=10; /* nivel 2: más rápido y con bombas falsas */
   const dif=dia>=5?1:0;
-  const meta=dif?18:12, dur=Math.round((dif?28:32)*facTiempo());
-  let hits=0,escapes=0,pts=0,seg=dur,activa=-1,esCafe=false,combo=0;
+  const meta=t2?20:dif?18:12, dur=Math.round((t2?30:dif?28:32)*facTiempo());
+  let hits=0,escapes=0,pts=0,seg=dur,activa=-1,esCafe=false,esBomba=false,combo=0;
   pantalla('nivel',`
   <div class="l3">
     <div class="tope"><span>${t('meta')}: <b id="b-hits">0</b>/${meta} 🐛</span><span>🔥<b id="b-combo" class="combo-txt">0</b></span><span>${t('tiempo')}: <b id="b-seg">${dur}</b>s</span></div>
@@ -76,19 +77,25 @@ function nvBugs(dia){
   function apagar(){if(activa>=0){celdas[activa].classList.remove('on');activa=-1}}
   function brotar(){
     if(pausado)return;
-    if(activa>=0){if(!esCafe){escapes++;combo=0;$('#b-combo').textContent=combo}apagar()}
+    if(activa>=0){if(!esCafe&&!esBomba){escapes++;combo=0;$('#b-combo').textContent=combo}apagar()}
     activa=Math.floor(Math.random()*9);
     esCafe=Math.random()<.18;
-    celdas[activa].querySelector('.px').textContent=esCafe?'☕':'🐛';
+    esBomba=!esCafe&&t2&&Math.random()<.25;
+    celdas[activa].querySelector('.px').textContent=esBomba?'💣':esCafe?'☕':'🐛';
     celdas[activa].classList.add('on');
   }
   celdas.forEach(c=>c.onclick=()=>{
     if(pausado)return;
     const k=+c.dataset.k;
     if(k!==activa)return;
+    /* ¡bomba! tocarla cuesta puntos y rompe la racha */
+    if(esBomba){
+      pts=Math.max(0,pts-80);combo=0;$('#b-combo').textContent=combo;
+      SFX.mal();sacudir();apagar();return;
+    }
     c.classList.add('plaf');const px=c.querySelector('.px');px.textContent='✨';
     setTimeout(()=>{c.classList.remove('plaf');},180);
-    if(esCafe){pts+=80;SFX.moneda()}
+    if(esCafe){pts+=80+(S.mejoras.includes('iman')?40:0);SFX.moneda()}
     else{hits++;combo++;sumaStat('bugs');pts+=40+(combo>=3?combo*5:0);SFX.pop();
       if(combo>0&&combo%5===0)SFX.moneda()}
     $('#b-hits').textContent=hits;
@@ -99,7 +106,7 @@ function nvBugs(dia){
       return resultado(dia,stars,pts+120);
     }
   });
-  const paso=dif?650:850;
+  const paso=t2?540:dif?650:850;
   tcada(brotar,paso);
   tcada(()=>{
     if(pausado)return;
@@ -157,15 +164,17 @@ function nvMemoria(dia){
 
 /* ══════════ MINIJUEGO 4 · SIMON GIT ══════════ */
 function nvSimon(dia){
+  const t2=dia>=10; /* git avanzado: 6 comandos y más rondas */
   const dif=dia>=5?1:0;
-  const metaRondas=dif?7:5;
+  const metaRondas=t2?8:dif?7:5;
+  const cmds=t2?CMDS:CMDS.slice(0,4);
   let sec=[],pos=0,errores=0,pts=0,fase='muestra';
   pantalla('nivel',`
   <div class="l3">
     <div class="tope"><span>${t('ronda')}: <b id="s-ronda">1</b>/${metaRondas}</span><span>${t('errores')}: <b id="s-err">0</b>/3</span></div>
     <p class="mini" id="s-msg">${t('observa')}</p>
     <div class="simon muestra" id="s-simon">
-      ${CMDS.map(c=>`<button class="cmd ${c.cls}" data-id="${c.id}" type="button">${c.txt}</button>`).join('')}
+      ${cmds.map(c=>`<button class="cmd ${c.cls}" data-id="${c.id}" type="button">${c.txt}</button>`).join('')}
     </div>
   </div>`);
   const cont=$('#s-simon');
@@ -178,10 +187,10 @@ function nvSimon(dia){
   function muestra(){
     fase='muestra';cont.classList.add('muestra');
     $('#s-msg').textContent=t('observa');
-    sec.push(CMDS[Math.floor(Math.random()*4)].id);
+    sec.push(cmds[Math.floor(Math.random()*cmds.length)].id);
     $('#s-ronda').textContent=sec.length;
     let k=0;
-    const vel=dif?470:580;
+    const vel=t2?430:dif?470:580;
     tcada(function paso(){
       if(pausado)return;
       if(k<sec.length){ilumina(sec[k],vel);k++}
@@ -213,7 +222,7 @@ function nvSimon(dia){
       $('#s-msg').textContent=t('observa');
       /* repite la misma secuencia */
       tvez(()=>{
-        let k=0;const vel=dif?470:580;
+        let k=0;const vel=t2?430:dif?470:580;
         tcada(()=>{
           if(pausado)return;
           if(k<sec.length){ilumina(sec[k],vel);k++}
@@ -416,11 +425,13 @@ function nvRunner(dia){
   if(HD){cv.width=640;cv.height=360;c.scale(2,2)}
   const SUELO=140;
   const p={x:44,y:SUELO,vy:0,duck:0};
+  const noche=dia>=10; /* deploy nocturno: más rápido y a oscuras */
   let obs=[],frame=0,golpes=0,cafes=0,pts=0,spawn=0,inv=0,prevA=false,prevAbajo=false,combo=0;
-  function comboFly(n){
+  let escudo=S.mejoras.includes('escudo')?1:0;
+  function comboFly(n,txt){
     const w=$('.cv-wrap');if(!w)return;
     const el=document.createElement('span');
-    el.className='combo-fly';el.textContent='🔥 '+t('combo')+' x'+n;
+    el.className='combo-fly';el.textContent=txt||('🔥 '+t('combo')+' x'+n);
     w.appendChild(el);setTimeout(()=>{el.remove()},700);
   }
   function salta(){if(p.y>=SUELO&&!pausado){p.vy=-8.2;beep(500,.07,'triangle',.1)}}
@@ -447,7 +458,7 @@ function nvRunner(dia){
       prevA=saltoPad;
       if(mnd.abajo!==prevAbajo){agacha(mnd.abajo);prevAbajo=mnd.abajo}
     }
-    const vel=2.4+frame/900;
+    const vel=2.4+frame/900+(noche?0.7:0);
     /* física */
     p.vy+=0.42;p.y+=p.vy;
     if(p.y>SUELO){p.y=SUELO;p.vy=0}
@@ -468,12 +479,16 @@ function nvRunner(dia){
       if(o.x<p.x+14&&o.x+16>p.x&&oy<py+ph&&oy+oh>py){
         if(o.tipo==='cafe'){
           cafes++;combo++;sumaStat('cafes');mejorStat('racha',combo);
-          pts+=60+(combo>=3?combo*15:0);SFX.moneda();
+          pts+=60+(S.mejoras.includes('iman')?40:0)+(combo>=3?combo*15:0);SFX.moneda();
           $('#r-caf').textContent=cafes;o.x=-99;
           if(combo>=3)comboFly(combo);
           if(combo>=5)darLogro('combo');
         }
-        else if(inv<=0){golpes++;combo=0;inv=60;SFX.mal();sacudir();$('#r-gol').textContent=golpes;o.x=-99;
+        else if(inv<=0){
+          o.x=-99;
+          /* escudo dev: absorbe el primer golpe del nivel */
+          if(escudo>0){escudo--;inv=70;SFX.pop();comboFly(0,'🛡');return}
+          golpes++;combo=0;inv=60;SFX.mal();sacudir();$('#r-gol').textContent=golpes;
           if(golpes>=3){limpiarRun();return fallo(dia)}}
       }
     });
@@ -485,21 +500,30 @@ function nvRunner(dia){
       const stars=golpes===0?3:golpes===1?2:1;
       /* día final: sobrevivir la oficina era solo la primera fase... */
       if(dia===9)return rCutscene(JEFE_INTRO[S.lang],()=>nvJefe(dia,pts+400+cafes*20));
+      /* deploy nocturno: el BUG FINAL vuelve por venganza */
+      if(dia===14)return rCutscene(JEFE2_INTRO[S.lang],()=>nvJefe(dia,pts+400+cafes*20));
       return resultado(dia,stars,pts+400+cafes*20);
     }
-    /* dibujo */
+    /* dibujo (paleta nocturna en temporada 2) */
     if(HD){
       const g=c.createLinearGradient(0,0,0,180);
-      g.addColorStop(0,'#131c3a');g.addColorStop(.7,'#070a16');g.addColorStop(1,'#03040a');
+      if(noche){g.addColorStop(0,'#0d0620');g.addColorStop(.7,'#050310');g.addColorStop(1,'#020108')}
+      else{g.addColorStop(0,'#131c3a');g.addColorStop(.7,'#070a16');g.addColorStop(1,'#03040a')}
       c.fillStyle=g;
-    }else c.fillStyle='#0b0e22';
+    }else c.fillStyle=noche?'#070312':'#0b0e22';
     c.fillRect(0,0,320,180);
-    c.fillStyle=HD?'rgba(90,110,200,.14)':'#141a38';
+    if(noche){ /* estrellas + luna */
+      c.fillStyle='#e8e4ff';
+      for(let k=0;k<14;k++)c.fillRect((k*53+((k*k)%29))%320,(k*29)%70+6,1,1);
+      c.fillStyle='#f4f0d8';c.beginPath();c.arc(276,26,10,0,7);c.fill();
+      c.fillStyle=noche&&!HD?'#070312':'#0d0620';c.beginPath();c.arc(280,23,8,0,7);c.fill();
+    }
+    c.fillStyle=noche?'rgba(120,80,200,.15)':(HD?'rgba(90,110,200,.14)':'#141a38');
     for(let k=0;k<5;k++){const bx=(320-((frame*.5+k*90)%400));c.fillRect(bx,40+k*8%30,34,60)}
-    if(HD){c.shadowColor='#39a900';c.shadowBlur=10}
-    c.fillStyle='#39a900';c.fillRect(0,SUELO+2,320,3);
+    if(HD){c.shadowColor=noche?'#a86bff':'#39a900';c.shadowBlur=10}
+    c.fillStyle=noche?'#7a3bd0':'#39a900';c.fillRect(0,SUELO+2,320,3);
     c.shadowBlur=0;
-    c.fillStyle=HD?'#0a0d1c':'#11152a';c.fillRect(0,SUELO+5,320,40);
+    c.fillStyle=noche?'#0a0518':(HD?'#0a0d1c':'#11152a');c.fillRect(0,SUELO+5,320,40);
     /* jugador */
     const fy=p.y-30+p.duck;
     if(inv%12<8){
@@ -517,5 +541,113 @@ function nvRunner(dia){
   }
   function limpiarRun(){if(raf){cancelAnimationFrame(raf);raf=0}}
   loop();
+  programarInterrupcion();
+}
+
+/* ══════════ MINIJUEGO 9 · CONSULTA SQL (temporada 2) ══════════ */
+function nvSQL(dia){
+  const consultas=az(SQLS).slice(0,5);
+  const dur=Math.round(75*facTiempo());
+  let ronda=0,pos=0,errores=0,pts=0,seg=dur,orden=[];
+  pantalla('nivel',`
+  <div class="l1">
+    <div class="tope"><span>${t('ronda')}: <b id="sq-ron">1</b>/5</span><span>${t('errores')}: <b id="sq-err">0</b>/3</span><span>${t('tiempo')}: <b id="sq-seg">${dur}</b>s</span></div>
+    <div class="barra" style="width:100%"><div class="barra-fill" id="sq-barra"></div></div>
+    <div class="term">
+      <div class="term-bar"><i style="background:#ff5468"></i><i style="background:#ffcf3f"></i><i style="background:#54c41a"></i>
+        <span class="term-line" style="margin-left:6px">mysql&gt; practicante</span></div>
+      <div class="term-cuerpo"><p class="sql-armada" id="sq-armada">&nbsp;</p></div>
+    </div>
+    <p class="mini">${t('sqlmsg')}</p>
+    <div class="sql-piezas" id="sq-piezas"></div>
+  </div>`);
+  function nuevaRonda(){orden=az(consultas[ronda].map((_,i)=>i));pos=0;pinta()}
+  function pinta(){
+    const q=consultas[ronda];
+    $('#sq-ron').textContent=ronda+1;
+    $('#sq-armada').innerHTML=q.slice(0,pos).map(x=>'<span class="sql-ok">'+x+'</span>').join(' ')+(pos<q.length?' <span class="blink">▌</span>':'');
+    $('#sq-piezas').innerHTML=orden.map(i=>`<button class="sql-pieza${i<pos?' usada':''}" data-i="${i}" type="button" ${i<pos?'disabled':''}>${q[i]}</button>`).join('');
+    $$('#sq-piezas .sql-pieza:not(.usada)').forEach(b=>b.onclick=()=>{
+      if(pausado)return;
+      if(+b.dataset.i===pos){
+        pos++;pts+=40;SFX.pop();
+        if(pos>=q.length){
+          pts+=80;SFX.ok();ronda++;
+          if(ronda>=consultas.length){
+            if(errores===0)darLogro('sql');
+            const stars=errores===0?3:errores<=1?2:1;
+            return resultado(dia,stars,pts+150);
+          }
+          return nuevaRonda();
+        }
+        pinta();
+      }else{
+        errores++;SFX.mal();$('#sq-err').textContent=errores;
+        b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),260);
+        if(errores>=3)return fallo(dia);
+      }
+    });
+  }
+  tcada(()=>{
+    if(pausado)return;
+    seg--;$('#sq-seg').textContent=seg;
+    $('#sq-barra').style.width=(seg/dur*100)+'%';
+    $('#sq-barra').classList.toggle('peligro',seg<dur*.3);
+    if(seg<=0)fallo(dia);
+  },1000);
+  nuevaRonda();
+  programarInterrupcion();
+}
+
+/* ══════════ MINIJUEGO 10 · CAZA PATRONES · REGEX (temporada 2) ══════════ */
+function nvRegex(dia){
+  const rondas=az(REGEXS).slice(0,5);
+  const dur=Math.round(70*facTiempo());
+  let r=0,errores=0,pts=0,seg=dur,quedan=0;
+  pantalla('nivel',`
+  <div class="l3">
+    <div class="tope"><span>${t('ronda')}: <b id="rx-ron">1</b>/5</span><span>${t('errores')}: <b id="rx-err">0</b>/3</span><span>${t('tiempo')}: <b id="rx-seg">${dur}</b>s</span></div>
+    <div class="barra" style="width:100%"><div class="barra-fill" id="rx-barra"></div></div>
+    <div class="rx-patron"><span class="rx-re" id="rx-re"></span><span class="rx-desc" id="rx-desc"></span></div>
+    <p class="mini">${t('regexmsg')}</p>
+    <div class="rx-grid" id="rx-grid"></div>
+  </div>`);
+  function pinta(){
+    const R=rondas[r],re=new RegExp(R.p);
+    $('#rx-ron').textContent=r+1;
+    $('#rx-re').textContent='/'+R.p+'/';
+    $('#rx-desc').textContent=S.lang==='es'?R.des:R.den;
+    const ops=az(R.opts);
+    quedan=ops.filter(o=>re.test(o)).length;
+    $('#rx-grid').innerHTML=ops.map(o=>`<button class="op rx-op" data-t="${o}" type="button">${o}</button>`).join('');
+    $$('#rx-grid .rx-op').forEach(b=>b.onclick=()=>{
+      if(pausado||b.disabled)return;
+      if(re.test(b.dataset.t)){
+        b.disabled=true;b.classList.add('bien');pts+=60;SFX.pop();quedan--;
+        if(quedan<=0){
+          pts+=60;SFX.ok();r++;
+          if(r>=rondas.length){
+            if(errores===0)darLogro('regex');
+            const stars=errores===0?3:errores<=1?2:1;
+            return resultado(dia,stars,pts+150);
+          }
+          tvez(pinta,450);
+        }
+      }else{
+        errores++;SFX.mal();b.classList.add('mal');
+        tvez(()=>b.classList.remove('mal'),350);
+        $('#rx-err').textContent=errores;
+        if(errores>=3)return fallo(dia);
+      }
+    });
+  }
+  tcada(()=>{
+    if(pausado)return;
+    seg--;$('#rx-seg').textContent=seg;
+    $('#rx-barra').style.width=(seg/dur*100)+'%';
+    $('#rx-barra').classList.toggle('peligro',seg<dur*.3);
+    if(seg<=0)fallo(dia);
+  },1000);
+  pinta();
   programarInterrupcion();
 }

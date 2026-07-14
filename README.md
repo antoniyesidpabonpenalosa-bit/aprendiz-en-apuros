@@ -61,16 +61,21 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
   (negros profundos, neón y alta resolución) — cambia desde la pantalla de título
 - **3 niveles de dificultad**: 🌱 Práctica, ⚔️ Normal y 💀 Pesadilla — ajustan
   vidas, tiempo y la agresividad del jefe final
-- **10 días** de etapa productiva con **7 minijuegos** + un **jefe final oculto** 👾:
+- **15 días en 2 temporadas**: la 🎓 **Etapa Productiva** (días 1-10) con
   mecanografía, caza-bugs, memoria, simon de Git, quiz, code review,
-  conflictos de merge, runner y la batalla contra EL BUG FINAL
+  conflictos de merge, runner y EL BUG FINAL oculto — y 📝 **El Contrato**
+  (días 11-15) como dev junior: **consultas SQL**, **regex**, bugs con bombas,
+  Git avanzado (rebase y stash) y un **deploy nocturno** con la revancha del jefe
 - **Jefe final con 3 fases reales**: lluvia de errores, ráfagas en abanico y un
   **láser telegrafiado** que avisa antes de disparar · música chiptune tensa
   propia · casilla oculta **"???"** en el mapa para repetir la pelea
 - **Racha/combo** en el runner: encadena cafés sin recibir golpes para multiplicar
 - Diálogos con retratos pixel-art, cutscenes e interrupciones de oficina
-- Puntos, XP, rangos (Aspirante → Titulado SENA), vidas, estrellas y certificado
-- Tienda, **15 logros**, récords, **estadísticas de por vida**, avatar
+- Puntos, XP, **6 rangos** (Aspirante → Dev Senior), vidas, estrellas,
+  certificado y **contrato indefinido** al terminar la temporada 2
+- **Tienda ampliada**: 9 accesorios (capa 🦸, gato 🐱, corona 👑…) y 5 mejoras
+  con descripción (café premium 🧲, escudo dev 🛡️…)
+- **18 logros**, récords, **estadísticas de por vida**, avatar
   personalizable, borrado de progreso y **botón de compartir** el resultado
 - Transiciones suaves entre pantallas (respetan *prefers-reduced-motion*)
 - **Código de guardado**: exporta tu partida y continúala en otro dispositivo
