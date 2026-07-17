@@ -41,7 +41,7 @@ function resultado(i,stars,pts){
   if(stars>S.dias[i])S.dias[i]=stars;
   if(i===0)darLogro('primer');
   if(stars===3){darLogro('perfecto');sumaStat('perfectos');}
-  if(progreso()>=5)darLogro('mitad');
+  if(progreso()>=8)darLogro('mitad'); /* mitad de los 15 días */
   if(S.dif===2)darLogro('pesadilla');
   guardar();SFX.win();
   const r=rangoDe(S.xp);
