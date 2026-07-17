@@ -320,7 +320,7 @@ const TXT={
   mejiman:'CAFÉ PREMIUM',mejescudo:'ESCUDO DEV',
   d_vida:'Una vida extra cada día',d_tiempo:'+20% de tiempo en los retos',
   d_doble:'Ganas el doble de puntos',d_iman:'Los cafés valen más puntos',
-  d_escudo:'El primer golpe de cada nivel no te daña',
+  d_escudo:'Anula tu primer golpe en el runner y el jefe',
   ascenso:'¡CONTRATO INDEFINIDO!',ascensode:'La empresa confirma que',
   ascensotxt:'sobrevivió sus primeros 5 días como dev junior y ya es parte del equipo',
  },
@@ -373,7 +373,7 @@ const TXT={
   mejiman:'PREMIUM COFFEE',mejescudo:'DEV SHIELD',
   d_vida:'One extra life each day',d_tiempo:'+20% time on challenges',
   d_doble:'Earn double points',d_iman:'Coffees are worth more points',
-  d_escudo:'The first hit of each level does not hurt you',
+  d_escudo:'Blocks your first hit in the runner and boss',
   ascenso:'PERMANENT CONTRACT!',ascensode:'The company confirms that',
   ascensotxt:'survived their first 5 days as a junior dev and is now part of the team',
  }

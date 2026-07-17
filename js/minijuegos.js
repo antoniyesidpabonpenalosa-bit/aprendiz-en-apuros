@@ -612,6 +612,17 @@ function nvRegex(dia){
     <p class="mini">${t('regexmsg')}</p>
     <div class="rx-grid" id="rx-grid"></div>
   </div>`);
+  function finRonda(){
+    pts+=60;SFX.ok();r++;
+    if(r>=rondas.length){
+      if(errores===0)darLogro('regex');
+      const stars=errores===0?3:errores<=1?2:1;
+      return resultado(dia,stars,pts+150);
+    }
+    /* congela la ronda resuelta para que ningún clic cuente mientras entra la siguiente */
+    $$('#rx-grid .rx-op').forEach(x=>x.disabled=true);
+    tvez(pinta,450);
+  }
   function pinta(){
     const R=rondas[r],re=new RegExp(R.p);
     $('#rx-ron').textContent=r+1;
@@ -620,19 +631,13 @@ function nvRegex(dia){
     const ops=az(R.opts);
     quedan=ops.filter(o=>re.test(o)).length;
     $('#rx-grid').innerHTML=ops.map(o=>`<button class="op rx-op" data-t="${o}" type="button">${o}</button>`).join('');
+    /* salvaguarda: una ronda sin coincidencias dejaría el nivel imposible de superar */
+    if(quedan===0)return finRonda();
     $$('#rx-grid .rx-op').forEach(b=>b.onclick=()=>{
       if(pausado||b.disabled)return;
       if(re.test(b.dataset.t)){
         b.disabled=true;b.classList.add('bien');pts+=60;SFX.pop();quedan--;
-        if(quedan<=0){
-          pts+=60;SFX.ok();r++;
-          if(r>=rondas.length){
-            if(errores===0)darLogro('regex');
-            const stars=errores===0?3:errores<=1?2:1;
-            return resultado(dia,stars,pts+150);
-          }
-          tvez(pinta,450);
-        }
+        if(quedan<=0)return finRonda();
       }else{
         errores++;SFX.mal();b.classList.add('mal');
         tvez(()=>b.classList.remove('mal'),350);
