@@ -108,11 +108,16 @@ aprendiz-en-apuros/
     ├── entrada.js        → soporte de mando (Gamepad API) y giroscopio
     ├── nucleo.js         → router de pantallas, logros, resultado/fallo
     ├── menus.js          → título, mapa, tienda, récords, avatar, certificado
-    ├── minijuegos.js     → los 8 minijuegos de los 10 días
+    ├── minijuegos.js     → los minijuegos de las 2 temporadas (15 días)
     ├── jefe.js           → la batalla final contra EL BUG FINAL
     └── principal.js      → arranque del juego y botones globales
 scripts/
-└── validar.mjs           → chequeo de sintaxis y referencias (CI + local)
+├── validar.mjs           → chequeo de sintaxis y referencias (CI + local)
+└── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
+design-system/            → catálogo de componentes extraído de css/estilos.css
+├── README.md             → cómo regenerarlo y sincronizarlo con claude.ai/design
+├── src/                  → fuente de cada fragmento de componente
+└── dist/                 → generado — galería navegable en dist/index.html
 ```
 
 Los módulos se cargan en orden como scripts clásicos (sin `type="module"`)
@@ -120,7 +125,9 @@ para que el juego siga funcionando al abrir `index.html` con doble clic.
 
 **Validación:** `node scripts/validar.mjs` comprueba la sintaxis de todos los
 `.js` y que `index.html` no referencie archivos inexistentes. Se ejecuta
-automáticamente en cada push mediante GitHub Actions (`.github/workflows/validar.yml`).
+automáticamente en cada push mediante GitHub Actions (`.github/workflows/validar.yml`),
+que también corre `node scripts/build-ui-kit.mjs --check` para asegurar que
+el UI kit no quede desincronizado del CSS real.
 
 ---
 

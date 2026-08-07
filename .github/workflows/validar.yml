@@ -16,3 +16,5 @@ jobs:
           node-version: '20'
       - name: Validar sintaxis JS y referencias de index.html
         run: node scripts/validar.mjs
+      - name: Validar que design-system/dist esté sincronizado
+        run: node scripts/build-ui-kit.mjs --check
