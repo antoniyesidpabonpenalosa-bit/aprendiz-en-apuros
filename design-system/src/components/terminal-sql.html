@@ -1,0 +1,22 @@
+<h1 class="pv-h">🗄 Terminal &amp; minijuego SQL</h1>
+<p class="pv-note">Ventana de consola con barra de semáforo (rojo/ámbar/verde). El minijuego SQL arma una consulta tocando las piezas en orden; las usadas se atenúan.</p>
+
+<div class="l1" style="max-width:440px">
+  <div class="term">
+    <div class="term-bar">
+      <i style="background:#ff5468"></i><i style="background:#ffcf3f"></i><i style="background:#54c41a"></i>
+      <span class="term-line" style="margin-left:6px">mysql&gt; practicante</span>
+    </div>
+    <div class="term-cuerpo">
+      <p class="sql-armada"><span class="sql-ok">SELECT nombre</span> <span class="sql-ok">FROM aprendices</span> <span class="blink">▌</span></p>
+    </div>
+  </div>
+
+  <p class="mini">Toca las piezas en ORDEN para armar la consulta</p>
+  <div class="sql-piezas">
+    <button class="sql-pieza usada" type="button" disabled>SELECT nombre</button>
+    <button class="sql-pieza usada" type="button" disabled>FROM aprendices</button>
+    <button class="sql-pieza" type="button">WHERE nota &gt;= 3</button>
+    <button class="sql-pieza" type="button">ORDER BY nombre</button>
+  </div>
+</div>
