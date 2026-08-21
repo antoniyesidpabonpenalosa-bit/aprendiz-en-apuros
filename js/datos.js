@@ -69,6 +69,13 @@ const SQLS=[
  ['UPDATE practicantes','SET contrato = 1','WHERE dias = 10'],
  ['SELECT curso, COUNT(*)','FROM inscritos','GROUP BY curso','HAVING COUNT(*) > 5'],
  ['DELETE FROM bugs','WHERE estado = "resuelto"'],
+ ['SELECT titulo','FROM proyectos','WHERE entregado = 0'],
+ ['SELECT COUNT(*)','FROM aprendices','WHERE ficha = 2847'],
+ ['UPDATE bugs','SET prioridad = "alta"','WHERE reportes > 3'],
+ ['SELECT nombre, correo','FROM instructores','ORDER BY nombre ASC','LIMIT 5'],
+ ['INSERT INTO asistencia','(aprendiz_id, fecha)','VALUES (17, NOW())'],
+ ['DELETE FROM sesiones','WHERE expira < NOW()'],
+ ['SELECT ficha, AVG(nota)','FROM notas','GROUP BY ficha','HAVING AVG(nota) >= 4'],
 ];
 /* rondas del minijuego regex: patrón + descripción + opciones (se evalúan con RegExp real) */
 const REGEXS=[
@@ -78,6 +85,12 @@ const REGEXS=[
  {p:'^[A-Z]+$',des:'solo MAYÚSCULAS',       den:'UPPERCASE only',     opts:['SENA','HTML','Sena','css','API','JsOn']},
  {p:'oo',      des:'tiene doble "o"',       den:'has a double "o"',   opts:['google','loop','ping','logo','cool','polo']},
  {p:'^#',      des:'empieza por "#"',       den:'starts with "#"',    opts:['#app','#id-btn','app#','css #','#fff','col#or']},
+ {p:'^npm',   des:'empieza por "npm"',     den:'starts with "npm"',  opts:['npm install','npm run dev','install npm','npmjs','npm test','yarn npm']},
+ {p:'[aeiou]{2}',des:'dos vocales seguidas',den:'two vowels in a row',opts:['queue','build','cd ..','stack','audio','test']},
+ {p:'^[a-z]+$',des:'solo minúsculas',      den:'lowercase only',     opts:['main','README','deploy','Git','commit','API']},
+ {p:'-',       des:'contiene un guion',    den:'contains a hyphen',  opts:['pull-request','main-branch','pullrequest','my_var','ui-kit','snake_case']},
+ {p:'^\\d+$', des:'solo dígitos',          den:'digits only',        opts:['404','500','v2','200','12a','3.14']},
+ {p:'ing$',   des:'termina en "ing"',      den:'ends with "ing"',    opts:['testing','building','ingreso','string','singular','linting']},
 ];
 const PALABRAS=['git push','commit','variable','funcion','deploy','servidor','consola','arreglo','objeto','html','css','javascript','python','api rest','frontend','backend','navegador','framework','base de datos','npm install','git status','git clone','console.log','debug','import','export','localhost','software','bucle for','teclado'];
 const PAREJAS=['HTML','CSS','JS','SQL','GIT','API','PHP','SENA'];
@@ -98,6 +111,18 @@ const CODIGO=[
  {c:'if(x > 5 { y--; }',ok:0},
  {c:'costn b = 2;',ok:0},
  {c:'for(let i=0; i<10; i++{ }',ok:0},
+ {c:'const nombres = lista.map(x => x.nombre);',ok:1},
+ {c:'let contador = 0; contador += 1;',ok:1},
+ {c:'export default function App(){}',ok:1},
+ {c:'const { id, nombre } = usuario;',ok:1},
+ {c:'arr.filter(n => n > 10);',ok:1},
+ {c:'try{ leer(); }catch(e){ avisar(e); }',ok:1},
+ {c:'const nombres = lista.map(x => x.nombre;',ok:0},
+ {c:'let contador = 0; contador ++= 1;',ok:0},
+ {c:'export defualt function App(){}',ok:0},
+ {c:'const { id, nombre = usuario;',ok:0},
+ {c:'whlie(i < 5){ i++; }',ok:0},
+ {c:'document.querySelectorAll("#app";',ok:0},
 ];
 const CONFLICTOS=[
  ['const total = a + b;','const total = a ++ b;'],
@@ -108,6 +133,14 @@ const CONFLICTOS=[
  ['const url = "api/v1";','const url = api/v1";'],
  ['for(const x of lista){ usar(x); }','for(const x on lista){ usar(x); }'],
  ['return respuesta.json();','return respuesta.jsno();'],
+ ['let total = 0;','let total = ;'],
+ ['const nombre = "SENA";','const nombre = "SENA;'],
+ ['arr.forEach(x => usar(x));','arr.forEach(x => usar(x);)'],
+ ['while(i < 10){ i++; }','while(i < 10}{ i++; }'],
+ ['export default App;','export defualt App;'],
+ ['import fs from "fs";','import fs form "fs";'],
+ ['if(!ok) return null;','if(!ok) retrun null;'],
+ ['try{ leer(); }catch(e){}','try{ leer(); }cath(e){}'],
 ];
 const CMDS=[
   {id:'pull',  cls:'c-pull',  txt:'GIT PULL',  f:330},
@@ -132,6 +165,18 @@ const QUIZ={
   {q:'¿Para qué sirve CSS Grid?',o:['Maquetar en filas y columnas','Conectar a internet','Comprimir imágenes'],r:0},
   {q:'¿Qué es un pull request?',o:['Un tirón de orejas','Propuesta para integrar cambios','Una petición de vacaciones'],r:1},
   {q:'¿Qué significa "deploy"?',o:['Borrar el código','Renunciar con estilo','Publicar la aplicación'],r:2},
+  {q:'¿Qué hace "git clone"?',o:['Copia un repositorio remoto','Borra una rama','Crea un commit'],r:0},
+  {q:'¿Qué es el backend?',o:['El fondo de pantalla','La lógica y los datos del servidor','El teclado'],r:1},
+  {q:'¿Qué significa SQL?',o:['Sistema de Query Libre','Super Query Lang','Structured Query Language'],r:2},
+  {q:'¿Qué es una variable?',o:['Un espacio para guardar un valor','Un error del compilador','Un tipo de cable'],r:0},
+  {q:'¿Qué hace "console.log()"?',o:['Apaga el navegador','Muestra un valor en la consola','Guarda el archivo'],r:1},
+  {q:'¿Qué es un array?',o:['Una contraseña','Un servidor web','Una lista ordenada de valores'],r:2},
+  {q:'¿Qué es una rama (branch) en Git?',o:['Una línea de trabajo paralela','Un error de red','Una carpeta del sistema'],r:0},
+  {q:'¿Qué significa el error HTTP 404?',o:['Servidor apagado','Recurso no encontrado','Acceso concedido'],r:1},
+  {q:'¿Qué es el "responsive design"?',o:['Un diseño que responde correos','Un tipo de fuente','Un diseño que se adapta a cada pantalla'],r:2},
+  {q:'¿Qué hace "npm install"?',o:['Instala las dependencias del proyecto','Formatea el disco','Publica la web'],r:0},
+  {q:'¿Qué es el DOM?',o:['Un dominio de internet','La estructura de la página en el navegador','Un lenguaje de bases de datos'],r:1},
+  {q:'¿Qué es refactorizar?',o:['Borrar todo y empezar de cero','Cambiar de lenguaje','Mejorar el código sin cambiar lo que hace'],r:2},
  ],
  en:[
   {q:'What does HTML stand for?',o:['HyperText Markup Language','High Tech Modern Language','Home Tool Markup List'],r:0},
@@ -146,6 +191,18 @@ const QUIZ={
   {q:'What is CSS Grid for?',o:['Layout in rows and columns','Connecting to the internet','Compressing images'],r:0},
   {q:'What is a pull request?',o:['An ear pull','A proposal to merge changes','A vacation request'],r:1},
   {q:'What does "deploy" mean?',o:['Delete the code','Quit with style','Publish the application'],r:2},
+  {q:'What does "git clone" do?',o:['Copies a remote repository','Deletes a branch','Creates a commit'],r:0},
+  {q:'What is the backend?',o:['The desktop wallpaper','The server logic and data','The keyboard'],r:1},
+  {q:'What does SQL stand for?',o:['Simple Query Loop','Super Query Lang','Structured Query Language'],r:2},
+  {q:'What is a variable?',o:['A place to store a value','A compiler error','A type of cable'],r:0},
+  {q:'What does "console.log()" do?',o:['Shuts down the browser','Prints a value to the console','Saves the file'],r:1},
+  {q:'What is an array?',o:['A password','A web server','An ordered list of values'],r:2},
+  {q:'What is a branch in Git?',o:['A parallel line of work','A network error','A system folder'],r:0},
+  {q:'What does the HTTP 404 error mean?',o:['Server is down','Resource not found','Access granted'],r:1},
+  {q:'What is responsive design?',o:['A design that answers emails','A type of font','A design that adapts to each screen'],r:2},
+  {q:'What does "npm install" do?',o:['Installs the project dependencies','Formats the disk','Publishes the site'],r:0},
+  {q:'What is the DOM?',o:['An internet domain','The page structure in the browser','A database language'],r:1},
+  {q:'What is refactoring?',o:['Deleting everything and starting over','Switching languages','Improving code without changing what it does'],r:2},
  ]
 };
 const DIALOGOS={
