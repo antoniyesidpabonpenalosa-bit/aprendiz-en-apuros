@@ -7,8 +7,8 @@
      node scripts/build-ui-kit.mjs --check  regenera en un directorio temporal
                                              y falla si difiere de lo comprometido
                                              (detecta un dist/ desincronizado) */
-import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, existsSync, readdirSync } from 'node:fs';
+import { join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 
@@ -17,6 +17,9 @@ const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(RAIZ, 'design-system', 'src');
 const DIST_COMMIT = join(RAIZ, 'design-system', 'dist');
 const DIST = CHECK ? mkdtempSync(join(tmpdir(), 'ui-kit-check-')) : DIST_COMMIT;
+/* En --check el temporal debe borrarse pase lo que pase, no solo si el build
+   termina bien: si algo lanza a mitad, el handler de salida igual lo limpia. */
+if (CHECK) process.on('exit', () => rmSync(DIST, { recursive: true, force: true }));
 const escritos = [];
 
 const estilos = readFileSync(join(RAIZ, 'css', 'estilos.css'), 'utf8');
@@ -24,6 +27,14 @@ const estilos = readFileSync(join(RAIZ, 'css', 'estilos.css'), 'utf8');
 /* ── 1 · paleta de color extraída en vivo de :root ── */
 const raiz = estilos.match(/:root\s*\{([^}]*)\}/);
 if (!raiz) throw new Error('css/estilos.css no tiene un bloque :root { ... }');
+
+/* La galería reusa el bloque del tema OLED del juego. Se valida aquí, antes de
+   escribir nada, para no dejar dist/ a medio regenerar si el comentario cambia. */
+const MARCA_OLED = 'MODO ✨';
+const bloqueOled = estilos.split(MARCA_OLED)[1];
+if (bloqueOled === undefined)
+  throw new Error(`css/estilos.css no contiene el marcador "${MARCA_OLED}" que delimita el tema OLED.\n` +
+    'Si renombraste ese comentario, actualiza MARCA_OLED en scripts/build-ui-kit.mjs.');
 const tokens = [...raiz[1].matchAll(/--([a-z0-9]+)\s*:\s*([^;]+);/gi)]
   .map(m => ({ nombre: m[1] }));
 
@@ -88,6 +99,14 @@ ${bodyHtml}
 }
 
 const leer = rel => readFileSync(join(SRC, rel), 'utf8');
+/* rutas relativas de todos los archivos bajo dir (para detectar sobrantes) */
+function listarArchivos(dir, base = dir) {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, { withFileTypes: true }).flatMap(e => {
+    const abs = join(dir, e.name);
+    return e.isDirectory() ? listarArchivos(abs, base) : [relative(base, abs).split(sep).join('/')];
+  });
+}
 function escribir(relDist, contenido) {
   const abs = join(DIST, relDist);
   mkdirSync(dirname(abs), { recursive: true });
@@ -117,8 +136,11 @@ const TARJETAS = [
   { out: 'temas/retro-vs-oled.html', titulo: 'Temas RETRO vs OLED', grupo: 'Temas', src: 'temas/temas.html' },
 ];
 
+/* Se vacía primero para que un componente renombrado o eliminado no deje su
+   página huérfana en dist/ (que --check daría por buena al no generarla). */
+rmSync(DIST, { recursive: true, force: true });
 mkdirSync(DIST, { recursive: true });
-writeFileSync(join(DIST, 'base.css'), BASE_CSS);
+escribir('base.css', BASE_CSS);
 
 for (const t of TARJETAS) {
   const body = t.body ?? leer(t.src);
@@ -152,9 +174,7 @@ body{background:#080a15!important;padding:0!important}
 .themes-2 .cap{font-size:9px;letter-spacing:1px;color:var(--tx2);margin-bottom:10px}
 .gal-foot{margin-top:30px;font-family:'VT323','Courier New',monospace;font-size:16px;color:var(--tx1);text-align:center;line-height:1.5}
 `;
-const OLED_SCOPE = estilos
-  .split('MODO ✨')[1]
-  .replace(/html\.hd/g, '.oled-scope');
+const OLED_SCOPE = bloqueOled.replace(/html\.hd/g, '.oled-scope');
 
 const noTemas = TARJETAS.filter(t => t.grupo !== 'Temas');
 let n = 1;
@@ -217,6 +237,11 @@ if (CHECK) {
     if (!existsSync(comprometidoAbs)) { diffs.push(`falta ${rel} en design-system/dist/`); continue; }
     if (readFileSync(comprometidoAbs, 'utf8') !== generado) diffs.push(`desactualizado: ${rel}`);
   }
+  /* Sobrantes: comparar solo lo generado dejaría pasar páginas de componentes
+     renombrados o borrados, que seguirían vivas en dist/ y en la galería. */
+  const esperados = new Set(escritos);
+  for (const rel of listarArchivos(DIST_COMMIT))
+    if (!esperados.has(rel)) diffs.push(`sobra (ya no se genera): ${rel}`);
   rmSync(DIST, { recursive: true, force: true });
   if (diffs.length) {
     console.error('✗ design-system/dist/ está desincronizado de src/ y/o css/estilos.css:');
