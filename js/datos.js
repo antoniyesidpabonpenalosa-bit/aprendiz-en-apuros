@@ -85,12 +85,12 @@ const REGEXS=[
  {p:'^[A-Z]+$',des:'solo MAYÚSCULAS',       den:'UPPERCASE only',     opts:['SENA','HTML','Sena','css','API','JsOn']},
  {p:'oo',      des:'tiene doble "o"',       den:'has a double "o"',   opts:['google','loop','ping','logo','cool','polo']},
  {p:'^#',      des:'empieza por "#"',       den:'starts with "#"',    opts:['#app','#id-btn','app#','css #','#fff','col#or']},
- {p:'^npm',   des:'empieza por "npm"',     den:'starts with "npm"',  opts:['npm install','npm run dev','install npm','npmjs','npm test','yarn npm']},
+ {p:'^npm',   des:'empieza por "npm"',     den:'starts with "npm"',  opts:['npm install','npm run dev','install npm','nmp install','npm test','yarn npm']},
  {p:'[aeiou]{2}',des:'dos vocales seguidas',den:'two vowels in a row',opts:['queue','build','cd ..','stack','audio','test']},
  {p:'^[a-z]+$',des:'solo minúsculas',      den:'lowercase only',     opts:['main','README','deploy','Git','commit','API']},
  {p:'-',       des:'contiene un guion',    den:'contains a hyphen',  opts:['pull-request','main-branch','pullrequest','my_var','ui-kit','snake_case']},
  {p:'^\\d+$', des:'solo dígitos',          den:'digits only',        opts:['404','500','v2','200','12a','3.14']},
- {p:'ing$',   des:'termina en "ing"',      den:'ends with "ing"',    opts:['testing','building','ingreso','string','singular','linting']},
+ {p:'ing$',   des:'termina en "ing"',      den:'ends with "ing"',    opts:['testing','building','ingreso','strings','singular','linting']},
 ];
 const PALABRAS=['git push','commit','variable','funcion','deploy','servidor','consola','arreglo','objeto','html','css','javascript','python','api rest','frontend','backend','navegador','framework','base de datos','npm install','git status','git clone','console.log','debug','import','export','localhost','software','bucle for','teclado'];
 const PAREJAS=['HTML','CSS','JS','SQL','GIT','API','PHP','SENA'];
