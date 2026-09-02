@@ -177,6 +177,9 @@ body{background:#080a15!important;padding:0!important}
 const OLED_SCOPE = bloqueOled.replace(/html\.hd/g, '.oled-scope');
 
 const noTemas = TARJETAS.filter(t => t.grupo !== 'Temas');
+/* Las etiquetas de la cabecera se cuentan por grupo real: antes decían
+   "17 COMPONENTES" incluyendo las dos tarjetas de Fundamentos. */
+const cuenta = g => TARJETAS.filter(t => t.grupo === g).length;
 let n = 1;
 const specs = noTemas.map(t => {
   const body = t.body ?? leer(t.src);
@@ -196,7 +199,7 @@ const galeriaBody = `<div class="gal">
   <header class="gal-hd">
     <h1>🎮 APRENDIZ EN APUROS · UI KIT</h1>
     <p class="k">Sistema de diseño extraído del juego: los mismos tokens, tipografías y componentes que ves en pantalla, catalogados y generados directamente desde <code>css/estilos.css</code>. Un solo mundo arcade — pixel, verde SENA y alto contraste — en sus dos pieles: RETRO 32-BIT y 4K HD PRO OLED.</p>
-    <div class="tags"><span>${noTemas.length} COMPONENTES</span><span>2 TEMAS</span><span>HTML/CSS PURO</span><span>GENERADO CON scripts/build-ui-kit.mjs</span></div>
+    <div class="tags"><span>${cuenta('Fundamentos')} FUNDAMENTOS</span><span>${cuenta('Componentes')} COMPONENTES</span><span>2 TEMAS</span><span>HTML/CSS PURO</span><span>GENERADO CON scripts/build-ui-kit.mjs</span></div>
   </header>
   <section class="gal-grid">
 ${specs}

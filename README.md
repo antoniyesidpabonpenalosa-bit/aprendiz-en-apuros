@@ -112,7 +112,7 @@ aprendiz-en-apuros/
     ├── jefe.js           → la batalla final contra EL BUG FINAL
     └── principal.js      → arranque del juego y botones globales
 scripts/
-├── validar.mjs           → chequeo de sintaxis y referencias (CI + local)
+├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 └── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
 design-system/            → catálogo de componentes extraído de css/estilos.css
 ├── README.md             → cómo regenerarlo y sincronizarlo con claude.ai/design
@@ -123,8 +123,11 @@ design-system/            → catálogo de componentes extraído de css/estilos.
 Los módulos se cargan en orden como scripts clásicos (sin `type="module"`)
 para que el juego siga funcionando al abrir `index.html` con doble clic.
 
-**Validación:** `node scripts/validar.mjs` comprueba la sintaxis de todos los
-`.js` y que `index.html` no referencie archivos inexistentes. Se ejecuta
+**Validación:** `node scripts/validar.mjs` comprueba cuatro cosas: la sintaxis
+de todos los `.js`, que `index.html` no referencie archivos inexistentes, que
+todo el HTML del repo esté bien anidado y sin `id` repetidos (el juego y las
+tarjetas del UI kit se escriben a mano), y que `sw.js` precargue todo lo que
+`index.html` necesita para funcionar sin conexión. Se ejecuta
 automáticamente en cada push mediante GitHub Actions (`.github/workflows/validar.yml`),
 que también corre `node scripts/build-ui-kit.mjs --check` para asegurar que
 el UI kit no quede desincronizado del CSS real.

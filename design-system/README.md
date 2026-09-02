@@ -68,6 +68,15 @@ que un `dist/` desactualizado hace fallar el build.
    (solo el contenido del `<body>`, con las clases reales del juego).
 2. Agrégalo al arreglo `TARJETAS` en `scripts/build-ui-kit.mjs`.
 3. Corre `node scripts/build-ui-kit.mjs`.
+4. Corre `node scripts/validar.mjs` para confirmar que quedó bien anidado.
+
+**Convención de `id` en los fragmentos:** `dist/index.html` concatena todos
+los fragmentos en una sola página, así que dos fragmentos que usen el mismo
+`id` producen HTML inválido. Por eso los fragmentos se estilizan **por
+clase**, no por `id` — si el CSS del juego engancha algo por `id` (como hacía
+`#b-lang`), conviene pasarlo a clase en `css/estilos.css` y dejar el `id`
+solo en `index.html`, donde lo necesita el JS. `validar.mjs` falla si se
+cuela un `id` repetido.
 
 ## Sincronizar con claude.ai/design
 
