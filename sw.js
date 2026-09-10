@@ -1,11 +1,11 @@
 /* Service worker · Practicante en Apuros 4
    Mismo origen: red primero (siempre fresco) con respaldo de caché offline.
    Otros orígenes (fuentes): caché primero. */
-const CACHE = 'pa4-v7';
+const CACHE = 'pa4-v8';
 const BASE = [
   './', './index.html', './manifest.webmanifest', './icon.svg',
   './css/estilos.css',
-  './js/datos.js', './js/estado.js', './js/audio.js', './js/graficos.js',
+  './js/datos.js', './js/estado.js', './js/ranking.js', './js/audio.js', './js/graficos.js',
   './js/entrada.js', './js/nucleo.js', './js/menus.js', './js/minijuegos.js',
   './js/jefe.js', './js/principal.js',
 ];

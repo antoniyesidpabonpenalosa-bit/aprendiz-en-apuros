@@ -75,6 +75,8 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
   certificado y **contrato indefinido** al terminar la temporada 2
 - **Tienda ampliada**: 9 accesorios (capa 🦸, gato 🐱, corona 👑…) y 5 mejoras
   con descripción (café premium 🧲, escudo dev 🛡️…)
+- **🌍 Marcador global**: tu puntaje se publica al terminar y compites con
+  todos los que juegan — y si no hay internet, el juego sigue igual
 - **18 logros**, récords, **estadísticas de por vida**, avatar
   personalizable, borrado de progreso y **botón de compartir** el resultado
 - Transiciones suaves entre pantallas (respetan *prefers-reduced-motion*)
@@ -105,12 +107,15 @@ aprendiz-en-apuros/
     ├── estado.js         → partida guardada, temporizadores y utilidades
     ├── audio.js          → efectos de sonido y música chiptune (WebAudio)
     ├── graficos.js       → retratos pixel-art, HUD y confeti
+    ├── ranking.js        → marcador global (Supabase vía fetch, sin SDK)
     ├── entrada.js        → soporte de mando (Gamepad API) y giroscopio
     ├── nucleo.js         → router de pantallas, logros, resultado/fallo
     ├── menus.js          → título, mapa, tienda, récords, avatar, certificado
     ├── minijuegos.js     → los minijuegos de las 2 temporadas (15 días)
     ├── jefe.js           → la batalla final contra EL BUG FINAL
     └── principal.js      → arranque del juego y botones globales
+db/
+└── records.sql           → esquema y reglas del marcador global (Supabase)
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 └── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
@@ -134,8 +139,35 @@ el UI kit no quede desincronizado del CSS real.
 
 ---
 
+## 🌍 Marcador global
+
+La pantalla de récords tiene dos tablas: **el marcador global**, compartido por
+todos los que juegan, y **tus marcas**, que siguen viviendo solo en tu navegador.
+Al terminar el día 10 y el día 15 tu puntaje se publica automáticamente.
+
+Está montado sobre [Supabase](https://supabase.com) y se habla con su API REST
+usando `fetch` a secas (`js/ranking.js`): sin SDK ni build, así que el juego se
+sigue abriendo con doble clic. **Si no hay internet el juego funciona igual** —
+el marcador muestra un aviso y tus marcas locales siguen ahí.
+
+La clave que viaja en el JS es pública a propósito (Supabase la llama
+*publishable*). Lo que protege los datos son las reglas del servidor:
+
+- Cualquiera puede **leer** el marcador y **publicar** su marca.
+- **Nadie puede editar ni borrar** una marca, ni siquiera quien la publicó.
+- La base rechaza nombres de más de 10 caracteres y puntajes fuera de rango.
+- Los nombres se escapan antes de dibujarlos: un nombre con HTML se ve como
+  texto, no se ejecuta.
+
+Aun así, como la clave es pública, **alguien decidido puede publicar un puntaje
+que no jugó**. Es el precio de no pedir cuenta de usuario; las reglas de arriba
+bloquean lo absurdo, no la mala fe.
+
+---
+
 ## 🛠 Tecnología
 
 JavaScript vanilla (ES2020), Canvas 2D, WebAudio API, Gamepad API,
-DeviceOrientation, Service Worker + Web App Manifest, localStorage.
+DeviceOrientation, Service Worker + Web App Manifest, localStorage,
+y Supabase (API REST vía `fetch`) para el marcador global.
 Cero dependencias en tiempo de ejecución; las fuentes retro vienen de Google Fonts.

@@ -18,6 +18,9 @@ S.stats=Object.assign({},STATS0,S.stats);
 const guardar=()=>{try{localStorage.setItem('pa3',JSON.stringify(S))}catch(e){}};
 const t=k=>TXT[S.lang][k]||k;
 const tj=o=>o[S.lang]||o.es;
+/* Escapa texto que no controlamos (nombres del marcador global) antes de
+   meterlo en innerHTML. Sin esto, un nombre con HTML se ejecutaría. */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 let diaAct=0, vidas=3, pausado=false, raf=0, pantallaId='titulo';
 let tms=[], alLimpiar=[];
