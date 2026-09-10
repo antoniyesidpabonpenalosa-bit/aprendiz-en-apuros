@@ -214,10 +214,14 @@ function jugarNivel(i){
 }
 
 /* ── CERTIFICADO ── */
-function registrarRecord(){
-  S.records.push({n:S.nombre||t('tu'),p:S.pts,x:S.xp,yo:1});
+function registrarRecord(temporada){
+  const nom=S.nombre||t('tu');
+  S.records.push({n:nom,p:S.pts,x:S.xp,yo:1});
   S.records.sort((a,b)=>b.p-a.p);
   S.records=S.records.slice(0,5);
+  /* Se envía al marcador global sin esperar respuesta: si no hay internet
+     la partida ya quedó guardada localmente y no pasa nada. */
+  RANKING.publicar({nombre:nom,puntos:S.pts,xp:S.xp,dificultad:S.dif,temporada:temporada||1});
 }
 function compartir(){
   const url='https://antoniyesidpabonpenalosa-bit.github.io/aprendiz-en-apuros/';
@@ -363,16 +367,23 @@ function rLogros(){
 }
 
 /* ── RÉCORDS ── */
+function tablaRecords(filas){
+  return `<table class="rec-tabla">
+      <tr><th>#</th><th>${t('rec_nom')}</th><th>${t('rec_pts')}</th><th>${t('rec_rango')}</th></tr>
+      ${filas.map((r,i)=>`<tr class="${r.yo?'yo':''}"><td>${i+1}</td><td>${esc(r.n)}</td><td>${r.p}</td><td>${tj(rangoDe(r.x))}</td></tr>`).join('')}
+    </table>`;
+}
 function rRecords(){
-  const base=[{n:'MARIA_DEV',p:9500,x:3200},{n:'CARLOS.JS',p:7800,x:2500},{n:'LUISA_SQL',p:5900,x:1600},{n:'PEPE_HTML',p:3400,x:900}];
-  const todos=[...base,...S.records].sort((a,b)=>b.p-a.p).slice(0,8);
+  const locales=[...S.records].sort((a,b)=>b.p-a.p).slice(0,8);
   pantalla('records',`
   <div class="centro">
     <h2>📊 ${t('records')}</h2>
-    <table class="rec-tabla">
-      <tr><th>#</th><th>${t('rec_nom')}</th><th>${t('rec_pts')}</th><th>${t('rec_rango')}</th></tr>
-      ${todos.map((r,i)=>`<tr class="${r.yo?'yo':''}"><td>${i+1}</td><td>${r.n}</td><td>${r.p}</td><td>${tj(rangoDe(r.x))}</td></tr>`).join('')}
-    </table>
+    <h3>${t('glob_tit')}</h3>
+    <div id="rec-global"><p class="desc" style="text-align:center">${t('glob_carga')}</p></div>
+    <h3>${t('glob_loc')}</h3>
+    ${locales.length
+      ? tablaRecords(locales)
+      : `<p class="desc" style="text-align:center">${t('glob_locvacio')}</p>`}
     <h3>${t('rangos')}</h3>
     <div class="rango-lista">
       ${RANGOS.map(r=>{
@@ -382,6 +393,18 @@ function rRecords(){
     <button class="btn btn2" id="re-volver" type="button">${t('volver')}</button>
   </div>`);
   $('#re-volver').onclick=()=>{SFX.click();rTitulo()};
+  pintarGlobal();
+}
+/* Rellena el bloque del marcador global cuando llega la respuesta. Si el
+   jugador ya salió de la pantalla, no hay dónde pintar y se descarta. */
+async function pintarGlobal(){
+  const filas=await RANKING.top(8);
+  const caja=$('#rec-global');
+  if(!caja) return;
+  if(!filas){ caja.innerHTML=`<p class="desc" style="text-align:center">${t('glob_sinred')}</p>`; return; }
+  if(!filas.length){ caja.innerHTML=`<p class="desc" style="text-align:center">${t('glob_vacio')}</p>`; return; }
+  const mio=S.nombre||t('tu');
+  caja.innerHTML=tablaRecords(filas.map(f=>({n:f.nombre,p:f.puntos,x:f.xp,yo:f.nombre===mio?1:0})));
 }
 
 /* ── ESTADÍSTICAS DE POR VIDA ── */
