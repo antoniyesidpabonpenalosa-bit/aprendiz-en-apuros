@@ -116,6 +116,9 @@ aprendiz-en-apuros/
     └── principal.js      → arranque del juego y botones globales
 db/
 └── records.sql           → esquema y reglas del marcador global (Supabase)
+test/
+├── ayuda.mjs             → carga el juego fuera del navegador (node:vm)
+└── logica.test.mjs       → pruebas de guardado, rangos, vidas y marcador
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 └── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
@@ -137,6 +140,17 @@ automáticamente en cada push mediante GitHub Actions (`.github/workflows/valida
 que también corre `node scripts/build-ui-kit.mjs --check` para asegurar que
 el UI kit no quede desincronizado del CSS real.
 
+**Pruebas:** `node --test test/*.test.mjs` comprueba la lógica que no se ve al
+jugar un rato — sobre todo el **código de guardado**, que es lo que puede hacer
+que alguien pierda su partida al cambiar de dispositivo sin que nadie se entere.
+Cubre la ida y vuelta del código (con tildes y emoji), el rechazo de códigos
+manipulados, la migración de partidas viejas de 10 días a 15, los umbrales de
+cada rango, las vidas por dificultad, el escape de los nombres del marcador y
+los límites de lo que se publica. Usa `node:test`, que viene incluido en Node:
+**sigue sin haber dependencias**. El juego no se tocó para poder probarlo — se
+carga en un contexto aislado con `node:vm`, así que sigue siendo `<script>`
+clásicos que funcionan con doble clic.
+
 ---
 
 ## 🌍 Marcador global
@@ -144,6 +158,12 @@ el UI kit no quede desincronizado del CSS real.
 La pantalla de récords tiene dos tablas: **el marcador global**, compartido por
 todos los que juegan, y **tus marcas**, que siguen viviendo solo en tu navegador.
 Al terminar el día 10 y el día 15 tu puntaje se publica automáticamente.
+
+El marcador se puede **filtrar por dificultad** (🌱 Práctica · ⚔️ Normal ·
+💀 Pesadilla), porque no compite igual quien juega con vidas de más que quien
+juega con vidas de menos. En la vista "TODAS" cada marca lleva el icono de la
+dificultad con la que se logró; el otro icono dice si terminó el día 10 (🎓) o
+llegó hasta el día 15 (📝).
 
 Está montado sobre [Supabase](https://supabase.com) y se habla con su API REST
 usando `fetch` a secas (`js/ranking.js`): sin SDK ni build, así que el juego se

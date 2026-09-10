@@ -367,10 +367,13 @@ function rLogros(){
 }
 
 /* ── RÉCORDS ── */
+/* Dificultad que se está mirando en el marcador: null = las tres mezcladas.
+   Vive fuera de la función para que sobreviva al redibujado de la tabla. */
+let filtroDif=null;
 function tablaRecords(filas){
   return `<table class="rec-tabla">
       <tr><th>#</th><th>${t('rec_nom')}</th><th>${t('rec_pts')}</th><th>${t('rec_rango')}</th></tr>
-      ${filas.map((r,i)=>`<tr class="${r.yo?'yo':''}"><td>${i+1}</td><td>${esc(r.n)}</td><td>${r.p}</td><td>${tj(rangoDe(r.x))}</td></tr>`).join('')}
+      ${filas.map((r,i)=>`<tr class="${r.yo?'yo':''}"><td>${i+1}</td><td>${r.ico?`<span class="rec-ico">${r.ico}</span>`:''}${esc(r.n)}</td><td>${r.p}</td><td>${tj(rangoDe(r.x))}</td></tr>`).join('')}
     </table>`;
 }
 function rRecords(){
@@ -379,6 +382,10 @@ function rRecords(){
   <div class="centro">
     <h2>📊 ${t('records')}</h2>
     <h3>${t('glob_tit')}</h3>
+    <div class="rec-filtros">
+      <button class="rec-chip" data-dif="" type="button">${t('glob_todas')}</button>
+      ${DIFS.map(d=>`<button class="rec-chip" data-dif="${d.id}" type="button">${d.ico} ${tj(d)}</button>`).join('')}
+    </div>
     <div id="rec-global"><p class="desc" style="text-align:center">${t('glob_carga')}</p></div>
     <h3>${t('glob_loc')}</h3>
     ${locales.length
@@ -393,18 +400,45 @@ function rRecords(){
     <button class="btn btn2" id="re-volver" type="button">${t('volver')}</button>
   </div>`);
   $('#re-volver').onclick=()=>{SFX.click();rTitulo()};
+  document.querySelectorAll('.rec-chip').forEach(b=>{
+    b.onclick=()=>{
+      const d=b.dataset.dif;
+      filtroDif=d===''?null:Number(d);
+      SFX.click();marcarChips();pintarGlobal();
+    };
+  });
+  marcarChips();
   pintarGlobal();
 }
+function marcarChips(){
+  document.querySelectorAll('.rec-chip').forEach(b=>{
+    const d=b.dataset.dif===''?null:Number(b.dataset.dif);
+    b.classList.toggle('act',d===filtroDif);
+  });
+}
+/* Cada consulta lleva un número. Si el jugador cambia de filtro mientras una
+   respuesta lenta viaja, esa respuesta llega con un número viejo y se tira:
+   sin esto, la tabla podría acabar mostrando la dificultad equivocada. */
+let peticionGlobal=0;
 /* Rellena el bloque del marcador global cuando llega la respuesta. Si el
    jugador ya salió de la pantalla, no hay dónde pintar y se descarta. */
 async function pintarGlobal(){
-  const filas=await RANKING.top(8);
+  const mia=++peticionGlobal;
+  const caja0=$('#rec-global');
+  if(caja0) caja0.innerHTML=`<p class="desc" style="text-align:center">${t('glob_carga')}</p>`;
+  const filas=await RANKING.top(8,filtroDif);
+  if(mia!==peticionGlobal) return;              // llegó tarde: ya hay otro filtro
   const caja=$('#rec-global');
   if(!caja) return;
   if(!filas){ caja.innerHTML=`<p class="desc" style="text-align:center">${t('glob_sinred')}</p>`; return; }
   if(!filas.length){ caja.innerHTML=`<p class="desc" style="text-align:center">${t('glob_vacio')}</p>`; return; }
   const mio=S.nombre||t('tu');
-  caja.innerHTML=tablaRecords(filas.map(f=>({n:f.nombre,p:f.puntos,x:f.xp,yo:f.nombre===mio?1:0})));
+  caja.innerHTML=tablaRecords(filas.map(f=>({
+    n:f.nombre,p:f.puntos,x:f.xp,yo:f.nombre===mio?1:0,
+    /* Con "TODAS" el icono de dificultad es la única pista de en qué condiciones
+       se logró la marca; filtrando ya se sabe y solo estorbaría. */
+    ico:(filtroDif===null?(DIFS[f.dificultad]||DIFS[1]).ico:'')+(f.temporada===2?'📝':'🎓'),
+  })));
 }
 
 /* ── ESTADÍSTICAS DE POR VIDA ── */

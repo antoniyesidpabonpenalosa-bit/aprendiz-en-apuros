@@ -329,7 +329,7 @@ const LOGROS=[
 ];
 const TXT={
  es:{dia:'DÍA',start:'PULSA START',jugar:'▶ JUGAR',tienda:'TIENDA',logros:'LOGROS',records:'RÉCORDS',perso:'AVATAR',
-  glob_tit:'🌍 MARCADOR GLOBAL',glob_loc:'💾 TUS MARCAS',glob_carga:'CONSULTANDO…',
+  glob_tit:'🌍 MARCADOR GLOBAL',glob_todas:'TODAS',glob_loc:'💾 TUS MARCAS',glob_carga:'CONSULTANDO…',
   glob_sinred:'Sin conexión con el marcador. Abajo siguen tus marcas locales.',
   glob_vacio:'Nadie ha publicado todavía. ¡Sé el primero!',
   glob_locvacio:'Termina el día 10 para registrar tu primera marca.',
@@ -386,7 +386,7 @@ const TXT={
   ascensotxt:'sobrevivió sus primeros 5 días como dev junior y ya es parte del equipo',
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'AVATAR',
-  glob_tit:'🌍 GLOBAL LEADERBOARD',glob_loc:'💾 YOUR SCORES',glob_carga:'LOADING…',
+  glob_tit:'🌍 GLOBAL LEADERBOARD',glob_todas:'ALL',glob_loc:'💾 YOUR SCORES',glob_carga:'LOADING…',
   glob_sinred:'No connection to the leaderboard. Your local scores are still below.',
   glob_vacio:'Nobody has posted a score yet. Be the first!',
   glob_locvacio:'Finish day 10 to record your first score.',
