@@ -16,5 +16,7 @@ jobs:
           node-version: '20'
       - name: Validar sintaxis JS y referencias de index.html
         run: node scripts/validar.mjs
+      - name: Pruebas de la lógica del juego
+        run: node --test test/*.test.mjs
       - name: Validar que design-system/dist esté sincronizado
         run: node scripts/build-ui-kit.mjs --check

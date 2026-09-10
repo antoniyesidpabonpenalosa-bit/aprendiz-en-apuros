@@ -116,6 +116,9 @@ aprendiz-en-apuros/
     └── principal.js      → arranque del juego y botones globales
 db/
 └── records.sql           → esquema y reglas del marcador global (Supabase)
+test/
+├── ayuda.mjs             → carga el juego fuera del navegador (node:vm)
+└── logica.test.mjs       → pruebas de guardado, rangos, vidas y marcador
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 └── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
@@ -136,6 +139,17 @@ tarjetas del UI kit se escriben a mano), y que `sw.js` precargue todo lo que
 automáticamente en cada push mediante GitHub Actions (`.github/workflows/validar.yml`),
 que también corre `node scripts/build-ui-kit.mjs --check` para asegurar que
 el UI kit no quede desincronizado del CSS real.
+
+**Pruebas:** `node --test test/*.test.mjs` comprueba la lógica que no se ve al
+jugar un rato — sobre todo el **código de guardado**, que es lo que puede hacer
+que alguien pierda su partida al cambiar de dispositivo sin que nadie se entere.
+Cubre la ida y vuelta del código (con tildes y emoji), el rechazo de códigos
+manipulados, la migración de partidas viejas de 10 días a 15, los umbrales de
+cada rango, las vidas por dificultad, el escape de los nombres del marcador y
+los límites de lo que se publica. Usa `node:test`, que viene incluido en Node:
+**sigue sin haber dependencias**. El juego no se tocó para poder probarlo — se
+carga en un contexto aislado con `node:vm`, así que sigue siendo `<script>`
+clásicos que funcionan con doble clic.
 
 ---
 
