@@ -39,9 +39,12 @@ const RANKING = (() => {
     }
   }
 
-  /* Los mejores puntajes. Devuelve [] si algo falla (nunca lanza). */
-  async function top(n = 8) {
-    const r = await pedir(`${URL_BASE}?select=nombre,puntos,xp&order=puntos.desc,creado_en.asc&limit=${n}`);
+  /* Los mejores puntajes, opcionalmente de una sola dificultad (0, 1 o 2).
+     Sin filtro se mezclan las tres, que no es justo pero es lo que pide quien
+     quiere ver el podio absoluto. Devuelve null si la consulta falla. */
+  async function top(n = 8, dificultad = null) {
+    const filtro = [0, 1, 2].includes(dificultad) ? `&dificultad=eq.${dificultad}` : '';
+    const r = await pedir(`${URL_BASE}?select=nombre,puntos,xp,dificultad,temporada&order=puntos.desc,creado_en.asc&limit=${n}${filtro}`);
     if (!r) return null;         // null = "no se pudo consultar"; [] = "no hay marcas"
     try {
       const filas = await r.json();

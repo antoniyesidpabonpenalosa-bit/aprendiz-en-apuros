@@ -145,6 +145,12 @@ La pantalla de récords tiene dos tablas: **el marcador global**, compartido por
 todos los que juegan, y **tus marcas**, que siguen viviendo solo en tu navegador.
 Al terminar el día 10 y el día 15 tu puntaje se publica automáticamente.
 
+El marcador se puede **filtrar por dificultad** (🌱 Práctica · ⚔️ Normal ·
+💀 Pesadilla), porque no compite igual quien juega con vidas de más que quien
+juega con vidas de menos. En la vista "TODAS" cada marca lleva el icono de la
+dificultad con la que se logró; el otro icono dice si terminó el día 10 (🎓) o
+llegó hasta el día 15 (📝).
+
 Está montado sobre [Supabase](https://supabase.com) y se habla con su API REST
 usando `fetch` a secas (`js/ranking.js`): sin SDK ni build, así que el juego se
 sigue abriendo con doble clic. **Si no hay internet el juego funciona igual** —

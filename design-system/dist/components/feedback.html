@@ -149,6 +149,15 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .rec-tabla td{font-family:'VT323',monospace;font-size:18px;padding:7px 8px;
   border-bottom:1px solid var(--bl);color:var(--tx3)}
 .rec-tabla tr.yo td{color:var(--y2)}
+.rec-ico{margin-right:6px}
+/* Filtros de dificultad del marcador global */
+.rec-filtros{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
+  width:min(450px,100%);margin-bottom:12px}
+.rec-chip{font-family:inherit;font-size:7px;letter-spacing:1px;line-height:1.6;
+  color:var(--tx2);background:var(--void2);border:2px solid var(--bl);
+  box-shadow:0 2px 0 var(--bd);padding:7px 9px;cursor:pointer}
+.rec-chip:active{transform:translateY(2px);box-shadow:none}
+.rec-chip.act{color:var(--g3);border-color:var(--g2);background:var(--g0)}
 .tienda-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(430px,100%)}
 .item-tienda{display:flex;flex-direction:column;gap:8px;align-items:center;
   background:var(--void2);border:2px solid var(--bl);box-shadow:0 3px 0 var(--bd);
@@ -436,6 +445,9 @@ html.hd .item-tienda .precio{font-size:12px}
 html.hd .stats-grid span{font-size:10px}
 html.hd .stats-grid b{font-size:18px}
 html.hd .rec-tabla th{font-size:11px}
+html.hd .rec-chip{font-size:11px;border-radius:10px;box-shadow:none;
+  border:1px solid rgba(140,160,255,.2);background:rgba(255,255,255,.05)}
+html.hd .rec-chip.act{color:var(--g3);border-color:rgba(84,196,26,.5);background:rgba(84,196,26,.12)}
 html.hd .mej-titulo{font-size:13px}
 html.hd .acc-precio{font-family:inherit;font-size:9px}
 html.hd .etapa-num{font-size:13px}
