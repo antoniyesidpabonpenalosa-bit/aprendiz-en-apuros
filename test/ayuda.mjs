@@ -41,7 +41,7 @@ export function cargarJuego({ guardado = null } = {}) {
     fetch: async () => { throw new Error('las pruebas no deben salir a la red'); },
     AbortController,
   });
-  for (const f of ['js/datos.js', 'js/estado.js', 'js/ranking.js'])
+  for (const f of ['js/datos.js', 'js/estado.js', 'js/reto.js', 'js/ranking.js'])
     runInContext(readFileSync(join(RAIZ, f), 'utf8'), ctx, { filename: f });
 
   /* Los `let`/`const` de nivel superior de un script viven en el ámbito léxico
@@ -53,7 +53,7 @@ export function cargarJuego({ guardado = null } = {}) {
     get S(){ return S }, set S(v){ S = v },
     get TOT_DIAS(){ return TOT_DIAS },
     get DEF(){ return DEF },
-    RANGOS, DIFS, NIVELES, TXT, RANKING,
+    RANGOS, DIFS, NIVELES, TXT, RANKING, RETO,
     exportarCodigo, importarCodigo, sumaCod,
     rangoDe, rangoNom, maxVidas, facTiempo, facPts, facJefe,
     progreso, totalStars, esc, guardar,
