@@ -168,6 +168,21 @@ const RETO = (() => {
   const premiosGanados = () => PREMIOS.filter(p => datos().mejorRacha >= p.dias);
   const proximoPremio = () => PREMIOS.find(p => datos().mejorRacha < p.dias) || null;
 
+  /* Temas que se te resisten: cuántos ítems de cada pool tienen peso extra
+     (los que has fallado y aún no has vuelto a acertar) sobre el total. */
+  function repaso(pools) {
+    const p = pesos();
+    return pools.map(({ pool, total, etiqueta }) => {
+      let pendientes = 0, deuda = 0;
+      for (let i = 0; i < total; i++) {
+        const v = p[clave(pool, i)] || 0;
+        if (v > 0) { pendientes++; deuda += v; }
+      }
+      return { pool, etiqueta, total, pendientes, deuda,
+               pc: total ? Math.round(pendientes / total * 100) : 0 };
+    }).sort((a, b) => b.deuda - a.deuda);
+  }
+
   /* ── el reto de hoy ── */
 
   /* Tipos de minijuego que pueden salir. Se excluye el runner porque dura
@@ -198,7 +213,7 @@ const RETO = (() => {
 
   return {
     fechaDe, hoy, diasEntre, semillaDe, rngCon,
-    marcar, elegir, pesos,
+    marcar, elegir, pesos, repaso,
     datos, rachaViva, jugadoHoy, multiplicador, registrar,
     PREMIOS, premiosGanados, proximoPremio,
     TIPOS, retosDe, rngDelDia,

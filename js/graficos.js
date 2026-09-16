@@ -18,16 +18,29 @@ function confeti(){
 
 /* ── HUD ── */
 function hud(){
-  if(retoActivo){
+  /* Tres cabeceras distintas según dónde estés. Cada rama rellena las cuatro
+     casillas: así ninguna se queda con un valor de la pantalla anterior. */
+  if(pantallaId==='titulo'){
+    /* Portada: identidad y nivel, como la cabecera de una app */
+    const {pc}=progresoXp();
+    $('#h-nivel').textContent='SENA';
+    $('#h-estrellas').innerHTML=`★ ${S.pts} ${t('rec_pts')}`;
+    $('#h-pts').textContent='LVL '+(RANGOS.indexOf(rangoDe(S.xp))+1);
+    $('#h-vidas').innerHTML=`<span class="hud-xp"><i style="width:${pc}%"></i></span>`;
+  }else if(retoActivo){
+    /* Reto diario: ronda y racha. No hay vidas que perder. */
     $('#h-nivel').textContent='⚡ '+(retoActivo.ronda+1)+'/'+retoActivo.tipos.length;
     $('#h-estrellas').textContent='🔥 '+RETO.rachaViva();
+    $('#h-pts').textContent=String(Math.min(retoActivo.pts,9999)).padStart(4,'0');
+    $('#h-vidas').textContent='';
   }else{
+    /* Campaña: día, estrellas, puntos y vidas */
     const d=pantallaId==='nivel'?diaAct+1:Math.min(progreso()+1,TOT_DIAS);
     $('#h-nivel').textContent=t('dia')+' '+d+'/'+TOT_DIAS;
     $('#h-estrellas').textContent='★ '+totalStars()+'/'+(TOT_DIAS*3);
+    $('#h-pts').textContent=String(Math.min(S.pts,9999)).padStart(4,'0');
+    $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas))+'♡'.repeat(Math.max(0,maxVidas()-vidas));
   }
-  $('#h-pts').textContent=String(Math.min(S.pts,9999)).padStart(4,'0');
-  $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas))+'♡'.repeat(Math.max(0,maxVidas()-vidas));
   $('#b-lang').textContent=S.lang==='es'?'EN':'ES';
   $('#b-snd').textContent=!S.snd?'🔇':(S.mus?'🔊':'🔉');
 }

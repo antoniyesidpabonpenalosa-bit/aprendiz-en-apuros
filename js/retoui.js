@@ -23,7 +23,7 @@ function rReto() {
   pantalla('reto', `
   <div class="centro">
     <h2>⚡ ${t('reto_tit')}</h2>
-    <p class="mini">${RETO.hoy()}</p>
+    <div class="tit-id"><span>🗓 ${RETO.hoy()}</span></div>
 
     <div class="reto-racha">
       <span class="reto-llama ${racha ? 'viva' : ''}">${racha ? '🔥' : '🕯'}</span>
@@ -45,7 +45,10 @@ function rReto() {
       ${RETO.retosDe().map((tp, i) => `<span class="reto-chip">${i + 1}· ${t('tipo_' + tp)}</span>`).join('')}
     </div>
 
-    <button class="btn" id="rt-jugar" type="button">${hecho ? t('reto_otra') : t('reto_ya')}</button>
+    <div class="jugar-marco">
+      <i></i><i></i><i></i><i></i>
+      <button class="btn ${hecho ? 'btn2' : 'btn-jugar'}" id="rt-jugar" type="button">${hecho ? t('reto_otra') : t('reto_ya')}</button>
+    </div>
     <h3>${t('reto_tabla')}</h3>
     <div id="rt-tabla"><p class="desc" style="text-align:center">${t('glob_carga')}</p></div>
     <button class="btn btn2" id="rt-volver" type="button">${t('volver')}</button>

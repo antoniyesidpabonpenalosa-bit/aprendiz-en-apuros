@@ -297,3 +297,47 @@ test('con la semilla del día el sorteo sesgado también es idéntico para todos
   const sel = v => v.RETO.elegir('quiz', 24, 6, v.RETO.rngDelDia(':1', '2026-09-16'));
   assert.deepEqual(arr(sel(a)), arr(sel(b)));
 });
+
+/* ══════════ PANEL "EN QUÉ FLOJEAS" ══════════ */
+
+test('sin fallos, no hay nada que repasar', () => {
+  const v = cargarJuego();
+  const r = arr(v.RETO.repaso([{ pool: 'sql', total: 14, etiqueta: 'SQL' }]));
+  assert.equal(r[0].pendientes, 0);
+  assert.equal(r[0].deuda, 0);
+  assert.equal(r[0].pc, 0);
+});
+
+test('el repaso cuenta ítems pendientes y ordena por deuda', () => {
+  const v = cargarJuego();
+  for (let i = 0; i < 4; i++) v.RETO.marcar('sql', i, false);
+  v.RETO.marcar('sql', 0, false);                    // una fallada dos veces
+  v.RETO.marcar('quiz', 0, false);
+  v.RETO.marcar('quiz', 1, false);
+
+  const r = arr(v.RETO.repaso([
+    { pool: 'quiz', total: 24, etiqueta: 'QUIZ' },
+    { pool: 'sql', total: 14, etiqueta: 'SQL' },
+  ]));
+  assert.equal(r[0].etiqueta, 'SQL', 'el tema con más deuda va primero');
+  assert.equal(r[0].pendientes, 4, 'cuatro consultas distintas pendientes');
+  assert.equal(r[0].deuda, 5, 'una de ellas pesa doble');
+  assert.equal(r[1].etiqueta, 'QUIZ');
+  assert.equal(r[1].pendientes, 2);
+});
+
+test('acertar un ítem lo saca del repaso', () => {
+  const v = cargarJuego();
+  v.RETO.marcar('regex', 3, false);
+  assert.equal(arr(v.RETO.repaso([{ pool: 'regex', total: 12, etiqueta: 'REGEX' }]))[0].pendientes, 1);
+  v.RETO.marcar('regex', 3, true);
+  assert.equal(arr(v.RETO.repaso([{ pool: 'regex', total: 12, etiqueta: 'REGEX' }]))[0].pendientes, 0,
+    'dominado: deja de aparecer');
+});
+
+test('el porcentaje de repaso se mide sobre el tamaño del pool', () => {
+  const v = cargarJuego();
+  for (let i = 0; i < 7; i++) v.RETO.marcar('quiz', i, false);
+  const r = arr(v.RETO.repaso([{ pool: 'quiz', total: 28, etiqueta: 'QUIZ' }]))[0];
+  assert.equal(r.pc, 25, '7 de 28 es el 25 %');
+});

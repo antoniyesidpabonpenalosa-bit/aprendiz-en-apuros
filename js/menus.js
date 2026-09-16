@@ -4,52 +4,83 @@ function rTitulo(){
   const {sig,pc}=progresoXp();
   const racha=RETO.rachaViva();
   const pcCampana=Math.round(progreso()/TOT_DIAS*100);
+  const nuevoReto=!RETO.jugadoHoy();
+  /* Icono + etiqueta + flecha, el patrón de fila de menú de la portada */
+  const fila=(id,ico,txt,cls)=>`<button class="btn ${cls||'btn2'} menu-fila" id="${id}" type="button">`+
+    `<span class="m-ico">${ico}</span><span class="m-txt">${txt}</span><span class="m-chev">❯</span></button>`;
+
   pantalla('titulo',`
   <div class="centro">
-    <div class="logo-px">SENA · ${S.hd?'4K OLED':'32-BIT'} · v4.0</div>
-    <h1>PRACTICANTE<br>EN APUROS <span class="verde">4</span></h1>
+    <div class="tit-logo">
+      <span class="guion" aria-hidden="true"><i></i><i></i><i></i></span>
+      <h1 class="tit-h1"><span class="l1">PRACTICANTE</span><br><span class="l2">EN APUROS</span><span class="n4">4</span></h1>
+      <span class="guion der" aria-hidden="true"><i></i><i></i><i></i></span>
+    </div>
     <p class="sub">${t('sub')}</p>
 
-    <!-- Rango y XP juntos: antes el título decía solo "452 PTS", que no
-         indicaba cuánto falta para subir de rango. -->
+    <div class="tit-id">
+      <span>🎓 ${rangoNom()}</span>
+      <span class="sep">★ ${S.pts} ${t('rec_pts')}</span>
+    </div>
     <div class="tit-bloque">
-      <div class="rango-linea">
-        <span class="rango-badge grande">${rangoNom()}</span>
-        <span class="moneda">⛁ ${S.pts} PTS</span>
-      </div>
       <div class="xp-bar"><div class="xp-fill" style="width:${pc}%"></div></div>
       <p class="xp-txt">${sig?`${S.xp} / ${sig.xp} XP · ${pc}%`:`${S.xp} XP · ${t('rango_max')}`}</p>
     </div>
 
-    <button class="btn" id="t-jugar" type="button">${t('jugar')}</button>
-    <button class="btn btn3" id="t-reto" type="button">⚡ ${t('reto_tit')}${RETO.jugadoHoy()?'':' <span class="punto-nuevo">●</span>'}${racha?` 🔥${racha}`:''}</button>
-
-    <p class="mini">${t('dificultad')}</p>
-    <div class="dif-sel">
-      ${DIFS.map(d=>`<button class="dif-op ${S.dif===d.id?'sel':''}" data-dif="${d.id}" type="button"><span class="dif-ico">${d.ico}</span>${tj(d)}</button>`).join('')}
+    <div class="jugar-marco">
+      <i></i><i></i><i></i><i></i>
+      <button class="btn btn-jugar" id="t-jugar" type="button">${t('jugar')}</button>
     </div>
 
-    <!-- Dos filas de tres en vez de tres de dos: menos ruido vertical y el
-         botón de JUGAR queda más cerca del título. -->
-    <div class="tit-fila3">
-      <button class="btn btn2" id="t-tienda" type="button">🛒<span>${t('tienda')}</span></button>
-      <button class="btn btn2" id="t-logros" type="button">🏆<span>${t('logros')}</span></button>
-      <button class="btn btn2" id="t-records" type="button">📊<span>${t('records')}</span></button>
-    </div>
-    <div class="tit-fila3">
-      <button class="btn btn3" id="t-perso" type="button">🎨<span>${t('perso')}</span></button>
-      <button class="btn btn2" id="t-stats" type="button">📈<span>${t('estad_corto')}</span></button>
-      <button class="btn btn2" id="t-modo" type="button">${S.hd?'🕹':'🖥'}<span>${S.hd?'RETRO':'4K OLED'}</span></button>
+    <button class="tit-reto" id="t-reto" type="button">
+      <span>🗓</span><span>${t('reto_tit')}</span>
+      ${nuevoReto?'<span class="punto-nuevo">●</span>':''}
+      ${racha?`<span class="r-racha"><span class="r-llama">🔥</span>${racha}</span>`:''}
+    </button>
+
+    <div class="dif-panel">
+      <span class="dif-cap">${t('dificultad')}</span>
+      <div class="dif-sel">
+        ${DIFS.map(d=>`<button class="dif-op ${S.dif===d.id?'sel':''}" data-dif="${d.id}" type="button">
+          <span class="dif-ico">${d.ico}</span>${tj(d)}
+          <span class="dif-puntos">${[0,1,2].map(n=>`<i class="${n<=d.id?'on':''}"></i>`).join('')}</span>
+        </button>`).join('')}
+      </div>
     </div>
 
-    <div class="tit-bloque">
-      <p class="mini">${t('progreso_lbl')} · ${progreso()}/${TOT_DIAS} ${t('dia')}S · ★ ${totalStars()}/${TOT_DIAS*3}</p>
-      <div class="barra tit-barra"><div class="barra-fill" style="width:${pcCampana}%"></div></div>
+    <div class="tit-rejilla c3">
+      ${fila('t-tienda','🛒',t('tienda'))}
+      ${fila('t-logros','🏆',t('logros'))}
+      ${fila('t-records','📊',t('records'))}
+    </div>
+    <div class="tit-rejilla c2">
+      ${fila('t-stats','📈',t('estadisticas'))}
+      ${fila('t-modo',S.hd?'🕹':'✨',(S.hd?t('modo_retro'):t('modo_hd')).replace(/^\S+\s/,''))}
     </div>
 
-    <p class="mini blink">${t('start')}</p>
-    <button class="cut-skip" id="t-borrar" type="button">${t('borrar')}</button>
+    <button class="tit-avatar" id="t-perso" type="button">
+      <div class="tit-av-fila">
+        <canvas id="t-av" width="24" height="24"></canvas>
+        <div class="tit-av-txt">
+          <b>${t('perso')}</b>
+          <span>${t('perso_sub')}</span>
+        </div>
+        <span class="m-chev">❯</span>
+      </div>
+      <div class="tit-prog-fila">
+        <span class="p-lbl">★ ${t('progreso_lbl')}</span>
+        <div class="barra"><div class="barra-fill" style="width:${pcCampana}%"></div></div>
+        <span class="p-pc">${pcCampana}%</span>
+      </div>
+    </button>
+
+    <div class="tit-pie" aria-hidden="true"><i></i><span class="mini blink">${t('start')}</span><i></i></div>
+    <button class="cut-skip" id="t-borrar" type="button">🗑 ${t('borrar')}</button>
   </div>`);
+
+  /* retrato del avatar dentro de la tarjeta */
+  const av=$('#t-av'); if(av)cara(av,CARAS.yo(true));
+
   $$('.dif-op').forEach(b=>b.onclick=()=>{S.dif=+b.dataset.dif;guardar();SFX.click();rTitulo()});
   $('#t-stats').onclick=()=>{SFX.click();rStats()};
   $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};
@@ -182,10 +213,10 @@ function rMapa(){
   pantalla('mapa',`
   <div class="centro mapa">
     <h2>${t('mapa')}</h2>
-    <div class="rango-linea">
-      <span class="rango-badge">${t('rango')}: ${rangoNom()}</span>
-      <span class="dif-badge">${difActual().ico} ${tj(difActual())}</span>
-      <span class="moneda">⛁ ${S.pts}</span>
+    <div class="tit-id">
+      <span>🎓 ${rangoNom()}</span>
+      <span class="sep">${difActual().ico} ${tj(difActual())}</span>
+      <span class="sep">⛁ ${S.pts}</span>
     </div>
     <div class="etapas">${cards}</div>
     <button class="btn btn2" id="m-volver" type="button">${t('volver')}</button>
@@ -377,7 +408,10 @@ function rLogros(){
   pantalla('logros',`
   <div class="centro">
     <h2>🏆 ${t('logros')}</h2>
-    <p class="sub">${S.logros.length}/${LOGROS.length}</p>
+    <div class="tit-bloque">
+      <div class="barra tit-barra"><div class="barra-fill" style="width:${Math.round(S.logros.length/LOGROS.length*100)}%"></div></div>
+      <p class="xp-txt">${S.logros.length} / ${LOGROS.length} · ${Math.round(S.logros.length/LOGROS.length*100)}%</p>
+    </div>
     <div class="logros-grid">
       ${LOGROS.map(l=>`<div class="logro ${S.logros.includes(l.id)?'on':''}">
         <span class="ico-lg">${l.ico}</span><p>${tj(l)}</p></div>`).join('')}
@@ -468,8 +502,16 @@ function rStats(){
   const filas=[
     ['🐛',st.bugs,'st_bugs'],['☕',st.cafes,'st_cafes'],['⌨️',st.palabras,'st_palabras'],
     ['👾',st.jefes,'st_jefes'],['🌟',st.perfectos,'st_perfectos'],['🔥',st.racha,'st_racha'],
-    ['🎓',st.partidas,'st_partidas'],
+    ['🎓',st.partidas,'st_partidas'],['⚡',st.retos||0,'st_retos'],
   ];
+  /* Temas flojos: sale de los pesos que ya se guardan al fallar un ítem. */
+  const repaso=RETO.repaso([
+    {pool:'quiz',  total:QUIZ[S.lang].length, etiqueta:t('tipo_quiz')},
+    {pool:'review',total:CODIGO.length,       etiqueta:t('tipo_review')},
+    {pool:'sql',   total:SQLS.length,         etiqueta:t('tipo_sql')},
+    {pool:'regex', total:REGEXS.length,       etiqueta:t('tipo_regex')},
+    {pool:'merge', total:CONFLICTOS.length,   etiqueta:t('tipo_merge')},
+  ]).filter(r=>r.pendientes>0);
   const vacio=filas.every(f=>!f[1]);
   pantalla('stats',`
   <div class="centro">
@@ -478,6 +520,17 @@ function rStats(){
     <div class="stats-grid">
       ${filas.map(f=>`<div><span style="font-size:16px">${f[0]}</span><b>${f[1]}</b><span>${t(f[2])}</span></div>`).join('')}
     </div>
+    <h3>${t('flojo_tit')}</h3>
+    ${repaso.length
+      ? `<p class="mini">${t('flojo_txt')}</p>
+         <div class="flojo-lista">
+           ${repaso.map(r=>`<div class="flojo-fila">
+             <span class="f-nom">${r.etiqueta}</span>
+             <div class="barra"><div class="barra-fill ${r.pc>40?'peligro':''}" style="width:${Math.max(6,r.pc)}%"></div></div>
+             <span class="f-num">${r.pendientes}/${r.total}</span>
+           </div>`).join('')}
+         </div>`
+      : `<p class="desc" style="text-align:center">${t('flojo_nada')}</p>`}
     <h3>${t('guardado')}</h3>
     <p class="mini" style="text-align:center">${t('guardatxt')}</p>
     <div class="guardado-zona">
