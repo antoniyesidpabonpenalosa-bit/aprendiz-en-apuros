@@ -65,3 +65,11 @@ const progreso=()=>{let p=0;while(p<TOT_DIAS&&S.dias[p]>=1)p++;return p};
 const totalStars=()=>S.dias.reduce((a,b)=>a+Math.max(0,b),0);
 const rangoDe=xp=>{let r=RANGOS[0];for(const x of RANGOS)if(xp>=x.xp)r=x;return r};
 const rangoNom=()=>tj(rangoDe(S.xp));
+/* Progreso hacia el siguiente rango. Lo usan la portada y la pantalla de
+   resultado: el cálculo vive en un solo sitio para que no se separen. */
+function progresoXp(xp=S.xp){
+  const rango=rangoDe(xp);
+  const sig=RANGOS[RANGOS.indexOf(rango)+1];
+  const pc=sig?Math.min(100,Math.max(0,Math.round((xp-rango.xp)/(sig.xp-rango.xp)*100))):100;
+  return {rango,sig,pc};
+}

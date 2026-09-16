@@ -1,33 +1,52 @@
 'use strict';
 /* ── TÍTULO ── */
 function rTitulo(){
+  const {sig,pc}=progresoXp();
+  const racha=RETO.rachaViva();
+  const pcCampana=Math.round(progreso()/TOT_DIAS*100);
   pantalla('titulo',`
   <div class="centro">
     <div class="logo-px">SENA · ${S.hd?'4K OLED':'32-BIT'} · v4.0</div>
     <h1>PRACTICANTE<br>EN APUROS <span class="verde">4</span></h1>
     <p class="sub">${t('sub')}</p>
-    <div class="rango-linea">
-      <span class="rango-badge grande">${rangoNom()}</span>
-      <span class="moneda">⛁ ${S.pts} PTS</span>
+
+    <!-- Rango y XP juntos: antes el título decía solo "452 PTS", que no
+         indicaba cuánto falta para subir de rango. -->
+    <div class="tit-bloque">
+      <div class="rango-linea">
+        <span class="rango-badge grande">${rangoNom()}</span>
+        <span class="moneda">⛁ ${S.pts} PTS</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" style="width:${pc}%"></div></div>
+      <p class="xp-txt">${sig?`${S.xp} / ${sig.xp} XP · ${pc}%`:`${S.xp} XP · ${t('rango_max')}`}</p>
     </div>
+
     <button class="btn" id="t-jugar" type="button">${t('jugar')}</button>
-    <button class="btn btn3" id="t-reto" type="button">⚡ ${t('reto_tit')}${RETO.jugadoHoy()?'':' <span class="punto-nuevo">●</span>'}${RETO.rachaViva()?` 🔥${RETO.rachaViva()}`:''}</button>
+    <button class="btn btn3" id="t-reto" type="button">⚡ ${t('reto_tit')}${RETO.jugadoHoy()?'':' <span class="punto-nuevo">●</span>'}${racha?` 🔥${racha}`:''}</button>
+
     <p class="mini">${t('dificultad')}</p>
     <div class="dif-sel">
       ${DIFS.map(d=>`<button class="dif-op ${S.dif===d.id?'sel':''}" data-dif="${d.id}" type="button"><span class="dif-ico">${d.ico}</span>${tj(d)}</button>`).join('')}
     </div>
-    <div class="custom-fila">
-      <button class="btn btn2" id="t-tienda" type="button">🛒 ${t('tienda')}</button>
-      <button class="btn btn2" id="t-logros" type="button">🏆 ${t('logros')}</button>
+
+    <!-- Dos filas de tres en vez de tres de dos: menos ruido vertical y el
+         botón de JUGAR queda más cerca del título. -->
+    <div class="tit-fila3">
+      <button class="btn btn2" id="t-tienda" type="button">🛒<span>${t('tienda')}</span></button>
+      <button class="btn btn2" id="t-logros" type="button">🏆<span>${t('logros')}</span></button>
+      <button class="btn btn2" id="t-records" type="button">📊<span>${t('records')}</span></button>
     </div>
-    <div class="custom-fila">
-      <button class="btn btn2" id="t-records" type="button">📊 ${t('records')}</button>
-      <button class="btn btn3" id="t-perso" type="button">🎨 ${t('perso')}</button>
+    <div class="tit-fila3">
+      <button class="btn btn3" id="t-perso" type="button">🎨<span>${t('perso')}</span></button>
+      <button class="btn btn2" id="t-stats" type="button">📈<span>${t('estad_corto')}</span></button>
+      <button class="btn btn2" id="t-modo" type="button">${S.hd?'🕹':'🖥'}<span>${S.hd?'RETRO':'4K OLED'}</span></button>
     </div>
-    <div class="custom-fila">
-      <button class="btn btn2" id="t-stats" type="button">${t('estadisticas')}</button>
-      <button class="btn btn2" id="t-modo" type="button">${S.hd?t('modo_retro'):t('modo_hd')}</button>
+
+    <div class="tit-bloque">
+      <p class="mini">${t('progreso_lbl')} · ${progreso()}/${TOT_DIAS} ${t('dia')}S · ★ ${totalStars()}/${TOT_DIAS*3}</p>
+      <div class="barra tit-barra"><div class="barra-fill" style="width:${pcCampana}%"></div></div>
     </div>
+
     <p class="mini blink">${t('start')}</p>
     <button class="cut-skip" id="t-borrar" type="button">${t('borrar')}</button>
   </div>`);

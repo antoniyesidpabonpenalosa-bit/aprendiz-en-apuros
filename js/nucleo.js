@@ -47,9 +47,7 @@ function resultado(i,stars,pts){
   if(progreso()>=8)darLogro('mitad'); /* mitad de los 15 días */
   if(S.dif===2)darLogro('pesadilla');
   guardar();SFX.win();
-  const r=rangoDe(S.xp);
-  const sig=RANGOS[RANGOS.indexOf(r)+1];
-  const pc=sig?Math.min(100,Math.round((S.xp-r.xp)/(sig.xp-r.xp)*100)):100;
+  const {sig,pc}=progresoXp();
   if(i===9){darLogro('titulado');registrarRecord(1);guardar();}
   if(i===14){darLogro('contrato');registrarRecord(2);guardar();}
   const esFinal=i===9||i===14;
