@@ -236,7 +236,7 @@ function nvSimon(dia){
 
 /* ══════════ MINIJUEGO 5 · QUIZ ══════════ */
 function nvQuiz(dia){
-  const pregs=az(QUIZ[S.lang].map((q,i)=>i)).slice(0,6);
+  const pregs=RETO.elegir('quiz',QUIZ[S.lang].length,6,RETO.rngPara(':quiz'));
   let i=0,buenas=0,malas=0,pts=0;
   pantalla('nivel',`
   <div class="quiz">
@@ -262,6 +262,7 @@ function nvQuiz(dia){
       if(pausado)return;
       const k=+b.dataset.k;
       $$('#q-ops .op').forEach(x=>x.onclick=null);
+      RETO.marcar('quiz',pregs[i],k===Q.r);
       if(k===Q.r){b.classList.add('bien');buenas++;pts+=120;SFX.ok()}
       else{
         b.classList.add('mal');malas++;SFX.mal();
@@ -281,7 +282,8 @@ function nvQuiz(dia){
 
 /* ══════════ MINIJUEGO 6 · CODE REVIEW ══════════ */
 function nvReview(dia){
-  const lista=az(CODIGO).slice(0,10);
+  const idxs=RETO.elegir('review',CODIGO.length,10,RETO.rngPara(':rev'));
+  const lista=idxs.map(i=>CODIGO[i]);
   const tickMax=Math.round(45*facTiempo());
   let i=0,ticks=tickMax,errores=0,pts=0;
   pantalla('nivel',`
@@ -305,6 +307,7 @@ function nvReview(dia){
   function responde(aprueba){
     if(pausado)return;
     const bien=aprueba===!!lista[i].ok;
+    RETO.marcar('review',idxs[i],bien);
     if(bien){pts+=50+Math.round(ticks*1.5);SFX.pop()}
     else{
       errores++;$('#v-err').textContent=errores;SFX.mal();
@@ -337,7 +340,8 @@ function nvReview(dia){
 
 /* ══════════ MINIJUEGO 7 · MERGE CONFLICT ══════════ */
 function nvMerge(dia){
-  const rondas=az(CONFLICTOS).slice(0,6);
+  const idxs=RETO.elegir('merge',CONFLICTOS.length,6,RETO.rngPara(':merge'));
+  const rondas=idxs.map(i=>CONFLICTOS[i]);
   const dur=Math.round(60*facTiempo());
   let i=0,errores=0,pts=0,seg=dur,bloq=false;
   pantalla('nivel',`
@@ -372,6 +376,7 @@ function nvMerge(dia){
     if(pausado||bloq)return;
     bloq=true;
     const el=cual==='a'?A:B, otro=cual==='a'?B:A;
+    RETO.marcar('merge',idxs[i],cual===buenaEs);
     if(cual===buenaEs){
       el.classList.add('bien');pts+=100;SFX.ok();
     }else{
@@ -546,9 +551,10 @@ function nvRunner(dia){
 
 /* ══════════ MINIJUEGO 9 · CONSULTA SQL (temporada 2) ══════════ */
 function nvSQL(dia){
-  const consultas=az(SQLS).slice(0,5);
+  const idxs=RETO.elegir('sql',SQLS.length,5,RETO.rngPara(':sql'));
+  const consultas=idxs.map(i=>SQLS[i]);
   const dur=Math.round(75*facTiempo());
-  let ronda=0,pos=0,errores=0,pts=0,seg=dur,orden=[];
+  let ronda=0,pos=0,errores=0,pts=0,seg=dur,orden=[],falloAqui=false;
   pantalla('nivel',`
   <div class="l1">
     <div class="tope"><span>${t('ronda')}: <b id="sq-ron">1</b>/5</span><span>${t('errores')}: <b id="sq-err">0</b>/3</span><span>${t('tiempo')}: <b id="sq-seg">${dur}</b>s</span></div>
@@ -561,7 +567,7 @@ function nvSQL(dia){
     <p class="mini">${t('sqlmsg')}</p>
     <div class="sql-piezas" id="sq-piezas"></div>
   </div>`);
-  function nuevaRonda(){orden=az(consultas[ronda].map((_,i)=>i));pos=0;pinta()}
+  function nuevaRonda(){orden=az(consultas[ronda].map((_,i)=>i));pos=0;falloAqui=false;pinta()}
   function pinta(){
     const q=consultas[ronda];
     $('#sq-ron').textContent=ronda+1;
@@ -572,6 +578,7 @@ function nvSQL(dia){
       if(+b.dataset.i===pos){
         pos++;pts+=40;SFX.pop();
         if(pos>=q.length){
+          RETO.marcar('sql',idxs[ronda],!falloAqui);
           pts+=80;SFX.ok();ronda++;
           if(ronda>=consultas.length){
             if(errores===0)darLogro('sql');
@@ -582,7 +589,7 @@ function nvSQL(dia){
         }
         pinta();
       }else{
-        errores++;SFX.mal();$('#sq-err').textContent=errores;
+        errores++;falloAqui=true;SFX.mal();$('#sq-err').textContent=errores;
         b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),260);
         if(errores>=3)return fallo(dia);
       }
@@ -601,9 +608,10 @@ function nvSQL(dia){
 
 /* ══════════ MINIJUEGO 10 · CAZA PATRONES · REGEX (temporada 2) ══════════ */
 function nvRegex(dia){
-  const rondas=az(REGEXS).slice(0,5);
+  const idxs=RETO.elegir('regex',REGEXS.length,5,RETO.rngPara(':regex'));
+  const rondas=idxs.map(i=>REGEXS[i]);
   const dur=Math.round(70*facTiempo());
-  let r=0,errores=0,pts=0,seg=dur,quedan=0;
+  let r=0,errores=0,pts=0,seg=dur,quedan=0,falloAqui=false;
   pantalla('nivel',`
   <div class="l3">
     <div class="tope"><span>${t('ronda')}: <b id="rx-ron">1</b>/5</span><span>${t('errores')}: <b id="rx-err">0</b>/3</span><span>${t('tiempo')}: <b id="rx-seg">${dur}</b>s</span></div>
@@ -613,6 +621,7 @@ function nvRegex(dia){
     <div class="rx-grid" id="rx-grid"></div>
   </div>`);
   function finRonda(){
+    RETO.marcar('regex',idxs[r],!falloAqui);
     pts+=60;SFX.ok();r++;
     if(r>=rondas.length){
       if(errores===0)darLogro('regex');
@@ -624,6 +633,7 @@ function nvRegex(dia){
     tvez(pinta,450);
   }
   function pinta(){
+    falloAqui=false;
     const R=rondas[r],re=new RegExp(R.p);
     $('#rx-ron').textContent=r+1;
     $('#rx-re').textContent='/'+R.p+'/';
@@ -639,7 +649,7 @@ function nvRegex(dia){
         b.disabled=true;b.classList.add('bien');pts+=60;SFX.pop();quedan--;
         if(quedan<=0)return finRonda();
       }else{
-        errores++;SFX.mal();b.classList.add('mal');
+        errores++;falloAqui=true;SFX.mal();b.classList.add('mal');
         tvez(()=>b.classList.remove('mal'),350);
         $('#rx-err').textContent=errores;
         if(errores>=3)return fallo(dia);

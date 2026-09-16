@@ -76,5 +76,31 @@ const RANKING = (() => {
     return !!r;
   }
 
-  return { top, publicar };
+  /* ── marcador del reto diario ──
+     Tabla aparte: se filtra por fecha, así que cada día empieza en blanco y
+     cualquiera puede ser primero hoy. */
+  const URL_RETOS = URL_BASE.replace(/\/records$/, '/retos');
+
+  async function topReto(n = 8, fecha) {
+    const r = await pedir(`${URL_RETOS}?select=nombre,puntos,xp&fecha=eq.${encodeURIComponent(fecha)}` +
+      `&order=puntos.desc,creado_en.asc&limit=${n}`);
+    if (!r) return null;
+    try { const f = await r.json(); return Array.isArray(f) ? f : null; } catch (e) { return null; }
+  }
+
+  async function publicarReto({ nombre, puntos, xp, dificultad, fecha }) {
+    const enteroValido = v => Number.isFinite(v) && v >= 0 && v <= 100000;
+    const pts = Math.round(Number(puntos)), exp = Math.round(Number(xp));
+    if (!enteroValido(pts) || !enteroValido(exp)) return false;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fecha))) return false;
+    const fila = {
+      nombre: String(nombre || 'TU').toUpperCase().replace(/\s+/g, ' ').trim().slice(0, 10) || 'TU',
+      puntos: pts, xp: exp,
+      dificultad: [0, 1, 2].includes(dificultad) ? dificultad : 1,
+      fecha: String(fecha),
+    };
+    return !!(await pedir(URL_RETOS, { method: 'POST', body: JSON.stringify(fila) }));
+  }
+
+  return { top, publicar, topReto, publicarReto };
 })();

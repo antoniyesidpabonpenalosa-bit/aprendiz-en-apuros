@@ -1,6 +1,6 @@
 'use strict';
 /* ── ESTADO ── */
-const STATS0={bugs:0,cafes:0,palabras:0,jefes:0,perfectos:0,racha:0,partidas:0};
+const STATS0={bugs:0,cafes:0,palabras:0,jefes:0,perfectos:0,racha:0,partidas:0,retos:0};
 const TOT_DIAS=NIVELES.length; /* 15: etapa productiva (10) + el contrato (5) */
 const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',skin:0,camisa:0,
   mejoras:[],records:[],lang:'es',snd:true,mus:true,intro:false,t2:false,nombre:'',hd:false,dif:1,stats:Object.assign({},STATS0)};

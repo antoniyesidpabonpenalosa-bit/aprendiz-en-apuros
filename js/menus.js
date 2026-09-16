@@ -11,6 +11,7 @@ function rTitulo(){
       <span class="moneda">⛁ ${S.pts} PTS</span>
     </div>
     <button class="btn" id="t-jugar" type="button">${t('jugar')}</button>
+    <button class="btn btn3" id="t-reto" type="button">⚡ ${t('reto_tit')}${RETO.jugadoHoy()?'':' <span class="punto-nuevo">●</span>'}${RETO.rachaViva()?` 🔥${RETO.rachaViva()}`:''}</button>
     <p class="mini">${t('dificultad')}</p>
     <div class="dif-sel">
       ${DIFS.map(d=>`<button class="dif-op ${S.dif===d.id?'sel':''}" data-dif="${d.id}" type="button"><span class="dif-ico">${d.ico}</span>${tj(d)}</button>`).join('')}
@@ -39,6 +40,7 @@ function rTitulo(){
     const go=()=>S.intro?rMapa():rCutscene(INTRO[S.lang],()=>{S.intro=true;guardar();rMapa()});
     S.nombre?go():rNombre(go);
   };
+  $('#t-reto').onclick=()=>{SFX.click();rReto()};
   $('#t-tienda').onclick=()=>{SFX.click();rTienda()};
   $('#t-logros').onclick=()=>{SFX.click();rLogros()};
   $('#t-records').onclick=()=>{SFX.click();rRecords()};

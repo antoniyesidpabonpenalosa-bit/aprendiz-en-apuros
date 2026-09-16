@@ -187,11 +187,21 @@ const RETO = (() => {
      todos los dispositivos. El sufijo separa la serie de cada ronda. */
   const rngDelDia = (sufijo = '', fecha = hoy()) => rngCon(semillaDe('reto-' + fecha + sufijo));
 
+  /* Bandera de "estamos dentro del reto". Vive aquí y no en la interfaz para
+     que los minijuegos puedan preguntar qué generador usar sin saber nada del
+     reto: con semilla si es el reto del día, al azar si es la campaña. */
+  let modoReto = null;
+  const entrar = (fecha = hoy()) => { modoReto = fecha; };
+  const salir = () => { modoReto = null; };
+  const enReto = () => modoReto !== null;
+  const rngPara = sufijo => modoReto ? rngDelDia(sufijo, modoReto) : Math.random;
+
   return {
     fechaDe, hoy, diasEntre, semillaDe, rngCon,
     marcar, elegir, pesos,
     datos, rachaViva, jugadoHoy, multiplicador, registrar,
     PREMIOS, premiosGanados, proximoPremio,
     TIPOS, retosDe, rngDelDia,
+    entrar, salir, enReto, rngPara,
   };
 })();
