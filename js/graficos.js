@@ -18,9 +18,14 @@ function confeti(){
 
 /* ── HUD ── */
 function hud(){
-  const d=pantallaId==='nivel'?diaAct+1:Math.min(progreso()+1,TOT_DIAS);
-  $('#h-nivel').textContent=t('dia')+' '+d+'/'+TOT_DIAS;
-  $('#h-estrellas').textContent='★ '+totalStars()+'/'+(TOT_DIAS*3);
+  if(retoActivo){
+    $('#h-nivel').textContent='⚡ '+(retoActivo.ronda+1)+'/'+retoActivo.tipos.length;
+    $('#h-estrellas').textContent='🔥 '+RETO.rachaViva();
+  }else{
+    const d=pantallaId==='nivel'?diaAct+1:Math.min(progreso()+1,TOT_DIAS);
+    $('#h-nivel').textContent=t('dia')+' '+d+'/'+TOT_DIAS;
+    $('#h-estrellas').textContent='★ '+totalStars()+'/'+(TOT_DIAS*3);
+  }
   $('#h-pts').textContent=String(Math.min(S.pts,9999)).padStart(4,'0');
   $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas))+'♡'.repeat(Math.max(0,maxVidas()-vidas));
   $('#b-lang').textContent=S.lang==='es'?'EN':'ES';

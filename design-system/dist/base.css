@@ -141,6 +141,19 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
   border-bottom:1px solid var(--bl);color:var(--tx3)}
 .rec-tabla tr.yo td{color:var(--y2)}
 .rec-ico{margin-right:6px}
+/* ── Reto diario ── */
+.punto-nuevo{color:var(--y2);animation:blink 1s steps(2) infinite}
+.reto-racha{display:flex;align-items:center;gap:14px;justify-content:center;
+  background:var(--void2);border:3px solid var(--bl);box-shadow:0 4px 0 var(--bd);
+  padding:14px 18px;width:min(340px,100%)}
+.reto-llama{font-size:34px;filter:grayscale(1);opacity:.45}
+.reto-llama.viva{filter:none;opacity:1}
+.reto-num{font-size:22px;color:var(--y2);line-height:1.2}
+.reto-mult{margin-left:auto;font-size:12px;color:var(--g3)}
+.reto-premios{display:flex;gap:10px;font-size:26px;justify-content:center}
+.reto-tipos{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:min(400px,100%)}
+.reto-chip{font-size:7px;letter-spacing:1px;line-height:1.6;color:var(--tx2);
+  background:var(--void2);border:2px solid var(--bl);padding:7px 9px}
 /* Filtros de dificultad del marcador global */
 .rec-filtros{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
   width:min(450px,100%);margin-bottom:12px}
@@ -436,6 +449,11 @@ html.hd .item-tienda .precio{font-size:12px}
 html.hd .stats-grid span{font-size:10px}
 html.hd .stats-grid b{font-size:18px}
 html.hd .rec-tabla th{font-size:11px}
+html.hd .reto-chip{font-size:11px;border-radius:10px;box-shadow:none;
+  border:1px solid rgba(140,160,255,.2);background:rgba(255,255,255,.05)}
+html.hd .reto-racha{border-radius:18px;box-shadow:none;
+  border:1px solid rgba(140,160,255,.14);background:rgba(255,255,255,.04)}
+html.hd .reto-num{font-size:26px}
 html.hd .rec-chip{font-size:11px;border-radius:10px;box-shadow:none;
   border:1px solid rgba(140,160,255,.2);background:rgba(255,255,255,.05)}
 html.hd .rec-chip.act{color:var(--g3);border-color:rgba(84,196,26,.5);background:rgba(84,196,26,.12)}

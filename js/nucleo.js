@@ -36,6 +36,9 @@ function starsHtml(n,tot=3){let s='';for(let i=0;i<tot;i++)s+='<span class="'+(i
 
 /* ── RESULTADO ── */
 function resultado(i,stars,pts){
+  /* En el reto diario no hay mapa, ni vidas, ni progreso de días: los
+     minijuegos son los mismos, solo cambia a dónde va su final. */
+  if(retoActivo)return retoRonda(stars,pts);
   const gan=Math.round(pts*facPts());
   S.pts+=gan;S.xp+=gan;
   if(stars>S.dias[i])S.dias[i]=stars;
@@ -71,6 +74,7 @@ function resultado(i,stars,pts){
   $('#r-mapa').onclick=()=>{SFX.click();rMapa()};
 }
 function fallo(i,reintento){
+  if(retoActivo)return retoRonda(0,0);   /* en el reto se sigue, sin perder vidas */
   vidas--;hud();SFX.lose();
   if(vidas<=0){
     pantalla('gameover',`
