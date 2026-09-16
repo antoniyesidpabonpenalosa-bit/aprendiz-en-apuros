@@ -188,6 +188,15 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .logro p{font-size:7px;color:var(--tx2);line-height:1.6}
 .logro.on p{color:var(--v4)}
 .custom-fila{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+/* Portada: rango+XP y progreso de campaña agrupados en un bloque propio */
+.tit-bloque{display:flex;flex-direction:column;gap:9px;align-items:center;width:min(340px,100%)}
+.tit-barra{width:min(320px,100%)}
+/* Tres botones por fila: el icono arriba y el texto debajo, para que quepan
+   a 360 px sin recortar la palabra. */
+.tit-fila3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(440px,100%)}
+.tit-fila3 .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;font-size:16px;line-height:1;padding:12px 4px;min-height:60px;letter-spacing:0}
+.tit-fila3 .btn span{font-size:7px;letter-spacing:1px;line-height:1.4;text-align:center}
 .skin-op,.camisa-op{width:46px;height:46px;cursor:pointer;border:3px solid var(--bl);
   image-rendering:pixelated;background:var(--void2)}
 .skin-op.sel,.camisa-op.sel{border-color:var(--y2)}
@@ -448,6 +457,8 @@ html.hd .stars-row{font-size:18px}
 html.hd .stars-row .on{text-shadow:0 0 16px rgba(255,207,63,.85)}
 html.hd .logo-px{font-size:11px;font-weight:700}
 html.hd .modo{font-size:11px}
+html.hd .tit-fila3 .btn{font-size:19px;min-height:68px;border-radius:14px}
+html.hd .tit-fila3 .btn span{font-size:10px}
 html.hd .rango-badge{font-size:11px}
 html.hd .rango-badge.grande{font-size:13px}
 html.hd .moneda{font-size:12px}

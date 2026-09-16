@@ -330,6 +330,7 @@ const LOGROS=[
 const TXT={
  es:{dia:'DÍA',start:'PULSA START',jugar:'▶ JUGAR',tienda:'TIENDA',logros:'LOGROS',records:'RÉCORDS',perso:'AVATAR',
   glob_tit:'🌍 MARCADOR GLOBAL',glob_todas:'TODAS',
+  rango_max:'RANGO MÁXIMO',progreso_lbl:'PROGRESO',estad_corto:'STATS',
   reto_tit:'RETO DIARIO',reto_racha:'DÍAS SEGUIDOS',reto_ya:'▶ JUGAR EL RETO',
   reto_otra:'🔁 REPETIR (no cuenta)',reto_tabla:'🏁 MARCADOR DE HOY',
   reto_expl:'Tres minijuegos, los mismos para todo el mundo hoy. Solo cuenta tu primer intento.',
@@ -399,6 +400,7 @@ const TXT={
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'AVATAR',
   glob_tit:'🌍 GLOBAL LEADERBOARD',glob_todas:'ALL',
+  rango_max:'MAX RANK',progreso_lbl:'PROGRESS',estad_corto:'STATS',
   reto_tit:'DAILY CHALLENGE',reto_racha:'DAY STREAK',reto_ya:'▶ PLAY THE CHALLENGE',
   reto_otra:'🔁 REPLAY (does not count)',reto_tabla:"🏁 TODAY'S BOARD",
   reto_expl:'Three minigames, the same for everyone today. Only your first try counts.',
