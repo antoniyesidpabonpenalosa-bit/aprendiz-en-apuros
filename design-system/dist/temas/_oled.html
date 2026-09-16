@@ -133,7 +133,13 @@ h1{font-size:clamp(18px,5.6vw,26px);line-height:1.55;color:var(--y2);
   text-shadow:3px 3px 0 var(--g0)}
 h2{font-size:clamp(13px,4.4vw,20px);line-height:1.55;color:var(--y2);
   text-shadow:2px 2px 0 var(--bd)}
-h3{font-size:12px;color:var(--g3);letter-spacing:2px}
+/* Encabezado de sección con líneas a los lados. Al estilarlo en el propio h3,
+   todas las pantallas (tienda, récords, avatar, reto, estadísticas) quedan
+   coherentes con la portada sin tocar su HTML. */
+h3{font-size:11px;color:var(--g3);letter-spacing:2px;
+  display:flex;align-items:center;gap:12px;justify-content:center;
+  width:min(440px,100%);text-align:center}
+h3::before,h3::after{content:'';flex:1;height:2px;background:var(--bl);min-width:14px}
 .verde{color:var(--g4)} .rojo{color:var(--r3)} .violeta{color:var(--v3)} .azul{color:var(--b4)}
 .sub{font-size:9px;color:var(--tx2);line-height:2;letter-spacing:1px}
 .mini{font-family:'VT323',monospace;font-size:18px;color:var(--tx2);line-height:1.4}

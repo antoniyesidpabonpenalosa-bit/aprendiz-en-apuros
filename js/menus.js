@@ -213,10 +213,10 @@ function rMapa(){
   pantalla('mapa',`
   <div class="centro mapa">
     <h2>${t('mapa')}</h2>
-    <div class="rango-linea">
-      <span class="rango-badge">${t('rango')}: ${rangoNom()}</span>
-      <span class="dif-badge">${difActual().ico} ${tj(difActual())}</span>
-      <span class="moneda">⛁ ${S.pts}</span>
+    <div class="tit-id">
+      <span>🎓 ${rangoNom()}</span>
+      <span class="sep">${difActual().ico} ${tj(difActual())}</span>
+      <span class="sep">⛁ ${S.pts}</span>
     </div>
     <div class="etapas">${cards}</div>
     <button class="btn btn2" id="m-volver" type="button">${t('volver')}</button>
@@ -408,7 +408,10 @@ function rLogros(){
   pantalla('logros',`
   <div class="centro">
     <h2>🏆 ${t('logros')}</h2>
-    <p class="sub">${S.logros.length}/${LOGROS.length}</p>
+    <div class="tit-bloque">
+      <div class="barra tit-barra"><div class="barra-fill" style="width:${Math.round(S.logros.length/LOGROS.length*100)}%"></div></div>
+      <p class="xp-txt">${S.logros.length} / ${LOGROS.length} · ${Math.round(S.logros.length/LOGROS.length*100)}%</p>
+    </div>
     <div class="logros-grid">
       ${LOGROS.map(l=>`<div class="logro ${S.logros.includes(l.id)?'on':''}">
         <span class="ico-lg">${l.ico}</span><p>${tj(l)}</p></div>`).join('')}
