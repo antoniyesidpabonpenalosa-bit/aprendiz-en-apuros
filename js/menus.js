@@ -499,8 +499,16 @@ function rStats(){
   const filas=[
     ['🐛',st.bugs,'st_bugs'],['☕',st.cafes,'st_cafes'],['⌨️',st.palabras,'st_palabras'],
     ['👾',st.jefes,'st_jefes'],['🌟',st.perfectos,'st_perfectos'],['🔥',st.racha,'st_racha'],
-    ['🎓',st.partidas,'st_partidas'],
+    ['🎓',st.partidas,'st_partidas'],['⚡',st.retos||0,'st_retos'],
   ];
+  /* Temas flojos: sale de los pesos que ya se guardan al fallar un ítem. */
+  const repaso=RETO.repaso([
+    {pool:'quiz',  total:QUIZ[S.lang].length, etiqueta:t('tipo_quiz')},
+    {pool:'review',total:CODIGO.length,       etiqueta:t('tipo_review')},
+    {pool:'sql',   total:SQLS.length,         etiqueta:t('tipo_sql')},
+    {pool:'regex', total:REGEXS.length,       etiqueta:t('tipo_regex')},
+    {pool:'merge', total:CONFLICTOS.length,   etiqueta:t('tipo_merge')},
+  ]).filter(r=>r.pendientes>0);
   const vacio=filas.every(f=>!f[1]);
   pantalla('stats',`
   <div class="centro">
@@ -509,6 +517,17 @@ function rStats(){
     <div class="stats-grid">
       ${filas.map(f=>`<div><span style="font-size:16px">${f[0]}</span><b>${f[1]}</b><span>${t(f[2])}</span></div>`).join('')}
     </div>
+    <h3>${t('flojo_tit')}</h3>
+    ${repaso.length
+      ? `<p class="mini">${t('flojo_txt')}</p>
+         <div class="flojo-lista">
+           ${repaso.map(r=>`<div class="flojo-fila">
+             <span class="f-nom">${r.etiqueta}</span>
+             <div class="barra"><div class="barra-fill ${r.pc>40?'peligro':''}" style="width:${Math.max(6,r.pc)}%"></div></div>
+             <span class="f-num">${r.pendientes}/${r.total}</span>
+           </div>`).join('')}
+         </div>`
+      : `<p class="desc" style="text-align:center">${t('flojo_nada')}</p>`}
     <h3>${t('guardado')}</h3>
     <p class="mini" style="text-align:center">${t('guardatxt')}</p>
     <div class="guardado-zona">

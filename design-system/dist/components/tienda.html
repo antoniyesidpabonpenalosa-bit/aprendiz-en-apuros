@@ -329,6 +329,16 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .tit-prog-fila .barra{flex:1}
 .tit-prog-fila .p-pc{font-size:10px;color:var(--y2);flex:0 0 auto}
 
+/* panel "en qué flojeas": una fila por tema, con su barra */
+.flojo-lista{display:flex;flex-direction:column;gap:9px;width:min(440px,100%)}
+.flojo-fila{display:flex;align-items:center;gap:10px}
+.flojo-fila .f-nom{font-size:7px;letter-spacing:1px;color:var(--tx3);
+  flex:0 0 84px;text-align:left}
+.flojo-fila .barra{flex:1}
+.flojo-fila .f-num{font-family:'VT323',monospace;font-size:16px;color:var(--y2);
+  flex:0 0 42px;text-align:right}
+html.hd .flojo-fila .f-nom{font-size:11px}
+
 /* pie con líneas a los lados */
 .tit-pie{display:flex;align-items:center;gap:12px;width:min(420px,100%);opacity:.75}
 .tit-pie i{flex:1;height:2px;background:var(--bl)}
