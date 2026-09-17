@@ -162,6 +162,9 @@ const RETO = (() => {
     { dias: 3,  ico: '🔥' },
     { dias: 7,  ico: '⭐' },
     { dias: 14, ico: '💎' },
+    /* Tramo intermedio: de 14 a 30 el salto era demasiado. En un juego de tres
+       minutos al día, dieciséis días sin ninguna señal de avance se abandona. */
+    { dias: 21, ico: '🥇' },
     { dias: 30, ico: '🏆' },
   ];
   /* Se miden contra la mejor racha histórica: una vez ganado, no se pierde. */

@@ -6,7 +6,26 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tipografía · Aprendiz en Apuros UI</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+/* ══════════════════════════════════════════════
+   TIPOGRAFÍAS AUTOALOJADAS
+   Estaban en Google Fonts y eran el ÚNICO recurso
+   externo que quedaba: en la primera visita sin
+   internet el service worker no las tenía en
+   caché y el juego caía a Courier New. Ahora
+   viajan en el repo (11,9 KB las dos, subconjunto
+   latino — el acentuado español entra entero en
+   U+0000-00FF) y el juego no habla con nadie.
+   ══════════════════════════════════════════════ */
+@font-face{
+  font-family:'Press Start 2P';
+  font-style:normal;font-weight:400;font-display:swap;
+  src:url('../../../fuentes/press-start-2p.woff2') format('woff2');
+}
+@font-face{
+  font-family:'VT323';
+  font-style:normal;font-weight:400;font-display:swap;
+  src:url('../../../fuentes/vt323.woff2') format('woff2');
+}
 /* ══════════════════════════════════════════════
    TOKENS · RETRO LIMPIO Y LEGIBLE
    Verde SENA protagonista · alto contraste
@@ -19,7 +38,10 @@
   --o1:#a04000; --o2:#e06020; --o3:#ff8c44; --o4:#ffbf94;
   --b1:#0c3550; --b2:#13648c; --b3:#1ea0c8; --b4:#6fd2f0;
   --r1:#6e1224; --r2:#c22e44; --r3:#ff5468; --r4:#ff9aa6;
-  --tx1:#55608f; --tx2:#9fb0d8; --tx3:#cdd8f6; --tx4:#f2f5ff;
+  /* --tx1 se subió de #55608f (2.73:1 sobre el panel, suspendía WCAG AA)
+     a #7f8dc0 (5.11:1). Lo usan las pistas de logros, las estrellas vacías,
+     la lista de rangos y las piezas de SQL: texto que hay que poder leer. */
+  --tx1:#7f8dc0; --tx2:#9fb0d8; --tx3:#cdd8f6; --tx4:#f2f5ff;
   --bl:#39426e; --bd:#07080f;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -37,7 +59,11 @@ body{
   font-family:'Press Start 2P','Courier New',monospace;
   color:var(--tx4);
   display:flex;align-items:center;justify-content:center;
-  padding:6px;touch-action:manipulation;
+  /* En un iPhone con muesca y la PWA instalada, un padding fijo deja el HUD
+     debajo del notch. Se respeta el área segura sin bajar de los 6px. */
+  padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right))
+          max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
+  touch-action:manipulation;
 }
 .crt{position:fixed;inset:0;pointer-events:none;z-index:60;
   background:repeating-linear-gradient(0deg,rgba(0,0,0,.06)0 1px,transparent 1px 3px);}
@@ -92,14 +118,43 @@ body{
   border-bottom:3px solid var(--g2);padding-bottom:10px;
 }
 #h-nivel{color:var(--g3);letter-spacing:1px;flex:0 0 auto}
-#h-estrellas{flex:1;font-size:12px;letter-spacing:2px;color:var(--y2);text-align:center}
+#h-nivel .h-lbl{margin-right:5px}
+/* min-width:0 para que pueda encogerse, y overflow:hidden como red: si algún
+   día el contenido no cupiera, se recorta en vez de pisar al vecino — que es
+   lo que pasaba en la portada, con los puntos escritos encima del nivel. */
+#h-estrellas{flex:1;font-size:12px;letter-spacing:2px;color:var(--y2);text-align:center;
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #h-pts{color:var(--y2);letter-spacing:1px;flex:0 0 auto}
 #h-vidas{color:var(--r3);font-size:12px;flex:0 0 auto}
 .b-sys{
-  font-family:inherit;font-size:11px;min-width:38px;min-height:36px;
-  background:var(--void2);cursor:pointer;
+  font-family:inherit;font-size:11px;min-width:44px;min-height:44px;
+  background:var(--void2);cursor:pointer;position:relative;
   border:2px solid var(--bl);
   box-shadow:0 2px 0 var(--bd);
+}
+/* ── HUD en pantallas estrechas ──
+   Con la tipografía real (no el Courier de respaldo), las siete piezas del HUD
+   pedían 397 px en una caja de 322: la fila desbordaba en cualquier móvil, y
+   subir los botones a 44 px lo empeoró. Aquí se aprieta lo que no es dato:
+   desaparece la palabra "DÍA", baja el interletrado y los botones vuelven a
+   38 px de ancho — pero su ZONA TÁCTIL sigue siendo de 44, estirada con un
+   ::after que no ocupa sitio en el diseño. El hueco de 6 px entre botones es
+   mayor que los 3 px que sobresale cada lado, así que no se pisan. */
+@media (max-width:470px){
+  #hud{gap:2px}
+  #h-nivel{letter-spacing:0}
+  #h-nivel .h-lbl{display:none}
+  #h-estrellas{font-size:10px;letter-spacing:0}
+  #h-pts{letter-spacing:0}
+  #h-vidas{font-size:11px}
+  /* 42×44 px reales. Se probó estirar la zona táctil con un ::after sobre un
+     botón de 38 px y NO funciona: el navegador no la cuenta como parte del
+     botón. Así que el ancho es de verdad, y el hueco baja a 2 px para que la
+     fila siga cabiendo en 322 px con la tipografía real. */
+  .b-sys{min-width:42px;font-size:10px}
+  /* En la portada, "LVL n" sobra: la barra de XP de al lado ya dice lo mismo y
+     el rango va con su nombre completo en el cuerpo de la pantalla. */
+  .hud-titulo #h-pts{display:none}
 }
 .b-lang{color:var(--y2)} .b-snd{color:var(--b4)} .b-pause{color:var(--tx3)}
 .b-sys:active{transform:translateY(2px);box-shadow:none}
@@ -185,7 +240,7 @@ h3::before,h3::after{content:'';flex:1;height:2px;background:var(--bl);min-width
 .retrato-wrap{width:68px;height:68px;flex:0 0 68px;position:relative;overflow:hidden}
 canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
   border:2px solid var(--bd);background:#0b0e22}
-.hablante{font-size:8px;color:var(--g3);letter-spacing:1px;margin-bottom:8px}
+.hablante{font-size:9px;color:var(--g3);letter-spacing:1px;margin-bottom:8px}
 .linea{font-family:'VT323',monospace;font-size:21px;line-height:1.35;color:var(--tx4)}
 .cert{border:3px dashed var(--g2);padding:18px 14px;
   display:flex;width:min(440px,100%);flex-direction:column;gap:12px;
@@ -226,16 +281,25 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .item-tienda .nom-t{font-size:8px;color:var(--tx3);text-align:center;line-height:1.7}
 .item-tienda .precio{font-size:10px;color:var(--y2)}
 .item-tienda.sin-pts{opacity:.35;pointer-events:none}
-.logros-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(450px,100%)}
+/* `1fr` no baja del ancho mínimo del contenido, así que un nombre largo
+   (COLECCIONISTA, MODO PESADILLA) ensanchaba su columna y con ella la rejilla
+   entera. minmax(0,1fr) sí encoge.
+   Dos columnas hasta 470 px: con tres, un nombre como COLECCIONISTA necesita
+   139 px y la columna se queda en 121, así que se partía a mitad de palabra
+   ("SIN CONFLICTO / S"). El overflow-wrap de abajo queda solo como última red. */
+.logros-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:min(450px,100%)}
+@media (min-width:471px){
+  .logros-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
 .logro{display:flex;flex-direction:column;align-items:center;gap:6px;
   background:var(--void2);border:2px solid var(--bl);padding:11px 5px;text-align:center}
 .logro.on{border-color:var(--v3);background:var(--pan3)}
 .logro .ico-lg{font-size:22px;filter:grayscale(1);opacity:.3}
 .logro.on .ico-lg{filter:none;opacity:1}
-.logro p{font-size:7px;color:var(--tx2);line-height:1.6}
+.logro p{font-size:9px;color:var(--tx2);line-height:1.6;overflow-wrap:anywhere}
 .logro.on p{color:var(--v4)}
 /* Pista del logro que aún no tienes: cómo se consigue. */
-.logro .pista{font-size:6.5px;color:var(--tx1);line-height:1.8;letter-spacing:0}
+.logro .pista{font-size:8px;color:var(--tx1);line-height:1.7;letter-spacing:0}
 .custom-fila{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 /* ══════════════════════════════════════════════
    PORTADA
@@ -247,7 +311,11 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
   transition:width .6s ease-out}
 
 /* logo con guiones decorativos a los lados, como en las portadas de arcade */
-.tit-logo{display:flex;align-items:center;gap:10px;width:100%;justify-content:center;margin-top:4px}
+.tit-logo{display:flex;align-items:center;gap:10px;width:100%;justify-content:center;
+  margin-top:4px;min-width:0}
+/* El título no podía encogerse y empujaba los guiones decorativos fuera de
+   la caja. En pantallas muy estrechas los guiones se van: son adorno. */
+.tit-logo .tit-h1{min-width:0}
 .tit-logo .guion{flex:0 0 auto;display:flex;flex-direction:column;gap:5px;opacity:.85}
 .tit-logo .guion i{display:block;height:4px;background:var(--g3)}
 .tit-logo .guion i:nth-child(1){width:26px}
@@ -265,10 +333,14 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
   text-shadow:2px 2px 0 var(--v0);box-shadow:0 4px 0 var(--bd),0 0 18px rgba(168,107,255,.35)}
 
 /* píldora de identidad: rango y puntos en una sola pieza con divisor */
-.tit-id{display:flex;align-items:stretch;background:var(--void2);
+/* La píldora del mapa lleva TRES tramos (rango, dificultad, puntos) y con la
+   tipografía real no caben en una fila de 310 px: se parte en dos en vez de
+   salirse de la caja. Los tramos necesitan min-width:0 o no encogen nada. */
+.tit-id{display:flex;align-items:stretch;flex-wrap:wrap;justify-content:center;
+  background:var(--void2);
   border:3px solid var(--y1);box-shadow:0 0 0 2px var(--bd),0 4px 0 var(--bd),
     0 0 20px rgba(255,207,63,.12);max-width:100%}
-.tit-id>span{display:flex;align-items:center;gap:8px;padding:11px 14px;
+.tit-id>span{display:flex;align-items:center;gap:8px;padding:11px 14px;min-width:0;
   font-size:9px;letter-spacing:1px;color:var(--y2);white-space:nowrap}
 .tit-id .sep{border-left:3px solid var(--y1)}
 
@@ -315,14 +387,14 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .menu-fila{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
   padding:13px 14px;min-height:54px;letter-spacing:1px}
 .menu-fila .m-ico{font-size:19px;line-height:1;flex:0 0 auto}
-.menu-fila .m-txt{flex:1;font-size:clamp(8px,2.6vw,10px)}
+.menu-fila .m-txt{flex:1;min-width:0;font-size:clamp(8px,2.6vw,10px);overflow-wrap:anywhere}
 .menu-fila .m-chev{font-size:11px;opacity:.65;flex:0 0 auto}
 .tit-rejilla{display:grid;gap:9px;width:min(460px,100%)}
-.tit-rejilla.c3{grid-template-columns:repeat(3,1fr)}
-.tit-rejilla.c2{grid-template-columns:repeat(2,1fr)}
+.tit-rejilla.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tit-rejilla.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
 /* A 360 px tres columnas dejarían las etiquetas ilegibles: mejor apilar. */
 @media(max-width:400px){
-  .tit-rejilla.c3{grid-template-columns:repeat(2,1fr)}
+  .tit-rejilla.c3{grid-template-columns:repeat(2,minmax(0,1fr))}
   .menu-fila{padding:12px 10px;gap:8px}
   .menu-fila .m-chev{display:none}
 }
@@ -383,7 +455,8 @@ html.hd .flojo-fila .f-nom{font-size:11px}
   background:#070a12;color:var(--g3);border:2px solid var(--g2);
   box-shadow:0 0 0 2px var(--bd);
   padding:14px 8px;outline:none;width:100%;text-transform:lowercase;}
-.entrada::placeholder{color:#33406a;font-size:10px;letter-spacing:1px}
+/* el placeholder estaba en 1.64:1, prácticamente invisible */
+.entrada::placeholder{color:var(--tx1);font-size:10px;letter-spacing:1px}
 .entrada:focus{border-color:var(--g4)}
 .l3,.l4{display:flex;flex-direction:column;gap:12px;padding:6px;align-items:center}
 .l3 .tope,.l4 .tope{width:100%}
@@ -480,7 +553,9 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 
 /* ── MAPA DE CARRERA ── */
 .mapa h2{margin:.15em 0}
-.etapas{display:flex;flex-direction:column;gap:0;width:min(440px,94vw);margin:14px auto 6px}
+/* 94vw medía el viewport y no la caja: dentro de #app, con sus bordes y
+   relleno, la lista de etapas sobresalía 22 px en un móvil de 360. */
+.etapas{display:flex;flex-direction:column;gap:0;width:min(440px,100%);margin:14px auto 6px}
 .etapa-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
   background:#141a38;border:3px solid #2a3260;border-radius:12px;padding:12px 14px;color:#cdd6f4;
   font-family:inherit;cursor:pointer;position:relative;transition:transform .08s,border-color .15s}

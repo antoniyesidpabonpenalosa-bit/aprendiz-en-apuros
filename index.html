@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090a1c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Practicante en Apuros 4 · SENA</title>
@@ -20,7 +20,9 @@
 <meta name="twitter:image" content="https://antoniyesidpabonpenalosa-bit.github.io/aprendiz-en-apuros/portada.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<!-- iOS no usa el SVG para "Añadir a pantalla de inicio": sin este PNG
+     pone una captura de la página como icono. -->
+<link rel="apple-touch-icon" href="icon-180.png">
 <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
@@ -45,18 +47,23 @@
     <button id="b-pause" class="b-sys b-pause" type="button" aria-label="pausa">Ⅱ</button>
   </div>
   <div id="screen"></div>
-  <div id="pausa" class="overlay" hidden>
+  <!-- Diálogo de verdad: con role/aria-modal y el foco dentro (lo mueve
+       principal.js), para que no se pueda tabular por detrás del overlay. -->
+  <div id="pausa" class="overlay" role="dialog" aria-modal="true" aria-labelledby="p-titulo" hidden>
     <div class="menu-inner">
       <h2 id="p-titulo">PAUSA</h2>
       <button class="btn" id="p-cont" type="button">CONTINUAR</button>
       <button class="btn btn2" id="p-mapa" type="button">SALIR AL MAPA</button>
     </div>
   </div>
-  <div id="logro-popup" hidden>
+  <!-- Regiones "live": sin esto un lector de pantalla no anuncia nada cuando
+       salta un logro o una interrupción. El logro es informativo (polite,
+       espera turno); la interrupción corta la partida, así que va assertive. -->
+  <div id="logro-popup" role="status" aria-live="polite" hidden>
     <span class="ico-l"></span>
     <p></p>
   </div>
-  <div id="interrupcion" hidden><p></p></div>
+  <div id="interrupcion" role="alert" aria-live="assertive" hidden><p></p></div>
 </div>
 <script src="js/datos.js"></script>
 <script src="js/estado.js"></script>

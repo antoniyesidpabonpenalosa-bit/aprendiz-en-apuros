@@ -33,6 +33,11 @@ function limpiarT(){tms.forEach(i=>{clearTimeout(i);clearInterval(i)});tms=[];
   alLimpiar.forEach(f=>{try{f()}catch(e){}});alLimpiar=[];}
 
 const aplicarModo=()=>document.documentElement.classList.toggle('hd',!!S.hd);
+/* El <html lang> tiene que seguir al idioma elegido. Si se queda en "es"
+   con el juego en inglés, un lector de pantalla lee el texto inglés con
+   fonética española. Se aplica también al arrancar, no solo al cambiar:
+   una partida guardada en inglés vuelve a cargar en inglés. */
+const aplicarIdioma=()=>{document.documentElement.lang=S.lang};
 const difActual=()=>DIFS[S.dif]||DIFS[1];
 const maxVidas=()=>Math.max(1,3+(S.mejoras.includes('vida')?1:0)+difActual().vida);
 const facTiempo=()=>(S.mejoras.includes('tiempo')?1.2:1)*difActual().tiempo;

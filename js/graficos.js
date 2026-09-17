@@ -20,11 +20,16 @@ function confeti(){
 function hud(){
   /* Tres cabeceras distintas según dónde estés. Cada rama rellena las cuatro
      casillas: así ninguna se queda con un valor de la pantalla anterior. */
+  /* Marca de qué cabecera es, para que el CSS pueda apretarla en móvil sin
+     que el JS tenga que saber el ancho de la pantalla. */
+  $('#hud').classList.toggle('hud-titulo',pantallaId==='titulo');
   if(pantallaId==='titulo'){
-    /* Portada: identidad y nivel, como la cabecera de una app */
+    /* Portada: identidad y nivel, como la cabecera de una app.
+       Sin la palabra "PTS": el ★ ya lo dice y la portada repite los puntos
+       en grande dos filas más abajo, en la píldora de identidad. */
     const {pc}=progresoXp();
     $('#h-nivel').textContent='SENA';
-    $('#h-estrellas').innerHTML=`★ ${S.pts} ${t('rec_pts')}`;
+    $('#h-estrellas').innerHTML=`★ ${S.pts}`;
     $('#h-pts').textContent='LVL '+(RANGOS.indexOf(rangoDe(S.xp))+1);
     $('#h-vidas').innerHTML=`<span class="hud-xp"><i style="width:${pc}%"></i></span>`;
   }else if(retoActivo){
@@ -36,7 +41,9 @@ function hud(){
   }else{
     /* Campaña: día, estrellas, puntos y vidas */
     const d=pantallaId==='nivel'?diaAct+1:Math.min(progreso()+1,TOT_DIAS);
-    $('#h-nivel').textContent=t('dia')+' '+d+'/'+TOT_DIAS;
+    /* "DÍA" va en su propio span: en pantallas estrechas el CSS lo esconde y
+       deja solo el 10/15, que es la información que de verdad hace falta. */
+    $('#h-nivel').innerHTML=`<span class="h-lbl">${t('dia')}</span>${d}/${TOT_DIAS}`;
     $('#h-estrellas').textContent='★ '+totalStars()+'/'+(TOT_DIAS*3);
     $('#h-pts').textContent=String(Math.min(S.pts,9999)).padStart(4,'0');
     $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas))+'♡'.repeat(Math.max(0,maxVidas()-vidas));

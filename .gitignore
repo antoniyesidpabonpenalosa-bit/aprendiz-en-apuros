@@ -1,6 +1,8 @@
 # Capturas y artefactos de prueba locales (no forman parte del juego)
 /*.png
 !/portada.png
+# el icono de iOS es parte del juego, no una captura de prueba
+!/icon-180.png
 
 # Dependencias instaladas localmente para pruebas (Playwright, etc.)
 node_modules/

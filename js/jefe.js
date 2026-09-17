@@ -26,7 +26,15 @@ function nvJefe(dia,ptsBase){
   </div>`);
   const cv=$('#j-cv'),c=cv.getContext('2d');
   const HD=!!S.hd;
-  if(HD){cv.width=640;cv.height=360;c.scale(2,2)}
+  /* El lienzo se dibuja SIEMPRE en el espacio lógico de 320×180: el búfer se
+     agranda según la densidad real de la pantalla y el transform lo compensa,
+     así que ninguna coordenada del juego cambia. Antes esto era todo o nada
+     (solo con el modo HD), y sin HD el navegador estiraba un búfer de 320 px
+     en un móvil de alta densidad: borroso. El modo HD sigue sumando nitidez
+     encima, ahora como multiplicador. */
+  const dpr=Math.min(2,window.devicePixelRatio||1)*(HD?1.5:1);
+  cv.width=Math.round(320*dpr); cv.height=Math.round(180*dpr);
+  c.setTransform(dpr,0,0,dpr,0,0);
   modoJefe=true; /* activa el tema musical tenso */
   /* factor de agresividad: dificultad × revancha nocturna (día 15) */
   const fj=facJefe()*(dia===14?1.25:1);
