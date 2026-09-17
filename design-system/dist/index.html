@@ -23,6 +23,13 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
+/* Foco de teclado visible en TODO lo que se pueda enfocar. Sin esto, quien
+   navega con el tabulador no tiene forma de saber dónde está. Se usa
+   :focus-visible y no :focus para que el ratón no pinte el contorno. */
+:focus-visible{outline:3px solid var(--y2);outline-offset:2px}
+/* Los botones que el juego dibuja heredan la tipografía y el color del
+   juego: antes eran <div> y el navegador no les imponía nada. */
+button{font-family:inherit;color:inherit}
 html,body{height:100%;overflow:hidden}
 body{
   background:var(--void);
@@ -218,7 +225,7 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .item-tienda .nom-t{font-size:8px;color:var(--tx3);text-align:center;line-height:1.7}
 .item-tienda .precio{font-size:10px;color:var(--y2)}
 .item-tienda.sin-pts{opacity:.35;pointer-events:none}
-.logros-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:min(450px,100%)}
+.logros-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(450px,100%)}
 .logro{display:flex;flex-direction:column;align-items:center;gap:6px;
   background:var(--void2);border:2px solid var(--bl);padding:11px 5px;text-align:center}
 .logro.on{border-color:var(--v3);background:var(--pan3)}
@@ -226,6 +233,8 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .logro.on .ico-lg{filter:none;opacity:1}
 .logro p{font-size:7px;color:var(--tx2);line-height:1.6}
 .logro.on p{color:var(--v4)}
+/* Pista del logro que aún no tienes: cómo se consigue. */
+.logro .pista{font-size:6.5px;color:var(--tx1);line-height:1.8;letter-spacing:0}
 .custom-fila{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 /* ══════════════════════════════════════════════
    PORTADA
@@ -379,7 +388,7 @@ html.hd .flojo-fila .f-nom{font-size:11px}
 .l3 .tope,.l4 .tope{width:100%}
 .grilla{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(350px,100%)}
 .celda{aspect-ratio:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  border:2px solid var(--bl);background:var(--void2);
+  border:2px solid var(--bl);background:var(--void2);padding:0;
   box-shadow:0 4px 0 var(--bd);}
 .celda .px{font-size:34px;line-height:1;transform:scale(.15);opacity:0;
   transition:transform .1s,opacity .1s}
@@ -1108,23 +1117,23 @@ body{background:#080a15!important;padding:0!important}
 
 <p class="pv-lbl">Accesorios</p>
 <div class="tienda-grid" style="max-width:340px">
-  <div class="item-tienda"><span class="ico-t">🧢</span><span class="nom-t">GORRA</span><span class="precio">⛁400</span></div>
-  <div class="item-tienda activa"><span class="ico-t">👑</span><span class="nom-t">CORONA DEV</span><span class="precio">✔</span></div>
-  <div class="item-tienda sin-pts"><span class="ico-t">🦸</span><span class="nom-t">CAPA DE HÉROE</span><span class="precio">⛁1200</span></div>
+  <button class="item-tienda" type="button"><span class="ico-t">🧢</span><span class="nom-t">GORRA</span><span class="precio">⛁400</span></button>
+  <button class="item-tienda activa" type="button"><span class="ico-t">👑</span><span class="nom-t">CORONA DEV</span><span class="precio">✔</span></button>
+  <button class="item-tienda sin-pts" type="button"><span class="ico-t">🦸</span><span class="nom-t">CAPA DE HÉROE</span><span class="precio">⛁1200</span></button>
 </div>
 
 <p class="pv-lbl">Mejoras (con descripción)</p>
 <div class="mejoras-tienda" style="max-width:420px">
-  <div class="item-tienda" data-mej="tiempo" style="flex-direction:row;justify-content:space-between;width:100%">
+  <button class="item-tienda" type="button" data-mej="tiempo" style="flex-direction:row;justify-content:space-between;width:100%">
     <span class="ico-t">⏰</span>
     <span class="mej-info"><span class="nom-t" style="text-align:left">+TIEMPO</span><span class="mej-desc">+20% de tiempo en los retos</span></span>
     <span class="precio">⛁700</span>
-  </div>
-  <div class="item-tienda activa" data-mej="escudo" style="flex-direction:row;justify-content:space-between;width:100%">
+  </button>
+  <button class="item-tienda activa" type="button" data-mej="escudo" style="flex-direction:row;justify-content:space-between;width:100%">
     <span class="ico-t">🛡️</span>
     <span class="mej-info"><span class="nom-t" style="text-align:left">ESCUDO DEV</span><span class="mej-desc">Anula tu primer golpe en el runner y el jefe</span></span>
     <span class="precio">✔</span>
-  </div>
+  </button>
 </div>
 
     </div>
@@ -1172,15 +1181,15 @@ body{background:#080a15!important;padding:0!important}
 
 <div class="tope" style="max-width:300px"><span>META: <b>14</b>/20 🐛</span><span>🔥<b class="combo-txt">6</b></span></div>
 <div class="grilla" style="margin-top:10px">
-  <div class="celda"><span class="px" style="transform:scale(.15);opacity:0">🐛</span></div>
-  <div class="celda on"><span class="px" style="transform:scale(1);opacity:1">🐛</span></div>
-  <div class="celda"><span class="px" style="transform:scale(.15);opacity:0">🐛</span></div>
-  <div class="celda on"><span class="px" style="transform:scale(1);opacity:1">☕</span></div>
-  <div class="celda"><span class="px" style="transform:scale(.15);opacity:0">🐛</span></div>
-  <div class="celda on"><span class="px" style="transform:scale(1);opacity:1">💣</span></div>
-  <div class="celda"><span class="px" style="transform:scale(.15);opacity:0">🐛</span></div>
-  <div class="celda plaf"><span class="px" style="transform:scale(1);opacity:1">✨</span></div>
-  <div class="celda"><span class="px" style="transform:scale(.15);opacity:0">🐛</span></div>
+  <button class="celda" type="button" aria-label="Casilla 1"><span class="px" style="transform:scale(.15);opacity:0">🐛</span></button>
+  <button class="celda on" type="button" aria-label="Casilla 2"><span class="px" style="transform:scale(1);opacity:1">🐛</span></button>
+  <button class="celda" type="button" aria-label="Casilla 3"><span class="px" style="transform:scale(.15);opacity:0">🐛</span></button>
+  <button class="celda on" type="button" aria-label="Casilla 4"><span class="px" style="transform:scale(1);opacity:1">☕</span></button>
+  <button class="celda" type="button" aria-label="Casilla 5"><span class="px" style="transform:scale(.15);opacity:0">🐛</span></button>
+  <button class="celda on" type="button" aria-label="Casilla 6"><span class="px" style="transform:scale(1);opacity:1">💣</span></button>
+  <button class="celda" type="button" aria-label="Casilla 7"><span class="px" style="transform:scale(.15);opacity:0">🐛</span></button>
+  <button class="celda plaf" type="button" aria-label="Casilla 8"><span class="px" style="transform:scale(1);opacity:1">✨</span></button>
+  <button class="celda" type="button" aria-label="Casilla 9"><span class="px" style="transform:scale(.15);opacity:0">🐛</span></button>
 </div>
 
     </div>

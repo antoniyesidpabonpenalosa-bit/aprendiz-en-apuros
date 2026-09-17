@@ -168,13 +168,31 @@ test('no se publica un puntaje imposible: se descarta, no se recorta', async () 
 
   for (const malo of [{ puntos: 99999999, xp: 10 }, { puntos: -5, xp: 10 },
                       { puntos: 'muchos', xp: 10 }, { puntos: 100, xp: 500000 },
-                      { puntos: NaN, xp: 10 }, { puntos: Infinity, xp: 10 }])
+                      { puntos: NaN, xp: 10 }, { puntos: Infinity, xp: 10 },
+                      /* más puntos que XP: imposible en una partida real, porque
+                         los dos suben juntos y solo los puntos bajan al gastar */
+                      { puntos: 2901, xp: 2900 }])
     assert.equal(await v.RANKING.publicar({ nombre: 'X', ...malo }), false,
       `debería descartar ${JSON.stringify(malo)}`);
 
   assert.equal(intentos, 0, 'un puntaje imposible ni siquiera debe llegar a la red');
-  assert.equal(await v.RANKING.publicar({ nombre: 'REAL', puntos: 6400, xp: 2900 }), true);
+  /* Partida creíble: 2.900 de XP ganada y 1.750 de puntos porque el resto ya
+     se gastó en la tienda. La XP no baja nunca; los puntos sí. */
+  assert.equal(await v.RANKING.publicar({ nombre: 'REAL', puntos: 1750, xp: 2900 }), true);
   assert.equal(intentos, 1, 'la partida real sí se envía');
+});
+
+test('el hito del día 5 se publica como temporada 0, no como titulado', async () => {
+  const v = cargarJuego();
+  const cuerpos = [];
+  v.fetch = async (url, o) => { cuerpos.push(JSON.parse(o.body)); return { ok: true, json: async () => [] }; };
+
+  await v.RANKING.publicar({ nombre: 'A', puntos: 500, xp: 900, dificultad: 1, temporada: 0 });
+  await v.RANKING.publicar({ nombre: 'B', puntos: 500, xp: 900, dificultad: 1, temporada: 2 });
+  /* Una temporada que no existe cae al día 10, no se cuela tal cual en la base */
+  await v.RANKING.publicar({ nombre: 'C', puntos: 500, xp: 900, dificultad: 1, temporada: 7 });
+
+  assert.deepEqual(cuerpos.map(c => c.temporada), [0, 2, 1]);
 });
 
 test('la consulta del marcador solo filtra por dificultades que existen', async () => {

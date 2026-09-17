@@ -29,8 +29,17 @@ create table public.records (
   constraint records_puntos_rango check (puntos between 0 and 100000),
   constraint records_xp_rango     check (xp     between 0 and 100000),
   constraint records_dificultad   check (dificultad in (0, 1, 2)),
-  -- 1 = terminó el día 10 (titulado), 2 = terminó el día 15 (el contrato)
-  constraint records_temporada    check (temporada in (1, 2))
+  -- 0 = terminó el día 5 (media etapa), 1 = el día 10 (titulado),
+  -- 2 = el día 15 (el contrato). El día 5 existe para que el marcador tenga
+  -- gente desde temprano en vez de estar vacío hasta que alguien llegue al 10.
+  constraint records_temporada    check (temporada in (0, 1, 2)),
+  -- Los puntos NUNCA pueden superar la XP. No es una cota inventada: en el
+  -- juego S.pts y S.xp suben siempre juntos y en la misma cantidad
+  -- (nucleo.js: `S.pts+=gan; S.xp+=gan`), pero S.pts además baja al comprar
+  -- en la tienda y S.xp no baja nunca. Así que en una partida real esto se
+  -- cumple siempre, y rechaza la marca falsificada de manual: puntaje enorme
+  -- con la XP en cero.
+  constraint records_puntos_no_superan_xp check (puntos <= xp)
 );
 
 -- La consulta del juego siempre es "los mejores puntajes primero".
@@ -74,7 +83,10 @@ create table public.retos (
   constraint retos_nombre_largo check (char_length(nombre) between 1 and 10),
   constraint retos_puntos_rango check (puntos between 0 and 100000),
   constraint retos_xp_rango     check (xp     between 0 and 100000),
-  constraint retos_dificultad   check (dificultad in (0, 1, 2))
+  constraint retos_dificultad   check (dificultad in (0, 1, 2)),
+  -- Misma invariante que en records: los puntos del reto salen de la XP que
+  -- ese mismo reto acaba de sumar, así que nunca pueden superarla.
+  constraint retos_puntos_no_superan_xp check (puntos <= xp)
 );
 
 -- La consulta del juego es siempre "los mejores de ESTE día".

@@ -70,8 +70,9 @@ function nvBugs(dia){
   <div class="l3">
     <div class="tope"><span>${t('meta')}: <b id="b-hits">0</b>/${meta} 🐛</span><span>🔥<b id="b-combo" class="combo-txt">0</b></span><span>${t('tiempo')}: <b id="b-seg">${dur}</b>s</span></div>
     <div class="barra" style="width:100%"><div class="barra-fill" id="b-barra"></div></div>
-    <div class="grilla" id="b-grilla">${Array(9).fill(0).map((_,k)=>`<div class="celda" data-k="${k}"><span class="px"></span></div>`).join('')}</div>
+    <div class="grilla" id="b-grilla">${Array(9).fill(0).map((_,k)=>`<button class="celda" data-k="${k}" type="button" aria-label="${t('casilla')} ${k+1}"><span class="px"></span></button>`).join('')}</div>
     <p class="mini">🐛 = +pts · ☕ = bonus</p>
+    <p class="mini">${t('bugs_teclas')}</p>
   </div>`);
   const celdas=$$('#b-grilla .celda');
   function apagar(){if(activa>=0){celdas[activa].classList.remove('on');activa=-1}}
@@ -84,7 +85,7 @@ function nvBugs(dia){
     celdas[activa].querySelector('.px').textContent=esBomba?'💣':esCafe?'☕':'🐛';
     celdas[activa].classList.add('on');
   }
-  celdas.forEach(c=>c.onclick=()=>{
+  function golpear(c){
     if(pausado)return;
     const k=+c.dataset.k;
     if(k!==activa)return;
@@ -105,7 +106,19 @@ function nvBugs(dia){
       const stars=escapes<=2?3:escapes<=5?2:1;
       return resultado(dia,stars,pts+120);
     }
-  });
+  }
+  celdas.forEach(c=>c.onclick=()=>golpear(c));
+  /* Teclas 1-9 sobre la cuadrícula del teclado numérico: tabular entre nueve
+     casillas mientras el bug se mueve cada medio segundo es imposible, así que
+     el teclado necesita su propio atajo, no solo poder llegar a la casilla. */
+  const kd=e=>{
+    const n=Number(e.key);
+    if(!Number.isInteger(n)||n<1||n>9)return;
+    e.preventDefault();
+    golpear(celdas[n-1]);
+  };
+  document.addEventListener('keydown',kd);
+  alLimpiar.push(()=>document.removeEventListener('keydown',kd));
   const paso=t2?540:dif?650:850;
   tcada(brotar,paso);
   tcada(()=>{
