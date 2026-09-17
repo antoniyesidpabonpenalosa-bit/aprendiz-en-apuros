@@ -266,14 +266,19 @@ function jugarNivel(i){
 }
 
 /* ── CERTIFICADO ── */
-function registrarRecord(temporada){
+/* Hitos que dan derecho a marca en el marcador global. El día 5 existe para
+   que la parte social del juego sirva de algo antes: esperar al día 10 dejaba
+   la tabla vacía justo cuando más engancha ver que hay gente jugando. */
+const ICO_HITO={0:'⏳',1:'🎓',2:'📝'};
+function registrarRecord(hito){
   const nom=S.nombre||t('tu');
   S.records.push({n:nom,p:S.pts,x:S.xp,yo:1});
   S.records.sort((a,b)=>b.p-a.p);
   S.records=S.records.slice(0,5);
   /* Se envía al marcador global sin esperar respuesta: si no hay internet
      la partida ya quedó guardada localmente y no pasa nada. */
-  RANKING.publicar({nombre:nom,puntos:S.pts,xp:S.xp,dificultad:S.dif,temporada:temporada||1});
+  RANKING.publicar({nombre:nom,puntos:S.pts,xp:S.xp,dificultad:S.dif,
+                    temporada:ICO_HITO[hito]?hito:1});
 }
 function compartir(){
   const url='https://antoniyesidpabonpenalosa-bit.github.io/aprendiz-en-apuros/';
@@ -362,25 +367,33 @@ function rTienda(){
       ${ACCS.map(a=>{
         const tiene=S.accs.includes(a.id);
         const puede=S.pts>=a.precio;
-        return `<div class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')}" data-id="${a.id}">
+        /* Botón de verdad, no un div: así se alcanza con el tabulador y un
+           lector de pantalla lo anuncia. El que no alcanzas a pagar va
+           `disabled`, que además lo saca del recorrido del teclado. */
+        return `<button class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')}" data-id="${a.id}"
+          type="button" ${tiene||puede?'':'disabled'}>
           <span class="ico-t">${a.ico}</span>
           <span class="nom-t">${nAcc(a.id)}</span>
           <span class="precio">${tiene?(S.acc===a.id?'✔ '+t('equipado'):'✔'):'⛁'+a.precio}</span>
-        </div>`}).join('')}
+        </button>`}).join('')}
     </div>
     <p class="mej-titulo">⚙ ${t('mejoras')}</p>
     <div class="mejoras-tienda">
       ${MEJORAS.map(m=>{
         const tiene=S.mejoras.includes(m.id);
         const puede=S.pts>=m.precio;
-        return `<div class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')}" data-mej="${m.id}" style="flex-direction:row;justify-content:space-between;width:100%">
+        /* Una mejora ya comprada no se puede volver a tocar, así que va
+           `disabled` igual que la que no alcanzas a pagar. */
+        return `<button class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')}" data-mej="${m.id}"
+          type="button" ${tiene||!puede?'disabled':''}
+          style="flex-direction:row;justify-content:space-between;width:100%">
           <span class="ico-t">${m.ico}</span>
           <span class="mej-info">
             <span class="nom-t" style="text-align:left">${nMej[m.id]}</span>
             <span class="mej-desc">${t('d_'+m.id)}</span>
           </span>
           <span class="precio">${tiene?'✔':'⛁'+m.precio}</span>
-        </div>`}).join('')}
+        </button>`}).join('')}
     </div>
     <button class="btn btn2" id="ti-volver" type="button">${t('volver')}</button>
   </div>`);
@@ -413,8 +426,13 @@ function rLogros(){
       <p class="xp-txt">${S.logros.length} / ${LOGROS.length} · ${Math.round(S.logros.length/LOGROS.length*100)}%</p>
     </div>
     <div class="logros-grid">
-      ${LOGROS.map(l=>`<div class="logro ${S.logros.includes(l.id)?'on':''}">
-        <span class="ico-lg">${l.ico}</span><p>${tj(l)}</p></div>`).join('')}
+      ${LOGROS.map(l=>{
+        const hecho=S.logros.includes(l.id);
+        /* El conseguido se enseña tal cual. El que falta enseña CÓMO se
+           consigue: un icono gris y nada más no le dice nada a nadie. */
+        return `<div class="logro ${hecho?'on':''}">
+        <span class="ico-lg">${l.ico}</span><p>${tj(l)}</p>
+        ${hecho?'':`<p class="pista">${tp(l)}</p>`}</div>`}).join('')}
     </div>
     <button class="btn btn2" id="lo-volver" type="button">${t('volver')}</button>
   </div>`);
@@ -492,7 +510,7 @@ async function pintarGlobal(){
     n:f.nombre,p:f.puntos,x:f.xp,yo:f.nombre===mio?1:0,
     /* Con "TODAS" el icono de dificultad es la única pista de en qué condiciones
        se logró la marca; filtrando ya se sabe y solo estorbaría. */
-    ico:(filtroDif===null?(DIFS[f.dificultad]||DIFS[1]).ico:'')+(f.temporada===2?'📝':'🎓'),
+    ico:(filtroDif===null?(DIFS[f.dificultad]||DIFS[1]).ico:'')+(ICO_HITO[f.temporada]||ICO_HITO[1]),
   })));
 }
 

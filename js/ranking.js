@@ -7,8 +7,10 @@
    La clave de abajo es PÚBLICA a propósito (Supabase la llama "publishable"):
    viaja en el JS del navegador y cualquiera puede leerla. Lo que protege los
    datos son las reglas del servidor, no el secreto de la clave: la tabla
-   permite leer e insertar, pero NADIE puede editar ni borrar una marca, y los
-   CHECK de la base rechazan puntajes o nombres imposibles.
+   permite leer e insertar, pero NADIE puede editar ni borrar una marca (no hay
+   políticas de UPDATE ni DELETE, así que RLS las niega), y los CHECK de la base
+   rechazan nombres imposibles, puntajes fuera de rango y cualquier marca con
+   más puntos que XP, que es algo que una partida real no puede producir.
 
    Todo aquí falla en silencio: sin internet, con el servidor caído o si el
    proyecto se borra, el juego sigue funcionando igual con sus récords locales. */
@@ -64,13 +66,15 @@ const RANKING = (() => {
     const pts = Math.round(Number(puntos));
     const exp = Math.round(Number(xp));
     if (!enteroValido(pts) || !enteroValido(exp)) return false;
+    if (pts > exp) return false;          // invariante del juego, igual que en la base
 
     const fila = {
       nombre: String(nombre || 'TU').toUpperCase().replace(/\s+/g, ' ').trim().slice(0, 10) || 'TU',
       puntos: pts,
       xp: exp,
       dificultad: [0, 1, 2].includes(dificultad) ? dificultad : 1,
-      temporada: temporada === 2 ? 2 : 1,
+      /* 0 = día 5 (media etapa) · 1 = día 10 (titulado) · 2 = día 15 (el contrato) */
+      temporada: [0, 1, 2].includes(temporada) ? temporada : 1,
     };
     const r = await pedir(URL_BASE, { method: 'POST', body: JSON.stringify(fila) });
     return !!r;
@@ -92,6 +96,7 @@ const RANKING = (() => {
     const enteroValido = v => Number.isFinite(v) && v >= 0 && v <= 100000;
     const pts = Math.round(Number(puntos)), exp = Math.round(Number(xp));
     if (!enteroValido(pts) || !enteroValido(exp)) return false;
+    if (pts > exp) return false;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fecha))) return false;
     const fila = {
       nombre: String(nombre || 'TU').toUpperCase().replace(/\s+/g, ' ').trim().slice(0, 10) || 'TU',

@@ -18,6 +18,8 @@ S.stats=Object.assign({},STATS0,S.stats);
 const guardar=()=>{try{localStorage.setItem('pa3',JSON.stringify(S))}catch(e){}};
 const t=k=>TXT[S.lang][k]||k;
 const tj=o=>o[S.lang]||o.es;
+/* Pista de un logro en el idioma activo (campos pes/pen de LOGROS). */
+const tp=o=>(S.lang==='en'?o.pen:o.pes)||o.pes||'';
 /* Escapa texto que no controlamos (nombres del marcador global) antes de
    meterlo en innerHTML. Sin esto, un nombre con HTML se ejecutaría. */
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

@@ -48,6 +48,9 @@ function resultado(i,stars,pts){
   if(S.dif===2)darLogro('pesadilla');
   guardar();SFX.win();
   const {sig,pc}=progresoXp();
+  /* Primera marca publicable en el día 5, no en el 10: media etapa ya es
+     mérito suficiente y así el marcador global tiene gente desde temprano. */
+  if(i===4){registrarRecord(0);guardar();}
   if(i===9){darLogro('titulado');registrarRecord(1);guardar();}
   if(i===14){darLogro('contrato');registrarRecord(2);guardar();}
   const esFinal=i===9||i===14;
