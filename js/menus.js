@@ -5,9 +5,14 @@ function rTitulo(){
   const racha=RETO.rachaViva();
   const pcCampana=Math.round(progreso()/TOT_DIAS*100);
   const nuevoReto=!RETO.jugadoHoy();
-  /* Icono + etiqueta + flecha, el patrón de fila de menú de la portada */
+  /* Icono + etiqueta + flecha, el patrón de fila de menú de la portada.
+     La fila SIEMPRE recibe su icono por separado, así que si la etiqueta ya
+     trae uno de serie (t('estadisticas') es '📈 ESTADÍSTICAS') se quita aquí:
+     antes salía el gráfico dos veces seguidas. Se hace en el helper y no en
+     cada llamada para que no vuelva a pasar con la siguiente etiqueta. */
+  const sinIco=t=>t.replace(/^[^\p{L}\p{N}]+\s*/u,'');
   const fila=(id,ico,txt,cls)=>`<button class="btn ${cls||'btn2'} menu-fila" id="${id}" type="button">`+
-    `<span class="m-ico">${ico}</span><span class="m-txt">${txt}</span><span class="m-chev">❯</span></button>`;
+    `<span class="m-ico">${ico}</span><span class="m-txt">${sinIco(txt)}</span><span class="m-chev">❯</span></button>`;
 
   pantalla('titulo',`
   <div class="centro">
@@ -55,7 +60,7 @@ function rTitulo(){
     </div>
     <div class="tit-rejilla c2">
       ${fila('t-stats','📈',t('estadisticas'))}
-      ${fila('t-modo',S.hd?'🕹':'✨',(S.hd?t('modo_retro'):t('modo_hd')).replace(/^\S+\s/,''))}
+      ${fila('t-modo',S.hd?'🕹':'✨',S.hd?t('modo_retro'):t('modo_hd'))}
     </div>
 
     <button class="tit-avatar" id="t-perso" type="button">
