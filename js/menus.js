@@ -306,7 +306,7 @@ function rCertificado(){
       <p class="dia">🎓 ${t('cert')} 🎓</p>
       <div class="retrato-wrap"><canvas class="retrato" id="c-cara" width="64" height="64"></canvas></div>
       <p class="sub">${t('certde')}</p>
-      <p class="rango">${S.nombre||t('tu')}</p>
+      <p class="rango">${esc(S.nombre||t('tu'))}</p>
       <p class="desc" style="text-align:center">${t('certtxt')}</p>
       ${starsHtml(Math.min(3,Math.round(totalStars()/10)))}
       <div class="stats-grid">
@@ -335,7 +335,7 @@ function rAscenso(){
       <p class="dia">🚀 ${t('ascenso')} 🚀</p>
       <div class="retrato-wrap"><canvas class="retrato" id="a-cara" width="64" height="64"></canvas></div>
       <p class="sub">${t('ascensode')}</p>
-      <p class="rango">${S.nombre||t('tu')}</p>
+      <p class="rango">${esc(S.nombre||t('tu'))}</p>
       <p class="desc" style="text-align:center">${t('ascensotxt')}</p>
       ${starsHtml(Math.min(3,Math.round(totalStars()/15)))}
       <div class="stats-grid">

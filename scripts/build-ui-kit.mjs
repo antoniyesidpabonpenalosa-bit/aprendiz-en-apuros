@@ -87,7 +87,6 @@ function doc(titulo, bodyHtml, { hd = false } = {}) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${titulo} · Aprendiz en Apuros UI</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 ${BASE_CSS}
 </style>
 </head>
@@ -107,10 +106,19 @@ function listarArchivos(dir, base = dir) {
     return e.isDirectory() ? listarArchivos(abs, base) : [relative(base, abs).split(sep).join('/')];
   });
 }
+/* El CSS del juego apunta a las fuentes con '../fuentes/' porque se sirve desde
+   css/. Las páginas del kit viven a otra profundidad dentro de
+   design-system/dist/, así que aquí se reescribe la ruta para cada archivo: si
+   no, el kit se vería con Courier New y nadie se enteraría de por qué. */
+function rutaFuentes(relDist, contenido) {
+  const niveles = relDist.split('/').length - 1;   // 0 = raíz de dist/
+  const subir = '../'.repeat(niveles + 2);         // +2: salir de dist/ y de design-system/
+  return contenido.replaceAll("url('../fuentes/", `url('${subir}fuentes/`);
+}
 function escribir(relDist, contenido) {
   const abs = join(DIST, relDist);
   mkdirSync(dirname(abs), { recursive: true });
-  writeFileSync(abs, contenido);
+  writeFileSync(abs, rutaFuentes(relDist, contenido));
   escritos.push(relDist);
 }
 
@@ -208,8 +216,7 @@ ${specTemas}
   <p class="gal-foot">Generado desde css/estilos.css · node scripts/build-ui-kit.mjs · Practicante en Apuros 4 · SENA</p>
 </div>`;
 
-const galeriaCss = `@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
-${BASE_CSS}
+const galeriaCss = `${BASE_CSS}
 ${CSS_GALERIA}
 .oled-scope{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
   background:radial-gradient(130% 120% at 50% -10%,#131b38 0%,#04050c 68%,#000 100%);
