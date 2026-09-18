@@ -2,7 +2,11 @@
 /* ══════════ MINIJUEGO 1 · ESCRIBIR ══════════ */
 function nvEscribir(dia){
   const dif=dia>=5?1:0;
-  const lista=az(PALABRAS).slice(0,8);
+  /* Las palabras salen sesgadas hacia las que has fallado antes, igual que las
+     preguntas del quiz. Antes era un az() a secas y lo que no te salía no
+     volvía nunca. */
+  const idxs=RETO.elegir('palabras',PALABRAS.length,8,RETO.rngPara(':pal'));
+  const lista=idxs.map(i=>PALABRAS[i]);
   const tickMax=Math.round((dif?52:70)*facTiempo());
   let w=0,ticks=tickMax,fallas=0,pts=0,perfecto=true;
   pantalla('nivel',`
@@ -32,6 +36,7 @@ function nvEscribir(dia){
     $('#e-prog').textContent=(w+1)+'/8';
   }
   function sigPal(gano){
+    RETO.marcar('palabras',idxs[w],gano);      // antes de mover w
     if(gano){pts+=60+Math.round(ticks*2);sumaStat('palabras');SFX.ok()}
     else{fallas++;perfecto=false;SFX.mal();pal.classList.add('shake');setTimeout(()=>pal.classList.remove('shake'),250);
       if(fallas>=3)return fallo(dia)}
@@ -181,6 +186,12 @@ function nvSimon(dia){
   const dif=dia>=5?1:0;
   const metaRondas=t2?8:dif?7:5;
   const cmds=t2?CMDS:CMDS.slice(0,4);
+  /* Índices en CMDS (no en cmds) para que el peso de GIT PUSH sea el mismo el
+     día 4, con cuatro comandos, y el 14, con seis. El generador se crea UNA
+     vez: rngPara() devuelve uno nuevo en cada llamada y dentro del reto
+     diario eso daría siempre el mismo comando. */
+  const permitidos=cmds.map(c=>CMDS.indexOf(c));
+  const rndGit=RETO.rngPara(':git');
   let sec=[],pos=0,errores=0,pts=0,fase='muestra';
   pantalla('nivel',`
   <div class="l3">
@@ -200,7 +211,7 @@ function nvSimon(dia){
   function muestra(){
     fase='muestra';cont.classList.add('muestra');
     $('#s-msg').textContent=t('observa');
-    sec.push(cmds[Math.floor(Math.random()*cmds.length)].id);
+    sec.push(CMDS[RETO.unoDe('git',permitidos,rndGit)].id);
     $('#s-ronda').textContent=sec.length;
     let k=0;
     const vel=t2?430:dif?470:580;
@@ -218,6 +229,8 @@ function nvSimon(dia){
     if(pausado||fase!=='jugador')return;
     const id=b.dataset.id;
     ilumina(id,300);
+    /* Se anota contra el comando que TOCABA, que es lo que se está evaluando */
+    RETO.marcar('git',CMDS.findIndex(x=>x.id===sec[pos]),id===sec[pos]);
     if(id===sec[pos]){
       pos++;pts+=25;
       if(pos>=sec.length){

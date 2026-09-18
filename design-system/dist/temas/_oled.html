@@ -299,6 +299,19 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .logro.on p{color:var(--v4)}
 /* Pista del logro que aún no tienes: cómo se consigue. */
 .logro .pista{font-size:8px;color:var(--tx1);line-height:1.7;letter-spacing:0}
+/* ── ficha de controles ── */
+.ayuda-lista{list-style:none;display:flex;flex-direction:column;gap:12px;
+  width:min(440px,100%);text-align:left;background:var(--void2);
+  border:2px solid var(--bl);box-shadow:0 4px 0 var(--bd);padding:16px 14px}
+.ayuda-lista li{font-family:'VT323',monospace;font-size:19px;line-height:1.3;
+  color:var(--tx3);display:flex;gap:10px;align-items:flex-start}
+.ayuda-lista li::before{content:'▸';color:var(--g3);flex:0 0 auto;line-height:1.3}
+/* ── código de aula en el marcador ── */
+.grupo-barra{display:flex;gap:8px;align-items:center;justify-content:center;
+  flex-wrap:wrap;width:min(440px,100%)}
+.grupo-cod{font-size:9px;letter-spacing:1px;color:var(--y2);background:var(--void2);
+  border:2px solid var(--y1);padding:7px 10px}
+.grupo-vacio{font-family:'VT323',monospace;font-size:17px;color:var(--tx1)}
 .custom-fila{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 /* ══════════════════════════════════════════════
    PORTADA
@@ -456,7 +469,12 @@ html.hd .flojo-fila .f-nom{font-size:11px}
 .term-cuerpo{padding:16px 12px;display:flex;flex-direction:column;gap:14px}
 .term-line{font-family:'VT323',monospace;font-size:18px;color:var(--g3);text-align:left}
 .palabra{font-size:clamp(18px,6.5vw,28px);letter-spacing:5px;color:var(--tx4);min-height:34px}
-.palabra .ok{color:var(--g3)} .palabra .mal{color:var(--r3)}
+/* Al teclear, el color era la ÚNICA señal de que una letra iba mal: en
+   escala de grises o con daltonismo rojo-verde, verde y rojo son el mismo
+   tono. El fallo lleva además un subrayado, que se ve sin color. */
+.palabra .ok{color:var(--g3)}
+.palabra .mal{color:var(--r3);text-decoration:underline;text-decoration-thickness:3px;
+  text-underline-offset:3px}
 .palabra.shake{animation:shake .22s}
 .barra{height:12px;background:var(--void2);border:2px solid var(--bd)}
 .barra-fill{height:100%;width:100%;transition:width .1s linear;background:var(--g2);
@@ -794,6 +812,42 @@ html.hd .ico{filter:drop-shadow(0 0 18px rgba(255,255,255,.2))}
 @media (max-width:520px){ #fx64{background:
     radial-gradient(130% 110% at 50% 36%, transparent 58%, rgba(3,4,16,.22) 100%),
     repeating-linear-gradient(0deg, rgba(0,0,0,.04) 0 1px, transparent 1px 3px);} }
+
+/* ══════════════════════════════════════════════
+   MODO TEXTO LEGIBLE
+   La tipografía de píxeles es preciosa y mala de
+   leer en cuerpos pequeños. La prosa larga
+   (diálogos, preguntas, opciones) ya iba en
+   VT323; esto cambia lo que quedaba a 8-9 px:
+   nombres de logro y sus pistas, nombres de
+   nivel, artículos de la tienda y las etiquetas
+   de estadísticas. Va al final del archivo para
+   ganar por orden a las reglas base.
+   ══════════════════════════════════════════════ */
+html.legible .logro p,
+html.legible .logro .pista,
+html.legible .etapa-nom,
+html.legible .etapa-sub,
+html.legible .etapa-rango,
+html.legible .nom-t,
+html.legible .sub,
+html.legible .hablante,
+html.legible .stats-grid span,
+html.legible .dia,
+html.legible .dif-op,
+html.legible .m-txt{font-family:'VT323',monospace;letter-spacing:0}
+html.legible .logro p{font-size:14px;line-height:1.25}
+html.legible .logro .pista{font-size:13px;line-height:1.25}
+html.legible .etapa-nom{font-size:clamp(17px,4.6vw,21px)}
+html.legible .etapa-sub{font-size:16px}
+html.legible .etapa-rango{font-size:14px}
+html.legible .nom-t{font-size:14px;line-height:1.2}
+html.legible .sub{font-size:15px;line-height:1.35}
+html.legible .hablante{font-size:15px}
+html.legible .stats-grid span{font-size:14px;line-height:1.2}
+html.legible .dia{font-size:14px}
+html.legible .dif-op{font-size:15px}
+html.legible .m-txt{font-size:17px}
 
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */

@@ -5,6 +5,9 @@
    stick o cruceta (mando) o inclinando el teléfono (giro).
    Disparas commits automáticamente; esquiva los errores. */
 function nvJefe(dia,ptsBase){
+  /* Se entra al jefe desde tres sitios (el mapa, el runner del día 10 y el
+     del 15): la ayuda va aquí dentro para cubrir los tres. */
+  if(!vistos().includes('jefe'))return conAyuda('jefe',()=>nvJefe(dia,ptsBase));
   ptsBase=ptsBase||0;
   pantalla('nivel',`
   <div class="cv-wrap">
