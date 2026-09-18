@@ -20,6 +20,14 @@ const RANKING = (() => {
   const CLAVE = 'sb_publishable_BOBxU9OmQuno60u1JgHkzw_Tyk2cuD3';
   const ESPERA = 6000;   // ms: si el servidor no responde, no dejamos la UI colgada
 
+  /* Código de aula: mayúsculas y dígitos, de 3 a 8. El mismo formato que exige
+     el CHECK de la base, escrito una sola vez para que no se separen. */
+  const GRUPO_OK = /^[A-Z0-9]{3,8}$/;
+  const limpiaGrupo = g => {
+    const v = String(g || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    return GRUPO_OK.test(v) ? v : '';
+  };
+
   const cabeceras = {
     'apikey': CLAVE,
     'Authorization': 'Bearer ' + CLAVE,
@@ -44,9 +52,12 @@ const RANKING = (() => {
   /* Los mejores puntajes, opcionalmente de una sola dificultad (0, 1 o 2).
      Sin filtro se mezclan las tres, que no es justo pero es lo que pide quien
      quiere ver el podio absoluto. Devuelve null si la consulta falla. */
-  async function top(n = 8, dificultad = null) {
+  async function top(n = 8, dificultad = null, grupo = '') {
     const filtro = [0, 1, 2].includes(dificultad) ? `&dificultad=eq.${dificultad}` : '';
-    const r = await pedir(`${URL_BASE}?select=nombre,puntos,xp,dificultad,temporada&order=puntos.desc,creado_en.asc&limit=${n}${filtro}`);
+    /* Con grupo se ve solo la cohorte; sin él, el marcador abierto. */
+    const g = limpiaGrupo(grupo);
+    const fgrupo = g ? `&grupo=eq.${g}` : '';
+    const r = await pedir(`${URL_BASE}?select=nombre,puntos,xp,dificultad,temporada&order=puntos.desc,creado_en.asc&limit=${n}${filtro}${fgrupo}`);
     if (!r) return null;         // null = "no se pudo consultar"; [] = "no hay marcas"
     try {
       const filas = await r.json();
@@ -61,7 +72,7 @@ const RANKING = (() => {
      Un puntaje fuera de rango se DESCARTA, no se recorta: recortarlo a 100000
      convertiría un valor absurdo en el primer puesto del marcador, que es
      justo lo contrario de lo que queremos. Una partida real nunca llega ahí. */
-  async function publicar({ nombre, puntos, xp, dificultad, temporada }) {
+  async function publicar({ nombre, puntos, xp, dificultad, temporada, grupo }) {
     const enteroValido = v => Number.isFinite(v) && v >= 0 && v <= 100000;
     const pts = Math.round(Number(puntos));
     const exp = Math.round(Number(xp));
@@ -76,6 +87,10 @@ const RANKING = (() => {
       /* 0 = día 5 (media etapa) · 1 = día 10 (titulado) · 2 = día 15 (el contrato) */
       temporada: [0, 1, 2].includes(temporada) ? temporada : 1,
     };
+    /* null y no cadena vacía: el CHECK de la base acepta null o el formato
+       exacto, y '' no es ninguno de los dos. */
+    const g = limpiaGrupo(grupo);
+    if (g) fila.grupo = g;
     const r = await pedir(URL_BASE, { method: 'POST', body: JSON.stringify(fila) });
     return !!r;
   }
@@ -85,14 +100,15 @@ const RANKING = (() => {
      cualquiera puede ser primero hoy. */
   const URL_RETOS = URL_BASE.replace(/\/records$/, '/retos');
 
-  async function topReto(n = 8, fecha) {
+  async function topReto(n = 8, fecha, grupo = '') {
+    const g = limpiaGrupo(grupo);
     const r = await pedir(`${URL_RETOS}?select=nombre,puntos,xp&fecha=eq.${encodeURIComponent(fecha)}` +
-      `&order=puntos.desc,creado_en.asc&limit=${n}`);
+      `${g ? `&grupo=eq.${g}` : ''}&order=puntos.desc,creado_en.asc&limit=${n}`);
     if (!r) return null;
     try { const f = await r.json(); return Array.isArray(f) ? f : null; } catch (e) { return null; }
   }
 
-  async function publicarReto({ nombre, puntos, xp, dificultad, fecha }) {
+  async function publicarReto({ nombre, puntos, xp, dificultad, fecha, grupo }) {
     const enteroValido = v => Number.isFinite(v) && v >= 0 && v <= 100000;
     const pts = Math.round(Number(puntos)), exp = Math.round(Number(xp));
     if (!enteroValido(pts) || !enteroValido(exp)) return false;
@@ -104,8 +120,10 @@ const RANKING = (() => {
       dificultad: [0, 1, 2].includes(dificultad) ? dificultad : 1,
       fecha: String(fecha),
     };
+    const g = limpiaGrupo(grupo);
+    if (g) fila.grupo = g;
     return !!(await pedir(URL_RETOS, { method: 'POST', body: JSON.stringify(fila) }));
   }
 
-  return { top, publicar, topReto, publicarReto };
+  return { top, publicar, topReto, publicarReto, limpiaGrupo };
 })();

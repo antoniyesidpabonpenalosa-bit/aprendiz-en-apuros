@@ -3,7 +3,7 @@
 const STATS0={bugs:0,cafes:0,palabras:0,jefes:0,perfectos:0,racha:0,partidas:0,retos:0};
 const TOT_DIAS=NIVELES.length; /* 15: etapa productiva (10) + el contrato (5) */
 const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',skin:0,camisa:0,
-  mejoras:[],records:[],lang:'es',snd:true,mus:true,intro:false,t2:false,nombre:'',hd:false,dif:1,stats:Object.assign({},STATS0)};
+  mejoras:[],records:[],lang:'es',snd:true,mus:true,intro:false,t2:false,nombre:'',hd:false,legible:false,grupo:'',dif:1,stats:Object.assign({},STATS0)};
 let S;
 try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('pa3')||'{}'))}catch(e){S=Object.assign({},DEF)}
 /* migración: partidas viejas de 10 días se extienden a 15 */
@@ -13,6 +13,14 @@ S.dias=S.dias.slice(0,TOT_DIAS);
 if(typeof S.dif!=='number'||S.dif<0||S.dif>2)S.dif=1;
 if(typeof S.mus!=='boolean')S.mus=true;
 if(typeof S.t2!=='boolean')S.t2=false;
+if(typeof S.legible!=='boolean')S.legible=false;
+/* No va en DEF a propósito: los arrays de DEF se copian por referencia y
+   S.vistos.push() acabaría escribiendo dentro de DEF. Aquí nace uno nuevo
+   en cada carga. */
+if(!Array.isArray(S.vistos))S.vistos=[];
+/* Código de aula: mayúsculas, dígitos, 3 a 8 caracteres. Se sanea aquí
+   porque puede venir de un código de guardado escrito a mano. */
+S.grupo=String(S.grupo||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
 if(!S.stats||typeof S.stats!=='object')S.stats={};
 S.stats=Object.assign({},STATS0,S.stats);
 const guardar=()=>{try{localStorage.setItem('pa3',JSON.stringify(S))}catch(e){}};
@@ -32,7 +40,13 @@ function limpiarT(){tms.forEach(i=>{clearTimeout(i);clearInterval(i)});tms=[];
   if(raf){cancelAnimationFrame(raf);raf=0}
   alLimpiar.forEach(f=>{try{f()}catch(e){}});alLimpiar=[];}
 
-const aplicarModo=()=>document.documentElement.classList.toggle('hd',!!S.hd);
+const aplicarModo=()=>{
+  document.documentElement.classList.toggle('hd',!!S.hd);
+  /* Modo de texto legible: cambia la tipografía de píxeles por VT323 en el
+     texto pequeño (nombres de logro, niveles, artículos de la tienda). La
+     prosa larga —diálogos, preguntas, opciones— ya iba en VT323. */
+  document.documentElement.classList.toggle('legible',!!S.legible);
+};
 /* El <html lang> tiene que seguir al idioma elegido. Si se queda en "es"
    con el juego en inglés, un lector de pantalla lee el texto inglés con
    fonética española. Se aplica también al arrancar, no solo al cambiar:

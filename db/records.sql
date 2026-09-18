@@ -19,6 +19,7 @@ create table public.records (
   xp          integer     not null,
   dificultad  smallint    not null default 1,
   temporada   smallint    not null default 1,
+  grupo       text,
   creado_en   timestamptz not null default now(),
 
   -- El juego recorta el nombre a 10 caracteres; se exige lo mismo en la base.
@@ -39,11 +40,20 @@ create table public.records (
   -- en la tienda y S.xp no baja nunca. Así que en una partida real esto se
   -- cumple siempre, y rechaza la marca falsificada de manual: puntaje enorme
   -- con la XP en cero.
-  constraint records_puntos_no_superan_xp check (puntos <= xp)
+  constraint records_puntos_no_superan_xp check (puntos <= xp),
+  -- Código de aula: el instructor reparte un código y su cohorte compite
+  -- dentro. Es un texto corto, NO un identificador con dueño: en este juego no
+  -- hay cuentas, así que cualquiera que sepa el código entra. Es a propósito —
+  -- esto es un marcador de clase, no un sistema de permisos.
+  constraint records_grupo_formato check (grupo is null or grupo ~ '^[A-Z0-9]{3,8}$')
 );
 
 -- La consulta del juego siempre es "los mejores puntajes primero".
 create index records_puntos_idx on public.records (puntos desc, creado_en asc);
+-- "los mejores de MI grupo": el grupo va primero. Parcial, porque la mayoría de
+-- las filas no llevan grupo y no tiene sentido indexarlas aquí.
+create index records_grupo_idx on public.records (grupo, puntos desc, creado_en asc)
+  where grupo is not null;
 
 alter table public.records enable row level security;
 
@@ -78,6 +88,7 @@ create table public.retos (
   xp          integer     not null,
   dificultad  smallint    not null default 1,
   fecha       date        not null,
+  grupo       text,
   creado_en   timestamptz not null default now(),
 
   constraint retos_nombre_largo check (char_length(nombre) between 1 and 10),
@@ -86,11 +97,14 @@ create table public.retos (
   constraint retos_dificultad   check (dificultad in (0, 1, 2)),
   -- Misma invariante que en records: los puntos del reto salen de la XP que
   -- ese mismo reto acaba de sumar, así que nunca pueden superarla.
-  constraint retos_puntos_no_superan_xp check (puntos <= xp)
+  constraint retos_puntos_no_superan_xp check (puntos <= xp),
+  constraint retos_grupo_formato check (grupo is null or grupo ~ '^[A-Z0-9]{3,8}$')
 );
 
 -- La consulta del juego es siempre "los mejores de ESTE día".
 create index retos_dia_idx on public.retos (fecha, puntos desc, creado_en asc);
+create index retos_grupo_idx on public.retos (grupo, fecha, puntos desc, creado_en asc)
+  where grupo is not null;
 
 alter table public.retos enable row level security;
 

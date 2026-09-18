@@ -64,7 +64,7 @@ function rReto() {
 let peticionReto = 0;
 async function pintarTablaReto() {
   const mia = ++peticionReto;
-  const filas = await RANKING.topReto(8, RETO.hoy());
+  const filas = await RANKING.topReto(8, RETO.hoy(), S.grupo);
   if (mia !== peticionReto) return;
   const caja = $('#rt-tabla');
   if (!caja) return;
@@ -127,7 +127,7 @@ function finReto() {
   const res = RETO.registrar(base);          // null si hoy ya estaba cerrado
   if (res) {
     RANKING.publicarReto({ nombre: S.nombre || t('tu'), puntos: res.ganado, xp: S.xp,
-                           dificultad: S.dif, fecha: RETO.hoy() });
+                           dificultad: S.dif, fecha: RETO.hoy(), grupo: S.grupo });
     sumaStat('retos');
   }
 

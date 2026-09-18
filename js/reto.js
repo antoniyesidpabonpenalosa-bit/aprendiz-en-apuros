@@ -92,6 +92,24 @@ const RETO = (() => {
     return salida;
   }
 
+  /* Elige UN índice de entre los permitidos, sesgando hacia lo fallado y
+     permitiendo repetición. Hace falta para el simon de Git, donde la
+     secuencia puede repetir comandos y `elegir` (que es sin reemplazo) no
+     sirve. `permitidos` son índices del pool, porque el día 4 solo juega con
+     cuatro comandos y el 14 con seis, y los pesos deben ser los mismos. */
+  function unoDe(pool, permitidos, rnd = Math.random) {
+    const p = pesos();
+    if (!permitidos.length) return 0;
+    const pesoDe = i => 1 + (p[clave(pool, i)] || 0);
+    const suma = permitidos.reduce((a, i) => a + pesoDe(i), 0);
+    let corte = rnd() * suma;
+    for (let j = 0; j < permitidos.length; j++) {
+      corte -= pesoDe(permitidos[j]);
+      if (corte < 0) return permitidos[j];
+    }
+    return permitidos[permitidos.length - 1];   // por si la coma flotante se queda corta
+  }
+
   /* ── estado del reto de hoy ── */
 
   const VACIO = { fecha: '', pts: 0, racha: 0, mejorRacha: 0, perdon: '', hechos: 0 };
@@ -216,7 +234,7 @@ const RETO = (() => {
 
   return {
     fechaDe, hoy, diasEntre, semillaDe, rngCon,
-    marcar, elegir, pesos, repaso,
+    marcar, elegir, unoDe, pesos, repaso,
     datos, rachaViva, jugadoHoy, multiplicador, registrar,
     PREMIOS, premiosGanados, proximoPremio,
     TIPOS, retosDe, rngDelDia,

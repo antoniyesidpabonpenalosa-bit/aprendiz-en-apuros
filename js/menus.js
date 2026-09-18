@@ -58,9 +58,11 @@ function rTitulo(){
       ${fila('t-logros','🏆',t('logros'))}
       ${fila('t-records','📊',t('records'))}
     </div>
-    <div class="tit-rejilla c2">
-      ${fila('t-stats','📈',t('estadisticas'))}
+    <div class="tit-rejilla c3">
+      ${/* etiqueta corta: con tres columnas, ESTADÍSTICAS no cabe y se partía */''}
+      ${fila('t-stats','📈',t('estad_corto'))}
       ${fila('t-modo',S.hd?'🕹':'✨',S.hd?t('modo_retro'):t('modo_hd'))}
+      ${fila('t-texto',S.legible?'🕹':'🔤',S.legible?t('texto_pixel'):t('texto_legible'))}
     </div>
 
     <button class="tit-avatar" id="t-perso" type="button">
@@ -89,6 +91,7 @@ function rTitulo(){
   $$('.dif-op').forEach(b=>b.onclick=()=>{S.dif=+b.dataset.dif;guardar();SFX.click();rTitulo()});
   $('#t-stats').onclick=()=>{SFX.click();rStats()};
   $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};
+  $('#t-texto').onclick=()=>{S.legible=!S.legible;guardar();aplicarModo();SFX.click();rTitulo()};
   $('#t-borrar').onclick=()=>{SFX.click();rBorrar()};
   $('#t-jugar').onclick=()=>{
     SFX.click();
@@ -121,7 +124,7 @@ function rBorrar(){
   $('#bo-no').onclick=()=>{SFX.click();rTitulo()};
   $('#bo-si').onclick=()=>{
     const prefs={lang:S.lang,snd:S.snd,hd:S.hd};
-    S=Object.assign({},DEF,{dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],mejoras:[],records:[],stats:Object.assign({},STATS0)},prefs);
+    S=Object.assign({},DEF,{dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],mejoras:[],records:[],vistos:[],pesos:{},reto:{},stats:Object.assign({},STATS0)},prefs);
     guardar();
     vidas=maxVidas();
     SFX.lose();
@@ -264,10 +267,39 @@ function rDialogo(i){
   tcada(()=>{if(pausado)return;if(j<linea.length){el.textContent=linea.slice(0,++j);if(j%3===0)beep(700+Math.random()*200,.02,'triangle',.05)}},28);
   $('#d-go').onclick=()=>{SFX.click();jugarNivel(i)};
 }
+/* Arranca el minijuego del día, enseñando antes los controles si es la primera
+   vez que se ve ese tipo. */
 function jugarNivel(i){
   const tipo=NIVELES[i].tipo;
-  ({escribir:nvEscribir,bugs:nvBugs,memoria:nvMemoria,simon:nvSimon,quiz:nvQuiz,
+  const ir=()=>({escribir:nvEscribir,bugs:nvBugs,memoria:nvMemoria,simon:nvSimon,quiz:nvQuiz,
     review:nvReview,merge:nvMerge,runner:nvRunner,sql:nvSQL,regex:nvRegex})[tipo](i);
+  conAyuda(tipo,ir);
+}
+
+/* ── AYUDA DE CONTROLES ──
+   Se enseña una sola vez por tipo de minijuego y se recuerda en S.vistos, así
+   que no estorba en la segunda partida. Si el tipo no tiene ficha de ayuda o ya
+   se vio, se entra directo. */
+function vistos(){
+  if(!Array.isArray(S.vistos))S.vistos=[];
+  return S.vistos;
+}
+function conAyuda(tipo,seguir){
+  const a=AYUDA[tipo];
+  if(!a||vistos().includes(tipo))return seguir();
+  vistos().push(tipo);guardar();
+  const lineas=(S.lang==='en'?a.en:a.es);
+  pantalla('ayuda',`
+  <div class="centro">
+    <span class="ico">${a.ico}</span>
+    <h2>${t('ayuda_tit')}</h2>
+    <ul class="ayuda-lista">
+      ${lineas.map(l=>`<li>${l}</li>`).join('')}
+    </ul>
+    <button class="btn" id="ay-ok" type="button">${t('ayuda_ok')}</button>
+    <p class="mini">${t('ayuda_nota')}</p>
+  </div>`);
+  $('#ay-ok').onclick=()=>{SFX.click();seguir()};
 }
 
 /* ── CERTIFICADO ── */
@@ -283,7 +315,7 @@ function registrarRecord(hito){
   /* Se envía al marcador global sin esperar respuesta: si no hay internet
      la partida ya quedó guardada localmente y no pasa nada. */
   RANKING.publicar({nombre:nom,puntos:S.pts,xp:S.xp,dificultad:S.dif,
-                    temporada:ICO_HITO[hito]?hito:1});
+                    temporada:ICO_HITO[hito]?hito:1,grupo:S.grupo});
 }
 function compartir(){
   const url='https://antoniyesidpabonpenalosa-bit.github.io/aprendiz-en-apuros/';
@@ -448,6 +480,9 @@ function rLogros(){
 /* Dificultad que se está mirando en el marcador: null = las tres mezcladas.
    Vive fuera de la función para que sobreviva al redibujado de la tabla. */
 let filtroDif=null;
+/* Si está encendido, el marcador enseña solo a tu cohorte. Vive fuera de la
+   función para sobrevivir al redibujado, igual que filtroDif. */
+let soloGrupo=false;
 function tablaRecords(filas){
   return `<table class="rec-tabla">
       <tr><th>#</th><th>${t('rec_nom')}</th><th>${t('rec_pts')}</th><th>${t('rec_rango')}</th></tr>
@@ -464,6 +499,14 @@ function rRecords(){
       <button class="rec-chip" data-dif="" type="button">${t('glob_todas')}</button>
       ${DIFS.map(d=>`<button class="rec-chip" data-dif="${d.id}" type="button">${d.ico} ${tj(d)}</button>`).join('')}
     </div>
+    <div class="grupo-barra">
+      ${S.grupo
+        ? `<span class="grupo-cod">🏫 ${esc(S.grupo)}</span>
+           <button class="rec-chip ${soloGrupo?'act':''}" id="g-solo" type="button">${t('grupo_solo')}</button>
+           <button class="rec-chip" id="g-cambiar" type="button">${t('grupo_cambiar')}</button>`
+        : `<span class="grupo-vacio">${t('grupo_no')}</span>
+           <button class="rec-chip" id="g-cambiar" type="button">${t('grupo_unirse')}</button>`}
+    </div>
     <div id="rec-global"><p class="desc" style="text-align:center">${t('glob_carga')}</p></div>
     <h3>${t('glob_loc')}</h3>
     ${locales.length
@@ -478,18 +521,55 @@ function rRecords(){
     <button class="btn btn2" id="re-volver" type="button">${t('volver')}</button>
   </div>`);
   $('#re-volver').onclick=()=>{SFX.click();rTitulo()};
-  document.querySelectorAll('.rec-chip').forEach(b=>{
+  document.querySelectorAll('.rec-chip[data-dif]').forEach(b=>{
     b.onclick=()=>{
       const d=b.dataset.dif;
       filtroDif=d===''?null:Number(d);
       SFX.click();marcarChips();pintarGlobal();
     };
   });
+  const bSolo=$('#g-solo');
+  if(bSolo)bSolo.onclick=()=>{soloGrupo=!soloGrupo;SFX.click();rRecords()};
+  const bCam=$('#g-cambiar');
+  if(bCam)bCam.onclick=()=>{SFX.click();rGrupo()};
   marcarChips();
   pintarGlobal();
 }
+
+/* ── CÓDIGO DE AULA ──
+   Sin cuentas ni permisos: quien sepa el código ve ese marcador. Es un
+   marcador de clase, no un sistema de seguridad, y el texto lo dice. */
+function rGrupo(){
+  pantalla('grupo',`
+  <div class="centro">
+    <span class="ico">🏫</span>
+    <h2>${t('grupo_tit')}</h2>
+    <p class="desc">${t('grupo_txt')}</p>
+    <div style="width:min(300px,100%)">
+      <input class="entrada" id="g-in" maxlength="8" autocomplete="off"
+             autocapitalize="characters" spellcheck="false"
+             placeholder="${t('grupo_ph')}" value="${esc(S.grupo)}">
+    </div>
+    <p class="mini" id="g-aviso">&nbsp;</p>
+    <button class="btn" id="g-ok" type="button">${t('ok')}</button>
+    ${S.grupo?`<button class="cut-skip" id="g-salir" type="button">${t('grupo_salir')}</button>`:''}
+    <button class="btn btn2" id="g-volver" type="button">${t('volver')}</button>
+  </div>`);
+  const inp=$('#g-in');
+  const guardarGrupo=()=>{
+    const v=RANKING.limpiaGrupo(inp.value);
+    if(!v){ $('#g-aviso').textContent=t('grupo_malo'); SFX.mal(); return; }
+    S.grupo=v; soloGrupo=true; guardar(); SFX.ok(); rRecords();
+  };
+  $('#g-ok').onclick=guardarGrupo;
+  inp.onkeydown=e=>{if(e.key==='Enter')guardarGrupo()};
+  const bSalir=$('#g-salir');
+  if(bSalir)bSalir.onclick=()=>{S.grupo='';soloGrupo=false;guardar();SFX.click();rRecords()};
+  $('#g-volver').onclick=()=>{SFX.click();rRecords()};
+  inp.focus();
+}
 function marcarChips(){
-  document.querySelectorAll('.rec-chip').forEach(b=>{
+  document.querySelectorAll('.rec-chip[data-dif]').forEach(b=>{
     const d=b.dataset.dif===''?null:Number(b.dataset.dif);
     b.classList.toggle('act',d===filtroDif);
   });
@@ -504,7 +584,7 @@ async function pintarGlobal(){
   const mia=++peticionGlobal;
   const caja0=$('#rec-global');
   if(caja0) caja0.innerHTML=`<p class="desc" style="text-align:center">${t('glob_carga')}</p>`;
-  const filas=await RANKING.top(8,filtroDif);
+  const filas=await RANKING.top(8,filtroDif,soloGrupo?S.grupo:'');
   if(mia!==peticionGlobal) return;              // llegó tarde: ya hay otro filtro
   const caja=$('#rec-global');
   if(!caja) return;
@@ -534,6 +614,8 @@ function rStats(){
     {pool:'sql',   total:SQLS.length,         etiqueta:t('tipo_sql')},
     {pool:'regex', total:REGEXS.length,       etiqueta:t('tipo_regex')},
     {pool:'merge', total:CONFLICTOS.length,   etiqueta:t('tipo_merge')},
+    {pool:'palabras',total:PALABRAS.length,   etiqueta:t('tipo_palabras')},
+    {pool:'git',   total:CMDS.length,         etiqueta:t('tipo_git')},
   ]).filter(r=>r.pendientes>0);
   const vacio=filas.every(f=>!f[1]);
   pantalla('stats',`
