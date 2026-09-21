@@ -39,6 +39,8 @@ function resultado(i,stars,pts){
   /* En el reto diario no hay mapa, ni vidas, ni progreso de días: los
      minijuegos son los mismos, solo cambia a dónde va su final. */
   if(retoActivo)return retoRonda(stars,pts);
+  if(libreActivo)return libreFin(stars,pts);
+  if(sinFinActivo)return sinFinRonda(stars,pts);
   const gan=Math.round(pts*facPts());
   S.pts+=gan;S.xp+=gan;
   if(stars>S.dias[i])S.dias[i]=stars;
@@ -76,6 +78,8 @@ function resultado(i,stars,pts){
 }
 function fallo(i,reintento){
   if(retoActivo)return retoRonda(0,0);   /* en el reto se sigue, sin perder vidas */
+  if(libreActivo)return libreFin(0,0);   /* en el modo libre solo cuenta la marca */
+  if(sinFinActivo)return sinFinFin();    /* una sola vida: fallar acaba la racha */
   vidas--;hud();SFX.lose();
   if(vidas<=0){
     pantalla('gameover',`

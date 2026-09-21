@@ -43,6 +43,11 @@ function rTitulo(){
       ${racha?`<span class="r-racha"><span class="r-llama">🔥</span>${racha}</span>`:''}
     </button>
 
+    <div class="tit-rejilla c2">
+      ${fila('t-libre','🎮',t('modo_libre'))}
+      ${fila('t-sinfin','♾️',t('modo_sinfin'))}
+    </div>
+
     <div class="dif-panel">
       <span class="dif-cap">${t('dificultad')}</span>
       <div class="dif-sel">
@@ -99,6 +104,8 @@ function rTitulo(){
     S.nombre?go():rNombre(go);
   };
   $('#t-reto').onclick=()=>{SFX.click();rReto()};
+  $('#t-libre').onclick=()=>{SFX.click();rLibre()};
+  $('#t-sinfin').onclick=()=>{SFX.click();rSinFin()};
   $('#t-tienda').onclick=()=>{SFX.click();rTienda()};
   $('#t-logros').onclick=()=>{SFX.click();rLogros()};
   $('#t-records').onclick=()=>{SFX.click();rRecords()};

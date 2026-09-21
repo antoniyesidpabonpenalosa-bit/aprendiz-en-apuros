@@ -53,7 +53,7 @@ export function cargarJuego({ guardado = null } = {}) {
     get S(){ return S }, set S(v){ S = v },
     get TOT_DIAS(){ return TOT_DIAS },
     get DEF(){ return DEF },
-    RANGOS, DIFS, NIVELES, TXT, RANKING, RETO,
+    RANGOS, DIFS, NIVELES, TXT, RANKING, RETO, CMDS, PAREJAS, QUIZ,
     exportarCodigo, importarCodigo, sumaCod,
     rangoDe, rangoNom, maxVidas, facTiempo, facPts, facJefe,
     progreso, totalStars, esc, guardar,

@@ -88,7 +88,8 @@ function siguienteRonda() {
   if (retoActivo.ronda >= retoActivo.tipos.length) return finReto();
   const tipo = retoActivo.tipos[retoActivo.ronda];
   const fn = { escribir: nvEscribir, bugs: nvBugs, memoria: nvMemoria, simon: nvSimon,
-               quiz: nvQuiz, review: nvReview, merge: nvMerge, sql: nvSQL, regex: nvRegex }[tipo];
+               quiz: nvQuiz, review: nvReview, merge: nvMerge, sql: nvSQL, regex: nvRegex,
+               terminal: nvTerminal, orden: nvOrden }[tipo];
   vidas = maxVidas();                    // el HUD necesita un valor con sentido
   fn(RETO_DIA[tipo] ?? 0);
 }

@@ -18,6 +18,11 @@ if(typeof S.legible!=='boolean')S.legible=false;
    S.vistos.push() acabaría escribiendo dentro de DEF. Aquí nace uno nuevo
    en cada carga. */
 if(!Array.isArray(S.vistos))S.vistos=[];
+/* Marcas del modo libre, por minijuego y dificultad. Tampoco va en DEF:
+   Object.assign copia el objeto por referencia y escribir una marca
+   acabaría dentro de DEF. */
+if(!S.mejores||typeof S.mejores!=='object')S.mejores={};
+if(typeof S.mejorSinFin!=='number'||!(S.mejorSinFin>=0))S.mejorSinFin=0;
 /* Código de aula: mayúsculas, dígitos, 3 a 8 caracteres. Se sanea aquí
    porque puede venir de un código de guardado escrito a mano. */
 S.grupo=String(S.grupo||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
@@ -52,11 +57,23 @@ const aplicarModo=()=>{
    fonética española. Se aplica también al arrancar, no solo al cambiar:
    una partida guardada en inglés vuelve a cargar en inglés. */
 const aplicarIdioma=()=>{document.documentElement.lang=S.lang};
-const difActual=()=>DIFS[S.dif]||DIFS[1];
+/* -1 = la que eligió el jugador. El modo sin fin la sube por rondas sin
+   tocar S.dif, que es un ajuste del jugador y no debe cambiarlo el juego. */
+let difForzada=-1;
+const difActual=()=>DIFS[difForzada>=0?difForzada:S.dif]||DIFS[1];
 const maxVidas=()=>Math.max(1,3+(S.mejoras.includes('vida')?1:0)+difActual().vida);
 const facTiempo=()=>(S.mejoras.includes('tiempo')?1.2:1)*difActual().tiempo;
 const facPts=()=>S.mejoras.includes('doble')?2:1;
 const facJefe=()=>difActual().jefe;
+/* Palancas de dificultad dentro de los minijuegos.
+   cuantos() redondea y nunca baja del mínimo: con cant 0.75 una tanda de
+   5 rondas se queda en 4, no en 3,75 ni en 0. */
+const facCant=()=>difActual().cant;
+const facRitmo=()=>difActual().ritmo;
+const maxErr=()=>difActual().err;
+const ojeada=()=>difActual().ojeada;
+const cuantos=(base,min=2)=>Math.max(min,Math.round(base*facCant()));
+const alRitmo=ms=>Math.round(ms*facRitmo());
 const sumaStat=(k,n)=>{S.stats[k]=(S.stats[k]||0)+(n||1);guardar()};
 const mejorStat=(k,n)=>{if(n>(S.stats[k]||0)){S.stats[k]=n;guardar()}};
 
