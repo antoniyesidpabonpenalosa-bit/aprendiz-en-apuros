@@ -411,6 +411,9 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
    que de verdad no quepa sola.
    letter-spacing a 0 solo aquí: el px por letra que hereda de .menu-fila le
    sumaba 13 px a TEXTO LEGIBLE, justo los que le faltaban para caber. */
+/* Marca personal bajo la etiqueta, en el modo libre. Va en su propia línea
+   y más pequeña: la etiqueta manda y el número acompaña. */
+.menu-fila .m-marca{font-size:8px;color:var(--y2);letter-spacing:0;line-height:1.4}
 .menu-fila .m-txt{flex:0 0 auto;max-width:100%;text-align:center;letter-spacing:0;
   line-height:1.45;font-size:clamp(8px,2.6vw,10px);overflow-wrap:break-word}
 .tit-rejilla{display:grid;gap:9px;width:min(460px,100%)}
