@@ -1,7 +1,7 @@
 /* Service worker · Practicante en Apuros 4
    Mismo origen: red primero (siempre fresco) con respaldo de caché offline.
    Ya no hay recursos de otros orígenes: las fuentes van autoalojadas. */
-const CACHE = 'pa4-v14';
+const CACHE = 'pa4-v15';
 const BASE = [
   './', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png',
   './css/estilos.css',

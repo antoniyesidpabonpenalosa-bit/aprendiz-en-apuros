@@ -12,7 +12,7 @@ function rTitulo(){
      cada llamada para que no vuelva a pasar con la siguiente etiqueta. */
   const sinIco=t=>t.replace(/^[^\p{L}\p{N}]+\s*/u,'');
   const fila=(id,ico,txt,cls)=>`<button class="btn ${cls||'btn2'} menu-fila" id="${id}" type="button">`+
-    `<span class="m-ico">${ico}</span><span class="m-txt">${sinIco(txt)}</span><span class="m-chev">❯</span></button>`;
+    `<span class="m-ico">${ico}</span><span class="m-txt">${sinIco(txt)}</span></button>`;
 
   pantalla('titulo',`
   <div class="centro">
