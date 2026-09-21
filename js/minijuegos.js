@@ -632,11 +632,19 @@ function nvRunner(dia){
 }
 
 /* ══════════ MINIJUEGO 9 · CONSULTA SQL (temporada 2) ══════════ */
-function nvSQL(dia){
-  const nRon=cuantos(5,3), topeErr=maxErr();
-  const idxs=RETO.elegir('sql',SQLS.length,nRon,RETO.rngPara(':sql'));
-  const consultas=idxs.map(i=>SQLS[i]);
-  const dur=Math.round(75*facTiempo());
+/* Motor de "piezas en orden": se comparte entre la consulta SQL y ORDENA EL
+   ALGORITMO. Son los mismos mandos —tocar las piezas en el orden correcto—
+   y lo único que cambia es el banco y el rótulo del terminal, así que
+   duplicar cincuenta líneas para el segundo no tenía sentido. */
+function juegoOrden(dia,cfg){
+  const nRon=cuantos(cfg.rondas,3), topeErr=maxErr();
+  const idxs=RETO.elegir(cfg.pool,cfg.banco.length,nRon,RETO.rngPara(':'+cfg.pool));
+  const tandas=idxs.map(i=>cfg.banco[i]);
+  /* SQL guarda arreglos sueltos; los pasos van traducidos, así que vienen en
+     {es:[...],en:[...]} y hay que sacar el idioma activo. */
+  const piezasDe=x=>Array.isArray(x)?x:tj(x);
+  const rotuloDe=x=>Array.isArray(x)?cfg.cab:(S.lang==='en'?x.ten:x.tes);
+  const dur=Math.round(cfg.seg*facTiempo());
   let ronda=0,pos=0,errores=0,pts=0,seg=dur,orden=[],falloAqui=false;
   pantalla('nivel',`
   <div class="l1">
@@ -644,27 +652,28 @@ function nvSQL(dia){
     <div class="barra" style="width:100%"><div class="barra-fill" id="sq-barra"></div></div>
     <div class="term">
       <div class="term-bar"><i style="background:#ff5468"></i><i style="background:#ffcf3f"></i><i style="background:#54c41a"></i>
-        <span class="term-line" style="margin-left:6px">mysql&gt; practicante</span></div>
+        <span class="term-line" style="margin-left:6px" id="sq-cab">${esc(cfg.cab)}</span></div>
       <div class="term-cuerpo"><p class="sql-armada" id="sq-armada">&nbsp;</p></div>
     </div>
-    <p class="mini">${t('sqlmsg')}</p>
+    <p class="mini">${cfg.pista}</p>
     <div class="sql-piezas" id="sq-piezas"></div>
   </div>`);
-  function nuevaRonda(){orden=az(consultas[ronda].map((_,i)=>i));pos=0;falloAqui=false;pinta()}
+  function nuevaRonda(){orden=az(piezasDe(tandas[ronda]).map((_,i)=>i));pos=0;falloAqui=false;pinta()}
   function pinta(){
-    const q=consultas[ronda];
+    const q=piezasDe(tandas[ronda]);
     $('#sq-ron').textContent=ronda+1;
-    $('#sq-armada').innerHTML=q.slice(0,pos).map(x=>'<span class="sql-ok">'+x+'</span>').join(' ')+(pos<q.length?' <span class="blink">▌</span>':'');
-    $('#sq-piezas').innerHTML=orden.map(i=>`<button class="sql-pieza${i<pos?' usada':''}" data-i="${i}" type="button" ${i<pos?'disabled':''}>${q[i]}</button>`).join('');
+    $('#sq-cab').textContent=rotuloDe(tandas[ronda]);
+    $('#sq-armada').innerHTML=q.slice(0,pos).map(x=>'<span class="sql-ok">'+esc(x)+'</span>').join(' ')+(pos<q.length?' <span class="blink">▌</span>':'');
+    $('#sq-piezas').innerHTML=orden.map(i=>`<button class="sql-pieza${i<pos?' usada':''}" data-i="${i}" type="button" ${i<pos?'disabled':''}>${esc(q[i])}</button>`).join('');
     $$('#sq-piezas .sql-pieza:not(.usada)').forEach(b=>b.onclick=()=>{
       if(pausado)return;
       if(+b.dataset.i===pos){
         pos++;pts+=40;SFX.pop();
         if(pos>=q.length){
-          RETO.marcar('sql',idxs[ronda],!falloAqui);
+          RETO.marcar(cfg.pool,idxs[ronda],!falloAqui);
           pts+=80;SFX.ok();ronda++;
-          if(ronda>=consultas.length){
-            if(errores===0)darLogro('sql');
+          if(ronda>=tandas.length){
+            if(errores===0&&cfg.logro)darLogro(cfg.logro);
             const stars=errores===0?3:errores<=1?2:1;
             return resultado(dia,stars,pts+150);
           }
@@ -687,6 +696,17 @@ function nvSQL(dia){
   },1000);
   nuevaRonda();
   programarInterrupcion();
+}
+
+function nvSQL(dia){
+  return juegoOrden(dia,{pool:'sql',banco:SQLS,cab:'mysql> practicante',
+    pista:t('sqlmsg'),logro:'sql',rondas:5,seg:75});
+}
+
+/* ══════════ MINIJUEGO 11 · ORDENA EL ALGORITMO ══════════ */
+function nvOrden(dia){
+  return juegoOrden(dia,{pool:'orden',banco:PASOS,cab:'algoritmo',
+    pista:t('ordenmsg'),logro:null,rondas:5,seg:80});
 }
 
 /* ══════════ MINIJUEGO 10 · CAZA PATRONES · REGEX (temporada 2) ══════════ */
@@ -748,5 +768,88 @@ function nvRegex(dia){
     if(seg<=0)fallo(dia);
   },1000);
   pinta();
+  programarInterrupcion();
+}
+
+/* ══════════ MINIJUEGO 12 · TERMINAL ══════════
+   Se describe la tarea y hay que escribir el comando. Es el que más enseña
+   de todos: no hay opciones donde adivinar, o te sabes el comando o no. Por
+   eso al fallar SIEMPRE se muestra cuál era —fallar sin enterarte de la
+   respuesta no enseña nada— y en PRÁCTICA aparece una pista a mitad de
+   tiempo con la primera palabra. */
+function nvTerminal(dia){
+  const nTar=cuantos(6,4), topeErr=maxErr();
+  const idxs=RETO.elegir('terminal',TERMINALES.length,nTar,RETO.rngPara(':term'));
+  const lista=idxs.map(i=>TERMINALES[i]);
+  const tickMax=Math.round(120*facTiempo());   /* décimas de segundo */
+  const hayPista=difActual().pista;
+  let w=0,ticks=tickMax,errores=0,pts=0,bloq=false;
+  const limpia=x=>String(x).toLowerCase().trim().replace(/\s+/g,' ');
+  pantalla('nivel',`
+  <div class="l1">
+    <div class="tope"><span>${t('tarea')}: <b id="tm-prog">1</b>/${nTar}</span><span>${t('errores')}: <b id="tm-err">0</b>/${topeErr}</span></div>
+    <div class="term">
+      <div class="term-bar"><i style="background:#ff5468"></i><i style="background:#ffcf3f"></i><i style="background:#54c41a"></i>
+        <span class="term-line" style="margin-left:6px">practicante@sena:~$</span></div>
+      <div class="term-cuerpo">
+        <p class="term-line">&gt; ${t('term_tarea')}</p>
+        <p class="tm-tarea" id="tm-tarea"></p>
+        <p class="mini tm-pista" id="tm-pista">&nbsp;</p>
+        <div class="barra"><div class="barra-fill" id="tm-barra"></div></div>
+      </div>
+    </div>
+    <input class="entrada" id="tm-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${t('escribeaqui')}">
+    <button class="btn" id="tm-ok" type="button">${t('term_enviar')}</button>
+  </div>`);
+  const inp=$('#tm-in');
+  function pinta(){
+    $('#tm-prog').textContent=w+1;
+    $('#tm-tarea').textContent=tj(lista[w]);
+    $('#tm-pista').innerHTML='&nbsp;';
+  }
+  function pista(){
+    const p=lista[w].cmd.split(' ');
+    /* la primera palabra entera y el resto en puntos: orienta sin regalarlo */
+    $('#tm-pista').textContent='💡 '+p[0]+p.slice(1).map(x=>' '+'·'.repeat(x.length)).join('');
+  }
+  function siguiente(espera){
+    bloq=true;
+    tvez(()=>{
+      w++;
+      if(w>=lista.length){
+        const stars=errores===0?3:errores<=1?2:1;
+        return resultado(dia,stars,pts+150);
+      }
+      ticks=tickMax;inp.value='';bloq=false;pinta();inp.focus();
+    },espera);
+  }
+  function responder(texto){
+    if(pausado||bloq)return;
+    const T=lista[w];
+    const ok=limpia(texto)===limpia(T.cmd);
+    RETO.marcar('terminal',idxs[w],ok);
+    if(ok){
+      pts+=70+Math.round(ticks*1.2);sumaStat('palabras');SFX.ok();
+      $('#tm-pista').textContent='✔ '+T.cmd;
+      return siguiente(420);
+    }
+    errores++;SFX.mal();$('#tm-err').textContent=errores;
+    $('#tm-tarea').classList.add('shake');
+    setTimeout(()=>$('#tm-tarea').classList.remove('shake'),260);
+    $('#tm-pista').textContent='✖ '+t('term_era')+' '+T.cmd;
+    if(errores>=topeErr){bloq=true;return tvez(()=>fallo(dia),1200)}
+    siguiente(1200);
+  }
+  $('#tm-ok').onclick=()=>responder(inp.value);
+  inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();responder(inp.value)}};
+  tcada(()=>{
+    if(pausado||bloq)return;
+    ticks--;
+    $('#tm-barra').style.width=Math.max(0,ticks/tickMax*100)+'%';
+    $('#tm-barra').classList.toggle('peligro',ticks<tickMax*.3);
+    if(hayPista&&ticks===Math.round(tickMax*.5))pista();
+    if(ticks<=0)responder('');
+  },100);
+  pinta();inp.focus();
   programarInterrupcion();
 }

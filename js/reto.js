@@ -223,7 +223,7 @@ const RETO = (() => {
 
   /* Tipos de minijuego que pueden salir. Se excluye el runner porque dura
      mucho más que los demás y rompería los 3 minutos que debe durar esto. */
-  const TIPOS = ['escribir', 'bugs', 'memoria', 'simon', 'quiz', 'review', 'merge', 'sql', 'regex'];
+  const TIPOS = ['escribir', 'bugs', 'memoria', 'simon', 'quiz', 'review', 'merge', 'sql', 'regex', 'terminal', 'orden'];
 
   /* Los 3 minijuegos del día, iguales para todo el mundo. */
   function retosDe(fecha = hoy()) {

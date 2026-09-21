@@ -36,6 +36,7 @@ const MEJORAS=[
    ritmo  = separación entre eventos (más alto, más lento: más fácil)
    err    = fallos permitidos antes de perder el nivel
    ojeada = segundos que se ve el tablero de memoria antes de taparlo
+   pista  = si el juego echa un cable cuando se agota medio tiempo
 
    Los cuatro últimos son nuevos. Antes la dificultad solo multiplicaba
    tiempo, vidas y jefe, y la curva real iba cableada por día (dia>=5,
@@ -43,9 +44,9 @@ const MEJORAS=[
    rondas que PRÁCTICA, solo que con 20% menos de reloj. El selector
    prometía tres juegos y entregaba uno con el cronómetro cambiado. */
 const DIFS=[
-  {id:0, ico:'🌱', es:'PRÁCTICA',  en:'PRACTICE',  vida:1,  tiempo:1.3, jefe:0.75, cant:0.75, ritmo:1.3,  err:4, ojeada:5},
-  {id:1, ico:'⚔️', es:'NORMAL',    en:'NORMAL',    vida:0,  tiempo:1,   jefe:1,    cant:1,    ritmo:1,    err:3, ojeada:3},
-  {id:2, ico:'💀', es:'PESADILLA', en:'NIGHTMARE', vida:-1, tiempo:0.8, jefe:1.35, cant:1.3,  ritmo:0.75, err:2, ojeada:2},
+  {id:0, ico:'🌱', es:'PRÁCTICA',  en:'PRACTICE',  vida:1,  tiempo:1.3, jefe:0.75, cant:0.75, ritmo:1.3,  err:4, ojeada:5, pista:true},
+  {id:1, ico:'⚔️', es:'NORMAL',    en:'NORMAL',    vida:0,  tiempo:1,   jefe:1,    cant:1,    ritmo:1,    err:3, ojeada:3, pista:false},
+  {id:2, ico:'💀', es:'PESADILLA', en:'NIGHTMARE', vida:-1, tiempo:0.8, jefe:1.35, cant:1.3,  ritmo:0.75, err:2, ojeada:2, pista:false},
 ];
 const RANGOS=[
   {xp:0,   es:'ASPIRANTE',   en:'APPLICANT'},
@@ -74,6 +75,13 @@ const NIVELES=[
   {ico:'🌙', tipo:'runner',   es:'DEPLOY NOCTURNO',    en:'NIGHT DEPLOY',     ses:'La última prueba',           sen:'The final trial'},
 ];
 /* piezas de consulta en orden correcto (minijuego SQL) */
+/* Icono de cada tipo de minijuego. Hasta ahora se sacaba de NIVELES[dia],
+   pero TERMINAL y ORDENA no ocupan ningún día de la campaña: viven en el
+   modo libre, el sin fin y el reto diario. */
+const ICO_TIPO={escribir:'☕',bugs:'🐛',memoria:'🧠',simon:'🔀',quiz:'📋',
+  review:'🔍',merge:'🧬',runner:'🎓',sql:'🗄',regex:'🧩',
+  terminal:'⌨️',orden:'🧮'};
+
 const SQLS=[
  ['SELECT nombre','FROM aprendices','WHERE nota >= 3','ORDER BY nombre'],
  ['SELECT *','FROM cursos','WHERE activo = 1'],
@@ -131,6 +139,73 @@ const REGEXS=[
  {p:'^git (pu|pull)',des:'git push o git pull',den:'git push or git pull', opts:['git push','git pull','git pu','git commit','git pull -r','pull git']},
  {p:'[.]$',   des:'termina en punto',        den:'ends with a period',    opts:['fin.','listo.','fin!','v2.0','app.js','ok.']},
 ];
+/* Minijuego TERMINAL: se describe la tarea y hay que escribir el comando.
+   Los comandos van sin argumentos a propósito: lo que se aprende es cuál
+   usar, no teclear rutas de ejemplo. */
+const TERMINALES=[
+ {es:'Clona el repositorio remoto',          en:'Clone the remote repository',      cmd:'git clone'},
+ {es:'Guarda los cambios con un mensaje',    en:'Save your changes with a message', cmd:'git commit'},
+ {es:'Sube los commits al remoto',           en:'Upload your commits to the remote',cmd:'git push'},
+ {es:'Trae los cambios del remoto',          en:'Bring down the remote changes',    cmd:'git pull'},
+ {es:'Mira qué archivos cambiaron',          en:'See which files changed',          cmd:'git status'},
+ {es:'Ve el historial de commits',           en:'See the commit history',           cmd:'git log'},
+ {es:'Crea o lista las ramas',               en:'Create or list branches',          cmd:'git branch'},
+ {es:'Compara lo que has cambiado',          en:'Compare what you changed',         cmd:'git diff'},
+ {es:'Guarda a medias, sin hacer commit',    en:'Shelve your work without a commit',cmd:'git stash'},
+ {es:'Une otra rama con la tuya',            en:'Merge another branch into yours',  cmd:'git merge'},
+ {es:'Descarga las dependencias del proyecto',en:'Download the project dependencies',cmd:'npm install'},
+ {es:'Arranca el proyecto en desarrollo',    en:'Start the project in development', cmd:'npm run dev'},
+ {es:'Lista los archivos de la carpeta',     en:'List the files in the folder',     cmd:'ls'},
+ {es:'Cambia de carpeta',                    en:'Change folder',                    cmd:'cd'},
+ {es:'Muestra en qué carpeta estás',         en:'Show which folder you are in',     cmd:'pwd'},
+ {es:'Crea una carpeta',                     en:'Create a folder',                  cmd:'mkdir'},
+ {es:'Borra un archivo',                     en:'Delete a file',                    cmd:'rm'},
+ {es:'Copia un archivo',                     en:'Copy a file',                      cmd:'cp'},
+ {es:'Mueve o renombra un archivo',          en:'Move or rename a file',            cmd:'mv'},
+ {es:'Muestra el contenido de un archivo',   en:'Print the contents of a file',     cmd:'cat'},
+];
+
+/* Minijuego ORDENA EL ALGORITMO: mismos mandos que el de SQL —piezas que se
+   tocan en orden— pero con pasos de un proceso en vez de cláusulas. */
+const PASOS=[
+ {tes:'PUBLICAR UN CAMBIO', ten:'SHIP A CHANGE',
+  es:['Escribir el código','Probarlo en local','Hacer commit','Subirlo con push','Desplegar'],
+  en:['Write the code','Test it locally','Commit','Push it','Deploy']},
+ {tes:'RESOLVER UN BUG', ten:'FIX A BUG',
+  es:['Reproducir el error','Leer el mensaje','Encontrar la línea','Arreglarla','Probar que no vuelve'],
+  en:['Reproduce the error','Read the message','Find the line','Fix it','Check it is gone']},
+ {tes:'EMPEZAR UN PROYECTO', ten:'START A PROJECT',
+  es:['Clonar el repositorio','Instalar dependencias','Copiar el archivo .env','Arrancar en local'],
+  en:['Clone the repository','Install dependencies','Copy the .env file','Run it locally']},
+ {tes:'ABRIR UN PULL REQUEST', ten:'OPEN A PULL REQUEST',
+  es:['Crear una rama','Hacer los commits','Abrir el pull request','Pedir revisión','Mezclar a main'],
+  en:['Create a branch','Make the commits','Open the pull request','Ask for review','Merge into main']},
+ {tes:'UNA PETICIÓN WEB', ten:'A WEB REQUEST',
+  es:['El navegador pide','El servidor recibe','Consulta la base de datos','Devuelve la respuesta','El navegador la pinta'],
+  en:['The browser asks','The server receives','It queries the database','It returns the answer','The browser paints it']},
+ {tes:'RESOLVER UN CONFLICTO', ten:'RESOLVE A CONFLICT',
+  es:['Traer los cambios','Ver los archivos en conflicto','Elegir qué línea queda','Quitar las marcas','Hacer commit'],
+  en:['Pull the changes','See the conflicting files','Pick which line stays','Remove the markers','Commit']},
+ {tes:'CALCULAR UN PROMEDIO', ten:'WORK OUT AN AVERAGE',
+  es:['Sumar todas las notas','Contar cuántas son','Dividir la suma entre la cuenta','Mostrar el resultado'],
+  en:['Add up every mark','Count how many there are','Divide the sum by the count','Show the result']},
+ {tes:'VALIDAR UN FORMULARIO', ten:'VALIDATE A FORM',
+  es:['Leer lo que escribió','Comprobar que no está vacío','Comprobar el formato','Avisar del error o enviar'],
+  en:['Read what they typed','Check it is not empty','Check the format','Warn or submit']},
+ {tes:'HACER UNA COPIA DE SEGURIDAD', ten:'TAKE A BACKUP',
+  es:['Parar la escritura','Exportar la base de datos','Guardar el archivo aparte','Comprobar que se restaura'],
+  en:['Stop writes','Export the database','Store the file elsewhere','Check it restores']},
+ {tes:'UN DESPLIEGUE SEGURO', ten:'A SAFE DEPLOY',
+  es:['Pasar las pruebas','Avisar al equipo','Desplegar','Mirar los errores','Tener listo el rollback'],
+  en:['Pass the tests','Tell the team','Deploy','Watch the errors','Keep a rollback ready']},
+ {tes:'BÚSQUEDA BINARIA', ten:'BINARY SEARCH',
+  es:['Mirar el del medio','Compararlo con el buscado','Quedarse con la mitad que sirve','Repetir hasta encontrarlo'],
+  en:['Look at the middle one','Compare it with the target','Keep the half that can hold it','Repeat until found']},
+ {tes:'CERRAR SESIÓN', ten:'LOG OUT',
+  es:['Borrar el token','Limpiar el almacenamiento','Redirigir al login'],
+  en:['Delete the token','Clear storage','Redirect to the login']},
+];
+
 const PALABRAS=['git push','commit','variable','funcion','deploy','servidor','consola','arreglo','objeto','html','css','javascript','python','api rest','frontend','backend','navegador','framework','base de datos','npm install','git status','git clone','console.log','debug','import','export','localhost','software','bucle for','teclado','git merge','git branch','pull request','terminal','repositorio','algoritmo','condicional','parametro','constante','metodo','clase','herencia','interfaz','json','endpoint','peticion get','respuesta','componente','evento','promesa','asincrono','modulo','dependencia','entorno','despliegue','git log','git diff','punto y coma','bucle while','tipo de dato'];
 /* Máximo 5 caracteres: la carta de memoria es cuadrada y el texto va a 11px.
    Con 24 el tablero deja de ser siempre el mismo y el repaso espaciado
@@ -510,6 +585,12 @@ const AYUDA={
                  en:['Tap two cards to flip them.','Matching pairs stay face up.','Fewer flips, more stars.']},
  simon:{ico:'🔀',es:['Mira la secuencia de comandos que se ilumina.','Luego repítela en el mismo orden.','Cada ronda añade un comando más.'],
                  en:['Watch the sequence of commands light up.','Then repeat it in the same order.','Each round adds one more command.']},
+ terminal:{ico:'⌨️',
+   es:['Se describe una tarea: escribe el comando que la hace.','Solo el comando, sin rutas ni argumentos.','Si fallas verás cuál era, así que fallar también enseña.'],
+   en:['A task is described: type the command that does it.','Just the command, no paths or arguments.','If you miss it you will see the answer, so missing teaches too.']},
+ orden:{ico:'🧮',
+   es:['Toca los pasos en el orden en que se hacen.','Equivocarte suma un error y el paso se sacude.','Cada tanda es un proceso real del trabajo.'],
+   en:['Tap the steps in the order they happen.','A wrong one counts as an error and shakes.','Each round is a real process from the job.']},
  quiz:{ico:'📋',es:['Elige la respuesta que creas correcta.','No hay tiempo: piénsalo.','Lo que falles volverá a salirte más adelante.'],
                  en:['Pick the answer you think is right.','No timer: take your time.','What you miss will come back later.']},
  review:{ico:'🔍',es:['Lee la línea de código.','APRUEBA si está bien escrita, RECHAZA si tiene un error.','Ojo con el = donde debería ir ===.'],
@@ -544,7 +625,7 @@ const TXT={
   reto_repe:'Repetición de práctica: {p} puntos. No cuenta para la racha.',
   st_retos:'RETOS DIARIOS',
   tipo_escribir:'MECANOGRAFÍA',tipo_bugs:'CAZA-BUGS',tipo_memoria:'MEMORIA',tipo_simon:'FLUJO GIT',
-  tipo_quiz:'QUIZ',tipo_review:'CODE REVIEW',tipo_merge:'CONFLICTOS',tipo_sql:'SQL',tipo_regex:'REGEX',tipo_runner:'ESQUIVAR',
+  tipo_quiz:'QUIZ',tipo_review:'CODE REVIEW',tipo_merge:'CONFLICTOS',tipo_sql:'SQL',tipo_regex:'REGEX',tipo_runner:'ESQUIVAR',tipo_terminal:'TERMINAL',tipo_orden:'ALGORITMO',
   tipo_palabras:'COMANDOS',tipo_git:'FLUJO GIT',glob_loc:'💾 TUS MARCAS',glob_carga:'CONSULTANDO…',
   glob_sinred:'Sin conexión con el marcador. Abajo siguen tus marcas locales.',
   glob_vacio:'Nadie ha publicado todavía. ¡Sé el primero!',
@@ -559,6 +640,8 @@ const TXT={
   escribeaqui:'ESCRIBE AQUÍ',observa:'OBSERVA...',turno:'¡TU TURNO!',
  memoriza:'MEMORIZA...',memo_ya:'¡A BUSCARLAS!',
  modo_libre:'MODO LIBRE',modo_sinfin:'SIN FIN',
+ tarea:'TAREA',term_tarea:'haz esto:',term_enviar:'ENVIAR',term_era:'era',
+ ordenmsg:'Toca los pasos en el orden en que se hacen.',
  libre_tit:'MODO LIBRE',libre_expl:'Juega el minijuego que quieras, las veces que quieras. No da XP: deja marca.',
  libre_mejor:'TU MEJOR',libre_otra:'OTRA VEZ',sin_marca:'—',marca_nueva:'¡NUEVA MARCA!',
  sinfin_tit:'SIN FIN',sinfin_expl:'Minijuegos encadenados con una sola vida. Cada tres rondas sube la dificultad.',
@@ -633,7 +716,7 @@ const TXT={
   reto_repe:'Practice replay: {p} points. It does not count for the streak.',
   st_retos:'DAILY CHALLENGES',
   tipo_escribir:'TYPING',tipo_bugs:'BUG HUNT',tipo_memoria:'MEMORY',tipo_simon:'GIT FLOW',
-  tipo_quiz:'QUIZ',tipo_review:'CODE REVIEW',tipo_merge:'CONFLICTS',tipo_sql:'SQL',tipo_regex:'REGEX',tipo_runner:'DODGE',
+  tipo_quiz:'QUIZ',tipo_review:'CODE REVIEW',tipo_merge:'CONFLICTS',tipo_sql:'SQL',tipo_regex:'REGEX',tipo_runner:'DODGE',tipo_terminal:'TERMINAL',tipo_orden:'ALGORITHM',
   tipo_palabras:'TYPING',tipo_git:'GIT FLOW',glob_loc:'💾 YOUR SCORES',glob_carga:'LOADING…',
   glob_sinred:'No connection to the leaderboard. Your local scores are still below.',
   glob_vacio:'Nobody has posted a score yet. Be the first!',
@@ -648,6 +731,8 @@ const TXT={
   escribeaqui:'TYPE HERE',observa:'WATCH...',turno:'YOUR TURN!',
   memoriza:'MEMORISE...',memo_ya:'GO FIND THEM!',
   modo_libre:'FREE PLAY',modo_sinfin:'ENDLESS',
+  tarea:'TASK',term_tarea:'do this:',term_enviar:'SEND',term_era:'it was',
+  ordenmsg:'Tap the steps in the order they happen.',
   libre_tit:'FREE PLAY',libre_expl:'Play any minigame, as often as you like. No XP: it sets a score.',
   libre_mejor:'YOUR BEST',libre_otra:'AGAIN',sin_marca:'—',marca_nueva:'NEW BEST!',
   sinfin_tit:'ENDLESS',sinfin_expl:'Minigames back to back on a single life. Every three rounds the difficulty goes up.',

@@ -14,14 +14,15 @@ let libreActivo = null;    /* {tipo} mientras se juega uno suelto */
 let sinFinActivo = null;   /* {ronda, pts} mientras dura la racha */
 
 const TIPOS_LIBRES = ['escribir', 'bugs', 'memoria', 'simon', 'quiz',
-                      'review', 'merge', 'sql', 'regex', 'runner'];
+                      'review', 'merge', 'sql', 'regex', 'runner',
+                      'terminal', 'orden'];
 
 /* Se resuelve al llamar, no al cargar: así este archivo no depende de ir
    después de minijuegos.js en el index. */
 const fnDeTipo = tipo => ({
   escribir: nvEscribir, bugs: nvBugs, memoria: nvMemoria, simon: nvSimon,
   quiz: nvQuiz, review: nvReview, merge: nvMerge, sql: nvSQL,
-  regex: nvRegex, runner: nvRunner,
+  regex: nvRegex, runner: nvRunner, terminal: nvTerminal, orden: nvOrden,
 }[tipo]);
 
 /* Las marcas se guardan por minijuego Y dificultad: una marca de PRÁCTICA no
@@ -48,7 +49,7 @@ function rLibre() {
       ${TIPOS_LIBRES.map(tipo => {
         const m = marcaDe(tipo);
         return `<button class="btn btn2 menu-fila" data-tipo="${tipo}" type="button">
-          <span class="m-ico">${NIVELES[RETO_DIA[tipo] ?? 0].ico}</span>
+          <span class="m-ico">${ICO_TIPO[tipo] || '🎮'}</span>
           <span class="m-txt">${t('tipo_' + tipo)}</span>
           <span class="m-marca">${m ? '★ ' + m : t('sin_marca')}</span>
         </button>`;
@@ -63,9 +64,13 @@ function rLibre() {
 }
 
 function empezarLibre(tipo) {
-  libreActivo = { tipo };
-  vidas = maxVidas();            /* el HUD necesita un valor con sentido */
-  fnDeTipo(tipo)(RETO_DIA[tipo] ?? 0);
+  /* La ficha de controles sale también aquí la primera vez: al modo libre se
+     puede llegar sin haber pasado nunca por ese día de la campaña. */
+  conAyuda(tipo, () => {
+    libreActivo = { tipo };
+    vidas = maxVidas();          /* el HUD necesita un valor con sentido */
+    fnDeTipo(tipo)(RETO_DIA[tipo] ?? 0);
+  });
 }
 
 /* Cierre de una partida suelta, venga de resultado() o de fallo(). No da XP
@@ -81,7 +86,7 @@ function libreFin(stars, pts) {
   if (stars > 0) SFX.win(); else SFX.lose();
   pantalla('libre-fin', `
   <div class="centro">
-    <span class="ico">${NIVELES[RETO_DIA[tipo] ?? 0].ico}</span>
+    <span class="ico">${ICO_TIPO[tipo] || '🎮'}</span>
     <h2 class="${stars > 0 ? 'verde' : 'rojo'}">${stars > 0 ? t('aprobado') : t('fallado')}</h2>
     ${starsHtml(Math.max(0, stars))}
     <p class="pts-final">${ganados} ${t('rec_pts')}</p>
@@ -140,7 +145,7 @@ function siguienteSinFin() {
   const tipo = TIPOS_LIBRES[Math.floor(Math.random() * TIPOS_LIBRES.length)];
   sinFinActivo.tipo = tipo;
   vidas = 1;                      /* una sola vida: fallar termina la racha */
-  fnDeTipo(tipo)(RETO_DIA[tipo] ?? 0);
+  conAyuda(tipo, () => fnDeTipo(tipo)(RETO_DIA[tipo] ?? 0));
 }
 
 /* Solo llega aquí una ronda SUPERADA: resultado() se llama al ganar y

@@ -507,6 +507,16 @@ html.hd .flojo-fila .f-nom{font-size:11px}
 .celda.on{border-color:var(--g2)}
 .celda.on .px{transform:scale(1);opacity:1}
 .celda.plaf{border-color:var(--y2)}
+/* ── MINIJUEGO TERMINAL ── */
+/* La tarea es prosa, no código: va en VT323 como el resto de los diálogos,
+   que a 10px de fuente de píxeles una frase entera no se lee. */
+.tm-tarea{font-family:'VT323',monospace;font-size:19px;line-height:1.25;
+  color:var(--y2);margin:.35em 0;letter-spacing:0}
+/* Reserva su alto aunque esté vacía: si no, al aparecer la pista o la
+   corrección todo lo de abajo daba un salto. */
+.tm-pista{min-height:1.5em;color:var(--tx2)}
+html.legible .tm-tarea{font-size:21px}
+
 .memo{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;width:min(360px,100%)}
 /* Aviso de la ojeada previa: tiene que cantar más que un .mini normal,
    porque son los segundos en los que hay que mirar el tablero. */
