@@ -28,11 +28,24 @@ const MEJORAS=[
   {id:'doble', ico:'💰', precio:1000},
   {id:'escudo',ico:'🛡️', precio:1200},
 ];
-/* Dificultad: vida = vidas extra/menos · tiempo = factor de tiempo · jefe = factor de agresividad */
+/* Dificultad.
+   vida   = vidas extra o de menos
+   tiempo = factor de tiempo (más alto, más tiempo)
+   jefe   = agresividad del jefe
+   cant   = cuánto hay que hacer: palabras, rondas, parejas, bugs...
+   ritmo  = separación entre eventos (más alto, más lento: más fácil)
+   err    = fallos permitidos antes de perder el nivel
+   ojeada = segundos que se ve el tablero de memoria antes de taparlo
+
+   Los cuatro últimos son nuevos. Antes la dificultad solo multiplicaba
+   tiempo, vidas y jefe, y la curva real iba cableada por día (dia>=5,
+   dia>=10): PESADILLA en el día 2 tenía los mismos 12 bugs y las mismas
+   rondas que PRÁCTICA, solo que con 20% menos de reloj. El selector
+   prometía tres juegos y entregaba uno con el cronómetro cambiado. */
 const DIFS=[
-  {id:0, ico:'🌱', es:'PRÁCTICA',  en:'PRACTICE',  vida:1,  tiempo:1.3, jefe:0.75},
-  {id:1, ico:'⚔️', es:'NORMAL',    en:'NORMAL',    vida:0,  tiempo:1,   jefe:1},
-  {id:2, ico:'💀', es:'PESADILLA', en:'NIGHTMARE', vida:-1, tiempo:0.8, jefe:1.35},
+  {id:0, ico:'🌱', es:'PRÁCTICA',  en:'PRACTICE',  vida:1,  tiempo:1.3, jefe:0.75, cant:0.75, ritmo:1.3,  err:4, ojeada:5},
+  {id:1, ico:'⚔️', es:'NORMAL',    en:'NORMAL',    vida:0,  tiempo:1,   jefe:1,    cant:1,    ritmo:1,    err:3, ojeada:3},
+  {id:2, ico:'💀', es:'PESADILLA', en:'NIGHTMARE', vida:-1, tiempo:0.8, jefe:1.35, cant:1.3,  ritmo:0.75, err:2, ojeada:2},
 ];
 const RANGOS=[
   {xp:0,   es:'ASPIRANTE',   en:'APPLICANT'},
@@ -542,6 +555,7 @@ const TXT={
   tiempo:'TIEMPO',meta:'META',errores:'ERRORES',ronda:'RONDA',pares:'PARES',golpes:'GOLPES',cafes:'CAFÉS',
   casilla:'Casilla',bugs_teclas:'⌨ También con las teclas 1-9',
   escribeaqui:'ESCRIBE AQUÍ',observa:'OBSERVA...',turno:'¡TU TURNO!',
+ memoriza:'MEMORIZA...',memo_ya:'¡A BUSCARLAS!',
   toca:'TOCA PARA SEGUIR',saltar:'SALTAR ▶▶',pagina:'PÁG',
   runmsg:'▲ SALTA · ▼ AGÁCHATE · esquiva bugs y papeleo, agarra café',
   cert:'CERTIFICADO OFICIAL',certde:'Se certifica que',certtxt:'completó sus 10 días de etapa productiva sin llorar (mucho)',
@@ -624,6 +638,7 @@ const TXT={
   tiempo:'TIME',meta:'GOAL',errores:'ERRORS',ronda:'ROUND',pares:'PAIRS',golpes:'HITS',cafes:'COFFEES',
   casilla:'Cell',bugs_teclas:'⌨ Keys 1-9 work too',
   escribeaqui:'TYPE HERE',observa:'WATCH...',turno:'YOUR TURN!',
+  memoriza:'MEMORISE...',memo_ya:'GO FIND THEM!',
   toca:'TAP TO CONTINUE',saltar:'SKIP ▶▶',pagina:'PAGE',
   runmsg:'▲ JUMP · ▼ DUCK · dodge bugs and paperwork, grab coffee',
   cert:'OFFICIAL CERTIFICATE',certde:'This certifies that',certtxt:'completed 10 days of internship without crying (much)',

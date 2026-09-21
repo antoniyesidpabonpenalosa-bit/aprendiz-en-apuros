@@ -498,6 +498,10 @@ html.hd .flojo-fila .f-nom{font-size:11px}
 .celda.on .px{transform:scale(1);opacity:1}
 .celda.plaf{border-color:var(--y2)}
 .memo{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;width:min(360px,100%)}
+/* Aviso de la ojeada previa: tiene que cantar más que un .mini normal,
+   porque son los segundos en los que hay que mirar el tablero. */
+.memo-aviso{color:var(--y2);animation:latido 1s steps(2,end) infinite}
+@keyframes latido{50%{opacity:.45}}
 .carta{aspect-ratio:1;font-family:inherit;font-size:11px;cursor:pointer;
   color:var(--tx1);border:2px solid var(--bl);
   background:var(--void2);box-shadow:0 3px 0 var(--bd);
@@ -554,7 +558,7 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 @keyframes blink{50%{opacity:.25}}
 /* Quien pide menos movimiento no debe ver el fondo derivando ni el latido */
 @media(prefers-reduced-motion:reduce){
-  .mte,.btn-jugar,.tit-reto .r-llama,.blink,.punto-nuevo{animation:none!important}
+  .mte,.btn-jugar,.tit-reto .r-llama,.blink,.punto-nuevo,.memo-aviso{animation:none!important}
 }
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @keyframes logro-entra{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}

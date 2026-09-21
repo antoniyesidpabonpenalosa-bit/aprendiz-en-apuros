@@ -57,6 +57,15 @@ const maxVidas=()=>Math.max(1,3+(S.mejoras.includes('vida')?1:0)+difActual().vid
 const facTiempo=()=>(S.mejoras.includes('tiempo')?1.2:1)*difActual().tiempo;
 const facPts=()=>S.mejoras.includes('doble')?2:1;
 const facJefe=()=>difActual().jefe;
+/* Palancas de dificultad dentro de los minijuegos.
+   cuantos() redondea y nunca baja del mínimo: con cant 0.75 una tanda de
+   5 rondas se queda en 4, no en 3,75 ni en 0. */
+const facCant=()=>difActual().cant;
+const facRitmo=()=>difActual().ritmo;
+const maxErr=()=>difActual().err;
+const ojeada=()=>difActual().ojeada;
+const cuantos=(base,min=2)=>Math.max(min,Math.round(base*facCant()));
+const alRitmo=ms=>Math.round(ms*facRitmo());
 const sumaStat=(k,n)=>{S.stats[k]=(S.stats[k]||0)+(n||1);guardar()};
 const mejorStat=(k,n)=>{if(n>(S.stats[k]||0)){S.stats[k]=n;guardar()}};
 

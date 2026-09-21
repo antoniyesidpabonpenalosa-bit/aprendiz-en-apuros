@@ -498,6 +498,10 @@ html.hd .flojo-fila .f-nom{font-size:11px}
 .celda.on .px{transform:scale(1);opacity:1}
 .celda.plaf{border-color:var(--y2)}
 .memo{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;width:min(360px,100%)}
+/* Aviso de la ojeada previa: tiene que cantar más que un .mini normal,
+   porque son los segundos en los que hay que mirar el tablero. */
+.memo-aviso{color:var(--y2);animation:latido 1s steps(2,end) infinite}
+@keyframes latido{50%{opacity:.45}}
 .carta{aspect-ratio:1;font-family:inherit;font-size:11px;cursor:pointer;
   color:var(--tx1);border:2px solid var(--bl);
   background:var(--void2);box-shadow:0 3px 0 var(--bd);
@@ -518,6 +522,12 @@ html.hd .flojo-fila .f-nom{font-size:11px}
 .c-deploy{background:var(--v1);box-shadow:inset 0 3px 0 var(--v2),inset 0 -3px 0 var(--v0)}
 .c-rebase{background:#a1341f;box-shadow:inset 0 3px 0 #d4603f,inset 0 -3px 0 #611c0e}
 .c-stash {background:#0f7a6a;box-shadow:inset 0 3px 0 #3fa898,inset 0 -3px 0 #084840}
+.c-merge {background:#6b3fa0;box-shadow:inset 0 3px 0 #9a6fd0,inset 0 -3px 0 #43276a}
+.c-fetch {background:#1c6f9c;box-shadow:inset 0 3px 0 #48a0cf,inset 0 -3px 0 #0e4262}
+.c-tag   {background:#6f7a12;box-shadow:inset 0 3px 0 #a3b030,inset 0 -3px 0 #40470a}
+.c-log   {background:#45507a;box-shadow:inset 0 3px 0 #6f7cb0,inset 0 -3px 0 #28304d}
+.c-diff  {background:#9c1f6f;box-shadow:inset 0 3px 0 #cf4fa0,inset 0 -3px 0 #5e1042}
+.c-reset {background:#a35a12;box-shadow:inset 0 3px 0 #d18a3a,inset 0 -3px 0 #613208}
 .quiz{display:flex;flex-direction:column;gap:12px;padding:6px;align-items:center}
 .jurado{display:flex;gap:12px}
 .jurado canvas{width:52px;height:52px;image-rendering:pixelated;
@@ -548,7 +558,7 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 @keyframes blink{50%{opacity:.25}}
 /* Quien pide menos movimiento no debe ver el fondo derivando ni el latido */
 @media(prefers-reduced-motion:reduce){
-  .mte,.btn-jugar,.tit-reto .r-llama,.blink,.punto-nuevo{animation:none!important}
+  .mte,.btn-jugar,.tit-reto .r-llama,.blink,.punto-nuevo,.memo-aviso{animation:none!important}
 }
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @keyframes logro-entra{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
