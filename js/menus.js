@@ -313,7 +313,7 @@ function conAyuda(tipo,seguir){
 /* Hitos que dan derecho a marca en el marcador global. El día 5 existe para
    que la parte social del juego sirva de algo antes: esperar al día 10 dejaba
    la tabla vacía justo cuando más engancha ver que hay gente jugando. */
-const ICO_HITO={0:'⏳',1:'🎓',2:'📝'};
+const ICO_HITO={0:'⏳',1:'🎓',2:'📝',3:'♾️'};
 function registrarRecord(hito){
   const nom=S.nombre||t('tu');
   S.records.push({n:nom,p:S.pts,x:S.xp,yo:1});
@@ -490,6 +490,10 @@ let filtroDif=null;
 /* Si está encendido, el marcador enseña solo a tu cohorte. Vive fuera de la
    función para sobrevivir al redibujado, igual que filtroDif. */
 let soloGrupo=false;
+/* Cuál de los dos marcadores se mira: 'campana' son los hitos de los quince
+   días y 'sinfin' las rachas sueltas. Están separados porque sus puntajes no
+   son comparables — ver abajo el comentario de RANKING.top. */
+let tablaGlobal='campana';
 function tablaRecords(filas){
   return `<table class="rec-tabla">
       <tr><th>#</th><th>${t('rec_nom')}</th><th>${t('rec_pts')}</th><th>${t('rec_rango')}</th></tr>
@@ -502,6 +506,10 @@ function rRecords(){
   <div class="centro">
     <h2>📊 ${t('records')}</h2>
     <h3>${t('glob_tit')}</h3>
+    <div class="rec-filtros">
+      <button class="rec-chip" data-tabla="campana" type="button">🎓 ${t('glob_campana')}</button>
+      <button class="rec-chip" data-tabla="sinfin" type="button">♾️ ${t('glob_sinfin')}</button>
+    </div>
     <div class="rec-filtros">
       <button class="rec-chip" data-dif="" type="button">${t('glob_todas')}</button>
       ${DIFS.map(d=>`<button class="rec-chip" data-dif="${d.id}" type="button">${d.ico} ${tj(d)}</button>`).join('')}
@@ -532,6 +540,12 @@ function rRecords(){
     b.onclick=()=>{
       const d=b.dataset.dif;
       filtroDif=d===''?null:Number(d);
+      SFX.click();marcarChips();pintarGlobal();
+    };
+  });
+  document.querySelectorAll('.rec-chip[data-tabla]').forEach(b=>{
+    b.onclick=()=>{
+      tablaGlobal=b.dataset.tabla;
       SFX.click();marcarChips();pintarGlobal();
     };
   });
@@ -580,6 +594,9 @@ function marcarChips(){
     const d=b.dataset.dif===''?null:Number(b.dataset.dif);
     b.classList.toggle('act',d===filtroDif);
   });
+  document.querySelectorAll('.rec-chip[data-tabla]').forEach(b=>{
+    b.classList.toggle('act',b.dataset.tabla===tablaGlobal);
+  });
 }
 /* Cada consulta lleva un número. Si el jugador cambia de filtro mientras una
    respuesta lenta viaja, esa respuesta llega con un número viejo y se tira:
@@ -591,7 +608,7 @@ async function pintarGlobal(){
   const mia=++peticionGlobal;
   const caja0=$('#rec-global');
   if(caja0) caja0.innerHTML=`<p class="desc" style="text-align:center">${t('glob_carga')}</p>`;
-  const filas=await RANKING.top(8,filtroDif,soloGrupo?S.grupo:'');
+  const filas=await RANKING.top(8,filtroDif,soloGrupo?S.grupo:'',tablaGlobal);
   if(mia!==peticionGlobal) return;              // llegó tarde: ya hay otro filtro
   const caja=$('#rec-global');
   if(!caja) return;
@@ -602,7 +619,10 @@ async function pintarGlobal(){
     n:f.nombre,p:f.puntos,x:f.xp,yo:f.nombre===mio?1:0,
     /* Con "TODAS" el icono de dificultad es la única pista de en qué condiciones
        se logró la marca; filtrando ya se sabe y solo estorbaría. */
-    ico:(filtroDif===null?(DIFS[f.dificultad]||DIFS[1]).ico:'')+(ICO_HITO[f.temporada]||ICO_HITO[1]),
+    /* En el sin fin todas las filas son el mismo hito, así que ese icono no
+       distingue nada y solo roba sitio al nombre. */
+    ico:(filtroDif===null?(DIFS[f.dificultad]||DIFS[1]).ico:'')
+       +(tablaGlobal==='sinfin'?'':(ICO_HITO[f.temporada]||ICO_HITO[1])),
   })));
 }
 

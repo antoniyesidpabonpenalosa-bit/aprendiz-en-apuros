@@ -20,6 +20,11 @@ const RANKING = (() => {
   const CLAVE = 'sb_publishable_BOBxU9OmQuno60u1JgHkzw_Tyk2cuD3';
   const ESPERA = 6000;   // ms: si el servidor no responde, no dejamos la UI colgada
 
+  /* Hitos que puede llevar una marca. El 3 es el sin fin y se consulta aparte;
+     el nombre con letras evita que el número suelto se lea como "temporada 3". */
+  const HITO_SIN_FIN = 3;
+  const HITOS = [0, 1, 2, HITO_SIN_FIN];
+
   /* Código de aula: mayúsculas y dígitos, de 3 a 8. El mismo formato que exige
      el CHECK de la base, escrito una sola vez para que no se separen. */
   const GRUPO_OK = /^[A-Z0-9]{3,8}$/;
@@ -51,13 +56,20 @@ const RANKING = (() => {
 
   /* Los mejores puntajes, opcionalmente de una sola dificultad (0, 1 o 2).
      Sin filtro se mezclan las tres, que no es justo pero es lo que pide quien
-     quiere ver el podio absoluto. Devuelve null si la consulta falla. */
-  async function top(n = 8, dificultad = null, grupo = '') {
+     quiere ver el podio absoluto. Devuelve null si la consulta falla.
+
+     `modo` separa los dos marcadores que viven en la misma tabla: la campaña
+     (hitos 0, 1 y 2) y el sin fin (hito 3). No se mezclan porque no son
+     comparables — el puntaje de la campaña es el acumulado de quince días y el
+     del sin fin es el de una sola racha, así que juntos el podio sería siempre
+     de la campaña y el sin fin no se vería nunca. */
+  async function top(n = 8, dificultad = null, grupo = '', modo = 'campana') {
     const filtro = [0, 1, 2].includes(dificultad) ? `&dificultad=eq.${dificultad}` : '';
+    const fhito = modo === 'sinfin' ? `&temporada=eq.${HITO_SIN_FIN}` : `&temporada=neq.${HITO_SIN_FIN}`;
     /* Con grupo se ve solo la cohorte; sin él, el marcador abierto. */
     const g = limpiaGrupo(grupo);
     const fgrupo = g ? `&grupo=eq.${g}` : '';
-    const r = await pedir(`${URL_BASE}?select=nombre,puntos,xp,dificultad,temporada&order=puntos.desc,creado_en.asc&limit=${n}${filtro}${fgrupo}`);
+    const r = await pedir(`${URL_BASE}?select=nombre,puntos,xp,dificultad,temporada&order=puntos.desc,creado_en.asc&limit=${n}${filtro}${fhito}${fgrupo}`);
     if (!r) return null;         // null = "no se pudo consultar"; [] = "no hay marcas"
     try {
       const filas = await r.json();
@@ -84,8 +96,10 @@ const RANKING = (() => {
       puntos: pts,
       xp: exp,
       dificultad: [0, 1, 2].includes(dificultad) ? dificultad : 1,
-      /* 0 = día 5 (media etapa) · 1 = día 10 (titulado) · 2 = día 15 (el contrato) */
-      temporada: [0, 1, 2].includes(temporada) ? temporada : 1,
+      /* 0 = día 5 (media etapa) · 1 = día 10 (titulado) · 2 = día 15 (el
+         contrato) · 3 = sin fin. Un valor que no exista cae al día 10 en vez
+         de colarse tal cual en la base. */
+      temporada: HITOS.includes(temporada) ? temporada : 1,
     };
     /* null y no cadena vacía: el CHECK de la base acepta null o el formato
        exacto, y '' no es ninguno de los dos. */
@@ -125,5 +139,5 @@ const RANKING = (() => {
     return !!(await pedir(URL_RETOS, { method: 'POST', body: JSON.stringify(fila) }));
   }
 
-  return { top, publicar, topReto, publicarReto, limpiaGrupo };
+  return { top, publicar, topReto, publicarReto, limpiaGrupo, HITO_SIN_FIN };
 })();

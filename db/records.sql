@@ -33,7 +33,10 @@ create table public.records (
   -- 0 = terminó el día 5 (media etapa), 1 = el día 10 (titulado),
   -- 2 = el día 15 (el contrato). El día 5 existe para que el marcador tenga
   -- gente desde temprano en vez de estar vacío hasta que alguien llegue al 10.
-  constraint records_temporada    check (temporada in (0, 1, 2)),
+  -- 3 = modo SIN FIN, que no es un punto de la campaña sino una racha suelta:
+  -- se guarda en la misma tabla pero el juego lo pide aparte, porque sus
+  -- puntajes son de otra escala y mezclarlos haría ilegible el marcador.
+  constraint records_temporada    check (temporada in (0, 1, 2, 3)),
   -- Los puntos NUNCA pueden superar la XP. No es una cota inventada: en el
   -- juego S.pts y S.xp suben siempre juntos y en la misma cantidad
   -- (nucleo.js: `S.pts+=gan; S.xp+=gan`), pero S.pts además baja al comprar
@@ -71,6 +74,14 @@ create policy "cualquiera puede publicar su marca"
 
 -- Sin políticas de update ni delete: RLS los niega por defecto. Una marca
 -- publicada es inmutable, ni siquiera quien la creó puede tocarla.
+
+-- Si la base se creó ANTES de que existiera el modo sin fin, su CHECK de
+-- temporada todavía dice (0, 1, 2) y rechaza el hito 3. Para ampliarlo sin
+-- recrear nada, y sin tocar las filas que ya estén publicadas:
+--
+--   alter table public.records drop constraint records_temporada;
+--   alter table public.records add  constraint records_temporada
+--     check (temporada in (0, 1, 2, 3));
 
 
 -- ═══════════════════════════════════════════════════════════════════════════

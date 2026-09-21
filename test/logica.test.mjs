@@ -195,6 +195,42 @@ test('el hito del día 5 se publica como temporada 0, no como titulado', async (
   assert.deepEqual(cuerpos.map(c => c.temporada), [0, 2, 1]);
 });
 
+test('el sin fin publica con su propio hito y no se confunde con la campaña', async () => {
+  const v = cargarJuego();
+  const cuerpos = [];
+  v.fetch = async (url, o) => { cuerpos.push(JSON.parse(o.body)); return { ok: true, json: async () => [] }; };
+
+  assert.equal(v.RANKING.HITO_SIN_FIN, 3, 'el hito del sin fin es el 3');
+  await v.RANKING.publicar({ nombre: 'A', puntos: 120, xp: 3000, dificultad: 2,
+                             temporada: v.RANKING.HITO_SIN_FIN });
+  /* Un hito que no existe sigue cayendo al día 10: ampliar el rango a 3 no
+     puede abrir la puerta a cualquier número. */
+  await v.RANKING.publicar({ nombre: 'B', puntos: 120, xp: 3000, dificultad: 2, temporada: 4 });
+
+  assert.deepEqual(cuerpos.map(c => c.temporada), [3, 1]);
+});
+
+test('los dos marcadores se consultan por separado, nunca mezclados', async () => {
+  const v = cargarJuego();
+  const urls = [];
+  v.fetch = async url => { urls.push(url); return { ok: true, json: async () => [] }; };
+
+  /* Por defecto se mira la campaña, y las rachas del sin fin quedan fuera: sus
+     puntajes son de otra escala y colarlos hundiría a la campaña o al revés. */
+  await v.RANKING.top(8);
+  assert.match(urls.at(-1), /temporada=neq\.3/);
+
+  await v.RANKING.top(8, null, '', 'sinfin');
+  assert.match(urls.at(-1), /temporada=eq\.3/);
+  assert.doesNotMatch(urls.at(-1), /temporada=neq/);
+
+  /* El código de aula sigue valiendo dentro del sin fin. */
+  await v.RANKING.top(8, 2, 'SENA24', 'sinfin');
+  assert.match(urls.at(-1), /temporada=eq\.3/);
+  assert.match(urls.at(-1), /grupo=eq\.SENA24/);
+  assert.match(urls.at(-1), /dificultad=eq\.2/);
+});
+
 test('la consulta del marcador solo filtra por dificultades que existen', async () => {
   const v = cargarJuego();
   const urls = [];
