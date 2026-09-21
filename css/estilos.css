@@ -305,6 +305,77 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .grupo-cod{font-size:9px;letter-spacing:1px;color:var(--y2);background:var(--void2);
   border:2px solid var(--y1);padding:7px 10px}
 .grupo-vacio{font-family:'VT323',monospace;font-size:17px;color:var(--tx1)}
+/* ══════════ PANTALLA DE AVATAR ══════════
+   Dos columnas dentro del marco: el personaje manda a la izquierda y la
+   personalización va a la derecha. #app está topado en 600px a propósito
+   —es un marco de consola centrado, no un diseño que se quedó corto— así
+   que las columnas se reparten esos 600 y por debajo de 560 se apilan.
+   El corte es 560 y no 520 porque justo en 520 la columna derecha se
+   quedaba en ~300px y ACCESORIO se partía en dos líneas. */
+/* El panel se centra con el #screen>*{margin:auto} de siempre, como las
+   demás pantallas. Probé a estirarlo al alto completo para aprovechar la
+   franja vacía y quedó peor: la caja del avatar se volvía un rectángulo
+   enorme con el muñeco flotando dentro y la columna derecha hueca. El
+   avatar se hace protagonista creciendo él, no estirando su caja. */
+.pe-wrap{display:flex;flex-direction:column;gap:12px;padding:8px 4px;width:100%}
+.pe-cab{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.pe-cab h2{margin:0}
+.pe-cuerpo{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:stretch}
+@media(min-width:560px){.pe-cuerpo{grid-template-columns:minmax(0,205px) minmax(0,1fr)}}
+
+/* ── el personaje ── */
+.pe-lado{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+  padding:12px 8px;border:2px solid var(--bl);background:var(--void2)}
+.pe-cap{font-size:8px;color:var(--g3);letter-spacing:2px;margin:0}
+/* El brillo va detrás del lienzo, no encima: un filtro sobre el canvas
+   emborronaría los píxeles, que es justo lo contrario de lo que se busca. */
+.pe-escena{position:relative;display:grid;place-items:center;width:100%;
+  padding:14px 0;border:2px solid var(--bl);background:
+    radial-gradient(circle at 50% 45%,rgba(86,131,224,.30),transparent 68%),var(--bd)}
+.pe-av{width:min(168px,86%);height:auto;aspect-ratio:1;image-rendering:pixelated;position:relative;z-index:1;
+  animation:pe-flota 3s ease-in-out infinite}
+@keyframes pe-flota{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+/* Golpecito al cambiar algo: confirma que el cambio se aplicó al muñeco. */
+.pe-pum{animation:pe-pum .28s steps(3,end)}
+@keyframes pe-pum{0%{transform:scale(1)}45%{transform:scale(1.09)}100%{transform:scale(1)}}
+.pe-nombre{font-size:11px;color:var(--tx0);margin:4px 0 0;word-break:break-word}
+.pe-rango{font-size:8px;color:var(--y2);margin:0}
+.pe-stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:6px 0 0}
+.pe-stats>div{display:flex;align-items:center;gap:4px}
+.pe-stats dt{font-size:11px}
+.pe-stats dd{margin:0;font-size:8px;color:var(--tx1)}
+
+/* ── pestañas ── */
+.pe-custom{display:flex;flex-direction:column;gap:12px;min-width:0}
+.pe-tabs{display:flex;border-bottom:2px solid var(--bl)}
+.pe-tab{flex:1;min-width:0;padding:10px 4px;background:none;border:0;cursor:pointer;
+  font-family:inherit;font-size:8px;letter-spacing:1px;color:var(--tx1);
+  overflow-wrap:break-word}
+.pe-tab:hover{color:var(--tx0);background:rgba(54,76,140,.22)}
+.pe-tab.act{color:var(--g3);background:var(--void2);box-shadow:inset 0 -3px 0 var(--g3)}
+.pe-panel{min-height:120px}
+
+/* ── inventario ── */
+.acc-op.comprado{border-color:var(--bl2,#3a4a80)}
+.acc-op.bloq{opacity:.78}
+.pe-confirma{border:2px solid var(--y2);background:var(--void2);padding:10px;margin-top:14px}
+.pe-confirma p{font-size:8px;margin:0 0 9px;line-height:1.6}
+.pe-confirma-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.pe-confirma-btns .btn{flex:1 1 110px;font-size:8px;padding:9px 6px}
+
+/* ── pie: el VOLVER forma parte de la navegación, no flota suelto ── */
+.pe-pie{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;margin-top:auto;padding-top:12px;border-top:2px solid var(--bl)}
+.pe-estado{font-size:7px;color:var(--tx1);letter-spacing:1px;flex:1 1 120px;text-align:left}
+.pe-estado.verde{color:var(--g3)}
+.pe-estado.rojo{color:#ff7d8c}
+.pe-volver{flex:0 0 auto}
+html.legible .pe-tab,html.legible .pe-estado,html.legible .pe-cap,
+html.legible .pe-rango,html.legible .pe-stats dd,html.legible .pe-confirma p{
+  font-family:'VT323',monospace;letter-spacing:0;font-size:15px}
+html.legible .pe-nombre{font-family:'VT323',monospace;font-size:19px}
+@media(prefers-reduced-motion:reduce){.pe-av,.pe-pum{animation:none}}
+
 .custom-fila{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 /* ══════════════════════════════════════════════
    PORTADA
