@@ -341,3 +341,44 @@ test('el porcentaje de repaso se mide sobre el tamaño del pool', () => {
   const r = arr(v.RETO.repaso([{ pool: 'quiz', total: 28, etiqueta: 'QUIZ' }]))[0];
   assert.equal(r.pc, 25, '7 de 28 es el 25 %');
 });
+
+/* ══════════ TABLERO DEL SIMON: sorteo restringido ══════════ */
+
+test('elegirDe sortea solo entre los índices permitidos y sin repetir', () => {
+  const v = cargarJuego();
+  const basicos = v.CMDS.map((c, i) => i).filter(i => v.CMDS[i].nv === 0);
+  for (let k = 0; k < 200; k++) {
+    const t = arr(v.RETO.elegirDe('git', basicos, 4));
+    assert.equal(t.length, 4, 'el tablero tiene que traer cuatro comandos');
+    assert.equal(new Set(t).size, 4, 'no puede repetir comando en el mismo tablero');
+    for (const i of t) assert.ok(basicos.includes(i), `salió ${v.CMDS[i].txt}, que no es básico`);
+  }
+});
+
+test('los comandos avanzados no aparecen antes de GIT AVANZADO', () => {
+  const v = cargarJuego();
+  const avanzados = v.CMDS.filter(c => c.nv === 1).map(c => c.id);
+  assert.ok(avanzados.length, 'debe haber comandos marcados como avanzados');
+  const basicos = v.CMDS.map((c, i) => i).filter(i => v.CMDS[i].nv === 0);
+  for (let k = 0; k < 200; k++) {
+    for (const i of arr(v.RETO.elegirDe('git', basicos, 4))) {
+      assert.ok(!avanzados.includes(v.CMDS[i].id), `${v.CMDS[i].txt} no debería salir en un día temprano`);
+    }
+  }
+});
+
+test('elegirDe no pide más comandos de los que hay', () => {
+  const v = cargarJuego();
+  const tres = [0, 1, 2];
+  assert.equal(arr(v.RETO.elegirDe('git', tres, 9)).length, 3);
+});
+
+test('el tablero del simon sale igual con la misma semilla del día', () => {
+  const v = cargarJuego();
+  const banco = v.CMDS.map((c, i) => i).filter(i => v.CMDS[i].nv === 0);
+  v.RETO.entrar('2026-09-16');
+  const a = arr(v.RETO.elegirDe('git', banco, 4, v.RETO.rngPara(':gitset')));
+  const b = arr(v.RETO.elegirDe('git', banco, 4, v.RETO.rngPara(':gitset')));
+  v.RETO.salir();
+  assert.deepEqual(a, b, 'dentro del reto diario el tablero tiene que ser el mismo');
+});

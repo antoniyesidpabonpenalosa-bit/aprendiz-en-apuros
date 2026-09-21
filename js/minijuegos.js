@@ -185,12 +185,18 @@ function nvSimon(dia){
   const t2=dia>=10; /* git avanzado: 6 comandos y más rondas */
   const dif=dia>=5?1:0;
   const metaRondas=t2?8:dif?7:5;
-  const cmds=t2?CMDS:CMDS.slice(0,4);
+  /* El tablero se sortea en vez de ser siempre los cuatro primeros: con 12
+     comandos y 4 o 6 botones, dos partidas del mismo día ya no se parecen.
+     Hasta GIT AVANZADO solo entran los básicos (nv:0). Va por el sorteo con
+     pesos, así que los comandos que fallas aparecen más, y con la semilla
+     del día el reto diario sale igual para todo el mundo. */
+  const banco=CMDS.map((c,i)=>i).filter(i=>t2||CMDS[i].nv===0);
+  const permitidos=RETO.elegirDe('git',banco,t2?6:4,RETO.rngPara(':gitset'));
+  const cmds=permitidos.map(i=>CMDS[i]);
   /* Índices en CMDS (no en cmds) para que el peso de GIT PUSH sea el mismo el
      día 4, con cuatro comandos, y el 14, con seis. El generador se crea UNA
      vez: rngPara() devuelve uno nuevo en cada llamada y dentro del reto
      diario eso daría siempre el mismo comando. */
-  const permitidos=cmds.map(c=>CMDS.indexOf(c));
   const rndGit=RETO.rngPara(':git');
   let sec=[],pos=0,errores=0,pts=0,fase='muestra';
   pantalla('nivel',`

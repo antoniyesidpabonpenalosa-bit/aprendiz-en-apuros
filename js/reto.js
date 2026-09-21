@@ -97,6 +97,21 @@ const RETO = (() => {
      secuencia puede repetir comandos y `elegir` (que es sin reemplazo) no
      sirve. `permitidos` son índices del pool, porque el día 4 solo juega con
      cuatro comandos y el 14 con seis, y los pesos deben ser los mismos. */
+  /* Como elegir(), pero sorteando solo entre los índices permitidos. Hace
+     falta cuando el banco es mayor que lo que cabe en pantalla y además no
+     todo el banco vale para ese día (los comandos de git avanzado). */
+  function elegirDe(pool, permitidos, n, rnd = Math.random) {
+    const bolsa = permitidos.slice();
+    const salida = [];
+    n = Math.min(n, bolsa.length);
+    while (salida.length < n) {
+      const i = unoDe(pool, bolsa, rnd);
+      salida.push(i);
+      bolsa.splice(bolsa.indexOf(i), 1);
+    }
+    return salida;
+  }
+
   function unoDe(pool, permitidos, rnd = Math.random) {
     const p = pesos();
     if (!permitidos.length) return 0;
@@ -234,7 +249,7 @@ const RETO = (() => {
 
   return {
     fechaDe, hoy, diasEntre, semillaDe, rngCon,
-    marcar, elegir, unoDe, pesos, repaso,
+    marcar, elegir, elegirDe, unoDe, pesos, repaso,
     datos, rachaViva, jugadoHoy, multiplicador, registrar,
     PREMIOS, premiosGanados, proximoPremio,
     TIPOS, retosDe, rngDelDia,
