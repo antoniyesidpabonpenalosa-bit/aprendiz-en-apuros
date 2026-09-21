@@ -609,6 +609,7 @@ const AYUDA={
 const TXT={
  es:{dia:'DÍA',start:'PULSA START',jugar:'▶ JUGAR',tienda:'TIENDA',logros:'LOGROS',records:'RÉCORDS',perso:'MI AVATAR',
   glob_tit:'🌍 MARCADOR GLOBAL',glob_todas:'TODAS',
+  glob_campana:'CAMPAÑA',glob_sinfin:'SIN FIN',
   rango_max:'RANGO MÁXIMO',progreso_lbl:'PROGRESO',estad_corto:'STATS',
   perso_sub:'Tu progreso, tu historia',
   flojo_tit:'🎯 EN QUÉ FLOJEAS',
@@ -703,6 +704,7 @@ const TXT={
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'MY AVATAR',
   glob_tit:'🌍 GLOBAL LEADERBOARD',glob_todas:'ALL',
+  glob_campana:'CAMPAIGN',glob_sinfin:'ENDLESS',
   rango_max:'MAX RANK',progreso_lbl:'PROGRESS',estad_corto:'STATS',
   perso_sub:'Your progress, your story',
   flojo_tit:'🎯 WHAT TO REVIEW',

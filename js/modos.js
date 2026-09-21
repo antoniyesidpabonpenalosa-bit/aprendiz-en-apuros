@@ -185,6 +185,18 @@ function sinFinFin() {
   if (pts > 0) { S.pts += pts; S.xp += pts; }
   if (rondas >= 10) darLogro('maraton');
   guardar();
+  /* Al marcador del aula sube SOLO la marca personal: publicar cada racha
+     llenaría la tabla de rachas de dos rondas y taparía las buenas. La XP que
+     se envía es la de por vida, no la de la racha, para que la columna de rango
+     diga en qué rango está quien hizo la marca; de paso cumple el invariante de
+     la base (puntos <= xp), porque S.xp acaba de crecer con esos mismos puntos.
+     La dificultad es la de salida, que es la que de verdad cambia la racha: el
+     sin fin sube solo a partir de ahí. */
+  if (nueva && pts > 0) {
+    RANKING.publicar({ nombre: S.nombre || t('tu'), puntos: pts, xp: S.xp,
+                       dificultad: S.dif, temporada: RANKING.HITO_SIN_FIN,
+                       grupo: S.grupo });
+  }
   SFX.lose();
   pantalla('sinfin-fin', `
   <div class="centro">
