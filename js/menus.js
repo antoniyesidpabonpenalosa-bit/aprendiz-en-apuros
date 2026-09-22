@@ -130,7 +130,7 @@ function rBorrar(){
   </div>`);
   $('#bo-no').onclick=()=>{SFX.click();rTitulo()};
   $('#bo-si').onclick=()=>{
-    const prefs={lang:S.lang,snd:S.snd,hd:S.hd};
+    const prefs={lang:S.lang,snd:S.snd,hd:S.hd,av32:S.av32};
     S=Object.assign({},DEF,{dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],mejoras:[],records:[],vistos:[],pesos:{},reto:{},stats:Object.assign({},STATS0)},prefs);
     guardar();
     vidas=maxVidas();

@@ -38,6 +38,48 @@ test('el código de guardado sobrevive la ida y vuelta', () => {
   assert.equal(b.S.acc, 'capa');
 });
 
+test('av32 es independiente de hd: los dos se combinan, no se excluyen', () => {
+  const a = cargarJuego();
+  assert.equal(a.S.av32, false, 'por defecto el retrato sigue siendo el de 16 de toda la vida');
+  assert.equal(a.S.hd, false);
+
+  /* Combinación 32 + retro CRT: hd se queda apagado a propósito. */
+  a.S.av32 = true;
+  assert.equal(a.S.hd, false, 'activar el detalle del retrato no enciende la piel OLED');
+
+  /* Combinación 16 + OLED: la inversa, tampoco se arrastran entre sí. */
+  const b = cargarJuego();
+  b.S.hd = true;
+  assert.equal(b.S.av32, false, 'activar la piel OLED no enciende el retrato de 32 por su cuenta');
+
+  /* Un valor roto en el guardado (partida escrita a mano, versión vieja)
+     cae al mismo default seguro que el resto de banderas de S. */
+  const c = cargarJuego({ guardado: { av32: 'sí', hd: 1 } });
+  assert.equal(c.S.av32, false);
+});
+
+test('av32 sobrevive el código de guardado entre dispositivos', () => {
+  const a = cargarJuego();
+  a.S.av32 = true;
+  const codigo = a.exportarCodigo();
+
+  const b = cargarJuego();                       // otro "dispositivo"
+  assert.equal(b.S.av32, false);
+  b.importarCodigo(codigo);
+  assert.equal(b.S.av32, true);
+
+  /* Un código exportado ANTES de que existiera av32 no debe romper la
+     importación ni encenderlo por accidente: cae al default. */
+  const vieja = a.exportarCodigo().split('.');
+  const datosSinAv32 = JSON.parse(decodeURIComponent(escape(atob(vieja[2]))));
+  delete datosSinAv32.av32;
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(datosSinAv32))));
+  const codigoViejo = 'PA4.' + a.sumaCod(b64) + '.' + b64;
+  const c = cargarJuego();
+  assert.equal(c.importarCodigo(codigoViejo), true);
+  assert.equal(c.S.av32, false);
+});
+
 test('el código importado queda guardado en el navegador', () => {
   const a = cargarJuego();
   a.S.pts = 999;
