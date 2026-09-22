@@ -345,6 +345,9 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 /* Golpecito al cambiar algo: confirma que el cambio se aplicó al muñeco. */
 .pe-pum{animation:pe-pum .28s steps(3,end)}
 @keyframes pe-pum{0%{transform:scale(1)}45%{transform:scale(1.09)}100%{transform:scale(1)}}
+/* 16 de siempre / 32 más fino. Reusa .rec-chip (la píldora de los filtros
+   del marcador): mismo look, sin CSS nuevo por duplicar. */
+.pe-detalle{display:flex;gap:6px}
 .pe-nombre{font-size:11px;color:var(--tx0);margin:4px 0 0;word-break:break-word}
 .pe-rango{font-size:8px;color:var(--y2);margin:0}
 .pe-stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:6px 0 0}

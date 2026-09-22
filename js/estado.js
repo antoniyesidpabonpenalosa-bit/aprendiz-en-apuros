@@ -3,7 +3,11 @@
 const STATS0={bugs:0,cafes:0,palabras:0,jefes:0,perfectos:0,racha:0,partidas:0,retos:0};
 const TOT_DIAS=NIVELES.length; /* 15: etapa productiva (10) + el contrato (5) */
 const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',skin:0,camisa:0,
-  mejoras:[],records:[],lang:'es',snd:true,mus:true,intro:false,t2:false,nombre:'',hd:false,legible:false,grupo:'',dif:1,stats:Object.assign({},STATS0)};
+  mejoras:[],records:[],lang:'es',snd:true,mus:true,intro:false,t2:false,nombre:'',hd:false,legible:false,grupo:'',dif:1,
+  /* av32: el detalle del RETRATO (16×16 de siempre / 32×32 más fino), independiente
+     de hd, que es la piel de la interfaz (retro CRT / OLED). Los dos se pueden
+     combinar: no son un selector de tres, son dos interruptores. */
+  av32:false,stats:Object.assign({},STATS0)};
 let S;
 try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('pa3')||'{}'))}catch(e){S=Object.assign({},DEF)}
 /* migración: partidas viejas de 10 días se extienden a 15 */
@@ -14,6 +18,7 @@ if(typeof S.dif!=='number'||S.dif<0||S.dif>2)S.dif=1;
 if(typeof S.mus!=='boolean')S.mus=true;
 if(typeof S.t2!=='boolean')S.t2=false;
 if(typeof S.legible!=='boolean')S.legible=false;
+if(typeof S.av32!=='boolean')S.av32=false;
 /* No va en DEF a propósito: los arrays de DEF se copian por referencia y
    S.vistos.push() acabaría escribiendo dentro de DEF. Aquí nace uno nuevo
    en cada carga. */
@@ -51,6 +56,9 @@ const aplicarModo=()=>{
      texto pequeño (nombres de logro, niveles, artículos de la tienda). La
      prosa larga —diálogos, preguntas, opciones— ya iba en VT323. */
   document.documentElement.classList.toggle('legible',!!S.legible);
+  /* Detalle del retrato. Por ahora es solo la marca: cara32() y el CSS que
+     la use llegan en una fase posterior, ya aprobada aparte. */
+  document.documentElement.classList.toggle('av32',!!S.av32);
 };
 /* El <html lang> tiene que seguir al idioma elegido. Si se queda en "es"
    con el juego en inglés, un lector de pantalla lee el texto inglés con
