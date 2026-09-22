@@ -80,6 +80,100 @@ function cara(cv,o){
   if(o.corona){R(4,0,8,2,'#ffcf3f');R(5,0,1,1,'#ff5468');R(8,0,1,1,'#6fd2f0');R(11,0,1,1,'#ff5468');}
   if(o.gato){R(13,13,1,1,'#e08030');R(15,13,1,1,'#e08030');R(13,14,3,2,'#e08030');R(14,15,1,1,'#f4f4f8');}
 }
+/* ── RETRATO PIXEL, VERSIÓN 32×32 ──
+   No es cara() estirada al doble: eso solo daría un dibujo más grande, no más
+   fino. Cada trazo de cara() se dobla de coordenadas (mismo dibujo, mismo
+   sitio, así sigue siendo reconocible pieza por pieza) y ENCIMA se le suma
+   sombreado y algún detalle que a 16×16 no cabe — que es lo que un doblado
+   simple nunca da. Recibe exactamente el mismo objeto `o` que cara(): dibujan
+   el mismo personaje, este con más nivel de detalle.
+
+   Se probó también un contorno de 1 px alrededor de la cabeza (una técnica
+   normal en pixel art) y se quitó: a este tamaño de bloque se veía como un
+   marco negro grueso, sobre todo bajo la barbilla, no como un borde fino. Se
+   deja la nota para no repetir el intento sin capturas de por medio. */
+function cara32(cv,o){
+  const c=cv.getContext('2d'),P=cv.width/32;
+  const R=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x*P,y*P,w*P,h*P)};
+  /* Aclara/oscurece un color sólido en hex, como si la luz viniera de arriba
+     a la izquierda. Los colores con alfa (las gafas) no pasan por aquí: se
+     quedan tal cual, solo con las coordenadas dobladas. */
+  const sombra=(hex,d)=>{
+    const n=parseInt(hex.slice(1),16);
+    const ch=v=>Math.max(0,Math.min(255,v+d)).toString(16).padStart(2,'0');
+    return '#'+ch((n>>16)&255)+ch((n>>8)&255)+ch(n&255);
+  };
+  const claro=hex=>sombra(hex,34),osc=hex=>sombra(hex,-34);
+
+  R(0,0,32,32,'#0b0e22');
+
+  R(6,24,20,8,o.camisa);
+  R(6,24,2,8,claro(o.camisa));
+  R(24,24,2,8,osc(o.camisa));
+  R(6,24,20,1,claro(o.camisa));
+
+  R(8,6,16,16,o.skin);
+  R(8,6,2,16,claro(o.skin));
+  R(22,6,2,16,osc(o.skin));
+  R(8,6,16,1,claro(o.skin));
+  R(8,21,16,1,osc(o.skin));
+
+  if(o.pelo){
+    R(8,4,16,4,o.pelo);
+    R(8,4,16,1,claro(o.pelo));
+    R(8,7,16,1,osc(o.pelo));
+    R(8,8,2,4,o.pelo);R(22,8,2,4,o.pelo);
+  }
+  if(o.largo&&o.pelo){
+    R(6,6,2,14,o.pelo);R(24,6,2,14,o.pelo);
+    R(6,6,1,14,claro(o.pelo));R(25,6,1,14,osc(o.pelo));
+  }
+
+  /* ojos con un brillo de un píxel, para que no queden dos puntos muertos */
+  R(12,12,2,2,'#101018');R(18,12,2,2,'#101018');
+  R(12,12,1,1,'#3a4560');R(18,12,1,1,'#3a4560');
+
+  if(o.feliz){
+    R(12,18,2,2,'#8a4030');R(14,20,4,2,'#8a4030');R(18,18,2,2,'#8a4030');
+    R(14,19,4,1,osc('#8a4030'));
+  }else{
+    R(12,18,8,2,'#8a4030');
+  }
+
+  if(o.gafas){
+    R(10,10,6,4,'rgba(111,210,240,.55)');R(16,10,2,2,'#222');R(18,10,6,4,'rgba(111,210,240,.55)');
+    R(11,10,2,1,'rgba(255,255,255,.45)');R(19,10,2,1,'rgba(255,255,255,.45)');
+  }
+  if(o.corbata){
+    R(14,24,4,6,'#c22e44');R(14,24,4,2,osc('#c22e44'));R(15,26,2,1,claro('#c22e44'));
+  }
+  if(o.gorra){
+    R(6,2,20,4,'#2e7a10');R(6,2,20,1,claro('#2e7a10'));R(6,6,10,2,'#1c5400');
+  }
+  if(o.audifonos){
+    R(6,10,2,8,'#15151f');R(24,10,2,8,'#15151f');R(6,4,20,2,'#15151f');
+    R(6,10,2,1,'#33334a');R(24,10,2,1,'#33334a');
+  }
+  if(o.medalla){
+    R(14,26,4,4,'#ffcf3f');R(15,24,2,2,'#c22e44');R(15,27,1,1,claro('#ffcf3f'));
+  }
+  if(o.cafe){
+    R(24,24,6,6,'#f4f4f8');R(24,22,6,2,'#6b4226');R(25,25,2,2,'#dcdce4');
+    R(25,20,1,1,'rgba(255,255,255,.5)');R(27,19,1,1,'rgba(255,255,255,.35)');
+  }
+  if(o.capa){
+    R(4,24,2,8,'#c22e44');R(26,24,2,8,'#c22e44');
+    R(6,24,2,4,'#8c1c2e');R(24,24,2,4,'#8c1c2e');
+  }
+  if(o.corona){
+    R(8,0,16,4,'#ffcf3f');R(8,0,16,1,claro('#ffcf3f'));
+    R(10,0,2,2,'#ff5468');R(16,0,2,2,'#6fd2f0');R(22,0,2,2,'#ff5468');
+  }
+  if(o.gato){
+    R(26,26,2,2,'#e08030');R(30,26,2,2,'#e08030');
+    R(26,28,6,4,'#e08030');R(28,30,2,2,'#f4f4f8');
+  }
+}
 const CARAS={
   yo:(f)=>({skin:SKINS[S.skin],camisa:CAMISAS[S.camisa],pelo:'#2a1c10',feliz:f,
     gafas:S.acc==='gafas',gorra:S.acc==='gorra',cafe:S.acc==='cafe',
