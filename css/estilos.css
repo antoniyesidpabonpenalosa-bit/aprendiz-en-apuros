@@ -72,6 +72,10 @@ body{
   padding:10px;display:flex;flex-direction:column;gap:10px;
   position:relative;
 }
+/* Con JS (siempre que hay juego), encajar() mide la pantalla y fija el marco
+   en px lógicos más un zoom que lo hace crecer entero en pantallas grandes.
+   Lo de arriba queda como respaldo para el primer instante. */
+html.encaje #app{zoom:var(--esc,1);width:var(--app-w);height:var(--app-h);max-height:none}
 /* ══════════════════════════════════════════════
    FONDO · montañas pixeladas, sin imágenes
    Polígonos escalonados para que el borde tenga
@@ -264,7 +268,7 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
   box-shadow:0 2px 0 var(--bd);padding:7px 9px;cursor:pointer}
 .rec-chip:active{transform:translateY(2px);box-shadow:none}
 .rec-chip.act{color:var(--g3);border-color:var(--g2);background:var(--g0)}
-.tienda-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(430px,100%)}
+.tienda-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:min(430px,100%)}
 .item-tienda{display:flex;flex-direction:column;gap:8px;align-items:center;
   background:var(--void2);border:2px solid var(--bl);box-shadow:0 3px 0 var(--bd);
   padding:14px 8px;cursor:pointer}
@@ -273,6 +277,16 @@ canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
 .item-tienda .nom-t{font-size:8px;color:var(--tx3);text-align:center;line-height:1.7}
 .item-tienda .precio{font-size:10px;color:var(--y2)}
 .item-tienda.sin-pts{opacity:.35;pointer-events:none}
+/* A 320 px la columna mide 83 y "✔ EQUIPADO" a 10 px pedía 116: con `1fr`
+   la rejilla crecía y la tercera columna se salía de la pantalla. Aquí
+   minmax(0,1fr) topa la columna y se aprieta lo de dentro para que quepa
+   sin partir palabras (AUDÍFONOS pide 80). */
+@media (max-width:360px){
+  .tienda-grid{gap:7px}
+  .tienda-grid .item-tienda{padding:12px 4px}
+  .tienda-grid .precio{font-size:8px}
+}
+.item-tienda .nom-t{overflow-wrap:break-word;max-width:100%}
 /* `1fr` no baja del ancho mínimo del contenido, así que un nombre largo
    (COLECCIONISTA, MODO PESADILLA) ensanchaba su columna y con ella la rejilla
    entera. minmax(0,1fr) sí encoge.
@@ -431,11 +445,15 @@ html.legible .pe-nombre{font-family:'VT323',monospace;font-size:19px}
 .jugar-marco i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}
 .jugar-marco i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}
 .jugar-marco i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
-.btn-jugar{font-size:clamp(14px,4.4vw,19px);padding:17px 40px;min-height:60px;
-  animation:latido 2.6s ease-in-out infinite}
-@keyframes latido{
-  0%,100%{box-shadow:inset 0 3px 0 var(--g4),inset 0 -3px 0 var(--g0),0 4px 0 var(--bd),0 0 0 rgba(138,255,79,0)}
-  50%    {box-shadow:inset 0 3px 0 var(--g4),inset 0 -3px 0 var(--g0),0 4px 0 var(--bd),0 0 22px rgba(138,255,79,.35)}}
+.btn-jugar{font-size:clamp(14px,4.4vw,19px);padding:17px 40px;min-height:60px;position:relative}
+/* El brillo va en una capa propia que solo cambia de OPACIDAD, cosa que hace
+   la GPU sin repintar. Antes se animaba el box-shadow del botón (repintado en
+   cada fotograma mientras la portada estuviera abierta) y, encima, con un
+   @keyframes llamado `latido` que el aviso de la memoria volvía a definir
+   más abajo: ganaba el segundo y JUGAR no brillaba, se desvanecía a medias. */
+.btn-jugar::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:0 0 22px rgba(138,255,79,.35);opacity:0;animation:brillo 2.6s ease-in-out infinite}
+@keyframes brillo{50%{opacity:1}}
 
 /* banner angular del reto diario */
 .tit-reto{position:relative;width:min(420px,100%);display:flex;align-items:center;gap:12px;
@@ -645,7 +663,7 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 @keyframes blink{50%{opacity:.25}}
 /* Quien pide menos movimiento no debe ver el fondo derivando ni el latido */
 @media(prefers-reduced-motion:reduce){
-  .mte,.btn-jugar,.tit-reto .r-llama,.blink,.punto-nuevo,.memo-aviso{animation:none!important}
+  .mte,.btn-jugar,.btn-jugar::after,.tit-reto .r-llama,.blink,.punto-nuevo,.memo-aviso{animation:none!important}
 }
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @keyframes logro-entra{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
@@ -805,6 +823,12 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
   min-height:38px;text-align:left;line-height:1.3;word-break:break-all}
 .rev-botones{display:flex;gap:10px;width:100%}
 .rev-botones .btn,.rev-botones .btn-r{flex:1}
+/* RECHAZAR + APROBAR con el relleno normal pedían 296 px en una fila de 270
+   (móvil de 320): APROBAR salía cortado por el borde. */
+@media (max-width:360px){
+  .rev-botones{gap:8px}
+  .rev-botones .btn,.rev-botones .btn-r{min-width:0;padding-left:6px;padding-right:6px;letter-spacing:0}
+}
 .btn-r{font-family:inherit;font-size:12px;color:#fff;cursor:pointer;letter-spacing:1px;
   padding:15px 22px;min-height:48px;border:2px solid var(--bd);background:var(--r2);
   box-shadow:inset 0 3px 0 var(--r3),inset 0 -3px 0 var(--r1),0 4px 0 var(--bd);
@@ -944,3 +968,156 @@ html.legible .stats-grid span{font-size:14px;line-height:1.2}
 html.legible .dia{font-size:14px}
 html.legible .dif-op{font-size:15px}
 html.legible .m-txt{font-size:17px}
+
+/* ══════════════════════════════════════════════
+   PANTALLA APAISADA
+   Computador, tablet tumbada o móvil de lado.
+   encajar() pone html.apaisado cuando la pantalla
+   es bastante más ancha que alta; el marco pasa a
+   ser ancho (hasta 1120 px lógicos, y con zoom
+   crece a lo que dé el monitor) y aquí se reparte
+   cada pantalla en ese ancho en vez de apilarla.
+   En vertical NADA de esto aplica: el móvil queda
+   exactamente como estaba.
+   ══════════════════════════════════════════════ */
+/* Dos columnas que en vertical no existen: sin caja propia, sus hijos son
+   hijos directos de .centro y el orden es el de siempre. */
+.col2,.col2>.col{display:contents}
+html.apaisado .col2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px 28px;width:100%;align-items:start}
+html.apaisado .col2>.col{display:flex;flex-direction:column;align-items:center;gap:14px;min-width:0}
+/* Portada: rejilla propia. La columna de identidad es la corta, así que el
+   pie (PULSA START y BORRAR PROGRESO) va debajo de ELLA y no debajo de las
+   dos: apilado al final, la portada pedía 620 px de alto en un marco de 620
+   y con el texto legible se pasaba hasta 32. Las columnas se centran entre
+   sí, que la de identidad arriba del todo se veía colgando. */
+html.apaisado .centro.portada{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-rows:1fr auto auto;column-gap:28px;row-gap:11px;align-items:center}
+html.apaisado .centro.portada>.col2{display:contents}
+html.apaisado .centro.portada>.col2>.col{gap:11px}
+html.apaisado .centro.portada>.col2>.col:first-child{grid-column:1;grid-row:1}
+html.apaisado .centro.portada>.col2>.col:last-child{grid-column:2;grid-row:1/-1}
+html.apaisado .centro.portada>.tit-pie{grid-column:1;grid-row:2;justify-self:center}
+html.apaisado .centro.portada>.cut-skip{grid-column:1;grid-row:3;justify-self:center}
+
+/* El alto útil manda en apaisado: con #screen como contenedor, los tableros
+   se dimensionan por el alto que queda (cqh) y no solo por el ancho. */
+html.apaisado #screen{container-type:size}
+
+/* ── mapa: de lista a rejilla de casillas, una fila por semana ──
+   El título y la píldora van en la misma fila: apilados empujaban VOLVER
+   44 px por debajo del borde en un portátil de 768.
+   Columnas 1fr a los lados y no `auto auto` a secas: la rejilla de etapas
+   ocupa todo el ancho y, cruzando dos columnas auto, las ensanchaba a las
+   dos, así que la píldora salía el doble de ancha con un hueco dentro. Un
+   elemento que cruza una columna fr no cuenta para medir las auto. */
+html.apaisado .centro.mapa{display:grid;grid-template-columns:1fr auto auto 1fr;
+  align-items:center;column-gap:24px;row-gap:10px}
+html.apaisado .centro.mapa>h2{grid-column:2}
+html.apaisado .centro.mapa>.tit-id{grid-column:3}
+html.apaisado .centro.mapa>.etapas{grid-column:1/-1}
+html.apaisado .centro.mapa>.btn{grid-column:1/-1;justify-self:center}
+html.apaisado .etapas{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;width:100%;margin:8px 0 4px}
+html.apaisado .etapa-link{display:none}
+html.apaisado .mapa-sec{grid-column:1/-1;margin:4px 0 0}
+html.apaisado .etapa-card{flex-direction:column;justify-content:flex-start;text-align:center;
+  gap:6px;padding:12px 8px 10px;height:100%}
+html.apaisado .etapa-card .etapa-num{position:absolute;top:7px;left:9px;width:auto}
+html.apaisado .etapa-card .etapa-ico{width:auto;font-size:28px}
+html.apaisado .etapa-card .etapa-body{flex:0 1 auto;width:100%}
+html.apaisado .etapa-card .etapa-nom{display:block;font-size:11px;line-height:1.45}
+html.apaisado .etapa-card .etapa-sub{font-size:9px;line-height:1.5;margin-top:4px}
+/* las estrellas ya van en la insignia: en la casilla la línea MEJOR sobra */
+html.apaisado .etapa-card .etapa-rango{display:none!important}
+html.apaisado .etapa-card .etapa-badge{flex-direction:row;font-size:14px;margin-top:auto;min-width:0}
+/* el jefe secreto cierra el mapa como franja, no como casilla suelta */
+html.apaisado .etapa-jefe{grid-column:1/-1;flex-direction:row;text-align:left;padding:12px 16px}
+html.apaisado .etapa-jefe .etapa-num{position:static}
+html.apaisado .etapa-jefe .etapa-body{flex:1}
+html.apaisado .etapa-jefe .etapa-badge{margin-top:0}
+html.apaisado.legible .etapa-card .etapa-nom{font-size:17px;line-height:1.1}
+html.apaisado.legible .etapa-card .etapa-sub{font-size:15px;line-height:1.1}
+
+/* ── logros y modo libre: cinco por fila ── */
+html.apaisado .logros-grid{grid-template-columns:repeat(5,minmax(0,1fr));width:min(940px,100%)}
+html.apaisado #lb-lista{grid-template-columns:repeat(5,minmax(0,1fr));width:min(940px,100%)}
+html.apaisado .logro{padding:9px 5px}
+
+/* ── certificado y ascenso: un diploma apaisado ──
+   El retrato, las estrellas y el rango a la izquierda; el texto a la
+   derecha. De pie, la misma hoja pedía el doble del alto del marco. */
+html.apaisado .cert{display:grid;width:min(820px,100%);column-gap:28px;row-gap:10px;
+  grid-template-columns:auto minmax(0,1fr);align-items:center;justify-items:center;
+  grid-template-areas:"tit tit" "cara de" "cara nom" "est txt" "badge stats" ". firma"}
+html.apaisado .cert>.dia{grid-area:tit}
+html.apaisado .cert>.retrato-wrap{grid-area:cara;width:112px;height:112px;flex-basis:112px}
+html.apaisado .cert canvas.retrato{width:112px;height:112px}
+html.apaisado .cert>.cert-de{grid-area:de}
+html.apaisado .cert>.rango{grid-area:nom}
+html.apaisado .cert>.desc{grid-area:txt}
+html.apaisado .cert>.stars-row{grid-area:est}
+html.apaisado .cert>.stats-grid{grid-area:stats}
+html.apaisado .cert>.rango-badge{grid-area:badge}
+html.apaisado .cert>.cert-firma{grid-area:firma}
+/* compartir y volver, uno al lado del otro (1fr a los lados: ver el mapa) */
+html.apaisado .centro:has(>.cert){display:grid;grid-template-columns:1fr auto auto 1fr;
+  align-items:center;gap:14px 16px}
+html.apaisado .centro:has(>.cert)>.cert{grid-column:1/-1;justify-self:center}
+html.apaisado .centro:has(>.cert)>.btn-share{grid-column:2}
+html.apaisado .centro:has(>.cert)>.btn2{grid-column:3}
+
+/* ── minijuegos: ancho de lectura, no de pantalla ── */
+html.apaisado .l1,html.apaisado .l3,html.apaisado .l4,html.apaisado .quiz{max-width:760px}
+/* tableros cuadrados: los topa el alto que queda debajo del marcador */
+html.apaisado .grilla{width:min(350px,100%,calc(100cqh - 120px))}
+/* Memoria: 12, 16 o 20 cartas. De pie van a 4 columnas (3 a 5 filas); en
+   apaisado, en DOS filas, que es la forma que tiene la pantalla. Un 4×4
+   cuadrado no cabía en el alto de un móvil de lado, y encogerlo tampoco:
+   cada carta necesita ~50 px de ancho para su palabra. */
+html.apaisado .memo{--cols:6;grid-template-columns:repeat(var(--cols),minmax(0,1fr));
+  width:min(760px,100%,calc((100cqh - 120px)*var(--cols)/2))}
+html.apaisado .memo:has(>:nth-child(16)){--cols:8}
+html.apaisado .memo:has(>:nth-child(20)){--cols:10}
+html.apaisado .simon{grid-template-columns:repeat(4,minmax(0,1fr));width:min(640px,100%)}
+html.apaisado .quiz .opciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+html.apaisado .rx-grid{grid-template-columns:repeat(3,minmax(0,1fr));width:min(720px,100%)}
+/* terminal: la entrada y ENVIAR en una fila, como un chat, en vez de apilados */
+html.apaisado .l1:has(>#tm-ok){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch}
+html.apaisado .l1:has(>#tm-ok)>:not(.entrada):not(#tm-ok){grid-column:1/-1}
+
+/* ── canvas (runner y jefe): lienzo a la izquierda, mando a la derecha ──
+   Apilados, en un móvil de lado los botones quedaban DEBAJO del borde y
+   había que hacer scroll en plena partida. El lienzo toma el alto que
+   quede y el ancho que deje el mando, sin salirse de 16:9. */
+html.apaisado .cv-wrap{display:grid;grid-template-columns:auto auto;
+  grid-template-areas:"tope tope" "cv ctrl" "msg ctrl";
+  justify-content:center;align-items:center;column-gap:18px;row-gap:8px}
+html.apaisado .cv-wrap>.tope{grid-area:tope}
+html.apaisado .cv-wrap>canvas.juego{grid-area:cv;
+  width:min(calc(100cqw - 200px),calc((100cqh - 86px)*16/9))}
+html.apaisado .cv-wrap>.cv-msg{grid-area:msg}
+html.apaisado .cv-wrap>.fila-cv{grid-area:ctrl;flex-direction:column;width:auto}
+
+/* ── móvil de lado: poco alto, se aprieta el cromo ── */
+@media (max-height:480px){
+  html.apaisado #app{padding:7px 10px;gap:6px}
+  html.apaisado #hud{padding-bottom:6px}
+  html.apaisado .centro{gap:8px;padding:4px 6px}
+  /* el jurado y la pregunta ceden alto para que quepan las cuatro opciones */
+  html.apaisado .jurado canvas{width:38px;height:38px}
+  html.apaisado .pregunta{min-height:0;font-size:21px}
+  html.apaisado .quiz{gap:8px}
+  html.apaisado .quiz .op{padding:8px 12px;font-size:19px}
+  /* Terminal, review, merge, regex: la barra de ventana es adorno y el
+     contenido no cabía con ella. Fuera, y el cuerpo más apretado. */
+  html.apaisado .term-bar{display:none}
+  html.apaisado .term-cuerpo{padding:8px 12px;gap:6px}
+  html.apaisado .l1,html.apaisado .l3,html.apaisado .l4{gap:8px;padding:2px 6px}
+  html.apaisado .term .op{padding:8px 12px}
+  html.apaisado .conflicto-marca{line-height:1.1}
+}
+
+/* El giroscopio es cosa de móvil: en un equipo sin pantalla táctil el botón
+   GIRO no hace nada y solo confunde. Da igual la orientación. */
+@media not (any-pointer:coarse){#j-giro{display:none}}

@@ -35,7 +35,7 @@ function nvJefe(dia,ptsBase){
      (solo con el modo HD), y sin HD el navegador estiraba un búfer de 320 px
      en un móvil de alta densidad: borroso. El modo HD sigue sumando nitidez
      encima, ahora como multiplicador. */
-  const dpr=Math.min(2,window.devicePixelRatio||1)*(HD?1.5:1);
+  const dpr=densidad()*(HD?1.5:1);
   cv.width=Math.round(320*dpr); cv.height=Math.round(180*dpr);
   c.setTransform(dpr,0,0,dpr,0,0);
   modoJefe=true; /* activa el tema musical tenso */

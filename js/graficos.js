@@ -1,4 +1,66 @@
 'use strict';
+/* ── ENCAJE EN LA PANTALLA ──
+   El marco es una consola de 600×880 afinada píxel a píxel para el móvil, y
+   en un monitor se quedaba en eso: una columna con el 25 % de un Full HD y
+   letra de 7 px. Aquí se decide cómo encaja en la pantalla que haya:
+   · vertical (móvil, tablet de pie): la consola de siempre, y si sobra
+     sitio CRECE entera con `zoom`, que escala texto, bordes y canvas a la
+     vez sin tocar ni una de las medidas afinadas;
+   · apaisada (computador, tablet o móvil tumbados): un marco ancho con las
+     pantallas repartidas en columnas (html.apaisado en el CSS), que también
+     crece con `zoom` en monitores grandes.
+   Nunca baja de 1: en el móvil todo sigue midiendo exactamente lo mismo.
+   Las medidas del marco van en px LÓGICOS (antes del zoom). */
+const ENCAJE={vertical:{w:600,h:880,maxH:1100},apaisado:{w:1040,h:700,maxW:1120,maxH:860}};
+let escPantalla=1;
+function encajar(){
+  const html=document.documentElement,b=getComputedStyle(document.body);
+  /* El alto se mide con una sonda de 100dvh y no con innerHeight: en algunos
+     navegadores innerHeight encoge al abrir el teclado, y el marco se
+     achicaba justo mientras escribes en el terminal. dvh sigue a la barra de
+     URL pero no al teclado, que es lo que ya hacía el CSS de antes. */
+  let sonda=$('#sonda-vp');
+  if(!sonda){
+    sonda=document.createElement('div');sonda.id='sonda-vp';sonda.setAttribute('aria-hidden','true');
+    sonda.style.cssText='position:fixed;left:0;top:0;width:100%;height:100vh;height:100dvh;visibility:hidden;pointer-events:none';
+    document.body.appendChild(sonda);
+  }
+  const vp=sonda.getBoundingClientRect();
+  const aw=vp.width-parseFloat(b.paddingLeft)-parseFloat(b.paddingRight);
+  const ah=vp.height-parseFloat(b.paddingTop)-parseFloat(b.paddingBottom);
+  const {apaisado,esc,w,h}=encajeDe(aw,ah);
+  escPantalla=esc;
+  html.classList.toggle('apaisado',apaisado);
+  html.classList.add('encaje');
+  html.style.setProperty('--esc',esc);
+  html.style.setProperty('--app-w',w+'px');
+  html.style.setProperty('--app-h',h+'px');
+}
+/* Las cuentas, aparte y sin DOM, para poder probarlas (test/encaje.test.mjs).
+   aw×ah: el sitio disponible en px de la pantalla. Devuelve el modo, el zoom
+   y el marco en px lógicos; w·esc y h·esc nunca pasan de aw y ah. */
+function encajeDe(aw,ah){
+  /* Dos columnas en cuanto hay sitio (680 px) y la pantalla es casi tan
+     ancha como alta: monitor, tablet o móvil tumbados, y también la ventana
+     partida a media pantalla (960×1040), donde la consola de pie obligaba a
+     hacer scroll en la portada. Una tablet de pie (proporción 0,75) sigue
+     en vertical. */
+  const apaisado=aw>=680&&aw>=ah*0.9;
+  const E=apaisado?ENCAJE.apaisado:ENCAJE.vertical;
+  /* Escalones de 1/16: un zoom con muchos decimales hace temblar los bordes
+     de la fuente de píxeles al redimensionar la ventana. */
+  const esc=Math.max(1,Math.floor(Math.min(2.5,aw/E.w,ah/E.h)*16)/16);
+  return {apaisado,esc,
+    w:Math.floor(Math.min(E.maxW||E.w,aw/esc)),
+    h:Math.floor(Math.min(E.maxH,ah/esc))};
+}
+/* Densidad para los canvas: la de la pantalla por el zoom del marco, para
+   que un runner escalado a un monitor grande no se vea emborronado. La
+   del dispositivo sigue topada en 2 como siempre (en un móvil de 3x el
+   búfer se iba a 1440 px de ancho con el HD, y se pinta 60 veces por
+   segundo); el zoom solo suma en pantallas que ya tienen máquina. */
+const densidad=()=>Math.min(3,Math.min(2,window.devicePixelRatio||1)*escPantalla);
+
 /* ── CONFETI ── */
 function confeti(){
   const cont=document.createElement('div');
