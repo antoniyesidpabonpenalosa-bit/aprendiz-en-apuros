@@ -79,7 +79,7 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
   con racha 🔥, multiplicador y premios que no se compran con puntos
 - **🌍 Marcador global**: tu puntaje se publica al terminar y compites con
   todos los que juegan — y si no hay internet, el juego sigue igual
-- **18 logros**, récords, **estadísticas de por vida**, avatar
+- **19 logros**, récords, **estadísticas de por vida**, avatar
   personalizable, borrado de progreso y **botón de compartir** el resultado
 - Transiciones suaves entre pantallas (respetan *prefers-reduced-motion*)
 - **Código de guardado**: exporta tu partida y continúala en otro dispositivo
@@ -88,6 +88,11 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
 - Sacudida de pantalla al recibir daño y vista previa bonita al compartir el
   enlace (Open Graph)
 - Música chiptune y efectos con WebAudio, idiomas ES/EN
+- **Se adapta a cualquier pantalla**: en el móvil de pie es la consola de
+  siempre; tumbado, en tablet o en computador las pantallas se reparten en dos
+  columnas (el mapa pasa a rejilla, el certificado a diploma apaisado, el
+  runner y el jefe llevan el mando al lado), y en monitores grandes el juego
+  crece entero con zoom en vez de quedarse en una columna de 600 px
 - **PWA instalable** con soporte offline
 - Progreso guardado en el navegador (localStorage)
 

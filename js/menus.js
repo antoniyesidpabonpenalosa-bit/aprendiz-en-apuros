@@ -14,8 +14,13 @@ function rTitulo(){
   const fila=(id,ico,txt,cls)=>`<button class="btn ${cls||'btn2'} menu-fila" id="${id}" type="button">`+
     `<span class="m-ico">${ico}</span><span class="m-txt">${sinIco(txt)}</span></button>`;
 
+  /* .col2/.col: en vertical no existen (display:contents) y el orden es el
+     de siempre; en pantalla apaisada son dos columnas, identidad y JUGAR a
+     la izquierda, modos y ajustes a la derecha. */
   pantalla('titulo',`
-  <div class="centro">
+  <div class="centro portada">
+   <div class="col2">
+    <div class="col">
     <div class="tit-logo">
       <span class="guion" aria-hidden="true"><i></i><i></i><i></i></span>
       <h1 class="tit-h1"><span class="l1">PRACTICANTE</span><br><span class="l2">EN APUROS</span><span class="n4">4</span></h1>
@@ -42,7 +47,9 @@ function rTitulo(){
       ${nuevoReto?'<span class="punto-nuevo">●</span>':''}
       ${racha?`<span class="r-racha"><span class="r-llama">🔥</span>${racha}</span>`:''}
     </button>
+    </div>
 
+    <div class="col">
     <div class="tit-rejilla c2">
       ${fila('t-libre','🎮',t('modo_libre'))}
       ${fila('t-sinfin','♾️',t('modo_sinfin'))}
@@ -85,9 +92,11 @@ function rTitulo(){
         <span class="p-pc">${pcCampana}%</span>
       </div>
     </button>
+    </div>
+   </div>
 
     <div class="tit-pie" aria-hidden="true"><i></i><span class="mini blink">${t('start')}</span><i></i></div>
-    <button class="cut-skip" id="t-borrar" type="button">🗑 ${t('borrar')}</button>
+    <button class="cut-skip" id="t-borrar" type="button">${t('borrar')}</button>
   </div>`);
 
   /* retrato del avatar dentro de la tarjeta */
@@ -349,7 +358,7 @@ function rCertificado(){
     <div class="cert">
       <p class="dia">🎓 ${t('cert')} 🎓</p>
       <div class="retrato-wrap"><canvas class="retrato" id="c-cara" width="64" height="64"></canvas></div>
-      <p class="sub">${t('certde')}</p>
+      <p class="sub cert-de">${t('certde')}</p>
       <p class="rango">${esc(S.nombre||t('tu'))}</p>
       <p class="desc" style="text-align:center">${t('certtxt')}</p>
       ${starsHtml(Math.min(3,Math.round(totalStars()/10)))}
@@ -358,7 +367,7 @@ function rCertificado(){
         <div><b>${totalStars()}</b><span>${t('estrellas')}</span></div>
         <div><b>${S.pts}</b><span>${t('ptstotal')}</span></div>
       </div>
-      <p class="sub">${t('firma')} · ${t('fecha')}: ${hoy}</p>
+      <p class="sub cert-firma">${t('firma')} · ${t('fecha')}: ${hoy}</p>
       <span class="rango-badge grande">${rangoNom()}</span>
     </div>
     <button class="btn btn-share" id="c-share" type="button">${t('compartir')}</button>
@@ -378,7 +387,7 @@ function rAscenso(){
     <div class="cert">
       <p class="dia">🚀 ${t('ascenso')} 🚀</p>
       <div class="retrato-wrap"><canvas class="retrato" id="a-cara" width="64" height="64"></canvas></div>
-      <p class="sub">${t('ascensode')}</p>
+      <p class="sub cert-de">${t('ascensode')}</p>
       <p class="rango">${esc(S.nombre||t('tu'))}</p>
       <p class="desc" style="text-align:center">${t('ascensotxt')}</p>
       ${starsHtml(Math.min(3,Math.round(totalStars()/15)))}
@@ -387,7 +396,7 @@ function rAscenso(){
         <div><b>${totalStars()}</b><span>${t('estrellas')}</span></div>
         <div><b>${S.pts}</b><span>${t('ptstotal')}</span></div>
       </div>
-      <p class="sub">${t('firma')} · ${t('fecha')}: ${hoy}</p>
+      <p class="sub cert-firma">${t('firma')} · ${t('fecha')}: ${hoy}</p>
       <span class="rango-badge grande">${rangoNom()}</span>
     </div>
     <button class="btn btn-share" id="a-share" type="button">${t('compartir')}</button>
@@ -407,6 +416,8 @@ function rTienda(){
   <div class="centro">
     <h2>🛒 ${t('tienda')}</h2>
     <span class="moneda">⛁ ${S.pts} PTS</span>
+   <div class="col2">
+    <div class="col">
     <div class="tienda-grid">
       ${ACCS.map(a=>{
         const tiene=S.accs.includes(a.id);
@@ -421,6 +432,8 @@ function rTienda(){
           <span class="precio">${tiene?(S.acc===a.id?'✔ '+t('equipado'):'✔'):'⛁'+a.precio}</span>
         </button>`}).join('')}
     </div>
+    </div>
+    <div class="col">
     <p class="mej-titulo">⚙ ${t('mejoras')}</p>
     <div class="mejoras-tienda">
       ${MEJORAS.map(m=>{
@@ -439,6 +452,8 @@ function rTienda(){
           <span class="precio">${tiene?'✔':'⛁'+m.precio}</span>
         </button>`}).join('')}
     </div>
+    </div>
+   </div>
     <button class="btn btn2" id="ti-volver" type="button">${t('volver')}</button>
   </div>`);
   $$('[data-id]').forEach(el=>el.onclick=()=>{
@@ -505,6 +520,8 @@ function rRecords(){
   pantalla('records',`
   <div class="centro">
     <h2>📊 ${t('records')}</h2>
+   <div class="col2">
+    <div class="col">
     <h3>${t('glob_tit')}</h3>
     <div class="rec-filtros">
       <button class="rec-chip" data-tabla="campana" type="button">🎓 ${t('glob_campana')}</button>
@@ -523,6 +540,8 @@ function rRecords(){
            <button class="rec-chip" id="g-cambiar" type="button">${t('grupo_unirse')}</button>`}
     </div>
     <div id="rec-global"><p class="desc" style="text-align:center">${t('glob_carga')}</p></div>
+    </div>
+    <div class="col">
     <h3>${t('glob_loc')}</h3>
     ${locales.length
       ? tablaRecords(locales)
@@ -533,6 +552,8 @@ function rRecords(){
         const cls=S.xp>=r.xp?(rangoDe(S.xp)===r?'act':'hecho'):'';
         return `<div class="rango-fila ${cls}"><span>${tj(r)}</span><span>${r.xp} XP</span></div>`}).join('')}
     </div>
+    </div>
+   </div>
     <button class="btn btn2" id="re-volver" type="button">${t('volver')}</button>
   </div>`);
   $('#re-volver').onclick=()=>{SFX.click();rTitulo()};
@@ -649,6 +670,8 @@ function rStats(){
   <div class="centro">
     <h2>${t('estadisticas')}</h2>
     ${vacio?`<p class="desc" style="text-align:center">${t('st_sinreg')}</p>`:''}
+   <div class="col2">
+    <div class="col">
     <div class="stats-grid">
       ${filas.map(f=>`<div><span style="font-size:16px">${f[0]}</span><b>${f[1]}</b><span>${t(f[2])}</span></div>`).join('')}
     </div>
@@ -663,6 +686,8 @@ function rStats(){
            </div>`).join('')}
          </div>`
       : `<p class="desc" style="text-align:center">${t('flojo_nada')}</p>`}
+    </div>
+    <div class="col">
     <h3>${t('guardado')}</h3>
     <p class="mini" style="text-align:center">${t('guardatxt')}</p>
     <div class="guardado-zona">
@@ -670,6 +695,8 @@ function rStats(){
       <textarea class="entrada cod-guardado" id="es-code" rows="3" spellcheck="false" placeholder="${t('pegacodigo')}"></textarea>
       <button class="btn btn2" id="es-imp" type="button">${t('importar')}</button>
     </div>
+    </div>
+   </div>
     <button class="btn btn2" id="es-volver" type="button">${t('volver')}</button>
   </div>`);
   const aviso=(ico,txt)=>{

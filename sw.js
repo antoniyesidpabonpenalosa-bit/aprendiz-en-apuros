@@ -1,7 +1,12 @@
 /* Service worker · Practicante en Apuros 4
    Mismo origen: red primero (siempre fresco) con respaldo de caché offline.
-   Ya no hay recursos de otros orígenes: las fuentes van autoalojadas. */
-const CACHE = 'pa4-v19';
+   Lo de otros orígenes —el marcador en Supabase— no se toca: va a la red. */
+const CACHE = 'pa4-v20';
+/* Cuánto se espera a la red antes de servir la copia guardada. Con "red
+   primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
+   archivo colgado hasta que el navegador se rindiera, aunque estuviera en
+   caché. Pasado el tope se sirve la copia y la red, si llega, la renueva. */
+const TOPE_RED = 3500;
 const BASE = [
   './', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png',
   './css/estilos.css',
@@ -25,26 +30,30 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  const propio = new URL(e.request.url).origin === location.origin;
-  if (propio) {
-    e.respondWith(
-      fetch(e.request)
-        .then(r => {
-          const copia = r.clone();
-          caches.open(CACHE).then(c => c.put(e.request, copia));
-          return r;
-        })
-        .catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
-    );
-  } else {
-    e.respondWith(
-      caches.match(e.request).then(r => r || fetch(e.request).then(r2 => {
-        if (r2.ok) {
-          const copia = r2.clone();
-          caches.open(CACHE).then(c => c.put(e.request, copia));
-        }
-        return r2;
-      }))
-    );
-  }
+  /* Solo lo propio. Antes lo de fuera se servía con "caché primero", una
+     regla pensada para Google Fonts que se quedó cuando las fuentes pasaron
+     al repo, y lo único que atrapaba ya era el marcador global: la URL de la
+     consulta es siempre la misma, así que se guardaba la primera respuesta y
+     el marcador se quedaba CONGELADO para siempre. Sin red, ranking.js ya
+     muestra "sin conexión"; no hace falta caché aquí. */
+  if (new URL(e.request.url).origin !== location.origin) return;
+  e.respondWith((async () => {
+    const red = fetch(e.request).then(r => {
+      if (r.ok) {
+        const copia = r.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copia));
+      }
+      return r;
+    });
+    const tope = new Promise((_, falla) => setTimeout(() => falla(new Error('lenta')), TOPE_RED));
+    try {
+      return await Promise.race([red, tope]);
+    } catch (_) {
+      /* red caída o lenta: la copia guardada; si no la hay (primera visita),
+         se sigue esperando a la red; y si tampoco, la portada offline. */
+      const guardada = await caches.match(e.request);
+      if (guardada) return guardada;
+      try { return await red; } catch (_) { return caches.match('./index.html'); }
+    }
+  })());
 });

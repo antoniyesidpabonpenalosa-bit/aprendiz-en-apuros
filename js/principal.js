@@ -43,6 +43,13 @@ $('#b-lang').onclick=()=>{
 };
 
 /* ── ARRANQUE ── */
+/* Antes de pintar nada: la primera pantalla ya sale con el tamaño bueno.
+   `resize` cubre también el giro del móvil y la barra de URL que aparece
+   y desaparece; se agrupa por frame para no recalcular 60 veces por
+   segundo mientras se arrastra el borde de la ventana. */
+encajar();
+let encajePend=0;
+addEventListener('resize',()=>{if(!encajePend)encajePend=requestAnimationFrame(()=>{encajePend=0;encajar()})});
 aplicarModo();
 aplicarIdioma();
 vidas=maxVidas();

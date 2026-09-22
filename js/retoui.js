@@ -23,6 +23,8 @@ function rReto() {
   pantalla('reto', `
   <div class="centro">
     <h2>⚡ ${t('reto_tit')}</h2>
+   <div class="col2">
+    <div class="col">
     <div class="tit-id"><span>🗓 ${RETO.hoy()}</span></div>
 
     <div class="reto-racha">
@@ -49,8 +51,12 @@ function rReto() {
       <i></i><i></i><i></i><i></i>
       <button class="btn ${hecho ? 'btn2' : 'btn-jugar'}" id="rt-jugar" type="button">${hecho ? t('reto_otra') : t('reto_ya')}</button>
     </div>
+    </div>
+    <div class="col">
     <h3>${t('reto_tabla')}</h3>
     <div id="rt-tabla"><p class="desc" style="text-align:center">${t('glob_carga')}</p></div>
+    </div>
+   </div>
     <button class="btn btn2" id="rt-volver" type="button">${t('volver')}</button>
   </div>`);
 
