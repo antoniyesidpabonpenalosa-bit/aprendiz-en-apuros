@@ -91,7 +91,7 @@ function rTitulo(){
   </div>`);
 
   /* retrato del avatar dentro de la tarjeta */
-  const av=$('#t-av'); if(av)cara(av,CARAS.yo(true));
+  const av=$('#t-av'); if(av)retrato(av,CARAS.yo(true));
 
   $$('.dif-op').forEach(b=>b.onclick=()=>{S.dif=+b.dataset.dif;guardar();SFX.click();rTitulo()});
   $('#t-stats').onclick=()=>{SFX.click();rStats()};
@@ -268,7 +268,7 @@ function rDialogo(i){
     <span class="modo">${tj({es:N.ses,en:N.sen})}</span>
     <button class="btn" id="d-go" type="button">${t('empezar')}</button>
   </div>`);
-  cara($('#d-cara'),quienCara(quien));
+  retrato($('#d-cara'),quienCara(quien));
   /* máquina de escribir */
   let j=0;const el=$('#d-linea');
   tcada(()=>{if(pausado)return;if(j<linea.length){el.textContent=linea.slice(0,++j);if(j%3===0)beep(700+Math.random()*200,.02,'triangle',.05)}},28);
@@ -364,7 +364,7 @@ function rCertificado(){
     <button class="btn btn-share" id="c-share" type="button">${t('compartir')}</button>
     <button class="btn btn2" id="c-volver" type="button">${t('volver')}</button>
   </div>`);
-  cara($('#c-cara'),Object.assign(CARAS.yo(true),{medalla:true}));
+  retrato($('#c-cara'),Object.assign(CARAS.yo(true),{medalla:true}));
   confeti();
   $('#c-share').onclick=compartir;
   $('#c-volver').onclick=()=>{SFX.click();rTitulo()};
@@ -393,7 +393,7 @@ function rAscenso(){
     <button class="btn btn-share" id="a-share" type="button">${t('compartir')}</button>
     <button class="btn btn2" id="a-volver" type="button">${t('volver')}</button>
   </div>`);
-  cara($('#a-cara'),Object.assign(CARAS.yo(true),{medalla:true,corona:S.accs.includes('corona')}));
+  retrato($('#a-cara'),Object.assign(CARAS.yo(true),{medalla:true,corona:S.accs.includes('corona')}));
   confeti();
   $('#a-share').onclick=compartir;
   $('#a-volver').onclick=()=>{SFX.click();rTitulo()};
@@ -743,6 +743,10 @@ function rPerso(){
         <div class="pe-escena">
           <canvas class="pe-av" id="pe-cara" width="64" height="64"></canvas>
         </div>
+        <div class="pe-detalle" role="group" aria-label="${t('pe_detalle')}">
+          <button class="rec-chip ${!S.av32?'act':''}" id="pe-d16" type="button">${t('pe_detalle16')}</button>
+          <button class="rec-chip ${S.av32?'act':''}" id="pe-d32" type="button">${t('pe_detalle32')}</button>
+        </div>
         <p class="pe-nombre">${esc(S.nombre||t('tu'))}</p>
         <p class="pe-rango">${rangoNom()}</p>
         <dl class="pe-stats">
@@ -786,9 +790,26 @@ function rPerso(){
     </div>
   </div>`);
 
-  const pinta=()=>cara($('#pe-cara'),CARAS.yo(true));
+  const pinta=()=>retrato($('#pe-cara'),CARAS.yo(true));
   const avisar=(txt,cls)=>{const e=$('#pe-estado');if(!e)return;e.textContent=txt;e.className='pe-estado'+(cls?' '+cls:'')};
   const latido=()=>{const a=$('#pe-escena-av')||$('#pe-cara');a.classList.remove('pe-pum');void a.offsetWidth;a.classList.add('pe-pum')};
+
+  /* ── detalle del retrato: 16 de siempre / 32 más fino ──
+     Es aparte de S.hd (la piel retro/OLED): los dos se combinan, no se
+     excluyen. Cambia aquí mismo y no en el título porque este es el sitio
+     donde se ve el avatar grande, así el cambio se nota al instante. */
+  $('#pe-d16').onclick=()=>{
+    if(!S.av32)return;
+    S.av32=false;guardar();aplicarModo();SFX.click();
+    $('#pe-d16').classList.add('act');$('#pe-d32').classList.remove('act');
+    pinta();latido();
+  };
+  $('#pe-d32').onclick=()=>{
+    if(S.av32)return;
+    S.av32=true;guardar();aplicarModo();SFX.click();
+    $('#pe-d32').classList.add('act');$('#pe-d16').classList.remove('act');
+    pinta();latido();
+  };
 
   /* ── pestañas ── */
   const abrir=id=>{

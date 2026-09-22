@@ -174,6 +174,12 @@ function cara32(cv,o){
     R(26,28,6,4,'#e08030');R(28,30,2,2,'#f4f4f8');
   }
 }
+/* Punto único por el que pasa TODO retrato del juego (el tuyo y el de los
+   personajes de las cutscenes): decide entre cara() y cara32() según la
+   preferencia guardada. Ningún sitio de la interfaz llama a cara()/cara32()
+   directamente, así que S.av32 se aplica en todas partes por igual — el
+   jurado del quiz, los diálogos, el certificado, no solo "tu" retrato. */
+const retrato=(cv,o)=>(S.av32?cara32:cara)(cv,o);
 const CARAS={
   yo:(f)=>({skin:SKINS[S.skin],camisa:CAMISAS[S.camisa],pelo:'#2a1c10',feliz:f,
     gafas:S.acc==='gafas',gorra:S.acc==='gorra',cafe:S.acc==='cafe',

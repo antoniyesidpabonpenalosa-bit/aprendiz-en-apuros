@@ -321,9 +321,9 @@ function nvQuiz(dia){
     <div class="opciones" id="q-ops"></div>
     <p class="mini">${t('quiznec')}</p>
   </div>`);
-  cara($('#j1'),CARAS.instructor());
-  cara($('#j2'),CARAS.lider());
-  cara($('#j3'),CARAS.compa());
+  retrato($('#j1'),CARAS.instructor());
+  retrato($('#j2'),CARAS.lider());
+  retrato($('#j3'),CARAS.compa());
   function pinta(){
     const Q=QUIZ[S.lang][pregs[i]];
     $('#q-prog').textContent=(i+1)+'/'+nPreg;
