@@ -126,7 +126,7 @@ aprendiz-en-apuros/
     └── principal.js      → arranque del juego y botones globales
 db/
 ├── records.sql           → esquema y reglas del marcador global (Supabase)
-└── anti-trampas.sql      → freno de ráfagas y marcas repetidas (propuesta, ver abajo)
+└── anti-trampas.sql      → freno de ráfagas y marcas repetidas (aplicado, ver abajo)
 test/
 ├── ayuda.mjs             → carga el juego fuera del navegador (node:vm)
 ├── logica.test.mjs       → pruebas de guardado, rangos, vidas y marcador
@@ -211,8 +211,10 @@ ráfagas por IP (40 marcas por minuto y 300 por hora, generoso porque un aula
 entera sale con la misma IP), rechaza la misma marca repetida y deja a la clave
 pública solo con leer e insertar. De la IP solo guarda un hash con sal, y lo
 borra a las 24 horas. El juego no necesita cambios: una marca rechazada falla
-en silencio, igual que sin internet. El archivo explica cómo comprobarlo una
-vez aplicado y cómo deshacerlo.
+en silencio, igual que sin internet. Está aplicado desde el 2026-09-23. El
+rechazo de repetidas y los permisos funcionan; el freno por IP todavía se puede
+esquivar falsificando la cabecera `X-Forwarded-For` (detalles en el archivo,
+junto con cómo deshacerlo).
 
 ---
 

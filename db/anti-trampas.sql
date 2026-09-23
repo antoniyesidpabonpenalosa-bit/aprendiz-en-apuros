@@ -1,6 +1,15 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 --  Anti-trampas del marcador · se aplica DESPUÉS de records.sql
 -- ═══════════════════════════════════════════════════════════════════════════
+--  APLICADO en producción el 2026-09-23 (migración anti_trampas_marcador).
+--  Comprobado contra la API real: publicar sigue entrando (201), la marca
+--  repetida se rechaza (400 "marca repetida") y borrar desde la API da 401.
+--  PENDIENTE: la prueba de "comprobar" (abajo) dio 2 huellas con dos IP
+--  falsas en X-Forwarded-For. Supabase no pasa cf-connecting-ip y la primera
+--  IP de x-forwarded-for la escribe el cliente, así que hoy el freno de
+--  ráfagas se puede esquivar cambiando esa cabecera. Las otras dos defensas
+--  (repetidas y permisos) no dependen de la IP y funcionan.
+-- ───────────────────────────────────────────────────────────────────────────
 --  Qué NO puede hacer esto, dicho claro: el juego corre en el navegador y no
 --  hay cuentas, así que quien quiera puede inventarse UNA marca creíble y
 --  mandarla a mano. Eso solo se evitaría validando la partida entera en el
