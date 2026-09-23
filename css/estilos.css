@@ -1121,3 +1121,138 @@ html.apaisado .cv-wrap>.fila-cv{grid-area:ctrl;flex-direction:column;width:auto}
 /* El giroscopio es cosa de móvil: en un equipo sin pantalla táctil el botón
    GIRO no hace nada y solo confunde. Da igual la orientación. */
 @media not (any-pointer:coarse){#j-giro{display:none}}
+
+/* ══════════════════════════════════════════════
+   SALAS DE CLASE (salaui.js)
+   El proyector se lee desde el fondo del salón:
+   código gigante, personajes grandes, poco texto.
+   ══════════════════════════════════════════════ */
+/* portada: Libre · Sin fin · Sala. Con dos columnas, la sala baja a lo ancho */
+@media(max-width:560px){.tit-modos>.menu-fila:nth-child(3){grid-column:1/-1}}
+
+/* entrada: dos cajas, instructor y aprendiz */
+.sala-entrada{width:min(460px,100%)}
+.sala-caja{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;
+  padding:16px 12px;border:3px solid var(--bl);background:rgba(17,21,42,.55)}
+.sala-caja+.sala-caja{margin-top:14px}
+html.apaisado .sala-entrada{width:min(820px,100%);gap:16px}
+html.apaisado .sala-caja+.sala-caja{margin-top:0}
+html.apaisado .sala-caja{height:100%;justify-content:center}
+.sala-in{width:min(230px,100%);font-size:22px;letter-spacing:8px;text-transform:uppercase}
+.sala-previa b{color:var(--y2)}
+
+/* crear: minijuegos marcables, con su número de orden */
+.sala-j{position:relative}
+.sala-j.sel{background:var(--g1);box-shadow:inset 0 3px 0 var(--g3),inset 0 -3px 0 var(--g0),0 4px 0 var(--bd)}
+.sala-j:disabled{opacity:.4;cursor:not-allowed}
+.sj-num{position:absolute;top:5px;left:6px;font-size:9px;color:var(--y2);min-width:9px}
+.sc-n{color:var(--y2)}
+html.apaisado .sala-juegos{grid-template-columns:repeat(6,minmax(0,1fr));width:min(940px,100%)}
+
+/* ── proyector ── */
+.sala-proy{display:flex;flex-direction:column;gap:16px;padding:6px;min-height:100%}
+.sp-lado{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.sp-cap{font-size:8px;letter-spacing:2px;color:var(--g3)}
+.sp-url{font-family:'VT323',monospace;font-size:24px;color:var(--tx4);overflow-wrap:anywhere}
+.sp-codigo-marco{padding:14px 18px}
+.sp-codigo{display:flex;gap:.18em;font-size:clamp(24px,9vw,52px);line-height:1;color:var(--y2);
+  text-shadow:4px 4px 0 var(--g0),0 0 22px rgba(255,207,63,.35)}
+.sp-codigo b{font-weight:400;padding:.12em .1em;background:var(--void2);border:3px solid var(--bl)}
+.sp-reglas{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;font-size:9px;color:var(--tx3)}
+.sp-reglas>span{padding:8px 10px;border:2px solid var(--bl);background:var(--void2)}
+.sp-juegos{font-size:16px;letter-spacing:4px}
+.sp-estado{font-family:'VT323',monospace;font-size:21px;color:var(--b4)}
+.sp-mandos{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(320px,100%)}
+.sp-mandos>.btn{width:100%}
+.sp-main{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:0}
+.sp-vacio{text-align:center;max-width:380px}
+#sp-terminar.armado,#sp-terminar.armado:active{background:var(--r2)}
+html.apaisado .sala-proy{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);
+  gap:22px;align-items:start;height:100cqh;padding:4px 8px}
+html.apaisado .sp-lado{position:sticky;top:0;justify-content:center;min-height:100%}
+/* 5 letras con su caja caben en la columna: lo topa el ancho (cqw) o el alto */
+html.apaisado .sp-codigo{font-size:max(24px,min(12cqh,4.6cqw,80px))}
+html.apaisado .sp-main{max-height:100cqh;overflow:auto;padding:4px 4px 8px}
+
+/* ── jugadores: rejilla (espera) y tabla (en juego) ── */
+.sala-lista{width:min(520px,100%)}
+html.apaisado .sp-main .sala-lista{width:100%}
+.sl-rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px}
+.sj-carta{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;
+  padding:10px 4px 8px;background:var(--pan2);border:2px solid var(--bl);
+  box-shadow:0 3px 0 var(--bd)}
+.sj-carta canvas.retrato,.pd-col canvas.retrato{width:56px;height:56px}
+.sj-nom{font-family:'VT323',monospace;font-size:19px;line-height:1;color:var(--tx4);
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sj-carta.yo,.sj-fila.yo{border-color:var(--y2);box-shadow:0 0 0 2px var(--y1),0 3px 0 var(--bd)}
+.sj-carta.yo .sj-nom,.sj-fila.yo .sj-nom{color:var(--y2)}
+/* aparece "en pasos", como un sprite, no con un fundido suave */
+.sj-carta.entra,.sj-fila.entra{animation:sj-entra .36s steps(4) both}
+/* en el proyector los personajes se ven desde el fondo del salón */
+html.apaisado .sp-main .sl-rejilla{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:14px}
+html.apaisado .sp-main .sj-carta canvas.retrato{width:84px;height:84px}
+html.apaisado .sp-main .sj-carta .sj-nom{font-size:23px}
+@keyframes sj-entra{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+.sj-fuera{position:absolute;top:3px;right:3px;width:24px;height:24px;font-size:10px;cursor:pointer;
+  background:var(--void2);border:2px solid var(--bl);color:var(--tx2);line-height:1}
+.sj-fuera:hover,.sj-fuera.armado{background:var(--r2);color:#fff;border-color:var(--r3)}
+
+.sl-tabla{display:flex;flex-direction:column;gap:7px}
+.sj-fila{position:relative;display:grid;grid-template-columns:34px 44px minmax(0,1fr) auto;
+  align-items:center;gap:10px;padding:7px 36px 7px 10px;background:var(--pan2);
+  border:2px solid var(--bl);box-shadow:0 3px 0 var(--bd);
+  transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.sj-fila .sj-fuera{top:50%;transform:translateY(-50%)}
+.sj-fila canvas.retrato{width:44px;height:44px}
+.sj-pos{font-size:12px;color:var(--tx2);text-align:center}
+.sj-info{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;text-align:left}
+.sj-info .sj-barra{align-self:stretch}
+.sj-prog{display:flex;gap:4px}
+.sj-prog i{width:9px;height:9px;background:var(--void2);border:2px solid var(--bl)}
+.sj-prog i.on{background:var(--g3);border-color:var(--g2)}
+.sj-barra{height:6px;background:var(--void2);border:1px solid var(--bl)}
+.sj-barra i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--g2),var(--g4));
+  transition:width .6s steps(10)}
+.sj-pts{font-size:13px;color:var(--y2);text-shadow:2px 2px 0 var(--g0)}
+.sj-fila.listo .sj-pts::after{content:' ✔';color:var(--g4)}
+
+/* ── podio: plata · oro · bronce ── */
+.podio{display:flex;align-items:flex-end;justify-content:center;gap:10px;width:min(460px,100%);
+  margin:4px auto 6px}
+.pd-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.pd-1 canvas.retrato{width:78px;height:78px}
+.pd-nom{font-family:'VT323',monospace;font-size:20px;max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.pd-pts{font-size:11px;color:var(--y2)}
+.pd-base{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  gap:4px;padding-top:8px;border:3px solid var(--bd);border-bottom:0;
+  box-shadow:inset 0 4px 0 rgba(255,255,255,.18)}
+.pd-base span{font-size:18px;line-height:1}
+.pd-base b{font-size:14px;font-weight:400;color:var(--bd)}
+.pd-1 .pd-base{height:96px;background:var(--y2)}
+.pd-2 .pd-base{height:76px;background:var(--tx3)}
+.pd-3 .pd-base{height:62px;background:var(--o3)}
+.pd-1 .pd-nom{color:var(--y2)}
+
+/* ── espera, cuenta atrás y final del aprendiz ── */
+.sala-esp .tit-id b{color:var(--y2);letter-spacing:3px}
+.puntos-anim i{font-style:normal;animation:blink 1.2s steps(2) infinite}
+.puntos-anim i:nth-child(2){animation-delay:.2s}
+.puntos-anim i:nth-child(3){animation-delay:.4s}
+.sala-cuenta{font-size:clamp(64px,28vw,140px);line-height:1;color:var(--y2);
+  text-shadow:6px 6px 0 var(--g0)}
+.sala-cuenta.late{animation:sala-late .8s steps(6)}
+@keyframes sala-late{from{transform:scale(1.6);opacity:.2}to{transform:none;opacity:1}}
+
+/* ── piel OLED ── */
+html.hd .sala-caja,html.hd .sj-carta,html.hd .sj-fila,html.hd .sp-codigo b,
+html.hd .sp-reglas>span{border-radius:14px}
+html.hd .sp-cap{font-size:11px;font-weight:700}
+html.hd .sj-nom,html.hd .pd-nom,html.hd .sp-url,html.hd .sp-estado{font-family:inherit;font-size:15px}
+html.hd .sp-codigo{font-weight:800}
+html.hd .pd-base{border-radius:12px 12px 0 0}
+
+@media(prefers-reduced-motion:reduce){
+  .sj-carta.entra,.sj-fila.entra,.puntos-anim i,.sala-cuenta.late{animation:none}
+  .sj-fila,.sj-barra i{transition:none}
+}

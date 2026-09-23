@@ -3,7 +3,8 @@
 $('#b-pause').onclick=()=>{
   if(pantallaId!=='nivel'&&pantallaId!=='dialogo')return;
   pausado=true;$('#p-titulo').textContent=t('pausa');
-  $('#p-cont').textContent=t('continuar');$('#p-mapa').textContent=t('salirmapa');
+  $('#p-cont').textContent=t('continuar');
+  $('#p-mapa').textContent=salaActiva?t('sala_volver'):t('salirmapa');
   $('#pausa').hidden=false;
   /* El foco ENTRA en el diálogo. Sin esto se puede seguir tabulando por
      detrás del overlay, que es como no tener diálogo. */
@@ -19,7 +20,13 @@ $('#p-cont').onclick=()=>{cerrarPausa();SFX.click()};
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&!$('#pausa').hidden){e.preventDefault();cerrarPausa();SFX.click()}
 });
-$('#p-mapa').onclick=()=>{SFX.click();rMapa()};
+$('#p-mapa').onclick=()=>{
+  SFX.click();
+  /* En una sala se vuelve a la sala (desde ahí se puede seguir), no al mapa */
+  const sala=salaActiva&&salaActiva.codigo;
+  salirDeModos();
+  if(sala)volverASala(sala);else rMapa();
+};
 /* sonido en 3 estados: 🔊 todo → 🔉 solo efectos → 🔇 silencio */
 $('#b-snd').onclick=()=>{
   if(S.snd&&S.mus)S.mus=false;

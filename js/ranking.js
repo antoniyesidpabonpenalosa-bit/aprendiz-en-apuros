@@ -151,5 +151,31 @@ const RANKING = (() => {
     return !!(await pedir(URL_RETOS, { method: 'POST', body: JSON.stringify(fila) }));
   }
 
-  return { top, publicar, topReto, publicarReto, limpiaGrupo, HITO_SIN_FIN };
+  /* ── funciones del servidor (las salas de clase) ──
+     A diferencia del marcador, aquí importa POR QUÉ falló: "esa sala no
+     existe" se le dice al jugador, "no hay internet" es otro aviso. Devuelve
+     {ok:true, datos} · {ok:false, error:'mensaje de la base'} · {ok:false, red:true}. */
+  const URL_RPC = URL_BASE.replace(/\/records$/, '/rpc/');
+  /** @param {string} nombre @param {Object<string,any>} args
+      @returns {Promise<{ok:boolean, datos?:any, error?:string, red?:boolean}>} */
+  async function rpc(nombre, args) {
+    const corte = new AbortController();
+    const reloj = setTimeout(() => corte.abort(), ESPERA);
+    try {
+      const r = await fetch(URL_RPC + nombre, {
+        method: 'POST', headers: cabeceras, body: JSON.stringify(args), signal: corte.signal,
+      });
+      const txt = await r.text();
+      let datos = null;
+      try { datos = txt ? JSON.parse(txt) : null; } catch (e) { datos = null; }
+      if (!r.ok) return { ok: false, error: (datos && datos.message) || String(r.status) };
+      return { ok: true, datos };
+    } catch (e) {
+      return { ok: false, red: true };
+    } finally {
+      clearTimeout(reloj);
+    }
+  }
+
+  return { top, publicar, topReto, publicarReto, limpiaGrupo, rpc, HITO_SIN_FIN };
 })();

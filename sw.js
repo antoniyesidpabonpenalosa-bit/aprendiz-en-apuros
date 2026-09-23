@@ -1,7 +1,7 @@
 /* Service worker · Practicante en Apuros 4
    Mismo origen: red primero (siempre fresco) con respaldo de caché offline.
    Lo de otros orígenes —el marcador en Supabase— no se toca: va a la red. */
-const CACHE = 'pa4-v22';
+const CACHE = 'pa4-v23';
 /* Cuánto se espera a la red antes de servir la copia guardada. Con "red
    primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
    archivo colgado hasta que el navegador se rindiera, aunque estuviera en
@@ -13,7 +13,7 @@ const BASE = [
   './fuentes/press-start-2p.woff2', './fuentes/vt323.woff2',
   './js/datos.js', './js/estado.js', './js/reto.js', './js/ranking.js', './js/audio.js', './js/graficos.js',
   './js/entrada.js', './js/nucleo.js', './js/menus.js', './js/retoui.js', './js/minijuegos.js',
-  './js/jefe.js', './js/modos.js', './js/principal.js',
+  './js/jefe.js', './js/modos.js', './js/sala.js', './js/salaui.js', './js/principal.js',
 ];
 
 self.addEventListener('install', e => {

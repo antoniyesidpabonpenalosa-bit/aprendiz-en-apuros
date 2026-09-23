@@ -100,6 +100,18 @@ function hud(){
     $('#h-estrellas').textContent='🔥 '+RETO.rachaViva();
     $('#h-pts').textContent=String(Math.min(retoActivo.pts,9999)).padStart(4,'0');
     $('#h-vidas').textContent='';
+  }else if(!salaActiva&&pantallaId.startsWith('sala')){
+    /* Pantallas de la sala (proyector, espera, tabla): nada de campaña */
+    $('#h-nivel').textContent='🏫 '+t('modo_sala');
+    $('#h-estrellas').textContent='';
+    $('#h-pts').textContent='';
+    $('#h-vidas').textContent='';
+  }else if(salaActiva){
+    /* Sala de clase: ronda, código de la sala y puntos de la sala */
+    $('#h-nivel').textContent='🏫 '+Math.min(salaActiva.ronda+1,salaActiva.juegos.length)+'/'+salaActiva.juegos.length;
+    $('#h-estrellas').textContent=salaActiva.codigo;
+    $('#h-pts').textContent=String(Math.min(salaActiva.pts,9999)).padStart(4,'0');
+    $('#h-vidas').textContent='';
   }else{
     /* Campaña: día, estrellas, puntos y vidas */
     const d=pantallaId==='nivel'?diaAct+1:Math.min(progreso()+1,TOT_DIAS);
@@ -250,7 +262,9 @@ function cara32(cv,o){
    preferencia guardada. Ningún sitio de la interfaz llama a cara()/cara32()
    directamente, así que S.av32 se aplica en todas partes por igual — el
    jurado del quiz, los diálogos, el certificado, no solo "tu" retrato. */
-const retrato=(cv,o)=>(S.av32?cara32:cara)(cv,o);
+/* o.av32, si viene, manda sobre la preferencia: en una sala cada personaje
+   sale con el detalle que eligió SU dueño, no el de quien mira. */
+const retrato=(cv,o)=>((o.av32??S.av32)?cara32:cara)(cv,o);
 /* ── RETRATO VIVO: el mismo retrato, pero parpadea ──
    Para las caras que están "en escena" (título, diálogo, jurado, el avatar
    grande), no para las que son un recuerdo fijo (certificado, ascenso).
