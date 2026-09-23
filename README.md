@@ -125,7 +125,8 @@ aprendiz-en-apuros/
     ├── jefe.js           → la batalla final contra EL BUG FINAL
     └── principal.js      → arranque del juego y botones globales
 db/
-└── records.sql           → esquema y reglas del marcador global (Supabase)
+├── records.sql           → esquema y reglas del marcador global (Supabase)
+└── anti-trampas.sql      → freno de ráfagas y marcas repetidas (propuesta, ver abajo)
 test/
 ├── ayuda.mjs             → carga el juego fuera del navegador (node:vm)
 ├── logica.test.mjs       → pruebas de guardado, rangos, vidas y marcador
@@ -204,6 +205,14 @@ La clave que viaja en el JS es pública a propósito (Supabase la llama
 Aun así, como la clave es pública, **alguien decidido puede publicar un puntaje
 que no jugó**. Es el precio de no pedir cuenta de usuario; las reglas de arriba
 bloquean lo absurdo, no la mala fe.
+
+`db/anti-trampas.sql` sube un poco el listón sin pedir cuentas: frena las
+ráfagas por IP (40 marcas por minuto y 300 por hora, generoso porque un aula
+entera sale con la misma IP), rechaza la misma marca repetida y deja a la clave
+pública solo con leer e insertar. De la IP solo guarda un hash con sal, y lo
+borra a las 24 horas. El juego no necesita cambios: una marca rechazada falla
+en silencio, igual que sin internet. El archivo explica cómo comprobarlo una
+vez aplicado y cómo deshacerlo.
 
 ---
 
