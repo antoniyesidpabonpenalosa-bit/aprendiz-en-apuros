@@ -321,9 +321,9 @@ function nvQuiz(dia){
     <div class="opciones" id="q-ops"></div>
     <p class="mini">${t('quiznec')}</p>
   </div>`);
-  retrato($('#j1'),CARAS.instructor());
-  retrato($('#j2'),CARAS.lider());
-  retrato($('#j3'),CARAS.compa());
+  retratoVivo($('#j1'),CARAS.instructor());
+  retratoVivo($('#j2'),CARAS.lider());
+  retratoVivo($('#j3'),CARAS.compa());
   function pinta(){
     const Q=QUIZ[S.lang][pregs[i]];
     $('#q-prog').textContent=(i+1)+'/'+nPreg;
@@ -611,10 +611,34 @@ function nvRunner(dia){
     c.fillStyle=noche?'#7a3bd0':'#39a900';c.fillRect(0,SUELO+2,320,3);
     c.shadowBlur=0;
     c.fillStyle=noche?'#0a0518':(HD?'#0a0d1c':'#11152a');c.fillRect(0,SUELO+5,320,40);
-    /* jugador */
-    const fy=p.y-30+p.duck;
+    /* jugador · antes era un bloque quieto que solo subía y bajaba. Ahora
+       corre con el paso clásico de dos cuadros, que cambia cada 8 fotogramas:
+       piernas abiertas (la de atrás apenas levantada) y piernas juntas con
+       el cuerpo 1 px arriba, estiradas para que el pie siga en el suelo. En el
+       aire las recoge, y agachado va en cuclillas sobre el suelo: antes se
+       bajaba el bloque entero 26 px y medio cuerpo quedaba hundido bajo la
+       línea del piso. Es solo dibujo: la caja de choque sigue siendo la de
+       p.x/p.y. Las zapatillas van claras porque sobre el fondo oscuro el
+       pantalón no se distingue, y lo que se ve correr es el ir y venir de los
+       pies. */
     if(inv%12<8){
-      c.fillStyle=CAMISAS[S.camisa];c.fillRect(p.x,fy+12,14,18-p.duck*0.4);
+      const enSuelo=p.y>=SUELO,agachado=p.duck>0,paso=(frame>>3)&1;
+      const fy=agachado?p.y-20:p.y-30-(enSuelo&&paso?1:0);
+      c.fillStyle=CAMISAS[S.camisa];
+      if(agachado){
+        c.fillRect(p.x,fy+12,14,6);
+        c.fillStyle='#d8dce8';c.fillRect(p.x,fy+18,4,2);c.fillRect(p.x+10,fy+18,4,2);
+      }else{
+        c.fillRect(p.x,fy+12,14,11);
+        /* pierna de `alto` px desde la cadera: pantalón y 2 px de zapatilla */
+        const pierna=(dx,alto)=>{
+          c.fillStyle=noche?'#3a2f6a':'#2e3563';c.fillRect(p.x+dx,fy+23,4,alto-2);
+          c.fillStyle='#d8dce8';c.fillRect(p.x+dx,fy+21+alto,4,2);
+        };
+        if(!enSuelo){pierna(3,5);pierna(7,5)}
+        else if(paso){pierna(3,8);pierna(7,8)}
+        else{pierna(0,6);pierna(10,7)}
+      }
       c.fillStyle=SKINS[S.skin];c.fillRect(p.x+1,fy,12,12);
       c.fillStyle='#101018';c.fillRect(p.x+8,fy+4,2,2);
     }
