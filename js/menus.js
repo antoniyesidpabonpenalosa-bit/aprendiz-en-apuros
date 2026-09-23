@@ -100,7 +100,7 @@ function rTitulo(){
   </div>`);
 
   /* retrato del avatar dentro de la tarjeta */
-  const av=$('#t-av'); if(av)retrato(av,CARAS.yo(true));
+  const av=$('#t-av'); if(av)retratoVivo(av,CARAS.yo(true));
 
   $$('.dif-op').forEach(b=>b.onclick=()=>{S.dif=+b.dataset.dif;guardar();SFX.click();rTitulo()});
   $('#t-stats').onclick=()=>{SFX.click();rStats()};
@@ -277,7 +277,7 @@ function rDialogo(i){
     <span class="modo">${tj({es:N.ses,en:N.sen})}</span>
     <button class="btn" id="d-go" type="button">${t('empezar')}</button>
   </div>`);
-  retrato($('#d-cara'),quienCara(quien));
+  retratoVivo($('#d-cara'),quienCara(quien));
   /* máquina de escribir */
   let j=0;const el=$('#d-linea');
   tcada(()=>{if(pausado)return;if(j<linea.length){el.textContent=linea.slice(0,++j);if(j%3===0)beep(700+Math.random()*200,.02,'triangle',.05)}},28);
@@ -817,7 +817,7 @@ function rPerso(){
     </div>
   </div>`);
 
-  const pinta=()=>retrato($('#pe-cara'),CARAS.yo(true));
+  const pinta=()=>retratoVivo($('#pe-cara'),CARAS.yo(true));
   const avisar=(txt,cls)=>{const e=$('#pe-estado');if(!e)return;e.textContent=txt;e.className='pe-estado'+(cls?' '+cls:'')};
   const latido=()=>{const a=$('#pe-escena-av')||$('#pe-cara');a.classList.remove('pe-pum');void a.offsetWidth;a.classList.add('pe-pum')};
 

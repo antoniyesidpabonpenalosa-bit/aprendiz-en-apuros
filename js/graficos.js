@@ -129,7 +129,11 @@ function cara(cv,o){
   R(4,3,8,8,o.skin);
   if(o.pelo){R(4,2,8,2,o.pelo);R(4,4,1,2,o.pelo);R(11,4,1,2,o.pelo);}
   if(o.largo&&o.pelo){R(3,3,1,7,o.pelo);R(12,3,1,7,o.pelo);}
-  R(6,6,1,1,'#101018');R(9,6,1,1,'#101018');
+  /* o.parpadeo: un instante con los ojos cerrados (lo pide retratoVivo). El
+     párpado es la piel un poco más oscura, no un hueco: sin nada, la cara
+     se quedaba sin ojos y leía como un fallo de dibujo, no como un parpadeo. */
+  if(o.parpadeo){R(6,6,1,1,'rgba(16,16,24,.35)');R(9,6,1,1,'rgba(16,16,24,.35)');}
+  else{R(6,6,1,1,'#101018');R(9,6,1,1,'#101018');}
   if(o.feliz){R(6,9,1,1,'#8a4030');R(7,10,2,1,'#8a4030');R(9,9,1,1,'#8a4030');}
   else R(6,9,4,1,'#8a4030');
   if(o.gafas){R(5,5,3,2,'rgba(111,210,240,.55)');R(8,5,1,1,'#222');R(9,5,3,2,'rgba(111,210,240,.55)');}
@@ -191,9 +195,14 @@ function cara32(cv,o){
     R(6,6,1,14,claro(o.pelo));R(25,6,1,14,osc(o.pelo));
   }
 
-  /* ojos con un brillo de un píxel, para que no queden dos puntos muertos */
-  R(12,12,2,2,'#101018');R(18,12,2,2,'#101018');
-  R(12,12,1,1,'#3a4560');R(18,12,1,1,'#3a4560');
+  /* ojos con un brillo de un píxel, para que no queden dos puntos muertos;
+     parpadeando, una raya de párpado en la mitad de abajo del ojo */
+  if(o.parpadeo){
+    R(12,13,2,1,osc(o.skin));R(18,13,2,1,osc(o.skin));
+  }else{
+    R(12,12,2,2,'#101018');R(18,12,2,2,'#101018');
+    R(12,12,1,1,'#3a4560');R(18,12,1,1,'#3a4560');
+  }
 
   if(o.feliz){
     R(12,18,2,2,'#8a4030');R(14,20,4,2,'#8a4030');R(18,18,2,2,'#8a4030');
@@ -242,6 +251,32 @@ function cara32(cv,o){
    directamente, así que S.av32 se aplica en todas partes por igual — el
    jurado del quiz, los diálogos, el certificado, no solo "tu" retrato. */
 const retrato=(cv,o)=>(S.av32?cara32:cara)(cv,o);
+/* ── RETRATO VIVO: el mismo retrato, pero parpadea ──
+   Para las caras que están "en escena" (título, diálogo, jurado, el avatar
+   grande), no para las que son un recuerdo fijo (certificado, ascenso).
+   · Un solo reloj por lienzo: personalización repinta el avatar con cada
+     cambio de piel o camisa, y cada llamada solo actualiza cv._cara, que
+     es lo que dibuja el reloj ya en marcha. Si no, los relojes se sumaban.
+   · Intervalo irregular (1,2 a 4,8 s, sorteado en cada vuelta): a tiempo
+     fijo parece un metrónomo, y así las tres caras del jurado no parpadean
+     a la vez.
+   · tvez() se limpia solo al cambiar de pantalla (limpiarT en pantalla()),
+     y con prefers-reduced-motion no se anima nada, como el resto del juego. */
+const quieto=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+function retratoVivo(cv,o){
+  if(!cv)return;
+  cv._cara=o;
+  retrato(cv,o);
+  if(cv._vivo||quieto())return;
+  cv._vivo=true;
+  const parpadea=()=>{
+    if(!cv.isConnected)return;
+    retrato(cv,Object.assign({},cv._cara,{parpadeo:true}));
+    tvez(()=>{if(cv.isConnected)retrato(cv,cv._cara)},120);
+    tvez(parpadea,1200+Math.random()*3600);
+  };
+  tvez(parpadea,1200+Math.random()*3600);
+}
 const CARAS={
   yo:(f)=>({skin:SKINS[S.skin],camisa:CAMISAS[S.camisa],pelo:'#2a1c10',feliz:f,
     gafas:S.acc==='gafas',gorra:S.acc==='gorra',cafe:S.acc==='cafe',
