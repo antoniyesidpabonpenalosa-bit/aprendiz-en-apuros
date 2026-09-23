@@ -1,0 +1,26 @@
+{
+  /* Comprobación de tipos sin build: TypeScript LEE el JavaScript del juego y
+     avisa de errores (un campo mal escrito, una función llamada con lo que no
+     es), pero no genera nada — el navegador sigue cargando los mismos .js.
+     Uso:  npx -p typescript@6 tsc -p jsconfig.json
+     VS Code usa este archivo solo y marca los errores mientras se escribe.
+
+     Los .js son scripts clásicos que comparten el ámbito global (index.html
+     los carga en orden), así que se comprueban todos juntos: una función de
+     graficos.js usada en menus.js se ve igual que en el navegador. */
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "target": "es2022",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "types": [],
+    /* Primer paso: la comprobación básica. "strict" (TypeScript 6 lo activa
+       por defecto) pediría anotar cada parámetro; se puede subir más adelante,
+       archivo por archivo. */
+    "strict": false,
+    "noUnusedLocals": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["js/*.js"]
+}

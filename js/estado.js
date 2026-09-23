@@ -8,31 +8,74 @@ const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',ski
      de hd, que es la piel de la interfaz (retro CRT / OLED). Los dos se pueden
      combinar: no son un selector de tres, son dos interruptores. */
   av32:false,stats:Object.assign({},STATS0)};
+/** La partida guardada. Con los campos escritos uno por uno, la comprobación
+    de tipos (jsconfig.json) avisa si en cualquier archivo se escribe mal uno:
+    S.dificultad en vez de S.dif, S.pst en vez de S.pts. (Un "typeof DEF" no
+    serviría: en JavaScript TypeScript deja abiertos los objetos escritos a
+    mano y acepta cualquier campo.) Al añadir un campo a DEF, se añade aquí.
+    @typedef {Object} Partida
+    @property {number} pts
+    @property {number} xp
+    @property {number[]} dias      estrellas por día; -1 = sin jugar
+    @property {string[]} logros
+    @property {string[]} accs      accesorios comprados
+    @property {string} acc         el accesorio puesto ('' = ninguno)
+    @property {number} skin
+    @property {number} camisa
+    @property {string[]} mejoras
+    @property {{n:string,p:number,x:number,yo?:number}[]} records   marcas locales
+    @property {string} lang        'es' | 'en'
+    @property {boolean} snd
+    @property {boolean} mus
+    @property {boolean} intro
+    @property {boolean} t2
+    @property {string} nombre
+    @property {boolean} hd
+    @property {boolean} legible
+    @property {string} grupo       código de aula ('' = sin grupo)
+    @property {number} dif         0, 1 o 2
+    @property {boolean} av32
+    @property {Object<string,number>} stats
+    @property {string[]} vistos    ayudas ya enseñadas (abajo, en sanear)
+    @property {Object<string,number>} mejores   marcas del modo libre
+    @property {number} mejorSinFin
+    @property {Object<string,any>} reto          el reto diario (reto.js)
+    @property {Object<string,number>} pesos      repaso espaciado (reto.js) */
+/** @type {Partida} */
 let S;
-try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('pa3')||'{}'))}catch(e){S=Object.assign({},DEF)}
-/* migración: partidas viejas de 10 días se extienden a 15 */
-if(!Array.isArray(S.dias))S.dias=Array(TOT_DIAS).fill(-1);
-while(S.dias.length<TOT_DIAS)S.dias.push(-1);
-S.dias=S.dias.slice(0,TOT_DIAS);
-if(typeof S.dif!=='number'||S.dif<0||S.dif>2)S.dif=1;
-if(typeof S.mus!=='boolean')S.mus=true;
-if(typeof S.t2!=='boolean')S.t2=false;
-if(typeof S.legible!=='boolean')S.legible=false;
-if(typeof S.av32!=='boolean')S.av32=false;
-/* No va en DEF a propósito: los arrays de DEF se copian por referencia y
-   S.vistos.push() acabaría escribiendo dentro de DEF. Aquí nace uno nuevo
-   en cada carga. */
-if(!Array.isArray(S.vistos))S.vistos=[];
-/* Marcas del modo libre, por minijuego y dificultad. Tampoco va en DEF:
-   Object.assign copia el objeto por referencia y escribir una marca
-   acabaría dentro de DEF. */
-if(!S.mejores||typeof S.mejores!=='object')S.mejores={};
-if(typeof S.mejorSinFin!=='number'||!(S.mejorSinFin>=0))S.mejorSinFin=0;
-/* Código de aula: mayúsculas, dígitos, 3 a 8 caracteres. Se sanea aquí
-   porque puede venir de un código de guardado escrito a mano. */
-S.grupo=String(S.grupo||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
-if(!S.stats||typeof S.stats!=='object')S.stats={};
-S.stats=Object.assign({},STATS0,S.stats);
+/* Deja S completa y en rango, venga de donde venga: del localStorage, de un
+   código de guardado importado o de borrar la partida. Las tres vías pasan por
+   aquí para que ninguna olvide un campo: si borrar dejaba sin crear
+   S.mejores, el modo libre se rompía hasta recargar la página. */
+function sanear(){
+  /* migración: partidas viejas de 10 días se extienden a 15 */
+  if(!Array.isArray(S.dias))S.dias=Array(TOT_DIAS).fill(-1);
+  while(S.dias.length<TOT_DIAS)S.dias.push(-1);
+  S.dias=S.dias.slice(0,TOT_DIAS);
+  if(typeof S.dif!=='number'||S.dif<0||S.dif>2)S.dif=1;
+  if(typeof S.mus!=='boolean')S.mus=true;
+  if(typeof S.t2!=='boolean')S.t2=false;
+  if(typeof S.legible!=='boolean')S.legible=false;
+  if(typeof S.av32!=='boolean')S.av32=false;
+  /* No va en DEF a propósito: los arrays de DEF se copian por referencia y
+     S.vistos.push() acabaría escribiendo dentro de DEF. Aquí nace uno nuevo. */
+  if(!Array.isArray(S.vistos))S.vistos=[];
+  /* Marcas del modo libre, por minijuego y dificultad. Tampoco va en DEF:
+     Object.assign copia el objeto por referencia y escribir una marca
+     acabaría dentro de DEF. */
+  if(!S.mejores||typeof S.mejores!=='object')S.mejores={};
+  if(typeof S.mejorSinFin!=='number'||!(S.mejorSinFin>=0))S.mejorSinFin=0;
+  /* Código de aula: mayúsculas, dígitos, 3 a 8 caracteres. Se sanea aquí
+     porque puede venir de un código de guardado escrito a mano. */
+  S.grupo=String(S.grupo||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
+  S.stats=Object.assign({},STATS0,(S.stats&&typeof S.stats==='object')?S.stats:{});
+}
+/** Lo guardado puede ser cualquier cosa (una versión vieja, datos rotos):
+    sanear() lo deja en forma. @type {any} */
+let guardado={};
+try{guardado=JSON.parse(localStorage.getItem('pa3')||'{}')}catch(e){}
+S=Object.assign({},DEF,guardado);
+sanear();
 const guardar=()=>{try{localStorage.setItem('pa3',JSON.stringify(S))}catch(e){}};
 const t=k=>TXT[S.lang][k]||k;
 const tj=o=>o[S.lang]||o.es;
@@ -99,10 +142,7 @@ function importarCodigo(cod){
     const d=JSON.parse(decodeURIComponent(escape(atob(p[2]))));
     if(!d||typeof d!=='object'||!Array.isArray(d.dias))return false;
     S=Object.assign({},DEF,d);
-    while(S.dias.length<TOT_DIAS)S.dias.push(-1);
-    S.dias=S.dias.slice(0,TOT_DIAS);
-    if(typeof S.dif!=='number'||S.dif<0||S.dif>2)S.dif=1;
-    S.stats=Object.assign({},STATS0,(S.stats&&typeof S.stats==='object')?S.stats:{});
+    sanear();
     guardar();vidas=maxVidas();aplicarModo();
     return true;
   }catch(e){return false}

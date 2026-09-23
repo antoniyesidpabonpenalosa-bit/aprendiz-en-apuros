@@ -18,7 +18,7 @@ let mandoAvisado=false;
 window.addEventListener('gamepadconnected',()=>{
   if(mandoAvisado)return;
   mandoAvisado=true;
-  const p=document.querySelector('#logro-popup');
+  const p=document.getElementById('logro-popup');
   if(p){
     p.querySelector('.ico-l').textContent='🎮';
     p.querySelector('p').textContent=t('mando');
@@ -37,8 +37,10 @@ function escucharGiro(){
 }
 function pedirGiro(){
   try{
-    if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){
-      DeviceOrientationEvent.requestPermission()
+    /* requestPermission solo existe en Safari: TypeScript no la conoce. */
+    const DOE=/** @type {any} */(window).DeviceOrientationEvent;
+    if(DOE&&DOE.requestPermission){
+      DOE.requestPermission()
         .then(r=>{if(r==='granted')escucharGiro()}).catch(()=>{});
     }else escucharGiro();
   }catch(e){}

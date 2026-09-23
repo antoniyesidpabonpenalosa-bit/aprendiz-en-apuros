@@ -15,6 +15,12 @@
    Todo aquí falla en silencio: sin internet, con el servidor caído o si el
    proyecto se borra, el juego sigue funcionando igual con sus récords locales. */
 
+/** Una fila del marcador, tal como la devuelve la base.
+    @typedef {{nombre:string, puntos:number, xp:number, dificultad?:number, temporada?:number}} Fila */
+/** Lo que el juego manda al publicar una marca.
+    dificultad: 0, 1 o 2 · temporada: 0, 1, 2 o 3 (el sin fin) · grupo: el código de aula, si hay.
+    @typedef {{nombre:string, puntos:number, xp:number, dificultad:number, temporada:number, grupo?:string}} Marca */
+
 const RANKING = (() => {
   const URL_BASE = 'https://rfrvtuorcdgmlqwqzfqq.supabase.co/rest/v1/records';
   const CLAVE = 'sb_publishable_BOBxU9OmQuno60u1JgHkzw_Tyk2cuD3';
@@ -63,6 +69,8 @@ const RANKING = (() => {
      comparables — el puntaje de la campaña es el acumulado de quince días y el
      del sin fin es el de una sola racha, así que juntos el podio sería siempre
      de la campaña y el sin fin no se vería nunca. */
+  /** @param {number} [n] @param {number|null} [dificultad] @param {string} [grupo]
+      @param {'campana'|'sinfin'} [modo] @returns {Promise<Fila[]|null>} */
   async function top(n = 8, dificultad = null, grupo = '', modo = 'campana') {
     const filtro = [0, 1, 2].includes(dificultad) ? `&dificultad=eq.${dificultad}` : '';
     const fhito = modo === 'sinfin' ? `&temporada=eq.${HITO_SIN_FIN}` : `&temporada=neq.${HITO_SIN_FIN}`;
@@ -84,6 +92,7 @@ const RANKING = (() => {
      Un puntaje fuera de rango se DESCARTA, no se recorta: recortarlo a 100000
      convertiría un valor absurdo en el primer puesto del marcador, que es
      justo lo contrario de lo que queremos. Una partida real nunca llega ahí. */
+  /** @param {Marca} marca @returns {Promise<boolean>} */
   async function publicar({ nombre, puntos, xp, dificultad, temporada, grupo }) {
     const enteroValido = v => Number.isFinite(v) && v >= 0 && v <= 100000;
     const pts = Math.round(Number(puntos));
@@ -114,6 +123,8 @@ const RANKING = (() => {
      cualquiera puede ser primero hoy. */
   const URL_RETOS = URL_BASE.replace(/\/records$/, '/retos');
 
+  /** @param {number} n @param {string} fecha AAAA-MM-DD @param {string} [grupo]
+      @returns {Promise<Fila[]|null>} */
   async function topReto(n = 8, fecha, grupo = '') {
     const g = limpiaGrupo(grupo);
     const r = await pedir(`${URL_RETOS}?select=nombre,puntos,xp&fecha=eq.${encodeURIComponent(fecha)}` +
@@ -122,6 +133,7 @@ const RANKING = (() => {
     try { const f = await r.json(); return Array.isArray(f) ? f : null; } catch (e) { return null; }
   }
 
+  /** @param {Omit<Marca,'temporada'> & {fecha:string}} marca @returns {Promise<boolean>} */
   async function publicarReto({ nombre, puntos, xp, dificultad, fecha, grupo }) {
     const enteroValido = v => Number.isFinite(v) && v >= 0 && v <= 100000;
     const pts = Math.round(Number(puntos)), exp = Math.round(Number(xp));

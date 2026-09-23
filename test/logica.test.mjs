@@ -80,6 +80,23 @@ test('av32 sobrevive el código de guardado entre dispositivos', () => {
   assert.equal(c.S.av32, false);
 });
 
+test('un código de antes del modo libre importa completo y bien saneado', () => {
+  /* Un código exportado antes de que existieran las marcas del modo libre y
+     del sin fin, y con un grupo escrito a mano. Antes importarCodigo() no
+     creaba S.mejores y el modo libre se rompía hasta recargar la página. */
+  const a = cargarJuego();
+  const datos = JSON.parse(decodeURIComponent(escape(atob(a.exportarCodigo().split('.')[2]))));
+  delete datos.mejores; delete datos.mejorSinFin; delete datos.vistos;
+  datos.grupo = 'adso-26!';
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(datos))));
+  const b = cargarJuego();
+  assert.equal(b.importarCodigo('PA4.' + a.sumaCod(b64) + '.' + b64), true);
+  assert.equal(typeof b.S.mejores, 'object');
+  assert.equal(b.S.mejorSinFin, 0);
+  assert.ok(Array.isArray(b.S.vistos));
+  assert.equal(b.S.grupo, 'ADSO26');
+});
+
 test('el código importado queda guardado en el navegador', () => {
   const a = cargarJuego();
   a.S.pts = 999;

@@ -140,8 +140,8 @@ function rBorrar(){
   $('#bo-no').onclick=()=>{SFX.click();rTitulo()};
   $('#bo-si').onclick=()=>{
     const prefs={lang:S.lang,snd:S.snd,hd:S.hd,av32:S.av32};
-    S=Object.assign({},DEF,{dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],mejoras:[],records:[],vistos:[],pesos:{},reto:{},stats:Object.assign({},STATS0)},prefs);
-    guardar();
+    S=Object.assign({},DEF,{dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],mejoras:[],records:[],vistos:[],pesos:{},reto:{},mejores:{},mejorSinFin:0,stats:Object.assign({},STATS0)},prefs);
+    sanear();guardar();
     vidas=maxVidas();
     SFX.lose();
     rTitulo();
@@ -508,6 +508,7 @@ let soloGrupo=false;
 /* Cuál de los dos marcadores se mira: 'campana' son los hitos de los quince
    días y 'sinfin' las rachas sueltas. Están separados porque sus puntajes no
    son comparables — ver abajo el comentario de RANKING.top. */
+/** @type {'campana'|'sinfin'} */
 let tablaGlobal='campana';
 function tablaRecords(filas){
   return `<table class="rec-tabla">
@@ -557,14 +558,14 @@ function rRecords(){
     <button class="btn btn2" id="re-volver" type="button">${t('volver')}</button>
   </div>`);
   $('#re-volver').onclick=()=>{SFX.click();rTitulo()};
-  document.querySelectorAll('.rec-chip[data-dif]').forEach(b=>{
+  $$('.rec-chip[data-dif]').forEach(b=>{
     b.onclick=()=>{
       const d=b.dataset.dif;
       filtroDif=d===''?null:Number(d);
       SFX.click();marcarChips();pintarGlobal();
     };
   });
-  document.querySelectorAll('.rec-chip[data-tabla]').forEach(b=>{
+  $$('.rec-chip[data-tabla]').forEach(b=>{
     b.onclick=()=>{
       tablaGlobal=b.dataset.tabla;
       SFX.click();marcarChips();pintarGlobal();
@@ -611,11 +612,11 @@ function rGrupo(){
   inp.focus();
 }
 function marcarChips(){
-  document.querySelectorAll('.rec-chip[data-dif]').forEach(b=>{
+  $$('.rec-chip[data-dif]').forEach(b=>{
     const d=b.dataset.dif===''?null:Number(b.dataset.dif);
     b.classList.toggle('act',d===filtroDif);
   });
-  document.querySelectorAll('.rec-chip[data-tabla]').forEach(b=>{
+  $$('.rec-chip[data-tabla]').forEach(b=>{
     b.classList.toggle('act',b.dataset.tabla===tablaGlobal);
   });
 }
