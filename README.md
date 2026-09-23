@@ -104,6 +104,7 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
 aprendiz-en-apuros/
 ├── index.html            → página principal (solo estructura HTML)
 ├── manifest.webmanifest  → configuración de la app instalable (PWA)
+├── jsconfig.json         → comprobación de tipos del JS (TypeScript, sin build)
 ├── sw.js                 → service worker: caché y modo offline
 ├── icon.svg              → ícono de la app
 ├── portada.png           → vista previa al compartir el enlace (Open Graph)
@@ -161,6 +162,16 @@ racha con perdón y sesgo por fallos). Usa `node:test`, que viene incluido en No
 **sigue sin haber dependencias**. El juego no se tocó para poder probarlo — se
 carga en un contexto aislado con `node:vm`, así que sigue siendo `<script>`
 clásicos que funcionan con doble clic.
+
+**Tipos:** `npx -p typescript@6 tsc -p jsconfig.json` revisa el JavaScript con
+TypeScript **sin convertirlo**: no hay paso de compilación y el navegador sigue
+cargando los mismos `.js`. Avisa de errores que el juego solo mostraría al
+llegar a esa pantalla — un campo de la partida mal escrito (`S.dificultad` en
+vez de `S.dif`, en cualquier archivo), una marca del marcador con un campo que
+la base no conoce, una función llamada con lo que no es. Los tipos se escriben
+en comentarios JSDoc (`@typedef Partida` en `estado.js`, `Marca` y `Fila` en
+`ranking.js`). VS Code lee `jsconfig.json` solo y marca los errores mientras se
+escribe. También corre en cada push, en GitHub Actions.
 
 ---
 

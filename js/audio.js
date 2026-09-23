@@ -4,7 +4,7 @@ let AC=null;
 function beep(f,d=0.08,tipo='square',v=0.12){
   if(!S.snd)return;
   try{
-    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    AC=AC||new (window.AudioContext||/** @type {any} */(window).webkitAudioContext)();
     if(AC.state==='suspended')AC.resume();
     const o=AC.createOscillator(),g=AC.createGain();
     o.type=tipo;o.frequency.value=f;

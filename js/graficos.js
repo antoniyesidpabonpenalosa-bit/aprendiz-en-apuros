@@ -32,7 +32,7 @@ function encajar(){
   escPantalla=esc;
   html.classList.toggle('apaisado',apaisado);
   html.classList.add('encaje');
-  html.style.setProperty('--esc',esc);
+  html.style.setProperty('--esc',String(esc));
   html.style.setProperty('--app-w',w+'px');
   html.style.setProperty('--app-h',h+'px');
 }
