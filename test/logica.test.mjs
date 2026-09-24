@@ -312,3 +312,34 @@ test('el marcador devuelve null cuando la red falla, nunca lanza', async () => {
   v.fetch = async () => ({ ok: false, status: 500, json: async () => ({}) });
   assert.equal(await v.RANKING.top(8), null, 'un 500 tampoco debe romper la pantalla');
 });
+
+/* ══════════ NOMBRE DEL JUGADOR ══════════
+   Es obligatorio: antes un campo vacío se guardaba como "TÚ" y el juego lo
+   daba por bueno (certificado, marcador y proyector con "TÚ"). */
+
+test('el nombre vacío, solo espacios o solo símbolos no vale', () => {
+  const { nombreValido } = cargarJuego();
+  for (const v of ['', '   ', '...', '-_-', '🙂', null, undefined])
+    assert.equal(nombreValido(v), false, JSON.stringify(v));
+});
+
+test('"TÚ" o "YOU" (lo que se guardaba al dejarlo vacío) no cuenta como nombre', () => {
+  const { nombreValido } = cargarJuego();
+  for (const v of ['TÚ', 'tú', 'TU', ' you '])
+    assert.equal(nombreValido(v), false, v);
+});
+
+test('un nombre real vale, y se guarda limpio', () => {
+  const { nombreValido, limpiaNombre } = cargarJuego();
+  for (const v of ['Ana', 'maría josé', 'ÑOÑO', 'dev42', '7'])
+    assert.equal(nombreValido(v), true, v);
+  assert.equal(limpiaNombre('  maría   josé  '), 'MARÍA JOSÉ');
+  assert.equal(limpiaNombre('abcdefghij klm'), 'ABCDEFGHIJ', 'nunca más de 10');
+  assert.equal(limpiaNombre('abcdefghi jk'), 'ABCDEFGHI', 'sin espacio colgando al cortar');
+});
+
+test('una partida guardada con "TÚ" vuelve a pedir el nombre', () => {
+  assert.equal(cargarJuego({ guardado: { nombre: 'TÚ' } }).tieneNombre(), false);
+  assert.equal(cargarJuego({ guardado: { nombre: '' } }).tieneNombre(), false);
+  assert.equal(cargarJuego({ guardado: { nombre: 'ANTONI' } }).tieneNombre(), true);
+});

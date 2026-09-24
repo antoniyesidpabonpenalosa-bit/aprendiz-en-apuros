@@ -83,6 +83,15 @@ const tj=o=>o[S.lang]||o.es;
 const tp=o=>(S.lang==='en'?o.pen:o.pes)||o.pes||'';
 /* Escapa texto que no controlamos (nombres del marcador global) antes de
    meterlo en innerHTML. Sin esto, un nombre con HTML se ejecutaría. */
+/* Nombre del jugador. Es obligatorio: sale en el certificado, en el marcador y
+   en el proyector de la sala. Se limpia igual que en la base (mayúsculas,
+   espacios juntos, 10 caracteres) y tiene que llevar al menos una letra o un
+   número. "TÚ"/"YOU" es lo que antes se guardaba al dejar el campo vacío: no
+   cuenta como nombre, así que a quien lo tenga se le vuelve a preguntar. */
+const limpiaNombre=v=>String(v||'').trim().replace(/\s+/g,' ').toUpperCase().slice(0,10).trim();
+const NOMBRES_VACIOS=['TÚ','TU','YOU'];
+const nombreValido=v=>{const n=limpiaNombre(v);return /[\p{L}\p{N}]/u.test(n)&&!NOMBRES_VACIOS.includes(n)};
+const tieneNombre=()=>nombreValido(S.nombre);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 let diaAct=0, vidas=3, pausado=false, raf=0, pantallaId='titulo';

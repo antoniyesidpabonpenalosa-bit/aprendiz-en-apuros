@@ -111,7 +111,7 @@ function rTitulo(){
   $('#t-jugar').onclick=()=>{
     SFX.click();
     const go=()=>S.intro?rMapa():rCutscene(INTRO[S.lang],()=>{S.intro=true;guardar();rMapa()});
-    S.nombre?go():rNombre(go);
+    tieneNombre()?go():rNombre(go);
   };
   $('#t-reto').onclick=()=>{SFX.click();rReto()};
   $('#t-libre').onclick=()=>{SFX.click();rLibre()};
@@ -163,15 +163,25 @@ function rNombre(next){
     <span class="ico">🪪</span>
     <h2>${t('nombreq')}</h2>
     <div style="width:min(300px,100%)">
-      <input class="entrada" id="n-in" maxlength="10" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${t('tunombre')}">
+      <input class="entrada" id="n-in" maxlength="10" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${t('tunombre')}" aria-describedby="n-aviso" required>
     </div>
+    <p class="mini rojo" id="n-aviso" role="status">&nbsp;</p>
     <button class="btn" id="n-ok" type="button">${t('ok')}</button>
   </div>`);
-  const inp=$('#n-in');
+  const inp=$('#n-in'),aviso=$('#n-aviso');
+  /* Sin nombre no se sigue: antes un campo vacío se guardaba como "TÚ". */
   const listo=()=>{
-    S.nombre=(inp.value.trim()||t('tu')).toUpperCase().slice(0,10);
+    if(!nombreValido(inp.value)){
+      aviso.textContent=t('nombre_falta');
+      inp.setAttribute('aria-invalid','true');
+      inp.classList.remove('shake');void inp.offsetWidth;inp.classList.add('shake');
+      SFX.mal();inp.focus();
+      return;
+    }
+    S.nombre=limpiaNombre(inp.value);
     guardar();SFX.ok();next();
   };
+  inp.oninput=()=>{if(aviso.textContent.trim()){aviso.innerHTML='&nbsp;';inp.removeAttribute('aria-invalid')}};
   $('#n-ok').onclick=listo;
   inp.onkeydown=e=>{if(e.key==='Enter')listo()};
   inp.focus();

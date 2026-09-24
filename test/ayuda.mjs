@@ -56,7 +56,7 @@ export function cargarJuego({ guardado = null } = {}) {
     RANGOS, DIFS, NIVELES, TXT, RANKING, RETO, SALA, SKINS, CAMISAS, CMDS, PAREJAS, QUIZ,
     exportarCodigo, importarCodigo, sumaCod,
     rangoDe, rangoNom, maxVidas, facTiempo, facPts, facJefe,
-    progreso, totalStars, esc, guardar,
+    progreso, totalStars, esc, guardar, limpiaNombre, nombreValido, tieneNombre,
   })`, ctx);
 
   /* fetch sí es propiedad del objeto global, así que las pruebas pueden
