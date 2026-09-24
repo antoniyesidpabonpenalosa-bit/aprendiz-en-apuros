@@ -50,9 +50,10 @@ function rTitulo(){
     </div>
 
     <div class="col">
-    <div class="tit-rejilla c2">
+    <div class="tit-rejilla c3 tit-modos">
       ${fila('t-libre','🎮',t('modo_libre'))}
       ${fila('t-sinfin','♾️',t('modo_sinfin'))}
+      ${fila('t-sala','🏫',t('modo_sala'))}
     </div>
 
     <div class="dif-panel">
@@ -115,6 +116,7 @@ function rTitulo(){
   $('#t-reto').onclick=()=>{SFX.click();rReto()};
   $('#t-libre').onclick=()=>{SFX.click();rLibre()};
   $('#t-sinfin').onclick=()=>{SFX.click();rSinFin()};
+  $('#t-sala').onclick=()=>{SFX.click();rSala()};
   $('#t-tienda').onclick=()=>{SFX.click();rTienda()};
   $('#t-logros').onclick=()=>{SFX.click();rLogros()};
   $('#t-records').onclick=()=>{SFX.click();rRecords()};

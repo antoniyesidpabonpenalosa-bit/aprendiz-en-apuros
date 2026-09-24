@@ -60,6 +60,9 @@ const RETO = (() => {
     return S.pesos;
   }
 
+  /* Los pesos que inclinan el sorteo: ninguno en una sala (ver entrar). */
+  const pesosSorteo = () => sorteoParejo ? {} : pesos();
+
   /* Registra cómo te fue con un ítem. Fallarlo lo acerca; acertarlo lo aleja. */
   function marcar(pool, i, acerto) {
     const p = pesos();
@@ -72,7 +75,7 @@ const RETO = (() => {
   /* Elige n índices de un pool de `total`, sin repetir, sesgando hacia lo
      fallado. Sin historial todos pesan igual y esto es un sorteo normal. */
   function elegir(pool, total, n, rnd = Math.random) {
-    const p = pesos();
+    const p = pesosSorteo();
     const quedan = [];
     for (let i = 0; i < total; i++) quedan.push(i);
     const salida = [];
@@ -113,7 +116,7 @@ const RETO = (() => {
   }
 
   function unoDe(pool, permitidos, rnd = Math.random) {
-    const p = pesos();
+    const p = pesosSorteo();
     if (!permitidos.length) return 0;
     const pesoDe = i => 1 + (p[clave(pool, i)] || 0);
     const suma = permitidos.reduce((a, i) => a + pesoDe(i), 0);
@@ -242,8 +245,13 @@ const RETO = (() => {
      que los minijuegos puedan preguntar qué generador usar sin saber nada del
      reto: con semilla si es el reto del día, al azar si es la campaña. */
   let modoReto = null;
-  const entrar = (fecha = hoy()) => { modoReto = fecha; };
-  const salir = () => { modoReto = null; };
+  /* En una sala de clase la semilla es 'sala-CODIGO' y el sorteo ignora los
+     pesos personales: si no, cada aprendiz vería preguntas distintas según lo
+     que haya fallado antes y la sala no sería justa. Lo fallado se sigue
+     anotando (marcar), solo que no inclina ESTE sorteo. */
+  let sorteoParejo = false;
+  const entrar = (fecha = hoy(), parejo = false) => { modoReto = fecha; sorteoParejo = parejo; };
+  const salir = () => { modoReto = null; sorteoParejo = false; };
   const enReto = () => modoReto !== null;
   const rngPara = sufijo => modoReto ? rngDelDia(sufijo, modoReto) : Math.random;
 

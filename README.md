@@ -123,13 +123,18 @@ aprendiz-en-apuros/
     ├── retoui.js         → pantallas del reto diario
     ├── minijuegos.js     → los minijuegos de las 2 temporadas (15 días)
     ├── jefe.js           → la batalla final contra EL BUG FINAL
+    ├── sala.js           → salas de clase: datos, red y lógica (sin pantallas)
+    ├── salaui.js         → salas de clase: crear, proyector, espera y podio
     └── principal.js      → arranque del juego y botones globales
 db/
-└── records.sql           → esquema y reglas del marcador global (Supabase)
+├── records.sql           → esquema y reglas del marcador global (Supabase)
+├── anti-trampas.sql      → freno de ráfagas y marcas repetidas (aplicado, ver abajo)
+└── salas.sql             → salas de clase: tablas privadas y 5 funciones (aplicado)
 test/
 ├── ayuda.mjs             → carga el juego fuera del navegador (node:vm)
 ├── logica.test.mjs       → pruebas de guardado, rangos, vidas y marcador
-└── reto.test.mjs         → pruebas de semilla, racha y sesgo del reto diario
+├── reto.test.mjs         → pruebas de semilla, racha y sesgo del reto diario
+└── sala.test.mjs         → pruebas de las salas (orden, empates, reintentos, sorteo parejo)
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 └── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
@@ -204,6 +209,47 @@ La clave que viaja en el JS es pública a propósito (Supabase la llama
 Aun así, como la clave es pública, **alguien decidido puede publicar un puntaje
 que no jugó**. Es el precio de no pedir cuenta de usuario; las reglas de arriba
 bloquean lo absurdo, no la mala fe.
+
+`db/anti-trampas.sql` sube un poco el listón sin pedir cuentas: frena las
+ráfagas por IP (40 marcas por minuto y 300 por hora, generoso porque un aula
+entera sale con la misma IP), rechaza la misma marca repetida y deja a la clave
+pública solo con leer e insertar. De la IP solo guarda un hash con sal, y lo
+borra a las 24 horas. El juego no necesita cambios: una marca rechazada falla
+en silencio, igual que sin internet. Está aplicado desde el 2026-09-23. El
+rechazo de repetidas y los permisos funcionan; el freno por IP todavía se puede
+esquivar falsificando la cabecera `X-Forwarded-For` (detalles en el archivo,
+junto con cómo deshacerlo).
+
+---
+
+## 🏫 Salas de clase
+
+Para usar el juego **en clase, todos a la vez**:
+
+1. El instructor entra en **🏫 SALA DE CLASE → CREAR SALA**, elige la
+   dificultad y de 1 a 6 minijuegos (en el orden en que los marque).
+2. El juego le da un **código de 5 letras** y una pantalla pensada para el
+   proyector: el código en grande, la dirección del juego y los personajes de
+   quienes van entrando, cada uno con su personalización.
+3. Los aprendices entran en **SALA DE CLASE**, escriben el código y esperan.
+4. El instructor pulsa **EMPEZAR**: a cada aprendiz le salta una cuenta atrás y
+   todos juegan lo mismo, con la dificultad de la sala y **el mismo contenido**
+   (la semilla es la de la sala y el sorteo no se inclina por los fallos de
+   cada uno, para que sea justo).
+5. El proyector muestra la **tabla en vivo** (las filas se deslizan al cambiar
+   de puesto) y, cuando todos terminan, el **podio**.
+
+El instructor puede **jugar también** (botón JUGAR TAMBIÉN: sale con 👑) y
+sacar de la sala a quien no toca. Las salas no dan XP ni puntos de tienda —la
+recompensa es el podio— y se borran solas a las 12 horas. Máximo 60 por sala.
+
+Por dentro: las tablas viven en un esquema que la API no publica y el
+navegador solo puede llamar a cinco funciones que validan cada dato
+(`db/salas.sql`). El instructor y cada aprendiz reciben un token secreto que se
+guarda en su dispositivo (la base solo guarda su hash): así el proyector
+recupera el mando si se recarga. No hay tiempo real: el proyector y la sala de
+espera preguntan cada 3 segundos (nada si la pestaña está oculta) y, mientras
+se juega, cada aprendiz solo envía su total al cerrar cada ronda.
 
 ---
 
