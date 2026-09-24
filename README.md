@@ -129,7 +129,7 @@ aprendiz-en-apuros/
 db/
 ├── records.sql           → esquema y reglas del marcador global (Supabase)
 ├── anti-trampas.sql      → freno de ráfagas y marcas repetidas (aplicado, ver abajo)
-└── salas.sql             → salas de clase: tablas privadas y 5 funciones (ver abajo)
+└── salas.sql             → salas de clase: tablas privadas y 5 funciones (aplicado)
 test/
 ├── ayuda.mjs             → carga el juego fuera del navegador (node:vm)
 ├── logica.test.mjs       → pruebas de guardado, rangos, vidas y marcador

@@ -1,6 +1,12 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 --  SALAS DE CLASE · se aplica después de records.sql y anti-trampas.sql
 -- ═══════════════════════════════════════════════════════════════════════════
+--  APLICADO en producción el 2026-09-24 (migración salas_de_clase).
+--  Probado contra la API real: crear, unirse, empezar, puntuar, estado,
+--  terminar, tokens falsos rechazados y tablas invisibles desde la API (404).
+--  El aviso de Supabase "Public Can Execute SECURITY DEFINER Function" sobre
+--  las cinco sala_* es esperado: SON la API pública y validan cada dato.
+-- ───────────────────────────────────────────────────────────────────────────
 --  El instructor crea una sala (dificultad + minijuegos), los aprendices se
 --  unen con el código y el proyector muestra quién entró y cómo van.
 --
