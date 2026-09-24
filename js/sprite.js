@@ -45,19 +45,25 @@ const APRENDIZ = (() => {
     cv.width = img.width; cv.height = img.height;
     const cx = cv.getContext('2d');
     cx.drawImage(img, 0, 0);
-    const camisa = hexRGB(CAMISAS[c] || CAMISAS[0]);
-    const piel = hexRGB(SKINS[s] || SKINS[0]);
-    const d = cx.getImageData(0, 0, cv.width, cv.height), px = d.data;
-    for (let i = 0; i < px.length; i += 4) {
-      if (px[i + 3] === 0) continue;
-      const r = px[i], g = px[i + 1], b = px[i + 2];
-      if (dist2(r, g, b, SHIRT) < TOL2) { const k = lum(r, g, b) / LSHIRT;
-        px[i] = Math.min(255, camisa[0] * k); px[i + 1] = Math.min(255, camisa[1] * k); px[i + 2] = Math.min(255, camisa[2] * k);
-      } else if (dist2(r, g, b, SKIN) < TOL2) { const k = lum(r, g, b) / LSKIN;
-        px[i] = Math.min(255, piel[0] * k); px[i + 1] = Math.min(255, piel[1] * k); px[i + 2] = Math.min(255, piel[2] * k);
+    /* Al abrir con doble clic (file://) el navegador "contamina" el canvas y
+       getImageData lanza SecurityError: no se puede recolorear. En ese caso se
+       deja el sprite con sus colores originales, sin romper nada. Sobre http/
+       https (que es como se juega de verdad) sí recolorea. */
+    try {
+      const camisa = hexRGB(CAMISAS[c] || CAMISAS[0]);
+      const piel = hexRGB(SKINS[s] || SKINS[0]);
+      const d = cx.getImageData(0, 0, cv.width, cv.height), px = d.data;
+      for (let i = 0; i < px.length; i += 4) {
+        if (px[i + 3] === 0) continue;
+        const r = px[i], g = px[i + 1], b = px[i + 2];
+        if (dist2(r, g, b, SHIRT) < TOL2) { const k = lum(r, g, b) / LSHIRT;
+          px[i] = Math.min(255, camisa[0] * k); px[i + 1] = Math.min(255, camisa[1] * k); px[i + 2] = Math.min(255, camisa[2] * k);
+        } else if (dist2(r, g, b, SKIN) < TOL2) { const k = lum(r, g, b) / LSKIN;
+          px[i] = Math.min(255, piel[0] * k); px[i + 1] = Math.min(255, piel[1] * k); px[i + 2] = Math.min(255, piel[2] * k);
+        }
       }
-    }
-    cx.putImageData(d, 0, 0);
+      cx.putImageData(d, 0, 0);
+    } catch (e) { /* file://: sin recoloreo, el sprite sale con sus colores */ }
     cache.set(clave, cv);
     return cv;
   }

@@ -102,8 +102,10 @@ function nvJefe(dia,ptsBase){
       errores.push({x:jefe.x+(Math.random()*40-20),y:56,v:(1.4+fase*.5+Math.random())*fj,vx:0});
       if(fase===3&&Math.random()<.5)errores.push({x:jefe.x+(Math.random()*60-30),y:56,v:(1.6+Math.random())*fj,vx:0});
     }
-    /* fase 2+: ráfaga en abanico que se abre */
-    if(fase>=2&&frame%Math.round((fase===3?95:150)/fj)===0){
+    /* fase 3: ráfaga en abanico que se abre. Antes salía también en la fase 2,
+       pero con el rayo encima la fase 2 era demasiado; ahora el abanico se
+       reserva para el tramo final. */
+    if(fase===3&&frame%Math.round(95/fj)===0){
       for(let a=-2;a<=2;a++)errores.push({x:jefe.x+a*16,y:58,v:(1.2+fase*.35)*fj,vx:a*0.45});
       beep(180,.08,'sawtooth',.06);
     }
