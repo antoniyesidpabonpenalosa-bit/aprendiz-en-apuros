@@ -1270,15 +1270,21 @@ html.hd .pd-base{border-radius:12px 12px 0 0}
 
 /* ── APRENDIZ DEL MAPA (sprite, salaui/menus) ──
    Mascota decorativa arriba a la derecha del mapa. Solo en vertical: en
-   apaisado el mapa ya va apretado en rejilla y un elemento extra la
-   descuadraría. */
+   Va en posición absoluta, así que no entra ni en la columna de vertical ni
+   en la rejilla de apaisado: se coloca en el hueco libre de cada una. */
 .centro.mapa{position:relative}
 .mapa-aprendiz{position:absolute;top:-4px;right:2px;width:48px;height:82px;
   image-rendering:pixelated;pointer-events:none;z-index:1}
-/* deja sitio al mascota: el título no llega a la esquina derecha */
-.centro.mapa>h2{padding:0 54px}
-html.apaisado .mapa-aprendiz{display:none}
+/* En vertical el título va a lo ancho y hay que dejarle sitio a la mascota */
+html:not(.apaisado) .centro.mapa>h2{padding:0 54px}
+/* En apaisado la cabecera es una rejilla 1fr auto auto 1fr: la mascota cae en
+   el hueco libre de la derecha, sin tocar el título ni las fichas. Es
+   absoluta, así que no entra en la rejilla. */
+html.apaisado .mapa-aprendiz{top:0;right:8px;width:58px;height:99px}
 @media(max-width:360px){.mapa-aprendiz{width:40px;height:68px}}
+/* Móvil de lado: el mapa ya hace scroll y la cabecera se va de vista, y con un
+   rango largo las fichas llegan hasta la esquina. Ahí la mascota estorba. */
+@media (max-height:480px){html.apaisado .mapa-aprendiz{display:none}}
 
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
@@ -1736,15 +1742,21 @@ html.apaisado .sp-main .sj-carta .sj-nom{font-size:23px}
 
 /* ── APRENDIZ DEL MAPA (sprite, salaui/menus) ──
    Mascota decorativa arriba a la derecha del mapa. Solo en vertical: en
-   apaisado el mapa ya va apretado en rejilla y un elemento extra la
-   descuadraría. */
+   Va en posición absoluta, así que no entra ni en la columna de vertical ni
+   en la rejilla de apaisado: se coloca en el hueco libre de cada una. */
 .centro.mapa{position:relative}
 .mapa-aprendiz{position:absolute;top:-4px;right:2px;width:48px;height:82px;
   image-rendering:pixelated;pointer-events:none;z-index:1}
-/* deja sitio al mascota: el título no llega a la esquina derecha */
-.centro.mapa>h2{padding:0 54px}
-html.apaisado .mapa-aprendiz{display:none}
+/* En vertical el título va a lo ancho y hay que dejarle sitio a la mascota */
+html:not(.apaisado) .centro.mapa>h2{padding:0 54px}
+/* En apaisado la cabecera es una rejilla 1fr auto auto 1fr: la mascota cae en
+   el hueco libre de la derecha, sin tocar el título ni las fichas. Es
+   absoluta, así que no entra en la rejilla. */
+html.apaisado .mapa-aprendiz{top:0;right:8px;width:58px;height:99px}
 @media(max-width:360px){.mapa-aprendiz{width:40px;height:68px}}
+/* Móvil de lado: el mapa ya hace scroll y la cabecera se va de vista, y con un
+   rango largo las fichas llegan hasta la esquina. Ahí la mascota estorba. */
+@media (max-height:480px){html.apaisado .mapa-aprendiz{display:none}}
 
 </style>
 </head>
