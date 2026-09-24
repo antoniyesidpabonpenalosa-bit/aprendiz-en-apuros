@@ -695,6 +695,10 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 .acc-op.bloq .acc-ico{filter:grayscale(.6) brightness(.65)}
 .acc-precio{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:7px;color:var(--y2);background:var(--bd);padding:2px 4px;white-space:nowrap}
 .acc-op.shake{animation:shake .3s}
+.entrada.shake{animation:shake .3s}
+.entrada[aria-invalid="true"]{border-color:var(--r3)}
+/* .mini va después de .rojo y le ganaba el color: un aviso tiene que verse */
+.mini.rojo{color:var(--r3)}
 .confeti{position:absolute;top:-24px;z-index:40;pointer-events:none;line-height:1;
   animation:confeti-cae 2.8s linear forwards}
 @keyframes confeti-cae{to{transform:translateY(105vh) rotate(720deg);opacity:.1}}

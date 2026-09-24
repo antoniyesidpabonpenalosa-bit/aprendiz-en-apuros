@@ -64,7 +64,7 @@ function rSala() {
     const cod = SALA.limpiaCodigo(inp.value);
     if (!SALA.CODIGO_OK.test(cod)) { aviso.textContent = t('sala_cod_malo'); SFX.mal(); inp.focus(); return; }
     /* En una sala el nombre importa: el proyector lo muestra en grande. */
-    if (!S.nombre) return rNombre(() => { rSala(); $('#sa-cod').value = cod; $('#sa-unir').click(); });
+    if (!tieneNombre()) return rNombre(() => { rSala(); $('#sa-cod').value = cod; $('#sa-unir').click(); });
     bUnir.disabled = true; aviso.textContent = t('glob_carga');
     const r = await SALA.unirse(cod);
     if (!$('#sa-unir')) return;                   // ya salió de la pantalla
@@ -325,7 +325,7 @@ function rProyector(codigo) {
     });
     on('sp-jugar-yo', async () => {
       $('#sp-jugar-yo').disabled = true; SFX.click();
-      if (!S.nombre) return rNombre(() => rProyector(codigo));
+      if (!tieneNombre()) return rNombre(() => rProyector(codigo));
       const r = await SALA.unirse(codigo);
       if (!r.ok) { $('#sp-estado').textContent = errorSala(r); mandosClave = ''; return; }
       mandosClave = '';
