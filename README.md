@@ -2,7 +2,7 @@
 
 Juego hecho con IA que representa lo que vive un aprendiz de programación
 durante sus 10 días de etapa productiva. Hecho con **HTML, CSS y JavaScript
-puro** — sin motores, sin librerías, sin dependencias.
+puro** — sin motores, sin librerías, sin dependencias. El único recurso de imagen es `img/aprendiz.png` (5 KB), el sprite del aprendiz que se pasea por el mapa y pelea contra el jefe; todo lo demás se dibuja con código.
 
 **🎮 Juega en línea:** https://antoniyesidpabonpenalosa-bit.github.io/aprendiz-en-apuros/
 
@@ -107,6 +107,7 @@ aprendiz-en-apuros/
 ├── jsconfig.json         → comprobación de tipos del JS (TypeScript, sin build)
 ├── sw.js                 → service worker: caché y modo offline
 ├── icon.svg              → ícono de la app
+├── img/aprendiz.png      → sprite del aprendiz de cuerpo entero (8 direcciones)
 ├── portada.png           → vista previa al compartir el enlace (Open Graph)
 ├── css/
 │   └── estilos.css       → todos los estilos (temas retro y 4K OLED)
@@ -123,6 +124,7 @@ aprendiz-en-apuros/
     ├── retoui.js         → pantallas del reto diario
     ├── minijuegos.js     → los minijuegos de las 2 temporadas (15 días)
     ├── jefe.js           → la batalla final contra EL BUG FINAL
+    ├── sprite.js         → sprite del aprendiz: carga, recoloreo por jugador y dibujo
     ├── sala.js           → salas de clase: datos, red y lógica (sin pantallas)
     ├── salaui.js         → salas de clase: crear, proyector, espera y podio
     └── principal.js      → arranque del juego y botones globales
@@ -137,7 +139,8 @@ test/
 └── sala.test.mjs         → pruebas de las salas (orden, empates, reintentos, sorteo parejo)
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
-└── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
+├── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
+└── build-sprite.py       → genera img/aprendiz.png desde arte/aprendiz/
 design-system/            → catálogo de componentes extraído de css/estilos.css
 ├── README.md             → cómo regenerarlo y sincronizarlo con claude.ai/design
 ├── src/                  → fuente de cada fragmento de componente

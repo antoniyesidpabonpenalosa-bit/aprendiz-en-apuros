@@ -87,6 +87,8 @@ function nvJefe(dia,ptsBase){
     }
     if(giroActivo&&Math.abs(giroGamma)>6)mov+=giroGamma/22;
     p.x=Math.max(8,Math.min(296,p.x+mov*3.4));
+    /* a dónde mira el aprendiz: sigue el movimiento, de frente si está quieto */
+    p.dir=APRENDIZ.dirDe(Math.abs(mov)>.1?mov:0,0);
     /* ── disparo automático ── */
     if(frame%16===0){balas.push({x:p.x+7,y:150});beep(880,.03,'triangle',.05)}
     balas.forEach(b=>b.y-=4.5);
@@ -201,11 +203,14 @@ function nvJefe(dia,ptsBase){
       c.fillStyle='#ffd0d6';c.fillRect(laserX-2,jefe.y+8,4,170-jefe.y);
       c.shadowBlur=0;
     }
-    /* jugador (parpadea si invulnerable) */
+    /* jugador (parpadea si invulnerable). El aprendiz de cuerpo entero mira
+       hacia donde se mueve; si el sprite no cargó, cae al bloque de siempre. */
     if(inv%12<8){
-      c.fillStyle=CAMISAS[S.camisa];c.fillRect(p.x,158,16,16);
-      c.fillStyle=SKINS[S.skin];c.fillRect(p.x+2,148,12,12);
-      c.fillStyle='#101018';c.fillRect(p.x+9,152,2,2);
+      if(!APRENDIZ.dibujar(c,p.x+8,176,30,p.dir??APRENDIZ.idx.south)){
+        c.fillStyle=CAMISAS[S.camisa];c.fillRect(p.x,158,16,16);
+        c.fillStyle=SKINS[S.skin];c.fillRect(p.x+2,148,12,12);
+        c.fillStyle='#101018';c.fillRect(p.x+9,152,2,2);
+      }
     }
   }
   loop();

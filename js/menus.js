@@ -209,6 +209,35 @@ function rCutscene(paginas,fin){
   pag();
 }
 
+/* El aprendiz de cuerpo entero se pasea por el mapa: mira alrededor (gira por
+   las 8 direcciones en un ciclo irregular, como parpadean los retratos) y
+   rebota un poco. Con prefers-reduced-motion se queda quieto de frente. Los
+   temporizadores se limpian solos al cambiar de pantalla (limpiarT). Si el
+   sprite aún no cargó, cada tic lo reintenta y aparece en cuanto esté. */
+function aprendizMapa(cv){
+  if(!cv)return;
+  const c=cv.getContext('2d');
+  const escala=cv.width/APRENDIZ.FW;               // el sprite llena el ancho
+  let dir=APRENDIZ.idx.south,bob=0;
+  const pinta=()=>{
+    c.clearRect(0,0,cv.width,cv.height);
+    APRENDIZ.dibujar(c,cv.width/2,cv.height-2-bob,APRENDIZ.FH*escala,dir);
+  };
+  pinta();
+  if(quieto()){                                    // sin animación: unos reintentos por si carga tarde
+    [200,600,1200].forEach(ms=>tvez(pinta,ms));
+    return;
+  }
+  const pasos=[0,1,2,3,2,1];let i=0;
+  tcada(()=>{bob=pasos[i=(i+1)%pasos.length];pinta()},140);
+  const mirar=()=>{
+    dir=Math.floor(Math.random()*APRENDIZ.DIRS.length);
+    pinta();
+    tvez(mirar,1400+Math.random()*2600);
+  };
+  tvez(mirar,1200+Math.random()*2000);
+}
+
 /* ── MAPA ── */
 function rMapa(){
   const p=progreso();
@@ -254,9 +283,11 @@ function rMapa(){
       <span class="sep">${difActual().ico} ${tj(difActual())}</span>
       <span class="sep">⛁ ${S.pts}</span>
     </div>
+    <canvas class="mapa-aprendiz" id="m-aprendiz" width="96" height="164" aria-hidden="true"></canvas>
     <div class="etapas">${cards}</div>
     <button class="btn btn2" id="m-volver" type="button">${t('volver')}</button>
   </div>`);
+  aprendizMapa($('#m-aprendiz'));
   $$('.etapa-card:not([disabled])').forEach(b=>b.onclick=()=>{SFX.click();empezarDia(+b.dataset.i)});
   const btnJefe=$('#m-jefe');
   if(btnJefe)btnJefe.onclick=()=>{SFX.click();rCutscene(JEFE_INTRO[S.lang],()=>nvJefe(9,0))};

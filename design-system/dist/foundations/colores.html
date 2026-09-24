@@ -1269,6 +1269,18 @@ html.hd .pd-base{border-radius:12px 12px 0 0}
   .sj-fila,.sj-barra i{transition:none}
 }
 
+/* ── APRENDIZ DEL MAPA (sprite, salaui/menus) ──
+   Mascota decorativa arriba a la derecha del mapa. Solo en vertical: en
+   apaisado el mapa ya va apretado en rejilla y un elemento extra la
+   descuadraría. */
+.centro.mapa{position:relative}
+.mapa-aprendiz{position:absolute;top:-4px;right:2px;width:48px;height:82px;
+  image-rendering:pixelated;pointer-events:none;z-index:1}
+/* deja sitio al mascota: el título no llega a la esquina derecha */
+.centro.mapa>h2{padding:0 54px}
+html.apaisado .mapa-aprendiz{display:none}
+@media(max-width:360px){.mapa-aprendiz{width:40px;height:68px}}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}
