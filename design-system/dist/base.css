@@ -1279,6 +1279,100 @@ html.apaisado .mapa-aprendiz{top:0;right:8px;width:58px;height:99px}
    rango largo las fichas llegan hasta la esquina. Ahí la mascota estorba. */
 @media (max-height:480px){html.apaisado .mapa-aprendiz{display:none}}
 
+/* ── CONSOLA DE LABORATORIO (consola.js / consolaui.js) ──
+   Un terminal de fósforo verde por encima del juego. No usa la tipografía de
+   píxeles: un terminal se lee en monoespaciada, y VT323 ya está cargada. El
+   verde es el --g4 del juego, no un verde nuevo, para que siga siendo el mismo
+   mundo; con la piel OLED (html.hd) se apagan las rayas y el brillo. */
+#lab{z-index:60;padding:10px;touch-action:auto}
+.lab-caja{
+  display:flex;flex-direction:column;width:min(560px,100%);max-height:100%;
+  background:#04120a;
+  border:3px solid var(--g2);box-shadow:0 0 0 2px var(--bd),0 0 26px rgba(57,169,0,.25);
+  pointer-events:all;overflow:hidden;position:relative;
+}
+/* Rayas de barrido: puro CSS encima del panel, sin tocar el contenido */
+.lab-caja::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px);
+}
+.lab-barra{
+  display:flex;align-items:center;gap:10px;flex:0 0 auto;
+  background:var(--g0);border-bottom:2px solid var(--g2);padding:8px 10px;
+}
+#lab-tit{font-size:9px;letter-spacing:2px;color:var(--y3)}
+#lab-sub{flex:1;font-size:15px;color:var(--g4);opacity:.75;text-align:left;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lab-x{background:none;border:0;font-size:12px;color:var(--g4);cursor:pointer;
+  min-width:44px;min-height:32px;line-height:1}
+.lab-x:hover,.lab-x:focus-visible{color:var(--y3)}
+
+.lab-salida{
+  flex:1;min-height:180px;overflow-y:auto;padding:10px 12px;
+  font-family:'VT323',monospace;font-size:18px;line-height:1.35;
+  /* Las listas de "listar" y "ayuda" vienen alineadas con espacios: sin esto
+     el navegador los colapsa y las columnas se descuadran. */
+  white-space:pre-wrap;overflow-wrap:break-word;
+}
+.lab-l{margin:0 0 2px;padding-left:1.4em;text-indent:-1.4em}
+.lab-eco{color:var(--tx3)}
+.lab-ok{color:var(--g4)}
+.lab-err{color:var(--r3)}
+.lab-info{color:#7fd08a}
+.lab-tit{color:var(--y3);letter-spacing:2px;margin-top:6px}
+
+.lab-chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px 0;flex:0 0 auto}
+.lab-chip{
+  font-family:'VT323',monospace;font-size:16px;line-height:1;
+  background:#082512;color:var(--g4);border:1px solid var(--g1);
+  padding:8px 10px;min-height:34px;cursor:pointer;
+}
+.lab-chip:hover,.lab-chip:focus-visible{background:var(--g0);border-color:var(--g4)}
+.lab-chip:active{transform:translateY(1px)}
+
+.lab-linea{display:flex;align-items:center;gap:8px;padding:8px 10px 10px;flex:0 0 auto}
+.lab-prompt{font-family:'VT323',monospace;font-size:20px;color:var(--g4)}
+.lab-in{
+  flex:1;min-width:0;font-family:'VT323',monospace;font-size:20px;
+  background:#071a0e;color:var(--g4);border:2px solid var(--g1);
+  padding:7px 9px;min-height:40px;caret-color:var(--g4);
+}
+.lab-in:focus{outline:none;border-color:var(--g4)}
+
+/* ── MARCA DE ENSAYO ──
+   Abajo del todo y por encima de casi todo: tiene que verse también en una
+   captura de pantalla, que es justo lo que se intentaría pasar por real. */
+#lab-marca{
+  position:absolute;left:50%;bottom:6px;transform:translateX(-50%);z-index:58;
+  font-family:'VT323',monospace;font-size:16px;line-height:1;
+  background:var(--o1);color:var(--y4);border:2px solid var(--o3);
+  padding:5px 10px;max-width:94%;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;pointer-events:none;
+}
+#lab-fps{
+  position:absolute;right:6px;bottom:6px;z-index:58;
+  font-family:'VT323',monospace;font-size:16px;line-height:1;
+  background:var(--bd);color:var(--g4);border:1px solid var(--g1);padding:4px 7px;
+  pointer-events:none;
+}
+
+/* Piel OLED: sin rayas de barrido y con el texto un punto más nítido */
+html.hd .lab-caja::after{display:none}
+html.hd .lab-caja{background:#061a0f;border-radius:10px}
+html.hd .lab-chip{border-radius:6px}
+html.hd .lab-in{border-radius:6px}
+html.hd #lab-marca{border-radius:6px}
+
+/* Pantalla estrecha: el subtítulo de la barra no cabe y se cortaba a media
+   palabra. El título ya dice qué es esto, y la propia consola lo repite al
+   abrirse por primera vez. */
+@media (max-width:430px){#lab-sub{display:none}}
+/* Móvil de lado: el teclado se come la pantalla, así que la salida cede sitio */
+@media (max-height:520px){
+  .lab-salida{min-height:96px;font-size:16px}
+  .lab-chips{padding-top:6px}
+}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}

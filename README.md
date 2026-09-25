@@ -127,6 +127,8 @@ aprendiz-en-apuros/
     ├── sprite.js         → sprite del aprendiz: carga, recoloreo por jugador y dibujo
     ├── sala.js           → salas de clase: datos, red y lógica (sin pantallas)
     ├── salaui.js         → salas de clase: crear, proyector, espera y podio
+    ├── consola.js        → consola de laboratorio: parámetros y órdenes (sin pantallas)
+    ├── consolaui.js      → el panel de la consola y el gesto que la abre
     └── principal.js      → arranque del juego y botones globales
 db/
 ├── records.sql           → esquema y reglas del marcador global (Supabase)
@@ -136,7 +138,8 @@ test/
 ├── ayuda.mjs             → carga el juego fuera del navegador (node:vm)
 ├── logica.test.mjs       → pruebas de guardado, rangos, vidas y marcador
 ├── reto.test.mjs         → pruebas de semilla, racha y sesgo del reto diario
-└── sala.test.mjs         → pruebas de las salas (orden, empates, reintentos, sorteo parejo)
+├── sala.test.mjs         → pruebas de las salas (orden, empates, reintentos, sorteo parejo)
+└── consola.test.mjs      → pruebas de la consola: palancas, ensayo y que nada se guarde
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 ├── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
@@ -253,6 +256,46 @@ guarda en su dispositivo (la base solo guarda su hash): así el proyector
 recupera el mando si se recarga. No hay tiempo real: el proyector y la sala de
 espera preguntan cada 3 segundos (nada si la pestaña está oculta) y, mientras
 se juega, cada aprendiz solo envía su total al cerrar cada ronda.
+
+---
+
+## ⚗ Consola de laboratorio
+
+Un mini terminal dentro del juego para **probar cosas sin romper nada**: se
+escriben órdenes y cambian las palancas de la partida en el momento (vidas,
+tiempo, dureza del jefe, ritmo, dificultad de base…). Está pensada para
+explicar en clase —bajar la dificultad en vivo, repetir un nivel exacto— y para
+afinar el juego mientras se desarrolla.
+
+**Cómo se abre.** No tiene botón, para que no la encuentre un aprendiz por su
+cuenta:
+
+* **pulsación larga (0,9 s) sobre el día de la cabecera**, arriba a la
+  izquierda. Funciona con el dedo y en cualquier pantalla;
+* la tecla <kbd>`</kbd> en el computador;
+* terminando la dirección en `#lab`, para que se abra al cargar.
+
+Dentro se escribe `ayuda` y ella explica el resto. `listar` enseña todos los
+parámetros, `vidas 9` o `tiempo 2` cambian uno, `normal` lo deshace todo y
+`salir` cierra. Abajo hay botones con las órdenes más usadas, para que sirva en
+un móvil proyectado sin teclado. Las órdenes de desarrollo (`dia`, `juego`,
+`semilla`, `fps`, `estado`) están cerradas hasta escribir `dev`.
+
+**Las tres reglas que la hacen segura:**
+
+1. **Nada se guarda.** Los cambios viven en memoria. Mientras hay un ensayo en
+   marcha el juego no escribe en el almacenamiento, y al escribir `normal` la
+   partida se restaura desde la copia que se hizo al entrar. Recargar la página
+   también lo deja todo como estaba.
+2. **Un ensayo no cuenta.** En cuanto se cambia algo, la sesión queda marcada:
+   no sube al marcador global, no puntúa en una sala y no da puntos ni logros
+   que sobrevivan. Se ve siempre una etiqueta **ENSAYO** en pantalla, para que
+   nadie juegue con trucos y mande la captura como si fuera real. En una sala
+   de clase la consola ni se abre.
+3. **Solo existe lo declarado.** Las órdenes no evalúan código: únicamente
+   mueven los parámetros de una lista, cada uno con su tipo y su rango. Un valor
+   fuera de rango se rechaza explicando qué se esperaba, y un nombre mal escrito
+   sugiere el correcto.
 
 ---
 
