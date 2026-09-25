@@ -73,9 +73,33 @@
     <p></p>
   </div>
   <div id="interrupcion" role="alert" aria-live="assertive" hidden><p></p></div>
+  <!-- Consola de laboratorio (js/consola.js + js/consolaui.js). No tiene botón
+       a propósito: se abre con una pulsación larga en el día de la cabecera, con
+       la tecla ` en el computador, o terminando la dirección en #lab. -->
+  <div id="lab" class="overlay" role="dialog" aria-modal="true" aria-labelledby="lab-tit" hidden>
+    <div class="lab-caja">
+      <div class="lab-barra">
+        <span id="lab-tit">CONSOLA</span>
+        <span class="mini" id="lab-sub"></span>
+        <button class="lab-x" id="lab-x" type="button" aria-label="cerrar">✕</button>
+      </div>
+      <div class="lab-salida" id="lab-salida" role="log" aria-live="polite"></div>
+      <div class="lab-chips" id="lab-chips"></div>
+      <form class="lab-linea" id="lab-form" autocomplete="off">
+        <span class="lab-prompt" aria-hidden="true">&gt;</span>
+        <input class="lab-in" id="lab-in" type="text" autocomplete="off"
+               autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="orden">
+      </form>
+    </div>
+  </div>
+  <!-- Marca de ENSAYO: mientras el laboratorio esté tocado se ve siempre, para
+       que nadie juegue con trucos y mande la captura como si fuera real. -->
+  <p id="lab-marca" role="status" hidden></p>
+  <span id="lab-fps" hidden>0 FPS</span>
 </div>
 <script src="js/datos.js"></script>
 <script src="js/estado.js"></script>
+<script src="js/consola.js"></script>
 <script src="js/reto.js"></script>
 <script src="js/ranking.js"></script>
 <script src="js/audio.js"></script>
@@ -90,6 +114,7 @@
 <script src="js/modos.js"></script>
 <script src="js/sala.js"></script>
 <script src="js/salaui.js"></script>
+<script src="js/consolaui.js"></script>
 <script src="js/principal.js"></script>
 </body>
 </html>

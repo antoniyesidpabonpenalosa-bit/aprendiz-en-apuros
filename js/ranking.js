@@ -87,6 +87,11 @@ const RANKING = (() => {
     }
   }
 
+  /* Nada de un ensayo del laboratorio (js/consola.js) sube al marcador. Se
+     corta aquí, en el único sitio por donde pasan todas las marcas, y no en
+     cada pantalla que publica: así no hay forma de olvidarse de una. */
+  const deEnsayo = () => typeof LAB !== 'undefined' && LAB.ensayo();
+
   /* Publica una marca. No espera respuesta ni interrumpe el juego si falla.
 
      Un puntaje fuera de rango se DESCARTA, no se recorta: recortarlo a 100000
@@ -94,6 +99,7 @@ const RANKING = (() => {
      justo lo contrario de lo que queremos. Una partida real nunca llega ahí. */
   /** @param {Marca} marca @returns {Promise<boolean>} */
   async function publicar({ nombre, puntos, xp, dificultad, temporada, grupo }) {
+    if (deEnsayo()) return false;
     const enteroValido = v => Number.isFinite(v) && v >= 0 && v <= 100000;
     const pts = Math.round(Number(puntos));
     const exp = Math.round(Number(xp));
@@ -135,6 +141,7 @@ const RANKING = (() => {
 
   /** @param {Omit<Marca,'temporada'> & {fecha:string}} marca @returns {Promise<boolean>} */
   async function publicarReto({ nombre, puntos, xp, dificultad, fecha, grupo }) {
+    if (deEnsayo()) return false;
     const enteroValido = v => Number.isFinite(v) && v >= 0 && v <= 100000;
     const pts = Math.round(Number(puntos)), exp = Math.round(Number(xp));
     if (!enteroValido(pts) || !enteroValido(exp)) return false;

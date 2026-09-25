@@ -34,6 +34,22 @@ const difChip = d => { const x = DIFS[d] || DIFS[1]; return `${x.ico} ${tj(x)}`;
 /* ══════════ ENTRADA ══════════ */
 
 function rSala() {
+  /* En una sala se juega derecho: con un ensayo del laboratorio en marcha no se
+     entra. SALA.puntuar también lo rechaza, pero avisar aquí es lo honesto:
+     quien está probando cosas se enteraría al final, con la tabla vacía. */
+  if (typeof LAB !== 'undefined' && LAB.ensayo()) {
+    pantalla('sala-ensayo', `
+    <div class="centro">
+      <span class="ico">⚗</span>
+      <h2 class="rojo">${t('lab_ensayo')}</h2>
+      <p class="desc">${t('lab_sala_ensayo')}</p>
+      <button class="btn" id="se-normal" type="button">${t('lab_tit')} → ${t('volver')}</button>
+      <button class="btn btn2" id="se-volver" type="button">${t('volver')}</button>
+    </div>`);
+    $('#se-normal').onclick = () => { SFX.click(); LAB.volverANormal(); labMarca(); rSala(); };
+    $('#se-volver').onclick = () => { SFX.click(); rTitulo(); };
+    return;
+  }
   pantalla('sala', `
   <div class="centro">
     <span class="ico">🏫</span>

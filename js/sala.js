@@ -79,6 +79,11 @@ const SALA = (() => {
      tvez(): la pantalla cambia justo después y limpiarT() lo cancelaría. */
   let pendiente = null, reintento = 0;
   function puntuar(codigo, ronda, puntos) {
+    /* Una sala es competencia real: con el laboratorio tocado no se puntúa.
+       Es un cinturón de seguridad, porque la consola ni se abre dentro de una
+       sala (js/consolaui.js) y entrar a una con un ensayo en marcha se avisa
+       antes (rSala). Si algún día se abre otro camino, aquí se corta. */
+    if (typeof LAB !== 'undefined' && LAB.ensayo()) return;
     pendiente = { codigo, ronda, puntos };
     clearTimeout(reintento);
     enviar(0);

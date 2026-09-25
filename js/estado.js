@@ -76,7 +76,11 @@ let guardado={};
 try{guardado=JSON.parse(localStorage.getItem('pa3')||'{}')}catch(e){}
 S=Object.assign({},DEF,guardado);
 sanear();
-const guardar=()=>{try{localStorage.setItem('pa3',JSON.stringify(S))}catch(e){}};
+/* Durante un ensayo del laboratorio (js/consola.js) NO se escribe nada: es lo
+   que hace verdad la promesa de que la consola no toca la partida guardada.
+   Al volver a lo normal, LAB restaura S desde su copia y vuelve a guardar. */
+const enEnsayo=()=>typeof LAB!=='undefined'&&LAB.ensayo();
+const guardar=()=>{if(enEnsayo())return;try{localStorage.setItem('pa3',JSON.stringify(S))}catch(e){}};
 const t=k=>TXT[S.lang][k]||k;
 const tj=o=>o[S.lang]||o.es;
 /* Pista de un logro en el idioma activo (campos pes/pen de LOGROS). */
@@ -120,18 +124,23 @@ const aplicarIdioma=()=>{document.documentElement.lang=S.lang};
 /* -1 = la que eligió el jugador. El modo sin fin la sube por rondas sin
    tocar S.dif, que es un ajuste del jugador y no debe cambiarlo el juego. */
 let difForzada=-1;
-const difActual=()=>DIFS[difForzada>=0?difForzada:S.dif]||DIFS[1];
-const maxVidas=()=>Math.max(1,3+(S.mejoras.includes('vida')?1:0)+difActual().vida);
-const facTiempo=()=>(S.mejoras.includes('tiempo')?1.2:1)*difActual().tiempo;
-const facPts=()=>S.mejoras.includes('doble')?2:1;
-const facJefe=()=>difActual().jefe;
+/* Cada palanca pasa por el laboratorio antes de salir: si la consola puso un
+   valor, ese gana; si no (o si js/consola.js no cargó), sale el del juego.
+   Son los ÚNICOS puntos por donde la consola entra al juego: ni un minijuego
+   tiene que saber que existe. */
+const lab=(id,base)=>typeof LAB!=='undefined'?LAB.ajuste(id,base):base;
+const difActual=()=>DIFS[lab('dif',difForzada>=0?difForzada:S.dif)]||DIFS[1];
+const maxVidas=()=>lab('vidas',Math.max(1,3+(S.mejoras.includes('vida')?1:0)+difActual().vida));
+const facTiempo=()=>lab('tiempo',(S.mejoras.includes('tiempo')?1.2:1)*difActual().tiempo);
+const facPts=()=>lab('puntos',S.mejoras.includes('doble')?2:1);
+const facJefe=()=>lab('jefe',difActual().jefe);
 /* Palancas de dificultad dentro de los minijuegos.
    cuantos() redondea y nunca baja del mínimo: con cant 0.75 una tanda de
    5 rondas se queda en 4, no en 3,75 ni en 0. */
-const facCant=()=>difActual().cant;
-const facRitmo=()=>difActual().ritmo;
-const maxErr=()=>difActual().err;
-const ojeada=()=>difActual().ojeada;
+const facCant=()=>lab('cantidad',difActual().cant);
+const facRitmo=()=>lab('ritmo',difActual().ritmo);
+const maxErr=()=>lab('errores',difActual().err);
+const ojeada=()=>lab('ojeada',difActual().ojeada);
 const cuantos=(base,min=2)=>Math.max(min,Math.round(base*facCant()));
 const alRitmo=ms=>Math.round(ms*facRitmo());
 const sumaStat=(k,n)=>{S.stats[k]=(S.stats[k]||0)+(n||1);guardar()};
