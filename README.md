@@ -267,11 +267,14 @@ tiempo, dureza del jefe, ritmo, dificultad de base…). Está pensada para
 explicar en clase —bajar la dificultad en vivo, repetir un nivel exacto— y para
 afinar el juego mientras se desarrolla.
 
-**Cómo se abre.** No tiene botón, para que no la encuentre un aprendiz por su
-cuenta:
+**Cómo se abre.** Por el enlace **⚗ CONSOLA** en el pie de la portada, al lado
+de BORRAR PROGRESO: un toque. No hace falta esconderla — lo que la hace
+inofensiva son las reglas de abajo, no que cueste encontrarla. Hay tres atajos
+más:
 
 * **pulsación larga (0,9 s) sobre el día de la cabecera**, arriba a la
-  izquierda. Funciona con el dedo y en cualquier pantalla;
+  izquierda. Este sirve **también en mitad de una partida**, donde no hay
+  portada a la que volver;
 * la tecla <kbd>`</kbd> en el computador;
 * terminando la dirección en `#lab`, para que se abra al cargar.
 

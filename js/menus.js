@@ -97,7 +97,13 @@ function rTitulo(){
    </div>
 
     <div class="tit-pie" aria-hidden="true"><i></i><span class="mini blink">${t('start')}</span><i></i></div>
-    <button class="cut-skip" id="t-borrar" type="button">${t('borrar')}</button>
+    <div class="tit-menudo">
+      ${/* La consola no tiene por qué esconderse: un ensayo no da puntos, no
+           sube al marcador y no entra a una sala (ver js/consola.js). Lo que
+           la protege son esas reglas, no que cueste encontrarla. */''}
+      <button class="cut-skip" id="t-lab" type="button">⚗ ${t('lab_tit')}</button>
+      <button class="cut-skip" id="t-borrar" type="button">${t('borrar')}</button>
+    </div>
   </div>`);
 
   /* retrato del avatar dentro de la tarjeta */
@@ -108,6 +114,7 @@ function rTitulo(){
   $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};
   $('#t-texto').onclick=()=>{S.legible=!S.legible;guardar();aplicarModo();SFX.click();rTitulo()};
   $('#t-borrar').onclick=()=>{SFX.click();rBorrar()};
+  $('#t-lab').onclick=()=>{if(typeof abrirLab==='function')abrirLab()};
   $('#t-jugar').onclick=()=>{
     SFX.click();
     const go=()=>S.intro?rMapa():rCutscene(INTRO[S.lang],()=>{S.intro=true;guardar();rMapa()});
