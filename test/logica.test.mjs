@@ -343,3 +343,48 @@ test('una partida guardada con "TÚ" vuelve a pedir el nombre', () => {
   assert.equal(cargarJuego({ guardado: { nombre: '' } }).tieneNombre(), false);
   assert.equal(cargarJuego({ guardado: { nombre: 'ANTONI' } }).tieneNombre(), true);
 });
+
+/* ══════════ LAS DOS ETAPAS DE LA FORMACIÓN ══════════
+   El juego sigue el camino real: etapa lectiva (días 1-10, se aprende) y
+   etapa productiva (días 11-15, se trabaja), y el final es titularse. */
+
+test('hay un diálogo por día en los dos idiomas', () => {
+  const v = cargarJuego();
+  assert.equal(v.DIALOGOS.es.length, v.NIVELES.length);
+  assert.equal(v.DIALOGOS.en.length, v.NIVELES.length);
+});
+
+test('el mapa nombra la lectiva antes que la productiva', () => {
+  const v = cargarJuego();
+  assert.match(v.TXT.es.t1sec, /LECTIVA/);
+  assert.match(v.TXT.es.t2sec, /PRODUCTIVA/);
+  assert.match(v.TXT.en.t1sec, /TRAINING/);
+  assert.match(v.TXT.en.t2sec, /WORKPLACE/);
+});
+
+test('el día 1 no arranca ya en una empresa', () => {
+  const v = cargarJuego();
+  assert.match(v.DIALOGOS.es[0][1], /lectiva/i);
+  assert.doesNotMatch(v.DIALOGOS.es[0][1], /etapa productiva/i);
+});
+
+/* Los id de los logros viven dentro de las partidas guardadas (S.logros): si
+   se renombran, quien ya los tenía los pierde. Cambian el nombre y el icono,
+   nunca el id. */
+test('los logros de fin de etapa conservan su id', () => {
+  const v = cargarJuego();
+  const ids = v.LOGROS.map(l => l.id);
+  assert.ok(ids.includes('titulado'), 'el del día 10');
+  assert.ok(ids.includes('contrato'), 'el del día 15');
+  const dia15 = v.LOGROS.find(l => l.id === 'contrato');
+  assert.match(dia15.es, /TÉCNICO/, 'el día 15 es el que titula');
+});
+
+test('una partida vieja no pierde los logros al cambiar los nombres', () => {
+  const a = cargarJuego();
+  Object.assign(a.S, { logros: ['titulado', 'contrato'], dias: Array(15).fill(3) });
+  const codigo = a.exportarCodigo();
+  const b = cargarJuego();
+  assert.equal(b.importarCodigo(codigo), true);
+  assert.deepEqual([...b.S.logros], ['titulado', 'contrato']);
+});

@@ -97,8 +97,14 @@ function rTitulo(){
    </div>
 
     <div class="tit-pie" aria-hidden="true"><i></i><span class="mini blink">${t('start')}</span><i></i></div>
-    <button class="cut-skip" id="t-borrar" type="button">${t('borrar')}</button>
-  </div>`);
+    <div class="tit-menudo">
+      ${/* La consola no tiene por qué esconderse: un ensayo no da puntos, no
+           sube al marcador y no entra a una sala (ver js/consola.js). Lo que
+           la protege son esas reglas, no que cueste encontrarla. */''}
+      <button class="cut-skip" id="t-lab" type="button">⚗ ${t('lab_tit')}</button>
+      <button class="cut-skip" id="t-borrar" type="button">${t('borrar')}</button>
+    </div>
+  </div>`,rTitulo);
 
   /* retrato del avatar dentro de la tarjeta */
   const av=$('#t-av'); if(av)retratoVivo(av,CARAS.yo(true));
@@ -108,9 +114,10 @@ function rTitulo(){
   $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};
   $('#t-texto').onclick=()=>{S.legible=!S.legible;guardar();aplicarModo();SFX.click();rTitulo()};
   $('#t-borrar').onclick=()=>{SFX.click();rBorrar()};
+  $('#t-lab').onclick=()=>{if(typeof abrirLab==='function')abrirLab()};
   $('#t-jugar').onclick=()=>{
     SFX.click();
-    const go=()=>S.intro?rMapa():rCutscene(INTRO[S.lang],()=>{S.intro=true;guardar();rMapa()});
+    const go=()=>S.intro?rMapa():rCutscene(INTRO,()=>{S.intro=true;guardar();rMapa()});
     tieneNombre()?go():rNombre(go);
   };
   $('#t-reto').onclick=()=>{SFX.click();rReto()};
@@ -138,7 +145,7 @@ function rBorrar(){
     <p class="sub rojo">▲ ${t('perderas')} ▲</p>
     <button class="btn btn2" id="bo-no" type="button">${t('cancelar')}</button>
     <button class="btn-r" id="bo-si" type="button">${t('sioborrar')}</button>
-  </div>`);
+  </div>`,rBorrar);
   $('#bo-no').onclick=()=>{SFX.click();rTitulo()};
   $('#bo-si').onclick=()=>{
     const prefs={lang:S.lang,snd:S.snd,hd:S.hd,av32:S.av32};
@@ -167,7 +174,7 @@ function rNombre(next){
     </div>
     <p class="mini rojo" id="n-aviso" role="status">&nbsp;</p>
     <button class="btn" id="n-ok" type="button">${t('ok')}</button>
-  </div>`);
+  </div>`,()=>rNombre(next));
   const inp=$('#n-in'),aviso=$('#n-aviso');
   /* Sin nombre no se sigue: antes un campo vacío se guardaba como "TÚ". */
   const listo=()=>{
@@ -188,9 +195,15 @@ function rNombre(next){
 }
 
 /* ── CUTSCENE ── */
-function rCutscene(paginas,fin){
+/* Recibe el guion BILINGÜE (INTRO, FINAL, T2_INTRO...), no una lista ya
+   resuelta en un idioma: así, al cambiar de idioma a mitad de una escena, la
+   página que se está leyendo se vuelve a pintar en el idioma nuevo en vez de
+   quedarse con el texto con el que entró. */
+function rCutscene(guion,fin){
   let i=0;
   function pag(){
+    const paginas=guion[S.lang]||guion.es;
+    i=Math.min(i,paginas.length-1);
     pantalla('cut',`
     <div class="centro cut" id="cut-zona">
       <span class="ico">${paginas[i].ico}</span>
@@ -198,7 +211,7 @@ function rCutscene(paginas,fin){
       <div class="cut-nav"><span class="cut-prog">${t('pagina')} ${i+1}/${paginas.length}</span></div>
       <p class="mini blink">${t('toca')}</p>
       <button class="cut-skip" id="cut-skip" type="button">${t('saltar')}</button>
-    </div>`);
+    </div>`,pag);
     $('#cut-zona').onclick=e=>{
       if(e.target.id==='cut-skip')return;
       SFX.click();i++;
@@ -246,7 +259,7 @@ function rMapa(){
     const st=S.dias[i];
     const estado=st>=1?'ok':(i<=p?'open':'lock');
     const badge=st>=1?'★'.repeat(st):(estado==='lock'?'🔒':'▶');
-    /* separador de temporada 2 */
+    /* separador: aquí empieza la etapa productiva */
     if(i===10)cards+=`<p class="mapa-sec">${t('t2sec')}</p>`;
     cards+=`
     <button class="etapa-card ${estado} ${i>=10?'t2':''}" data-i="${i}" ${estado==='lock'?'disabled':''} type="button">
@@ -286,19 +299,19 @@ function rMapa(){
     <canvas class="mapa-aprendiz" id="m-aprendiz" width="96" height="164" aria-hidden="true"></canvas>
     <div class="etapas">${cards}</div>
     <button class="btn btn2" id="m-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rMapa);
   aprendizMapa($('#m-aprendiz'));
   $$('.etapa-card:not([disabled])').forEach(b=>b.onclick=()=>{SFX.click();empezarDia(+b.dataset.i)});
   const btnJefe=$('#m-jefe');
-  if(btnJefe)btnJefe.onclick=()=>{SFX.click();rCutscene(JEFE_INTRO[S.lang],()=>nvJefe(9,0))};
+  if(btnJefe)btnJefe.onclick=()=>{SFX.click();rCutscene(JEFE_INTRO,()=>nvJefe(9,0))};
   $('#m-volver').onclick=()=>{SFX.click();rTitulo()};
 }
 
 /* ── FLUJO DE DÍA ── */
 function empezarDia(i){
-  /* primera vez que entras a la temporada 2: cutscene del contrato */
+  /* primera vez que sales a la etapa productiva: cutscene de la empresa */
   if(i===10&&!S.t2){
-    return rCutscene(T2_INTRO[S.lang],()=>{S.t2=true;guardar();diaAct=i;vidas=maxVidas();rDialogo(i)});
+    return rCutscene(T2_INTRO,()=>{S.t2=true;guardar();diaAct=i;vidas=maxVidas();rDialogo(i)});
   }
   diaAct=i;vidas=maxVidas();
   rDialogo(i);
@@ -319,7 +332,7 @@ function rDialogo(i){
     </div>
     <span class="modo">${tj({es:N.ses,en:N.sen})}</span>
     <button class="btn" id="d-go" type="button">${t('empezar')}</button>
-  </div>`);
+  </div>`,()=>rDialogo(i));
   retratoVivo($('#d-cara'),quienCara(quien));
   /* máquina de escribir */
   let j=0;const el=$('#d-linea');
@@ -347,6 +360,9 @@ function conAyuda(tipo,seguir){
   const a=AYUDA[tipo];
   if(!a||vistos().includes(tipo))return seguir();
   vistos().push(tipo);guardar();
+  /* Solo dibuja. Volver a llamar a conAyuda() no valdría: el tipo ya quedó
+     marcado como visto y se saltaría la ficha para entrar al minijuego. */
+  const pintar=()=>{
   const lineas=(S.lang==='en'?a.en:a.es);
   pantalla('ayuda',`
   <div class="centro">
@@ -357,15 +373,20 @@ function conAyuda(tipo,seguir){
     </ul>
     <button class="btn" id="ay-ok" type="button">${t('ayuda_ok')}</button>
     <p class="mini">${t('ayuda_nota')}</p>
-  </div>`);
+  </div>`,pintar);
   $('#ay-ok').onclick=()=>{SFX.click();seguir()};
+  };
+  pintar();
 }
 
 /* ── CERTIFICADO ── */
 /* Hitos que dan derecho a marca en el marcador global. El día 5 existe para
    que la parte social del juego sirva de algo antes: esperar al día 10 dejaba
    la tabla vacía justo cuando más engancha ver que hay gente jugando. */
-const ICO_HITO={0:'⏳',1:'🎓',2:'📝',3:'♾️'};
+/* 0 = día 5 (mitad de la lectiva) · 1 = día 10 (fin de la lectiva, sale el
+   contrato de aprendizaje) · 2 = día 15 (fin de la productiva: el título) ·
+   3 = sin fin. El 🎓 es del día 15, que es cuando de verdad te titulas. */
+const ICO_HITO={0:'⏳',1:'📝',2:'🎓',3:'♾️'};
 function registrarRecord(hito){
   const nom=S.nombre||t('tu');
   S.records.push({n:nom,p:S.pts,x:S.xp,yo:1});
@@ -395,11 +416,14 @@ function compartir(){
 }
 function rCertificado(){
   sumaStat('partidas');
+  /* Solo dibuja: la partida ya se contó y el confeti no se repite. La fecha se
+     recalcula dentro, que su formato también depende del idioma. */
+  const pintar=()=>{
   const hoy=new Date().toLocaleDateString(S.lang==='es'?'es-CO':'en-US');
   pantalla('cert',`
   <div class="centro">
     <div class="cert">
-      <p class="dia">🎓 ${t('cert')} 🎓</p>
+      <p class="dia">📝 ${t('cert')} 📝</p>
       <div class="retrato-wrap"><canvas class="retrato" id="c-cara" width="64" height="64"></canvas></div>
       <p class="sub cert-de">${t('certde')}</p>
       <p class="rango">${esc(S.nombre||t('tu'))}</p>
@@ -415,20 +439,23 @@ function rCertificado(){
     </div>
     <button class="btn btn-share" id="c-share" type="button">${t('compartir')}</button>
     <button class="btn btn2" id="c-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,pintar);
   retrato($('#c-cara'),Object.assign(CARAS.yo(true),{medalla:true}));
-  confeti();
   $('#c-share').onclick=compartir;
   $('#c-volver').onclick=()=>{SFX.click();rTitulo()};
+  };
+  pintar();
+  confeti();
 }
 
-/* ── ASCENSO (final de la temporada 2) ── */
+/* ── TÍTULO DE TÉCNICO (final de la etapa productiva) ── */
 function rAscenso(){
+  const pintar=()=>{
   const hoy=new Date().toLocaleDateString(S.lang==='es'?'es-CO':'en-US');
   pantalla('ascenso',`
   <div class="centro">
     <div class="cert">
-      <p class="dia">🚀 ${t('ascenso')} 🚀</p>
+      <p class="dia">🎓 ${t('ascenso')} 🎓</p>
       <div class="retrato-wrap"><canvas class="retrato" id="a-cara" width="64" height="64"></canvas></div>
       <p class="sub cert-de">${t('ascensode')}</p>
       <p class="rango">${esc(S.nombre||t('tu'))}</p>
@@ -439,16 +466,18 @@ function rAscenso(){
         <div><b>${totalStars()}</b><span>${t('estrellas')}</span></div>
         <div><b>${S.pts}</b><span>${t('ptstotal')}</span></div>
       </div>
-      <p class="sub cert-firma">${t('firma')} · ${t('fecha')}: ${hoy}</p>
+      <p class="sub cert-firma">${t('firma2')} · ${t('fecha')}: ${hoy}</p>
       <span class="rango-badge grande">${rangoNom()}</span>
     </div>
     <button class="btn btn-share" id="a-share" type="button">${t('compartir')}</button>
     <button class="btn btn2" id="a-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,pintar);
   retrato($('#a-cara'),Object.assign(CARAS.yo(true),{medalla:true,corona:S.accs.includes('corona')}));
-  confeti();
   $('#a-share').onclick=compartir;
   $('#a-volver').onclick=()=>{SFX.click();rTitulo()};
+  };
+  pintar();
+  confeti();
 }
 
 /* ── TIENDA ── */
@@ -498,7 +527,7 @@ function rTienda(){
     </div>
    </div>
     <button class="btn btn2" id="ti-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rTienda);
   $$('[data-id]').forEach(el=>el.onclick=()=>{
     const a=ACCS.find(x=>x.id===el.dataset.id);
     if(S.accs.includes(a.id)){S.acc=S.acc===a.id?'':a.id;guardar();SFX.click();rTienda();return}
@@ -537,7 +566,7 @@ function rLogros(){
         ${hecho?'':`<p class="pista">${tp(l)}</p>`}</div>`}).join('')}
     </div>
     <button class="btn btn2" id="lo-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rLogros);
   $('#lo-volver').onclick=()=>{SFX.click();rTitulo()};
 }
 
@@ -599,7 +628,7 @@ function rRecords(){
     </div>
    </div>
     <button class="btn btn2" id="re-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rRecords);
   $('#re-volver').onclick=()=>{SFX.click();rTitulo()};
   $$('.rec-chip[data-dif]').forEach(b=>{
     b.onclick=()=>{
@@ -640,7 +669,7 @@ function rGrupo(){
     <button class="btn" id="g-ok" type="button">${t('ok')}</button>
     ${S.grupo?`<button class="cut-skip" id="g-salir" type="button">${t('grupo_salir')}</button>`:''}
     <button class="btn btn2" id="g-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rGrupo);
   const inp=$('#g-in');
   const guardarGrupo=()=>{
     const v=RANKING.limpiaGrupo(inp.value);
@@ -742,7 +771,7 @@ function rStats(){
     </div>
    </div>
     <button class="btn btn2" id="es-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rStats);
   const aviso=(ico,txt)=>{
     const p=$('#logro-popup');
     p.querySelector('.ico-l').textContent=ico;
@@ -859,7 +888,7 @@ function rPerso(){
         </div>
       </section>
     </div>
-  </div>`);
+  </div>`,rPerso);
 
   const pinta=()=>retratoVivo($('#pe-cara'),CARAS.yo(true));
   const avisar=(txt,cls)=>{const e=$('#pe-estado');if(!e)return;e.textContent=txt;e.className='pe-estado'+(cls?' '+cls:'')};

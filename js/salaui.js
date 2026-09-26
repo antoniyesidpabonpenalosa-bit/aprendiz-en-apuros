@@ -45,7 +45,7 @@ function rSala() {
       <p class="desc">${t('lab_sala_ensayo')}</p>
       <button class="btn" id="se-normal" type="button">${t('lab_tit')} → ${t('volver')}</button>
       <button class="btn btn2" id="se-volver" type="button">${t('volver')}</button>
-    </div>`);
+    </div>`,rSala);
     $('#se-normal').onclick = () => { SFX.click(); LAB.volverANormal(); labMarca(); rSala(); };
     $('#se-volver').onclick = () => { SFX.click(); rTitulo(); };
     return;
@@ -72,7 +72,7 @@ function rSala() {
     </div>
     <div id="sa-previa"></div>
     <button class="btn btn2" id="sa-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rSala);
 
   const inp = $('#sa-cod'), aviso = $('#sa-aviso'), bUnir = $('#sa-unir');
   inp.oninput = () => { inp.value = SALA.limpiaCodigo(inp.value); };
@@ -141,7 +141,7 @@ function rSalaCrear() {
     </div>
     <p class="mini" id="sc-aviso" role="status">&nbsp;</p>
     <button class="btn btn2" id="sc-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rSalaCrear);
 
   /* Se actualiza en su sitio: re-pintar la pantalla entera en cada toque
      haría saltar el scroll y perder el foco del teclado. */
@@ -308,7 +308,7 @@ function rProyector(codigo) {
       <div id="sp-lista" class="sala-lista"></div>
       <p class="mini sp-vacio" id="sp-vacio"></p>
     </div>
-  </div>`);
+  </div>`,()=>rProyector(codigo));
 
   let ultimo = null, mandosClave = '', celebrado = false;
   const pintaMandos = est => {
@@ -401,7 +401,7 @@ function rSalaEspera(codigo) {
     <div id="se-lista" class="sala-lista"></div>
     <div id="se-accion"></div>
     <button class="btn btn2" id="se-salir" type="button">${t('sala_salir')}</button>
-  </div>`);
+  </div>`,()=>rSalaEspera(codigo));
   $('#se-salir').onclick = () => { SFX.click(); rTitulo(); };
 
   let arrancando = false;
@@ -502,6 +502,8 @@ function salaRonda(stars, pts) {
   if (a.ronda >= a.juegos.length) return finSala();
   SFX.ok();
   const sig = a.juegos[a.ronda];
+  /* Solo dibuja: lo de arriba ya pasó y no se repite al cambiar de idioma. */
+  const pintar = () => {
   pantalla('sala-paso', `
   <div class="centro">
     <span class="ico">${stars > 0 ? '✅' : '➡️'}</span>
@@ -510,9 +512,11 @@ function salaRonda(stars, pts) {
     <p class="pts-final">${a.pts} ${t('rec_pts')}</p>
     <p class="mini">${t('sala_siguiente')}: ${ICO_TIPO[sig] || '🎮'} ${t('tipo_' + sig)}</p>
     <button class="btn" id="sl-sig" type="button">${t('sala_sig')} ▶</button>
-  </div>`);
+  </div>`, pintar);
   $('#sl-sig').onclick = () => { SFX.click(); siguienteSala(); };
   $('#sl-sig').focus();
+  };
+  pintar();
 }
 
 function finSala() {
@@ -538,7 +542,7 @@ function rSalaTabla(codigo) {
     <h3>${t('sala_tabla')}</h3>
     <div id="st-lista" class="sala-lista"></div>
     <button class="btn btn2" id="st-salir" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,()=>rSalaTabla(codigo));
   $('#st-salir').onclick = () => { SFX.click(); rTitulo(); };
   let celebrado = false;
   SALA.vigilar(codigo, r => {

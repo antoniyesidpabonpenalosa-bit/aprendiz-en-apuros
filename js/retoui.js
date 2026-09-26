@@ -58,7 +58,7 @@ function rReto() {
     </div>
    </div>
     <button class="btn btn2" id="rt-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rReto);
 
   $('#rt-jugar').onclick = () => { SFX.click(); empezarReto(); };
   $('#rt-volver').onclick = () => { SFX.click(); rTitulo(); };
@@ -112,6 +112,8 @@ function retoRonda(stars, pts) {
 
   limpiarT();
   SFX.ok();
+  /* Solo dibuja: lo de arriba ya pasó y no se repite al cambiar de idioma. */
+  const pintar = () => {
   pantalla('reto-paso', `
   <div class="centro">
     <span class="ico">${stars > 0 ? '✅' : '➡️'}</span>
@@ -119,8 +121,10 @@ function retoRonda(stars, pts) {
     ${starsHtml(Math.max(0, stars))}
     <p class="pts-final">${retoActivo.pts} ${t('rec_pts')}</p>
     <button class="btn" id="rp-sig" type="button">${t('siguiente')}</button>
-  </div>`);
+  </div>`, pintar);
   $('#rp-sig').onclick = () => { SFX.click(); siguienteRonda(); };
+  };
+  pintar();
 }
 
 function finReto() {
@@ -138,6 +142,8 @@ function finReto() {
     sumaStat('retos');
   }
 
+  /* Solo dibuja: lo de arriba ya pasó y no se repite al cambiar de idioma. */
+  const pintar = () => {
   pantalla('reto-fin', `
   <div class="centro">
     <span class="ico">⚡</span>
@@ -151,7 +157,9 @@ function finReto() {
            <div><p class="reto-num">${res.racha}</p><p class="mini">${t('reto_racha')}</p></div></div>`
       : `<p class="desc">${t('reto_repe').replace('{p}', base)}</p>`}
     <button class="btn" id="rf-volver" type="button">${t('volver')}</button>
-  </div>`);
-  if (res) { confeti(); tvez(SFX.star, 300); }
+  </div>`, pintar);
   $('#rf-volver').onclick = () => { SFX.click(); rReto(); };
+  };
+  pintar();
+  if (res) { confeti(); tvez(SFX.star, 300); }
 }

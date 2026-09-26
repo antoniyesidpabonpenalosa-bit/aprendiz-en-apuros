@@ -1,7 +1,7 @@
 'use strict';
 /* ══════════════════════════════════════════
    PRACTICANTE EN APUROS 3 · SENA 32-BIT
-   10 días de etapa productiva · 5 minijuegos
+   10 días de etapa lectiva + 5 de etapa productiva
    ══════════════════════════════════════════ */
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
@@ -63,11 +63,11 @@ const NIVELES=[
   {ico:'🔀', tipo:'simon',    es:'FLUJO GIT',          en:'GIT FLOW',         ses:'Repite la secuencia',        sen:'Repeat the sequence'},
   {ico:'📋', tipo:'quiz',     es:'SUSTENTACIÓN',       en:'ORAL EXAM',        ses:'Responde al jurado',         sen:'Answer the panel'},
   {ico:'🔍', tipo:'review',   es:'CODE REVIEW',        en:'CODE REVIEW',      ses:'Aprueba o rechaza',          sen:'Approve or reject'},
-  {ico:'🔥', tipo:'bugs',     es:'BUGS EN PRODUCCIÓN', en:'BUGS IN PROD',     ses:'¡Deploy en viernes!',        sen:'Friday deploy!'},
+  {ico:'🔥', tipo:'bugs',     es:'PROYECTO FORMATIVO', en:'CLASS PROJECT',    ses:'¡Se entrega mañana!',        sen:'Due tomorrow!'},
   {ico:'🧬', tipo:'merge',    es:'CONFLICTO GIT',      en:'MERGE CONFLICT',   ses:'Elige la línea buena',       sen:'Pick the right line'},
   {ico:'🚀', tipo:'simon',    es:'DESPLIEGUE',         en:'DEPLOYMENT',       ses:'Un error y se cae todo',     sen:'One slip and it all falls'},
   {ico:'🎓', tipo:'runner',   es:'EVALUACIÓN FINAL',   en:'FINAL EXAM',       ses:'Sobrevive al último día',    sen:'Survive the last day'},
-  /* ── TEMPORADA 2 · EL CONTRATO (días 11-15) ── */
+  /* ── ETAPA PRODUCTIVA · la empresa (días 11-15) ── */
   {ico:'🗄', tipo:'sql',      es:'CONSULTA SQL',       en:'SQL QUERY',        ses:'Arma la consulta en orden',  sen:'Build the query in order'},
   {ico:'🧩', tipo:'regex',    es:'CAZA PATRONES',      en:'PATTERN HUNT',     ses:'Atrapa lo que cumple',       sen:'Catch what matches'},
   {ico:'💣', tipo:'bugs',     es:'BUGS NIVEL 2',       en:'BUGS LEVEL 2',     ses:'Cuidado con las bombas',     sen:'Watch out for bombs'},
@@ -427,80 +427,88 @@ const QUIZ={
 };
 const DIALOGOS={
  es:[
-  ['INSTRUCTOR','¡Bienvenido a tu etapa productiva! Primero: configura tu terminal. Escribe rápido y sin errores.'],
-  ['LÍDER TÉCNICO','El practicante anterior dejó bugs por TODAS partes. ¡Aplástalos antes de que se reproduzcan!'],
-  ['COMPAÑERA','Examen sorpresa del instructor: ¿recuerdas qué tecnologías van en pareja?'],
-  ['LÍDER TÉCNICO','Te voy a mostrar el flujo de Git del equipo. Repítelo EXACTAMENTE igual.'],
+  /* ── ETAPA LECTIVA · días 1-10 · el centro de formación ──
+     Aquí se APRENDE: manda el instructor, los compañeros son de la ficha y lo
+     que se rompe es el proyecto formativo, no la producción de una empresa. */
+  ['INSTRUCTOR','¡Bienvenido a la etapa lectiva! Lo primero de lo primero: configura tu terminal. Escribe rápido y sin errores.'],
+  ['INSTRUCTOR','El taller de hoy trae bugs a propósito, y son MUCHOS. ¡Aplástalos antes de que se reproduzcan!'],
+  ['COMPAÑERA','Quiz sorpresa del instructor: ¿te acuerdas de qué tecnologías van en pareja?'],
+  ['INSTRUCTOR','Al tablero: este es el flujo de Git que van a usar toda la vida. Repítelo EXACTAMENTE igual.'],
   ['INSTRUCTOR','Hoy sustentas ante el jurado. Respira. No digas "eeeh". Tú puedes.'],
-  ['LÍDER TÉCNICO','Hoy revisas los pull requests del equipo. Aprueba el código bueno, rechaza el malo. RÁPIDO.'],
-  ['LÍDER TÉCNICO','¡¿QUIÉN HIZO DEPLOY UN VIERNES?! ¡Hay bugs en producción! ¡CORRE!'],
-  ['COMPAÑERA','Dos ramas tocaron el mismo archivo... resuelve los conflictos eligiendo la línea que sí compila.'],
-  ['LÍDER TÉCNICO','Despliegue final. Un comando fuera de orden y se cae TODO. Sin presión.'],
-  ['INSTRUCTOR','Evaluación final: sobrevive tu último día en la oficina y el contrato es tuyo.'],
-  ['LÍDER TÉCNICO','¡Firmaste! Primera tarea como junior: el reporte necesita una consulta SQL. Ármala en orden.'],
+  ['COMPAÑERA','Nos toca revisar el código de la ficha de al lado. Aprueba lo bueno, rechaza lo malo. RÁPIDO.'],
+  ['COMPAÑERA','¡El proyecto formativo se entrega MAÑANA y no compila! ¡Bugs por todas partes! ¡CORRE!'],
+  ['COMPAÑERA','Dos de la ficha tocamos el mismo archivo... resuelve los conflictos eligiendo la línea que sí compila.'],
+  ['INSTRUCTOR','Último taller: despliegue paso a paso. Un comando fuera de orden y se cae TODO. Sin presión.'],
+  ['INSTRUCTOR','Evaluación final de la lectiva. Apruébala y sales para tu etapa productiva.'],
+  /* ── ETAPA PRODUCTIVA · días 11-15 · la empresa ──
+     Aquí se TRABAJA: manda el líder técnico y el instructor solo aparece a
+     hacer seguimiento, como en la vida real. */
+  ['LÍDER TÉCNICO','Bienvenido a TechNova. Primera tarea de verdad: el reporte necesita una consulta SQL. Ármala en orden.'],
   ['COMPAÑERA','Hay que filtrar mil logs. Con expresiones regulares es un momento... si sabes leerlas.'],
   ['LÍDER TÉCNICO','Volvieron los bugs... y trajeron BOMBAS de imitación. ¡No las toques!'],
-  ['INSTRUCTOR','Vine de visita. Veamos si ya dominas el Git avanzado: rebase y stash incluidos.'],
-  ['LÍDER TÉCNICO','Deploy nocturno de fin de mes. Sobrevive la noche y esta empresa es tu casa.'],
+  ['INSTRUCTOR','Vengo a tu seguimiento de la productiva. Veamos si ya dominas el Git avanzado: rebase y stash incluidos.'],
+  ['LÍDER TÉCNICO','Deploy nocturno de fin de mes. Sobrevive la noche y tu etapa productiva queda aprobada.'],
  ],
  en:[
-  ['INSTRUCTOR','Welcome to your internship! First: set up your terminal. Type fast and clean.'],
-  ['TECH LEAD','The last intern left bugs EVERYWHERE. Squash them before they multiply!'],
+  /* ── TRAINING STAGE · days 1-10 · the training centre ── */
+  ['INSTRUCTOR','Welcome to the training stage! First things first: set up your terminal. Type fast and clean.'],
+  ['INSTRUCTOR',"Today's workshop ships with bugs on purpose, and there are MANY. Squash them before they multiply!"],
   ['COWORKER','Pop quiz from the instructor: do you remember which technologies pair up?'],
-  ['TECH LEAD',"I'll show you the team's Git flow. Repeat it EXACTLY as shown."],
+  ['INSTRUCTOR','To the board: this is the Git flow you will use for the rest of your life. Repeat it EXACTLY.'],
   ['INSTRUCTOR',"Today you present to the panel. Breathe. Don't say 'uhh'. You got this."],
-  ['TECH LEAD',"Today you review the team's pull requests. Approve the good code, reject the bad. FAST."],
-  ['TECH LEAD','WHO DEPLOYED ON A FRIDAY?! Bugs in production! RUN!'],
-  ['COWORKER','Two branches touched the same file... resolve the conflicts by picking the line that compiles.'],
-  ['TECH LEAD','Final deployment. One command out of order and EVERYTHING falls. No pressure.'],
-  ['INSTRUCTOR','Final exam: survive your last day at the office and the contract is yours.'],
-  ['TECH LEAD','You signed! First task as a junior: the report needs an SQL query. Build it in order.'],
+  ['COWORKER',"We have to review the other group's code. Approve the good, reject the bad. FAST."],
+  ['COWORKER','The class project is due TOMORROW and it does not compile! Bugs everywhere! RUN!'],
+  ['COWORKER','Two of us touched the same file... resolve the conflicts by picking the line that compiles.'],
+  ['INSTRUCTOR','Last workshop: deployment step by step. One command out of order and EVERYTHING falls. No pressure.'],
+  ['INSTRUCTOR','Final exam of the training stage. Pass it and you head out to your workplace stage.'],
+  /* ── WORKPLACE STAGE · days 11-15 · the company ── */
+  ['TECH LEAD','Welcome to TechNova. First real task: the report needs an SQL query. Build it in order.'],
   ['COWORKER','We must filter a thousand logs. With regular expressions it takes a second... if you can read them.'],
   ['TECH LEAD','The bugs are back... and they brought fake BOMBS. Do NOT touch those!'],
-  ['INSTRUCTOR','Just visiting. Let\'s see if you master advanced Git now: rebase and stash included.'],
-  ['TECH LEAD','End-of-month night deploy. Survive the night and this company is your home.'],
+  ['INSTRUCTOR','I am here for your workplace follow-up. Let\'s see if you master advanced Git now: rebase and stash included.'],
+  ['TECH LEAD','End-of-month night deploy. Survive the night and your workplace stage is signed off.'],
  ]
 };
 const INTRO={
  es:[
-  {ico:'🏢',t:'AÑO 2026. Después de mil hojas de vida, conseguiste tu etapa productiva en TechNova S.A.S.'},
-  {ico:'📅',t:'Tienes 10 días para demostrar que mereces el contrato de aprendizaje.'},
-  {ico:'😅',t:'Sin presión... bueno, sí. MUCHA presión. ¡Suerte, practicante!'},
+  {ico:'🎒',t:'AÑO 2026. Primer día en el centro de formación: arranca tu ETAPA LECTIVA.'},
+  {ico:'📅',t:'Diez días para aprender el oficio. Si los apruebas, sales a una empresa de verdad.'},
+  {ico:'😅',t:'Sin presión... bueno, sí. MUCHA presión. ¡Suerte, aprendiz!'},
  ],
  en:[
-  {ico:'🏢',t:'YEAR 2026. After a thousand résumés, you landed your internship at TechNova Inc.'},
-  {ico:'📅',t:'You have 10 days to prove you deserve the apprenticeship contract.'},
-  {ico:'😅',t:'No pressure... well, yes. A LOT of pressure. Good luck, intern!'},
+  {ico:'🎒',t:'YEAR 2026. First day at the training centre: your TRAINING STAGE begins.'},
+  {ico:'📅',t:'Ten days to learn the trade. Pass them and you head out to a real company.'},
+  {ico:'😅',t:'No pressure... well, yes. A LOT of pressure. Good luck, apprentice!'},
  ]
 };
 const FINAL={
  es:[
-  {ico:'🎉',t:'Lo lograste. Diez días de bugs, cafés fríos y reuniones que pudieron ser un correo.'},
-  {ico:'🤝',t:'El líder técnico sonríe por primera vez en la historia: "Firma aquí, practicante."'},
+  {ico:'🎉',t:'Lo lograste. Diez días de código, trasnochos y una sustentación que casi no cuentas.'},
+  {ico:'📝',t:'El instructor te entrega tu contrato de aprendizaje: "Te vas para la empresa. No nos hagas quedar mal."'},
  ],
  en:[
-  {ico:'🎉',t:'You made it. Ten days of bugs, cold coffee and meetings that could have been an email.'},
-  {ico:'🤝',t:'The tech lead smiles for the first time in recorded history: "Sign here, intern."'},
+  {ico:'🎉',t:'You made it. Ten days of code, late nights and a presentation you barely survived.'},
+  {ico:'📝',t:'The instructor hands you your apprenticeship contract: "Off to the company. Do not make us look bad."'},
  ]
 };
 const JEFE_INTRO={
  es:[
   {ico:'⚠️',t:'Un momento... el servidor legado tiembla. Algo ENORME salió del código sin documentar.'},
-  {ico:'👾',t:'¡EL BUG FINAL ha despertado! Nadie se gradúa sin vencerlo. ¡Toma el teclado, practicante!'},
+  {ico:'👾',t:'¡EL BUG FINAL ha despertado! Nadie sale a la productiva sin vencerlo. ¡Toma el teclado, aprendiz!'},
  ],
  en:[
   {ico:'⚠️',t:'Wait... the legacy server is shaking. Something HUGE crawled out of the undocumented code.'},
-  {ico:'👾',t:'THE FINAL BUG has awakened! Nobody graduates without defeating it. Grab the keyboard, intern!'},
+  {ico:'👾',t:'THE FINAL BUG has awakened! Nobody moves on without defeating it. Grab the keyboard, apprentice!'},
  ]
 };
 const T2_INTRO={
  es:[
-  {ico:'📝',t:'¡Firmaste el contrato! Pero relajarte no es opción: ahora las tareas son DE VERDAD.'},
-  {ico:'💼',t:'TEMPORADA 2 · EL CONTRATO: cinco días como dev junior. SQL, regex y deploys nocturnos te esperan.'},
+  {ico:'🏢',t:'TechNova S.A.S. Aquí ya no hay taller ni segundas oportunidades: el código es DE VERDAD.'},
+  {ico:'💼',t:'ETAPA PRODUCTIVA: cinco días en la empresa. SQL, regex y deploys nocturnos. Al final, el título.'},
  ],
  en:[
-  {ico:'📝',t:'You signed the contract! But relaxing is not an option: now the tasks are REAL.'},
-  {ico:'💼',t:'SEASON 2 · THE CONTRACT: five days as a junior dev. SQL, regex and night deploys await.'},
+  {ico:'🏢',t:'TechNova Inc. No more workshops and no second tries here: the code is REAL.'},
+  {ico:'💼',t:'WORKPLACE STAGE: five days at the company. SQL, regex and night deploys. At the end, the qualification.'},
  ]
 };
 const JEFE2_INTRO={
@@ -515,12 +523,12 @@ const JEFE2_INTRO={
 };
 const FINAL2={
  es:[
-  {ico:'🌅',t:'Amanece. El servidor respira tranquilo y el café sabe a victoria.'},
-  {ico:'🚀',t:'El líder técnico te da la mano: "Ya no eres el nuevo. Eres del equipo."'},
+  {ico:'🌅',t:'Amanece. El servidor respira tranquilo, el café sabe a victoria y tu etapa productiva queda aprobada.'},
+  {ico:'🎓',t:'Lectiva y productiva, completas. Ya no eres aprendiz: eres TÉCNICO EN PROGRAMACIÓN DE SOFTWARE.'},
  ],
  en:[
-  {ico:'🌅',t:'Dawn breaks. The server hums peacefully and the coffee tastes like victory.'},
-  {ico:'🚀',t:'The tech lead shakes your hand: "You are not the new kid anymore. You are one of us."'},
+  {ico:'🌅',t:'Dawn breaks. The server hums peacefully, the coffee tastes like victory and your workplace stage is signed off.'},
+  {ico:'🎓',t:'Training and workplace stages, both complete. You are not an apprentice anymore: you are a SOFTWARE PROGRAMMING TECHNICIAN.'},
  ]
 };
 const INTERRUPCIONES={
@@ -553,8 +561,8 @@ const LOGROS=[
    pes:'Merge sin errores',          pen:'Merge with no errors'},
   {id:'jefe',   ico:'👾', es:'CAZA JEFES',   en:'BOSS HUNTER',
    pes:'Derrota al jefe final',      pen:'Beat the final boss'},
-  {id:'titulado',ico:'🎓', es:'TITULADO',    en:'GRADUATE',
-   pes:'Termina el día 10',          pen:'Finish day 10'},
+  {id:'titulado',ico:'📝', es:'LECTIVA APROBADA',en:'TRAINING DONE',
+   pes:'Termina el día 10 y sal a la productiva', pen:'Finish day 10 and head to the workplace'},
   {id:'intacto', ico:'🛡️', es:'INTOCABLE',   en:'UNTOUCHABLE',
    pes:'Al jefe sin recibir golpes', pen:'Beat the boss untouched'},
   {id:'combo',   ico:'🔥', es:'EN RACHA',    en:'ON FIRE',
@@ -569,8 +577,8 @@ const LOGROS=[
    pes:'SQL sin errores',            pen:'SQL with no errors'},
   {id:'regex',   ico:'🧩', es:'REGEX NINJA', en:'REGEX NINJA',
    pes:'Regex sin errores',          pen:'Regex with no errors'},
-  {id:'contrato',ico:'📝', es:'CONTRATADO',  en:'HIRED',
-   pes:'Termina el día 15',          pen:'Finish day 15'},
+  {id:'contrato',ico:'🎓', es:'TÉCNICO',     en:'TECHNICIAN',
+   pes:'Termina el día 15 y titúlate',pen:'Finish day 15 and get qualified'},
 ];
 /* ── AYUDA DE CONTROLES ──
    Lo que se enseña la PRIMERA vez que entras a cada tipo de minijuego. El
@@ -631,7 +639,7 @@ const TXT={
   glob_sinred:'Sin conexión con el marcador. Abajo siguen tus marcas locales.',
   glob_vacio:'Nadie ha publicado todavía. ¡Sé el primero!',
   glob_locvacio:'Termina el día 5 para registrar tu primera marca.',
-  sub:'LA AVENTURA DEL APRENDIZ · CAPÍTULO 4',mapa:'MAPA DE PRÁCTICA',volver:'← VOLVER',continuar:'CONTINUAR',
+  sub:'LA AVENTURA DEL APRENDIZ · CAPÍTULO 4',mapa:'RUTA DE FORMACIÓN',volver:'← VOLVER',continuar:'CONTINUAR',
   pausa:'PAUSA',salirmapa:'SALIR AL MAPA',empezar:'¡EMPEZAR!',listo:'¿LISTO?',aqui:'AQUÍ',
   aprobado:'¡DÍA SUPERADO!',fallado:'¡DÍA FALLIDO!',reintentar:'REINTENTAR',siguiente:'SIGUIENTE DÍA ▶',
   gameover:'GAME OVER',gameovertxt:'Te quedaste sin vidas. El instructor te manda a tomar aire y volver mañana.',
@@ -677,8 +685,8 @@ const TXT={
  sinfin_sube:'SUBE A {d}',sinfin_fin:'SE ACABÓ LA RACHA',sinfin_rondas:'{n} rondas aguantadas',
   toca:'TOCA PARA SEGUIR',saltar:'SALTAR ▶▶',pagina:'PÁG',
   runmsg:'▲ SALTA · ▼ AGÁCHATE · esquiva bugs y papeleo, agarra café',
-  cert:'CERTIFICADO OFICIAL',certde:'Se certifica que',certtxt:'completó sus 10 días de etapa productiva sin llorar (mucho)',
-  firma:'FIRMA: EL INSTRUCTOR',fecha:'FECHA',
+  cert:'CONTRATO DE APRENDIZAJE',certde:'Se hace constar que',certtxt:'aprobó su etapa lectiva sin llorar (mucho) y pasa a la etapa productiva',
+  firma:'FIRMA: EL INSTRUCTOR',firma2:'EXPIDE: EL SENA',fecha:'FECHA',
   rango:'RANGO',rangos:'ESCALAFÓN',stats:'ESTADÍSTICAS',diascomp:'DÍAS',estrellas:'ESTRELLAS',ptstotal:'PTS TOTALES',
   comprar:'COMPRAR',equipado:'EQUIPADO',mejoras:'MEJORAS DE OFICINA',
   mejvida:'VIDA EXTRA',mejtiempo:'+20% TIEMPO',mejdoble:'PUNTOS ×2',
@@ -716,7 +724,7 @@ const TXT={
   guardado:'💾 CÓDIGO DE GUARDADO',exportar:'📤 EXPORTAR PARTIDA',importar:'📥 IMPORTAR',
   pegacodigo:'Pega aquí tu código PA4...',impok:'¡PARTIDA IMPORTADA!',impmal:'CÓDIGO INVÁLIDO',
   guardatxt:'Exporta tu partida y pégala en otro dispositivo para continuar allí.',
-  t1sec:'🎓 ETAPA PRODUCTIVA',t2sec:'📝 EL CONTRATO',
+  t1sec:'📚 ETAPA LECTIVA',t2sec:'💼 ETAPA PRODUCTIVA',
   sqlmsg:'Toca las piezas en ORDEN para armar la consulta',objetivo:'OBJETIVO',
   regexmsg:'Toca TODO lo que cumpla el patrón',patron:'PATRÓN',
   acc_capa:'CAPA DE HÉROE',acc_gato:'GATO DE OFICINA',acc_corona:'CORONA DEV',
@@ -724,8 +732,8 @@ const TXT={
   d_vida:'Una vida extra cada día',d_tiempo:'+20% de tiempo en los retos',
   d_doble:'Ganas el doble de puntos',d_iman:'Los cafés valen más puntos',
   d_escudo:'Anula tu primer golpe en el runner y el jefe',
-  ascenso:'¡CONTRATO INDEFINIDO!',ascensode:'La empresa confirma que',
-  ascensotxt:'sobrevivió sus primeros 5 días como dev junior y ya es parte del equipo',
+  ascenso:'¡TÍTULO DE TÉCNICO!',ascensode:'Se certifica que',
+  ascensotxt:'aprobó su etapa lectiva y su etapa productiva, y se titula como TÉCNICO EN PROGRAMACIÓN DE SOFTWARE',
  },
  en:{dia:'DAY',start:'PRESS START',jugar:'▶ PLAY',tienda:'SHOP',logros:'AWARDS',records:'RECORDS',perso:'MY AVATAR',
   glob_tit:'🌍 GLOBAL LEADERBOARD',glob_todas:'ALL',
@@ -751,7 +759,7 @@ const TXT={
   glob_sinred:'No connection to the leaderboard. Your local scores are still below.',
   glob_vacio:'Nobody has posted a score yet. Be the first!',
   glob_locvacio:'Finish day 5 to record your first score.',
-  sub:'THE APPRENTICE ADVENTURE · CHAPTER 4',mapa:'INTERNSHIP MAP',volver:'← BACK',continuar:'CONTINUE',
+  sub:'THE APPRENTICE ADVENTURE · CHAPTER 4',mapa:'TRAINING PATH',volver:'← BACK',continuar:'CONTINUE',
   pausa:'PAUSED',salirmapa:'EXIT TO MAP',empezar:'START!',listo:'READY?',aqui:'HERE',
   aprobado:'DAY CLEARED!',fallado:'DAY FAILED!',reintentar:'RETRY',siguiente:'NEXT DAY ▶',
   gameover:'GAME OVER',gameovertxt:'You ran out of lives. The instructor sends you home to try again tomorrow.',
@@ -796,8 +804,8 @@ const TXT={
   sinfin_sube:'UP TO {d}',sinfin_fin:'RUN OVER',sinfin_rondas:'{n} rounds survived',
   toca:'TAP TO CONTINUE',saltar:'SKIP ▶▶',pagina:'PAGE',
   runmsg:'▲ JUMP · ▼ DUCK · dodge bugs and paperwork, grab coffee',
-  cert:'OFFICIAL CERTIFICATE',certde:'This certifies that',certtxt:'completed 10 days of internship without crying (much)',
-  firma:'SIGNED: THE INSTRUCTOR',fecha:'DATE',
+  cert:'APPRENTICESHIP CONTRACT',certde:'This states that',certtxt:'passed the training stage without crying (much) and moves on to the workplace stage',
+  firma:'SIGNED: THE INSTRUCTOR',firma2:'ISSUED BY: SENA',fecha:'DATE',
   rango:'RANK',rangos:'RANKS',stats:'STATS',diascomp:'DAYS',estrellas:'STARS',ptstotal:'TOTAL PTS',
   comprar:'BUY',equipado:'EQUIPPED',mejoras:'OFFICE UPGRADES',
   mejvida:'EXTRA LIFE',mejtiempo:'+20% TIME',mejdoble:'POINTS ×2',
@@ -835,7 +843,7 @@ const TXT={
   guardado:'💾 SAVE CODE',exportar:'📤 EXPORT SAVE',importar:'📥 IMPORT',
   pegacodigo:'Paste your PA4 code here...',impok:'SAVE IMPORTED!',impmal:'INVALID CODE',
   guardatxt:'Export your save and paste it on another device to continue there.',
-  t1sec:'🎓 INTERNSHIP',t2sec:'📝 THE CONTRACT',
+  t1sec:'📚 TRAINING STAGE',t2sec:'💼 WORKPLACE STAGE',
   sqlmsg:'Tap the pieces IN ORDER to build the query',objetivo:'GOAL',
   regexmsg:'Tap EVERYTHING that matches the pattern',patron:'PATTERN',
   acc_capa:'HERO CAPE',acc_gato:'OFFICE CAT',acc_corona:'DEV CROWN',
@@ -843,7 +851,7 @@ const TXT={
   d_vida:'One extra life each day',d_tiempo:'+20% time on challenges',
   d_doble:'Earn double points',d_iman:'Coffees are worth more points',
   d_escudo:'Blocks your first hit in the runner and boss',
-  ascenso:'PERMANENT CONTRACT!',ascensode:'The company confirms that',
-  ascensotxt:'survived their first 5 days as a junior dev and is now part of the team',
+  ascenso:'QUALIFIED!',ascensode:'This certifies that',
+  ascensotxt:'passed both the training and the workplace stages, and qualifies as a SOFTWARE PROGRAMMING TECHNICIAN',
  }
 };

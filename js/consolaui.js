@@ -5,9 +5,12 @@
    DOM; aquí solo se pinta, se escucha el teclado y se ejecuta lo que LAB no
    puede hacer solo (saltar a un día, lanzar un minijuego, el contador de FPS).
 
-   CÓMO SE ABRE (no hay botón: no queremos que un aprendiz lo encuentre solo)
+   CÓMO SE ABRE
+   · el enlace ⚗ CONSOLA en el pie de la portada (js/menus.js, rTitulo). Es la
+     forma normal: un toque. No hace falta esconderla, porque lo que la hace
+     inofensiva son las reglas del ensayo y no que cueste encontrarla.
    · mantener pulsado el día en la cabecera (arriba a la izquierda), 900 ms.
-     Funciona en cualquier pantalla y con el dedo, que es lo que hay en el aula.
+     Este sirve TAMBIÉN en mitad de una partida, donde no hay portada.
    · la tecla ` o ~ en el computador, con la consola cerrada.
    · terminar la dirección del juego en #lab para que se abra al cargar.
    Dentro de una sala NO se abre: ahí se juega derecho (ver rSala y

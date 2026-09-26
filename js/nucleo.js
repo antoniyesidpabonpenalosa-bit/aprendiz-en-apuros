@@ -33,9 +33,22 @@ function salirDeModos(){
 }
 
 /* ── ROUTER ── */
-function pantalla(id,html){
+/* Cómo se vuelve a pintar lo que hay en pantalla AHORA. Lo entrega cada
+   pantalla al pintarse y lo usa el botón de idioma (js/principal.js).
+
+   Antes eso era una lista de pantallas escrita a mano en principal.js, y se
+   quedó corta: de treinta y cuatro pantallas solo redibujaba nueve, así que
+   cambiar de idioma en mitad de la campaña dejaba lo que decían los personajes
+   en el idioma anterior. Con esto no hay lista que mantener.
+
+   Una pantalla puede NO entregar ninguna a propósito: un minijuego en marcha o
+   la cuenta atrás de la sala se rehacen empezando de cero, y eso le costaría la
+   ronda a quien está jugando. Esas se quedan como están y solo cambia la
+   cabecera. */
+let rehacerPantalla=null;
+function pantalla(id,html,rehacer){
   limpiarT();pausado=false;modoJefe=false;$('#pausa').hidden=true;$('#interrupcion').hidden=true;
-  pantallaId=id;
+  pantallaId=id;rehacerPantalla=rehacer||null;
   const sc=$('#screen');
   sc.innerHTML=html;
   sc.classList.remove('fade-in');void sc.offsetWidth;sc.classList.add('fade-in');
@@ -66,6 +79,9 @@ function resultado(i,stars,pts){
   if(i===9){darLogro('titulado');registrarRecord(1);guardar();}
   if(i===14){darLogro('contrato');registrarRecord(2);guardar();}
   const esFinal=i===9||i===14;
+  /* pintar() solo dibuja y cablea los botones: todo lo que suma puntos, da
+     logros o publica marcas quedó ARRIBA y no se repite al cambiar de idioma. */
+  const pintar=()=>{
   pantalla('resultado',`
   <div class="centro">
     <span class="ico">${NIVELES[i].ico}</span>
@@ -78,13 +94,15 @@ function resultado(i,stars,pts){
       ?`<button class="btn" id="r-fin" type="button">${i===9?'🎓':'🚀'} ${t('continuar')}</button>`
       :`<button class="btn" id="r-sig" type="button">${t('siguiente')}</button>`}
     <button class="btn btn2" id="r-mapa" type="button">${t('salirmapa')}</button>
-  </div>`);
-  tvez(SFX.star,300);
-  confeti();
-  if(i===9)$('#r-fin').onclick=()=>{SFX.click();rCutscene(FINAL[S.lang],rCertificado)};
-  else if(i===14)$('#r-fin').onclick=()=>{SFX.click();rCutscene(FINAL2[S.lang],rAscenso)};
+  </div>`,pintar);
+  if(i===9)$('#r-fin').onclick=()=>{SFX.click();rCutscene(FINAL,rCertificado)};
+  else if(i===14)$('#r-fin').onclick=()=>{SFX.click();rCutscene(FINAL2,rAscenso)};
   else $('#r-sig').onclick=()=>{SFX.click();empezarDia(Math.min(i+1,NIVELES.length-1))};
   $('#r-mapa').onclick=()=>{SFX.click();rMapa()};
+  };
+  pintar();
+  tvez(SFX.star,300);
+  confeti();
 }
 function fallo(i,reintento){
   if(retoActivo)return retoRonda(0,0);   /* en el reto se sigue, sin perder vidas */
@@ -93,16 +111,20 @@ function fallo(i,reintento){
   if(salaActiva)return salaRonda(0,0);   /* en la sala, como en el reto: cero y se sigue */
   vidas--;hud();SFX.lose();
   if(vidas<=0){
+    const pintarGO=()=>{
     pantalla('gameover',`
     <div class="centro">
       <span class="ico">💀</span>
       <h2 class="rojo">${t('gameover')}</h2>
       <p class="desc">${t('gameovertxt')}</p>
       <button class="btn btn2" id="g-mapa" type="button">${t('salirmapa')}</button>
-    </div>`);
+    </div>`,pintarGO);
     $('#g-mapa').onclick=()=>{SFX.click();rMapa()};
+    };
+    pintarGO();
     return;
   }
+  const pintar=()=>{
   pantalla('fallo',`
   <div class="centro">
     <span class="ico">😵</span>
@@ -110,7 +132,9 @@ function fallo(i,reintento){
     <p class="mini">${t('vidas_txt')}: ${'♥'.repeat(vidas)}</p>
     <button class="btn" id="f-re" type="button">${t('reintentar')}</button>
     <button class="btn btn2" id="f-mapa" type="button">${t('salirmapa')}</button>
-  </div>`);
+  </div>`,pintar);
   $('#f-re').onclick=()=>{SFX.click();(reintento||(()=>jugarNivel(i)))()};
   $('#f-mapa').onclick=()=>{SFX.click();rMapa()};
+  };
+  pintar();
 }

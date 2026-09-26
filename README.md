@@ -1,7 +1,9 @@
 # Practicante en Apuros 4 · SENA
 
 Juego hecho con IA que representa lo que vive un aprendiz de programación
-durante sus 10 días de etapa productiva. Hecho con **HTML, CSS y JavaScript
+del SENA: su **etapa lectiva**, donde aprende, y su **etapa productiva**, donde
+trabaja en una empresa, hasta titularse como **Técnico en Programación de
+Software**. Hecho con **HTML, CSS y JavaScript
 puro** — sin motores, sin librerías, sin dependencias. El único recurso de imagen es `img/aprendiz.png` (5 KB), el sprite del aprendiz que se pasea por el mapa y pelea contra el jefe; todo lo demás se dibuja con código.
 
 **🎮 Juega en línea:** https://antoniyesidpabonpenalosa-bit.github.io/aprendiz-en-apuros/
@@ -61,18 +63,23 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
   (negros profundos, neón y alta resolución) — cambia desde la pantalla de título
 - **3 niveles de dificultad**: 🌱 Práctica, ⚔️ Normal y 💀 Pesadilla — ajustan
   vidas, tiempo y la agresividad del jefe final
-- **15 días en 2 temporadas**: la 🎓 **Etapa Productiva** (días 1-10) con
-  mecanografía, caza-bugs, memoria, simon de Git, quiz, code review,
-  conflictos de merge, runner y EL BUG FINAL oculto — y 📝 **El Contrato**
-  (días 11-15) como dev junior: **consultas SQL**, **regex**, bugs con bombas,
-  Git avanzado (rebase y stash) y un **deploy nocturno** con la revancha del jefe
+- **15 días en las 2 etapas reales de la formación**: 📚 **Etapa Lectiva**
+  (días 1-10), en el centro de formación, donde se APRENDE — mecanografía,
+  caza-bugs, memoria, simon de Git, sustentación, code review, proyecto
+  formativo, conflictos de merge, despliegue, la evaluación final y EL BUG FINAL
+  oculto — y 💼 **Etapa Productiva** (días 11-15), ya en la empresa, donde se
+  TRABAJA: **consultas SQL**, **regex**, bugs con bombas, Git avanzado (rebase y
+  stash) y un **deploy nocturno** con la revancha del jefe
 - **Jefe final con 3 fases reales**: lluvia de errores, ráfagas en abanico y un
   **láser telegrafiado** que avisa antes de disparar · música chiptune tensa
   propia · casilla oculta **"???"** en el mapa para repetir la pelea
 - **Racha/combo** en el runner: encadena cafés sin recibir golpes para multiplicar
-- Diálogos con retratos pixel-art, cutscenes e interrupciones de oficina
+- Diálogos con retratos pixel-art, cutscenes e interrupciones de oficina. En la
+  lectiva manda el instructor y los compañeros son de la ficha; en la productiva
+  manda el líder técnico y el instructor solo aparece a hacer seguimiento
 - Puntos, XP, **6 rangos** (Aspirante → Dev Senior), vidas, estrellas,
-  certificado y **contrato indefinido** al terminar la temporada 2
+  **contrato de aprendizaje** al acabar la lectiva y **título de técnico** al
+  acabar la productiva
 - **Tienda ampliada**: 9 accesorios (capa 🦸, gato 🐱, corona 👑…) y 5 mejoras
   con descripción (café premium 🧲, escudo dev 🛡️…)
 - **⚡ Reto diario**: tres minijuegos, **los mismos para todo el mundo** ese día,
@@ -267,11 +274,14 @@ tiempo, dureza del jefe, ritmo, dificultad de base…). Está pensada para
 explicar en clase —bajar la dificultad en vivo, repetir un nivel exacto— y para
 afinar el juego mientras se desarrolla.
 
-**Cómo se abre.** No tiene botón, para que no la encuentre un aprendiz por su
-cuenta:
+**Cómo se abre.** Por el enlace **⚗ CONSOLA** en el pie de la portada, al lado
+de BORRAR PROGRESO: un toque. No hace falta esconderla — lo que la hace
+inofensiva son las reglas de abajo, no que cueste encontrarla. Hay tres atajos
+más:
 
 * **pulsación larga (0,9 s) sobre el día de la cabecera**, arriba a la
-  izquierda. Funciona con el dedo y en cualquier pantalla;
+  izquierda. Este sirve **también en mitad de una partida**, donde no hay
+  portada a la que volver;
 * la tecla <kbd>`</kbd> en el computador;
 * terminando la dirección en `#lab`, para que se abra al cargar.
 

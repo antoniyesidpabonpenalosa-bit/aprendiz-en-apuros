@@ -816,6 +816,16 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 .cut{cursor:pointer}
 .cut-nav{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px}
 .cut-prog{font-size:11px;color:#7a86c8;letter-spacing:1px}
+/* Los dos enlaces pequeños del pie de la portada (consola y borrar) en una
+   sola fila: como hermanos sueltos, en apaisado caían los dos en la misma
+   celda de la rejilla y se pisaban. */
+.tit-menudo{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:center;margin-top:6px}
+/* El relleno es área para el dedo, no tamaño: la letra no cambia. Sin él el
+   enlace medía 14 px de alto, que en un móvil es fallar el toque. Se compensa
+   con la mitad del margen de arriba, que la portada apaisada va justa. */
+.tit-menudo .cut-skip{margin-top:0;padding:7px 6px}
+#t-lab{color:#5f7e63;text-decoration-color:#3f5a44}
+#t-lab:hover{color:var(--g4)}
 .cut-skip{margin-top:12px;background:none;border:none;color:#5a6498;font-family:inherit;font-size:11px;cursor:pointer;text-decoration:underline;opacity:.85}
 .cut-skip:hover{color:#9aa6e0}
 
@@ -1010,7 +1020,7 @@ html.apaisado .centro.portada>.col2>.col{gap:11px}
 html.apaisado .centro.portada>.col2>.col:first-child{grid-column:1;grid-row:1}
 html.apaisado .centro.portada>.col2>.col:last-child{grid-column:2;grid-row:1/-1}
 html.apaisado .centro.portada>.tit-pie{grid-column:1;grid-row:2;justify-self:center}
-html.apaisado .centro.portada>.cut-skip{grid-column:1;grid-row:3;justify-self:center}
+html.apaisado .centro.portada>.tit-menudo{grid-column:1;grid-row:3;justify-self:center}
 
 /* El alto útil manda en apaisado: con #screen como contenedor, los tableros
    se dimensionan por el alto que queda (cqh) y no solo por el ancho. */

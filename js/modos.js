@@ -56,7 +56,7 @@ function rLibre() {
       }).join('')}
     </div>
     <button class="btn btn2" id="lb-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rLibre);
   $$('#lb-lista .menu-fila').forEach(b => {
     b.onclick = () => { SFX.click(); empezarLibre(b.dataset.tipo); };
   });
@@ -84,6 +84,8 @@ function libreFin(stars, pts) {
   const ganados = Math.max(0, pts);
   const nueva = ganados > 0 && guardarMarca(tipo, ganados);
   if (stars > 0) SFX.win(); else SFX.lose();
+  /* Solo dibuja: lo de arriba ya pasó y no se repite al cambiar de idioma. */
+  const pintar = () => {
   pantalla('libre-fin', `
   <div class="centro">
     <span class="ico">${ICO_TIPO[tipo] || '🎮'}</span>
@@ -94,10 +96,12 @@ function libreFin(stars, pts) {
             : `<p class="mini">${t('libre_mejor')}: ${marcaDe(tipo)}</p>`}
     <button class="btn" id="lf-otra" type="button">${t('libre_otra')}</button>
     <button class="btn btn2" id="lf-volver" type="button">${t('volver')}</button>
-  </div>`);
-  if (nueva) { confeti(); tvez(SFX.star, 300); }
+  </div>`, pintar);
   $('#lf-otra').onclick = () => { SFX.click(); empezarLibre(tipo); };
   $('#lf-volver').onclick = () => { SFX.click(); rLibre(); };
+  };
+  pintar();
+  if (nueva) { confeti(); tvez(SFX.star, 300); }
 }
 
 /* ══════════ SIN FIN ══════════ */
@@ -128,7 +132,7 @@ function rSinFin() {
       <button class="btn btn-jugar" id="sf-jugar" type="button">${t('sinfin_jugar')}</button>
     </div>
     <button class="btn btn2" id="sf-volver" type="button">${t('volver')}</button>
-  </div>`);
+  </div>`,rSinFin);
   $('#sf-jugar').onclick = () => { SFX.click(); empezarSinFin(); };
   $('#sf-volver').onclick = () => { SFX.click(); rTitulo(); };
 }
@@ -159,6 +163,8 @@ function sinFinRonda(stars, pts) {
   SFX.ok();
   const sigDif = DIFS[difDeRonda(sinFinActivo.ronda)];
   const sube = difDeRonda(sinFinActivo.ronda) > difDeRonda(r);
+  /* Solo dibuja: lo de arriba ya pasó y no se repite al cambiar de idioma. */
+  const pintar = () => {
   pantalla('sinfin-paso', `
   <div class="centro">
     <span class="ico">✅</span>
@@ -168,8 +174,10 @@ function sinFinRonda(stars, pts) {
     <p class="mini">×${multSinFin(sinFinActivo.ronda).toFixed(2).replace(/\.?0+$/, '')}</p>
     ${sube ? `<p class="mini rojo">${t('sinfin_sube').replace('{d}', tj(sigDif))} ${sigDif.ico}</p>` : ''}
     <button class="btn" id="sp-sig" type="button">${t('siguiente')}</button>
-  </div>`);
+  </div>`, pintar);
   $('#sp-sig').onclick = () => { SFX.click(); siguienteSinFin(); };
+  };
+  pintar();
 }
 
 function sinFinFin() {
@@ -198,6 +206,8 @@ function sinFinFin() {
                        grupo: S.grupo });
   }
   SFX.lose();
+  /* Solo dibuja: lo de arriba ya pasó y no se repite al cambiar de idioma. */
+  const pintar = () => {
   pantalla('sinfin-fin', `
   <div class="centro">
     <span class="ico">♾️</span>
@@ -208,8 +218,10 @@ function sinFinFin() {
             : `<p class="mini">${t('sinfin_mejor')}: ${S.mejorSinFin || 0}</p>`}
     <button class="btn" id="sff-otra" type="button">${t('libre_otra')}</button>
     <button class="btn btn2" id="sff-volver" type="button">${t('volver')}</button>
-  </div>`);
-  if (nueva && pts > 0) { confeti(); tvez(SFX.star, 300); }
+  </div>`, pintar);
   $('#sff-otra').onclick = () => { SFX.click(); empezarSinFin(); };
   $('#sff-volver').onclick = () => { SFX.click(); rSinFin(); };
+  };
+  pintar();
+  if (nueva && pts > 0) { confeti(); tvez(SFX.star, 300); }
 }
