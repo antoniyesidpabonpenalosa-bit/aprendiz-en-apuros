@@ -586,9 +586,9 @@ function nvRunner(dia){
       limpiarRun();
       const stars=golpes===0?3:golpes===1?2:1;
       /* día final: sobrevivir la oficina era solo la primera fase... */
-      if(dia===9)return rCutscene(JEFE_INTRO[S.lang],()=>nvJefe(dia,pts+400+cafes*20));
+      if(dia===9)return rCutscene(JEFE_INTRO,()=>nvJefe(dia,pts+400+cafes*20));
       /* deploy nocturno: el BUG FINAL vuelve por venganza */
-      if(dia===14)return rCutscene(JEFE2_INTRO[S.lang],()=>nvJefe(dia,pts+400+cafes*20));
+      if(dia===14)return rCutscene(JEFE2_INTRO,()=>nvJefe(dia,pts+400+cafes*20));
       return resultado(dia,stars,pts+400+cafes*20);
     }
     /* dibujo (paleta nocturna en la etapa productiva) */

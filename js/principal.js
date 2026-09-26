@@ -36,17 +36,13 @@ $('#b-snd').onclick=()=>{
 };
 $('#b-lang').onclick=()=>{
   S.lang=S.lang==='es'?'en':'es';aplicarIdioma();guardar();SFX.click();
-  /* re-render de pantallas de menú; en juego solo cambia el HUD */
-  if(['titulo'].includes(pantallaId))rTitulo();
-  else if(pantallaId==='mapa')rMapa();
-  else if(pantallaId==='tienda')rTienda();
-  else if(pantallaId==='logros')rLogros();
-  else if(pantallaId==='records')rRecords();
-  else if(pantallaId==='perso')rPerso();
-  else if(pantallaId==='stats')rStats();
-  else if(pantallaId==='ascenso')rAscenso();
-  else if(pantallaId==='borrar')rBorrar();
-  else hud();
+  /* Cada pantalla entrega al router su forma de rehacerse (js/nucleo.js), así
+     que aquí no hay lista que mantener: antes había una con nueve pantallas de
+     treinta y cuatro, y cambiar de idioma en mitad de la campaña dejaba a los
+     personajes hablando en el anterior.
+     Un minijuego en marcha no entrega ninguna a propósito —rehacerlo sería
+     empezar la ronda de cero—, así que ahí solo se actualiza la cabecera. */
+  if(rehacerPantalla)rehacerPantalla();else hud();
 };
 
 /* ── ARRANQUE ── */

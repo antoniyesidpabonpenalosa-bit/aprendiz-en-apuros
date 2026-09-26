@@ -127,5 +127,67 @@ else {
   else ok(`sw.js precarga los ${necesarios.length} archivos locales de index.html`);
 }
 
+/* 5 · toda pantalla dice cómo volver a pintarse
+   pantalla(id, html, rehacer) guarda ese tercer argumento y el botón de idioma
+   lo usa (js/nucleo.js). Una pantalla que no lo entregue se queda escrita en el
+   idioma con el que entró: así estuvo el diálogo de la campaña, y la lista de
+   pantallas a redibujar vivía escrita a mano en principal.js. Esto lo vigila.
+
+   Las excepciones son a propósito: un minijuego en marcha ('nivel') y la cuenta
+   atrás de la sala se rehacen desde cero, y eso le costaría la ronda a quien
+   está jugando. Esas solo cambian la cabecera. */
+const SIN_REPINTADO = new Set(['nivel', 'sala-cuenta']);
+
+/* Encuentra el paréntesis que cierra una llamada, saltándose lo que hay dentro
+   de plantillas `...${...}...` y de cadenas. Sin esto, un `)` dentro del HTML
+   se confundiría con el final de la llamada. */
+function finLlamada(txt, abre) {
+  const pila = [];
+  let prof = 0;
+  for (let j = abre; j < txt.length; j++) {
+    const c = txt[j], ultimo = pila[pila.length - 1];
+    if (ultimo === '`') {
+      if (c === '\\') { j++; continue; }
+      if (c === '`') pila.pop();
+      else if (c === '$' && txt[j + 1] === '{') { pila.push('{'); j++; }
+      continue;
+    }
+    if (ultimo === '{') {
+      if (c === '`') pila.push('`');
+      else if (c === '{') pila.push('{');
+      else if (c === '}') pila.pop();
+      continue;
+    }
+    if (c === '"' || c === "'") {
+      const q = c;
+      for (j++; j < txt.length && txt[j] !== q; j++) if (txt[j] === '\\') j++;
+      continue;
+    }
+    if (c === '`') pila.push('`');
+    else if (c === '(') prof++;
+    else if (c === ')' && --prof === 0) return j;
+  }
+  return -1;
+}
+
+const sinRepintar = [];
+let pantallasVistas = 0;
+for (const rel of jsFiles.filter(f => f.startsWith('js' + sep))) {
+  const txt = readFileSync(join(raiz, rel), 'utf8');
+  for (const m of txt.matchAll(/pantalla\('([^']+)'/g)) {
+    pantallasVistas++;
+    const id = m[1];
+    if (SIN_REPINTADO.has(id)) continue;
+    const abre = txt.indexOf('(', m.index);
+    const cierra = finLlamada(txt, abre);
+    const cola = txt.slice(Math.max(abre, cierra - 80), cierra);
+    if (!/`\s*,\s*[\w$(]/.test(cola)) sinRepintar.push(`${rel} · pantalla('${id}')`);
+  }
+}
+if (sinRepintar.length) fallo('estas pantallas no dicen cómo volver a pintarse, así que no se ' +
+  'traducen al cambiar de idioma:\n    ' + sinRepintar.join('\n    ') +
+  "\n    Pásale a pantalla() un tercer argumento que la vuelva a dibujar, o añade su id a SIN_REPINTADO si es a propósito.");
+else ok(`las ${pantallasVistas} pantallas dicen cómo volver a pintarse (o son excepción a propósito)`);
+
 if (errores) { console.error(`\n${errores} problema(s) encontrado(s).`); process.exit(1); }
 console.log('\nTodo en orden ✅');
