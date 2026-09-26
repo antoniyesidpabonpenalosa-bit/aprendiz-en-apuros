@@ -54,6 +54,7 @@ export function cargarJuego({ guardado = null } = {}) {
     get TOT_DIAS(){ return TOT_DIAS },
     get DEF(){ return DEF },
     RANGOS, DIFS, NIVELES, TXT, RANKING, RETO, SALA, LAB, SKINS, CAMISAS, CMDS, PAREJAS, QUIZ,
+    DIALOGOS, LOGROS,
     exportarCodigo, importarCodigo, sumaCod,
     rangoDe, rangoNom, maxVidas, facTiempo, facPts, facJefe,
     facCant, facRitmo, maxErr, ojeada, difActual,

@@ -253,7 +253,7 @@ function rMapa(){
     const st=S.dias[i];
     const estado=st>=1?'ok':(i<=p?'open':'lock');
     const badge=st>=1?'★'.repeat(st):(estado==='lock'?'🔒':'▶');
-    /* separador de temporada 2 */
+    /* separador: aquí empieza la etapa productiva */
     if(i===10)cards+=`<p class="mapa-sec">${t('t2sec')}</p>`;
     cards+=`
     <button class="etapa-card ${estado} ${i>=10?'t2':''}" data-i="${i}" ${estado==='lock'?'disabled':''} type="button">
@@ -303,7 +303,7 @@ function rMapa(){
 
 /* ── FLUJO DE DÍA ── */
 function empezarDia(i){
-  /* primera vez que entras a la temporada 2: cutscene del contrato */
+  /* primera vez que sales a la etapa productiva: cutscene de la empresa */
   if(i===10&&!S.t2){
     return rCutscene(T2_INTRO[S.lang],()=>{S.t2=true;guardar();diaAct=i;vidas=maxVidas();rDialogo(i)});
   }
@@ -372,7 +372,10 @@ function conAyuda(tipo,seguir){
 /* Hitos que dan derecho a marca en el marcador global. El día 5 existe para
    que la parte social del juego sirva de algo antes: esperar al día 10 dejaba
    la tabla vacía justo cuando más engancha ver que hay gente jugando. */
-const ICO_HITO={0:'⏳',1:'🎓',2:'📝',3:'♾️'};
+/* 0 = día 5 (mitad de la lectiva) · 1 = día 10 (fin de la lectiva, sale el
+   contrato de aprendizaje) · 2 = día 15 (fin de la productiva: el título) ·
+   3 = sin fin. El 🎓 es del día 15, que es cuando de verdad te titulas. */
+const ICO_HITO={0:'⏳',1:'📝',2:'🎓',3:'♾️'};
 function registrarRecord(hito){
   const nom=S.nombre||t('tu');
   S.records.push({n:nom,p:S.pts,x:S.xp,yo:1});
@@ -406,7 +409,7 @@ function rCertificado(){
   pantalla('cert',`
   <div class="centro">
     <div class="cert">
-      <p class="dia">🎓 ${t('cert')} 🎓</p>
+      <p class="dia">📝 ${t('cert')} 📝</p>
       <div class="retrato-wrap"><canvas class="retrato" id="c-cara" width="64" height="64"></canvas></div>
       <p class="sub cert-de">${t('certde')}</p>
       <p class="rango">${esc(S.nombre||t('tu'))}</p>
@@ -429,13 +432,13 @@ function rCertificado(){
   $('#c-volver').onclick=()=>{SFX.click();rTitulo()};
 }
 
-/* ── ASCENSO (final de la temporada 2) ── */
+/* ── TÍTULO DE TÉCNICO (final de la etapa productiva) ── */
 function rAscenso(){
   const hoy=new Date().toLocaleDateString(S.lang==='es'?'es-CO':'en-US');
   pantalla('ascenso',`
   <div class="centro">
     <div class="cert">
-      <p class="dia">🚀 ${t('ascenso')} 🚀</p>
+      <p class="dia">🎓 ${t('ascenso')} 🎓</p>
       <div class="retrato-wrap"><canvas class="retrato" id="a-cara" width="64" height="64"></canvas></div>
       <p class="sub cert-de">${t('ascensode')}</p>
       <p class="rango">${esc(S.nombre||t('tu'))}</p>
@@ -446,7 +449,7 @@ function rAscenso(){
         <div><b>${totalStars()}</b><span>${t('estrellas')}</span></div>
         <div><b>${S.pts}</b><span>${t('ptstotal')}</span></div>
       </div>
-      <p class="sub cert-firma">${t('firma')} · ${t('fecha')}: ${hoy}</p>
+      <p class="sub cert-firma">${t('firma2')} · ${t('fecha')}: ${hoy}</p>
       <span class="rango-badge grande">${rangoNom()}</span>
     </div>
     <button class="btn btn-share" id="a-share" type="button">${t('compartir')}</button>

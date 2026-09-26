@@ -591,7 +591,7 @@ function nvRunner(dia){
       if(dia===14)return rCutscene(JEFE2_INTRO[S.lang],()=>nvJefe(dia,pts+400+cafes*20));
       return resultado(dia,stars,pts+400+cafes*20);
     }
-    /* dibujo (paleta nocturna en temporada 2) */
+    /* dibujo (paleta nocturna en la etapa productiva) */
     if(HD){
       const g=c.createLinearGradient(0,0,0,180);
       if(noche){g.addColorStop(0,'#0d0620');g.addColorStop(.7,'#050310');g.addColorStop(1,'#020108')}
@@ -655,7 +655,7 @@ function nvRunner(dia){
   programarInterrupcion();
 }
 
-/* ══════════ MINIJUEGO 9 · CONSULTA SQL (temporada 2) ══════════ */
+/* ══════════ MINIJUEGO 9 · CONSULTA SQL (etapa productiva) ══════════ */
 /* Motor de "piezas en orden": se comparte entre la consulta SQL y ORDENA EL
    ALGORITMO. Son los mismos mandos —tocar las piezas en el orden correcto—
    y lo único que cambia es el banco y el rótulo del terminal, así que
@@ -733,7 +733,7 @@ function nvOrden(dia){
     pista:t('ordenmsg'),logro:null,rondas:5,seg:80});
 }
 
-/* ══════════ MINIJUEGO 10 · CAZA PATRONES · REGEX (temporada 2) ══════════ */
+/* ══════════ MINIJUEGO 10 · CAZA PATRONES · REGEX (etapa productiva) ══════════ */
 function nvRegex(dia){
   const nRon=cuantos(5,3), topeErr=maxErr();
   const idxs=RETO.elegir('regex',REGEXS.length,nRon,RETO.rngPara(':regex'));
