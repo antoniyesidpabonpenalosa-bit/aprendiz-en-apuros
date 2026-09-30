@@ -49,6 +49,9 @@ let rehacerPantalla=null;
 function pantalla(id,html,rehacer){
   limpiarT();pausado=false;modoJefe=false;$('#pausa').hidden=true;$('#interrupcion').hidden=true;
   pantallaId=id;rehacerPantalla=rehacer||null;
+  /* Si mientras jugabas salió una versión nueva, el aviso esperaba a que
+     terminaras: este es el momento (js/principal.js). */
+  if(typeof mostrarAvisoVersion==='function')mostrarAvisoVersion();
   const sc=$('#screen');
   sc.innerHTML=html;
   sc.classList.remove('fade-in');void sc.offsetWidth;sc.classList.add('fade-in');

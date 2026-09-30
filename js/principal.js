@@ -56,7 +56,52 @@ addEventListener('resize',()=>{if(!encajePend)encajePend=requestAnimationFrame((
 aplicarModo();
 aplicarIdioma();
 vidas=maxVidas();
-rTitulo();
-if('serviceWorker' in navigator&&location.protocol==='https:'){
-  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+/* ── AVISO DE VERSIÓN NUEVA ──
+   Va ANTES de arrancar el juego a propósito: pantalla() llama a
+   mostrarAvisoVersion() en cada cambio de pantalla, incluida la primera, y con
+   `versionNuevaLista` declarado más abajo la primera pantalla moría en la zona
+   muerta del `let` y se quedaba en blanco.
+
+   Para quien ya tiene el juego abierto cuando publicamos: el proyector del
+   aula encendido toda la mañana, o una pestaña que lleva días ahí. El service
+   worker nuevo entra solo, pero la página cargada sigue con el código viejo
+   hasta que se recargue; esto avisa de que toca hacerlo.
+
+   El aviso ESPERA a que se acabe la prueba que se esté jugando: recargar en
+   mitad de un minijuego costaría la ronda, y un aviso que aparece justo encima
+   de lo que estás jugando es peor que no avisar. */
+let versionNuevaLista=false;
+function avisarVersionNueva(){
+  versionNuevaLista=true;
+  mostrarAvisoVersion();
 }
+function mostrarAvisoVersion(){
+  const b=$('#aviso-ver');
+  if(!b||!versionNuevaLista)return;
+  if(pantallaId==='nivel'||salaActiva)return;     /* se enseña al salir */
+  b.querySelector('.av-txt').textContent=t('nov_aviso');
+  b.querySelector('.av-btn').textContent=t('nov_actualizar');
+  b.hidden=false;
+}
+$('#aviso-ver .av-btn').onclick=()=>{location.reload()};
+$('#aviso-ver .av-x').onclick=()=>{$('#aviso-ver').hidden=true;versionNuevaLista=false};
+
+if('serviceWorker' in navigator&&location.protocol==='https:'){
+  navigator.serviceWorker.register('./sw.js').then(reg=>{
+    reg.addEventListener('updatefound',()=>{
+      const nuevo=reg.installing;
+      if(!nuevo)return;
+      nuevo.addEventListener('statechange',()=>{
+        /* Solo si YA había uno mandando: en la primera visita también se
+           instala uno, y ahí no hay nada que avisar. */
+        if(nuevo.state==='activated'&&navigator.serviceWorker.controller)avisarVersionNueva();
+      });
+    });
+    /* El navegador solo busca versiones nuevas al navegar, y un proyector no
+       navega en toda la clase: se pregunta cada media hora. */
+    setInterval(()=>{reg.update().catch(()=>{})},30*60*1000);
+  }).catch(()=>{});
+}
+
+/* Antes de la portada: si salió algo nuevo desde la última vez, se cuenta. */
+rNovedades(rTitulo);

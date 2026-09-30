@@ -1,7 +1,10 @@
 /* Service worker · Practicante en Apuros 4
    Mismo origen: red primero (siempre fresco) con respaldo de caché offline.
    Lo de otros orígenes —el marcador en Supabase— no se toca: va a la red. */
-const CACHE = 'pa4-v26';
+/* Va a la par con VERSION de js/datos.js: scripts/validar.mjs falla si se
+   separan, porque entonces el juego enseñaría unas novedades y la caché
+   serviría otra versión. */
+const CACHE = 'pa4-v27';
 /* Cuánto se espera a la red antes de servir la copia guardada. Con "red
    primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
    archivo colgado hasta que el navegador se rindiera, aunque estuviera en

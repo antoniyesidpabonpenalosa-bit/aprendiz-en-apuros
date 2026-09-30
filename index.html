@@ -97,6 +97,14 @@
        que nadie juegue con trucos y mande la captura como si fuera real. -->
   <p id="lab-marca" role="status" hidden></p>
   <span id="lab-fps" hidden>0 FPS</span>
+  <!-- Aviso de versión nueva para quien ya tiene el juego abierto. No es un
+       diálogo: no tapa nada ni corta la partida, solo ofrece recargar. -->
+  <div id="aviso-ver" role="status" hidden>
+    <span class="av-ico" aria-hidden="true">✨</span>
+    <span class="av-txt"></span>
+    <button class="av-btn" type="button"></button>
+    <button class="av-x" type="button" aria-label="cerrar">✕</button>
+  </div>
 </div>
 <script src="js/datos.js"></script>
 <script src="js/estado.js"></script>
