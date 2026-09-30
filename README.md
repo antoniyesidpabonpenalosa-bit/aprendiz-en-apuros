@@ -150,6 +150,7 @@ test/
 └── novedades.test.mjs    → pruebas del aviso de versión: a quién se le cuenta y una sola vez
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
+├── barrido.mjs           → juega los 15 días × 3 dificultades × 2 idiomas y hace informe
 ├── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
 └── build-sprite.py       → genera img/aprendiz.png desde arte/aprendiz/
 design-system/            → catálogo de componentes extraído de css/estilos.css
@@ -364,6 +365,39 @@ hoy cualquiera puede ser primero. En la tabla de todos los tiempos eso es
 imposible para quien empieza.
 
 El reto **no toca la campaña**: no avanza días ni desbloquea etapas del mapa.
+
+### Barrido de la campaña
+
+`node scripts/barrido.mjs` juega **los 15 días en las 3 dificultades y los 2
+idiomas** —90 partidas— con un robot que contesta bien, y deja un informe en
+`informe-barrido.md`.
+
+Existe porque los fallos que han aparecido llevaban meses vivos y todos tenían
+la misma forma: el camino por defecto estaba probado y los bordes no. El
+cuestionario del día 5 se quedaba clavado **solo en PRÁCTICA**, porque solo ahí
+se sortean 5 preguntas en vez de 6; nadie lo veía porque nadie jugaba en
+PRÁCTICA.
+
+El robot no juega a lo que salga: para cada minijuego saca la respuesta correcta
+de los propios datos del juego —el banco de preguntas, el de conflictos, la
+expresión regular que hay en pantalla, el orden de las piezas—. Eso es lo que lo
+hace valer: **llega al final de cada prueba**, que es donde estaba escondido el
+fallo del día 5. Si una partida no termina, es un problema del juego y no del
+robot.
+
+```bash
+node scripts/barrido.mjs                     # todo (90 partidas, ~20 min)
+node scripts/barrido.mjs --dias 5            # solo el día 5
+node scripts/barrido.mjs --dias 1-5 --dif 0  # días 1 a 5 en PRÁCTICA
+node scripts/barrido.mjs --lang es           # solo en español
+```
+
+Lo que **no** cubre, dicho en el propio informe: ganarle al jefe (el robot se
+mueve pero no apunta, así que la pelea acaba siempre por recibir tres golpes;
+se comprueba que no se cuelgue, no el camino de victoria) y esquivar bien en el
+runner, que termina por tiempo.
+
+---
 
 ### Lo que no se ve
 
