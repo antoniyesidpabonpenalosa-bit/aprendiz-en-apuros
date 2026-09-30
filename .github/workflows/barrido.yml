@@ -1,0 +1,86 @@
+name: Barrido de la campaña
+
+# El barrido juega los 15 días en las 3 dificultades y los 2 idiomas: 90
+# partidas, unos 25 minutos. Eso no cabe en cada push, así que va en tres
+# velocidades:
+#
+#   · en cada PR y en cada push a main, el subconjunto de PRÁCTICA en español
+#     (15 partidas, pocos minutos). Es el que más ha valido la pena: los dos
+#     fallos que hemos encontrado salían en PRÁCTICA, que es la dificultad que
+#     nadie prueba a mano;
+#   · entero, todas las noches, para que un fallo no espere a la siguiente
+#     publicación;
+#   · entero y a mano cuando haga falta, eligiendo días, dificultad e idioma.
+#
+# El informe se sube como artefacto en las tres, pase o falle: cuando falla es
+# justo cuando hace falta leerlo.
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+  schedule:
+    # 07:10 UTC = 02:10 en Colombia. El minuto no es redondo a propósito: a en
+    # punto se amontonan las tareas de todo el mundo y la cola se alarga.
+    - cron: '10 7 * * *'
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: 'Días (ej: 5, 1-5, 1,5,10)'
+        default: '1-15'
+      dif:
+        description: 'Dificultad (0=práctica, 1=normal, 2=pesadilla)'
+        default: '0,1,2'
+      lang:
+        description: 'Idioma (es, en)'
+        default: 'es,en'
+
+jobs:
+  barrido:
+    runs-on: ubuntu-latest
+    # De sobra para las 90 partidas; si se pasa de aquí es que algo se colgó
+    # de verdad y más vale cortar que quemar una hora de runner.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Playwright NO entra al repositorio: el juego presume de no tener ni una
+      # dependencia y eso se mantiene. Se instala aquí, en la máquina de turno,
+      # y --no-save evita que aparezca un package.json que nadie pidió.
+      - name: Instalar el navegador de pruebas
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      # En un PR o en un push, solo PRÁCTICA en español: es rápido y es donde
+      # se han escondido los fallos. El barrido entero va de noche.
+      - name: Barrido (PRÁCTICA · español)
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        run: node scripts/barrido.mjs --dif 0 --lang es
+
+      - name: Barrido completo
+        if: github.event_name == 'schedule'
+        run: node scripts/barrido.mjs
+
+      - name: Barrido a medida
+        if: github.event_name == 'workflow_dispatch'
+        run: >
+          node scripts/barrido.mjs
+          --dias "${{ inputs.dias }}"
+          --dif "${{ inputs.dif }}"
+          --lang "${{ inputs.lang }}"
+
+      # always(): si el barrido encuentra algo, el paso anterior falla y es
+      # justo entonces cuando hay que poder leer el informe.
+      - name: Guardar el informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-barrido
+          path: informe-barrido.md
+          if-no-files-found: warn

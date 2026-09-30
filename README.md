@@ -386,11 +386,25 @@ fallo del día 5. Si una partida no termina, es un problema del juego y no del
 robot.
 
 ```bash
-node scripts/barrido.mjs                     # todo (90 partidas, ~20 min)
+node scripts/barrido.mjs                     # todo (90 partidas, ~25 min)
 node scripts/barrido.mjs --dias 5            # solo el día 5
 node scripts/barrido.mjs --dias 1-5 --dif 0  # días 1 a 5 en PRÁCTICA
-node scripts/barrido.mjs --lang es           # solo en español
+node scripts/barrido.mjs --dif 0 --lang es   # los 15 días en PRÁCTICA (~2 min)
 ```
+
+**En integración continua** (`.github/workflows/barrido.yml`) va en tres
+velocidades, porque 25 minutos no caben en cada push:
+
+| Cuándo | Qué corre | Cuánto |
+|---|---|---|
+| Cada PR y cada push a `main` | los 15 días en PRÁCTICA y español | ~2 min |
+| Todas las noches (02:10 en Colombia) | las 90 partidas | ~25 min |
+| A mano (*Run workflow*) | lo que le pidas: días, dificultad, idioma | lo que toque |
+
+El subconjunto rápido es PRÁCTICA a propósito: **los dos fallos que ha
+encontrado el barrido salían ahí**, que es justo la dificultad que nadie prueba
+a mano. El informe se sube como artefacto de la ejecución pase o falle — cuando
+falla es cuando hace falta leerlo.
 
 Lo que **no** cubre, dicho en el propio informe: ganarle al jefe (el robot se
 mueve pero no apunta, así que la pelea acaba siempre por recibir tres golpes;
