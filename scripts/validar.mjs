@@ -189,5 +189,40 @@ if (sinRepintar.length) fallo('estas pantallas no dicen cómo volver a pintarse,
   "\n    Pásale a pantalla() un tercer argumento que la vuelva a dibujar, o añade su id a SIN_REPINTADO si es a propósito.");
 else ok(`las ${pantallasVistas} pantallas dicen cómo volver a pintarse (o son excepción a propósito)`);
 
+/* 6 · la versión del juego, la de la caché y las novedades van juntas
+   VERSION (js/datos.js) es lo que el juego enseña; CACHE (sw.js) es lo que
+   sirve el service worker. Si se separan, alguien ve las novedades de una
+   versión mientras juega a otra, o no se entera de nada porque la caché no
+   cambió. Y publicar sin su entrada en NOVEDADES deja el aviso mudo. */
+const datos = readFileSync(join(raiz, 'js', 'datos.js'), 'utf8');
+const mVer = datos.match(/const VERSION\s*=\s*'([^']+)'/);
+const mCache = sw.match(/const CACHE\s*=\s*'([^']+)'/);
+if (!mVer) fallo("js/datos.js no define const VERSION = '...'");
+else if (!mCache) fallo("sw.js no define const CACHE = '...'");
+else {
+  const version = mVer[1], esperado = 'pa4-' + version;
+  if (mCache[1] !== esperado)
+    fallo(`la versión no cuadra: js/datos.js dice VERSION='${version}' y sw.js dice CACHE='${mCache[1]}'.\n    ` +
+          `Deja el CACHE en '${esperado}' (o cambia VERSION) para que vayan a la par.`);
+  else ok(`la versión va a la par en el juego y en la caché (${version})`);
+
+  const mLista = datos.match(/const NOVEDADES\s*=\s*\[([\s\S]*?)\n\];/);
+  if (!mLista) fallo('js/datos.js no define const NOVEDADES = [ ... ]');
+  else {
+    const entradas = [...mLista[1].matchAll(/\{\s*v:\s*'([^']+)'/g)].map(m => m[1]);
+    if (!entradas.length) fallo('NOVEDADES está vacío: nadie se enteraría de los cambios');
+    else if (entradas[0] !== version)
+      fallo(`NOVEDADES no trae la versión que se va a publicar: arriba del todo está '${entradas[0]}' y VERSION es '${version}'.\n    ` +
+            'Añade la entrada de esta versión al PRINCIPIO de NOVEDADES, en español e inglés.');
+    else {
+      const es = (mLista[1].match(/\bes:\s*\[/g) || []).length;
+      const en = (mLista[1].match(/\ben:\s*\[/g) || []).length;
+      if (es !== entradas.length || en !== entradas.length)
+        fallo(`NOVEDADES tiene ${entradas.length} versión(es) pero ${es} lista(s) en español y ${en} en inglés: falta traducir alguna.`);
+      else ok(`NOVEDADES cubre ${entradas.length} versión(es) en los dos idiomas, la última es ${version}`);
+    }
+  }
+}
+
 if (errores) { console.error(`\n${errores} problema(s) encontrado(s).`); process.exit(1); }
 console.log('\nTodo en orden ✅');

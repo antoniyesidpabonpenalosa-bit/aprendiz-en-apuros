@@ -146,7 +146,8 @@ test/
 ├── logica.test.mjs       → pruebas de guardado, rangos, vidas y marcador
 ├── reto.test.mjs         → pruebas de semilla, racha y sesgo del reto diario
 ├── sala.test.mjs         → pruebas de las salas (orden, empates, reintentos, sorteo parejo)
-└── consola.test.mjs      → pruebas de la consola: palancas, ensayo y que nada se guarde
+├── consola.test.mjs      → pruebas de la consola: palancas, ensayo y que nada se guarde
+└── novedades.test.mjs    → pruebas del aviso de versión: a quién se le cuenta y una sola vez
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 ├── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
@@ -263,6 +264,37 @@ guarda en su dispositivo (la base solo guarda su hash): así el proyector
 recupera el mando si se recarga. No hay tiempo real: el proyector y la sala de
 espera preguntan cada 3 segundos (nada si la pestaña está oculta) y, mientras
 se juega, cada aprendiz solo envía su total al cerrar cada ronda.
+
+---
+
+## ✨ Versiones y novedades
+
+El juego sabe en qué versión está y se lo cuenta a quien lo abre.
+
+* **Al abrir tras una actualización** sale un panel de **NOVEDADES** con lo que
+  cambió. Se enseña una sola vez por versión y, si alguien lleva varias
+  versiones sin entrar, se le cuentan todas las que se perdió (hasta tres). A
+  quien estrena el juego no se le enseña nada: serían cambios de algo que no ha
+  visto nunca.
+* **Con el juego ya abierto** —el proyector del aula encendido toda la mañana—
+  aparece abajo una barra discreta: *"Hay una versión nueva · ACTUALIZAR"*. No
+  es un diálogo, no tapa nada y se puede cerrar. Y **espera a que termine la
+  prueba que se esté jugando**: recargar en mitad de un minijuego costaría la
+  ronda. El navegador solo busca versiones nuevas al navegar, así que el juego
+  pregunta él mismo cada media hora.
+
+### Cómo se publica una versión
+
+Son dos archivos y el validador no deja publicar si se separan:
+
+1. `js/datos.js`: sube `VERSION` (`'v27'` → `'v28'`) y añade su entrada **al
+   principio** de `NOVEDADES`, en español e inglés.
+2. `sw.js`: deja `CACHE` en `'pa4-' + VERSION`.
+
+`node scripts/validar.mjs` falla si las dos versiones no cuadran, si la versión
+nueva no trae sus novedades, o si una entrada está solo en un idioma. Sin subir
+el `CACHE` nadie se entera del cambio; sin la entrada en `NOVEDADES` el aviso
+sale mudo.
 
 ---
 

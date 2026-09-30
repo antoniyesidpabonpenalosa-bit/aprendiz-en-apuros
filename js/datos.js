@@ -3,6 +3,37 @@
    PRACTICANTE EN APUROS 3 · SENA 32-BIT
    10 días de etapa lectiva + 5 de etapa productiva
    ══════════════════════════════════════════ */
+/* ── VERSIÓN Y NOVEDADES ──
+   VERSION es la versión del juego vista desde dentro. Tiene que ir a la par
+   con el CACHE de sw.js ('pa4-'+VERSION): son lo mismo mirado desde el juego y
+   desde la caché, y scripts/validar.mjs falla si se separan.
+
+   NOVEDADES va de la más nueva a la más vieja. Al abrir el juego se enseña lo
+   que haya salido desde la última versión que vio este dispositivo
+   (js/estado.js, novedadesPendientes). Al publicar una versión hay que:
+     1) subir VERSION aquí y el CACHE de sw.js,
+     2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
+   El validador comprueba las dos cosas, así que no se puede olvidar. */
+const VERSION='v28';
+const NOVEDADES=[
+  {v:'v28', fecha:'2026-09-30',
+   es:['Arreglado el cuestionario del día 5. En dificultad PRÁCTICA se quedaba clavado en la quinta pregunta y no pasaba de ahí.',
+       'En PESADILLA ahora sí te hace las ocho preguntas que sortea, no seis. Para aprobar se piden dos tercios en cualquier dificultad.'],
+   en:['Fixed the day 5 quiz. On PRACTICE difficulty it froze on the fifth question and would not move on.',
+       'On NIGHTMARE it now asks all eight questions it draws, not six. Passing is two thirds on every difficulty.']},
+  {v:'v27', fecha:'2026-09-30',
+   es:['La campaña ahora va por las dos etapas de verdad: primero la LECTIVA, en el centro de formación, y después la PRODUCTIVA, en la empresa.',
+       'Al terminarlas te titulas como TÉCNICO EN PROGRAMACIÓN DE SOFTWARE.',
+       'El botón de idioma ya traduce lo que hay en pantalla, también en mitad de la campaña.',
+       'Nueva consola de laboratorio (⚗ abajo en la portada) para probar el juego. Lo que juegues ahí no cuenta ni sube al marcador.',
+       'Y desde ahora te contamos aquí mismo lo que cambia en cada versión.'],
+   en:['The campaign now follows the two real stages: first the TRAINING stage at the centre, then the WORKPLACE stage at the company.',
+       'Finish both and you qualify as a SOFTWARE PROGRAMMING TECHNICIAN.',
+       'The language button now translates what is on screen, mid-campaign too.',
+       'New lab console (⚗ at the foot of the title screen) to try things out. Nothing you play there counts or gets published.',
+       'And from now on we tell you right here what changes in each version.']},
+];
+
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 const az=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
@@ -667,6 +698,8 @@ const TXT={
  sala_en_juego:'LA SALA YA EMPEZÓ',sala_te_quedan:'Te quedan {n} rondas',sala_seguir:'SEGUIR JUGANDO',sala_salir:'SALIR DE LA SALA',
  sala_empieza:'¡PREPÁRATE!',sala_siguiente:'SIGUIENTE',sala_sig:'SIGUIENTE',
  sala_terminaste:'¡TERMINASTE!',sala_tabla:'TABLA DE LA SALA',sala_puesto:'Puesto {p} de {n}',sala_volver:'VOLVER A LA SALA',
+ nov_tit:'NOVEDADES',nov_sub:'Esto cambió desde la última vez que jugaste',nov_ok:'¡A JUGAR!',
+ nov_ver:'versión',nov_aviso:'Hay una versión nueva',nov_actualizar:'ACTUALIZAR',
  lab_tit:'CONSOLA',lab_sub:'laboratorio · nada de esto se guarda',lab_orden:'orden',
  lab_bienvenida:'Escribe "ayuda" y pulsa ↵',lab_cerrar:'cerrar',
  lab_ensayo:'ENSAYO',lab_ensayo_ay:'partida de prueba: no da puntos ni sube al marcador',
@@ -693,7 +726,7 @@ const TXT={
   acc_cafe:'CAFÉ ETERNO',acc_gafas:'GAFAS DEV',acc_corbata:'CORBATA',acc_gorra:'GORRA',acc_audifonos:'AUDÍFONOS',acc_medalla:'MEDALLA',
   logro:'¡LOGRO DESBLOQUEADO!',sinacc:'SIN ACCESORIO',piel:'PIEL',camisa:'CAMISA',accesorio:'ACCESORIO',
   rec_nom:'NOMBRE',rec_pts:'PTS',rec_rango:'RANGO',tu:'TÚ',
-  quiznec:'Necesitas 4 de 6 para aprobar',
+  quiznec:'Necesitas {a} de {t} para aprobar',
   vidas_txt:'VIDAS',
   nombreq:'¿CÓMO TE LLAMAS?',tunombre:'TU NOMBRE',ok:'¡LISTO!',
   nombre_falta:'Escribe tu nombre para seguir (letras o números)',
@@ -786,6 +819,8 @@ const TXT={
   sala_en_juego:'THE ROOM HAS STARTED',sala_te_quedan:'{n} rounds left',sala_seguir:'KEEP PLAYING',sala_salir:'LEAVE ROOM',
   sala_empieza:'GET READY!',sala_siguiente:'NEXT',sala_sig:'NEXT',
   sala_terminaste:'YOU FINISHED!',sala_tabla:'ROOM STANDINGS',sala_puesto:'Place {p} of {n}',sala_volver:'BACK TO THE ROOM',
+  nov_tit:"WHAT'S NEW",nov_sub:'This changed since you last played',nov_ok:"LET'S PLAY!",
+  nov_ver:'version',nov_aviso:'A new version is available',nov_actualizar:'UPDATE',
   lab_tit:'CONSOLE',lab_sub:'lab · none of this is saved',lab_orden:'command',
   lab_bienvenida:'Type "help" and press ↵',lab_cerrar:'close',
   lab_ensayo:'REHEARSAL',lab_ensayo_ay:'practice run: no points, nothing published',
@@ -812,7 +847,7 @@ const TXT={
   acc_cafe:'ETERNAL COFFEE',acc_gafas:'DEV GLASSES',acc_corbata:'TIE',acc_gorra:'CAP',acc_audifonos:'HEADPHONES',acc_medalla:'MEDAL',
   logro:'ACHIEVEMENT UNLOCKED!',sinacc:'NO ACCESSORY',piel:'SKIN',camisa:'SHIRT',accesorio:'ACCESSORY',
   rec_nom:'NAME',rec_pts:'PTS',rec_rango:'RANK',tu:'YOU',
-  quiznec:'You need 4 of 6 to pass',
+  quiznec:'You need {a} of {t} to pass',
   vidas_txt:'LIVES',
   nombreq:'WHAT IS YOUR NAME?',tunombre:'YOUR NAME',ok:'DONE!',
   nombre_falta:'Type your name to continue (letters or digits)',

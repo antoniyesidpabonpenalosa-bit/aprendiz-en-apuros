@@ -307,6 +307,32 @@ function rMapa(){
   $('#m-volver').onclick=()=>{SFX.click();rTitulo()};
 }
 
+/* ── NOVEDADES ──
+   Lo que cambió desde la última vez que se abrió el juego en este aparato. Sale
+   una sola vez por versión: en cuanto se enseña, se apunta la versión vista.
+   Si el PNG de la lista crece, la caja hace scroll sola (CSS). */
+function rNovedades(seguir){
+  const lista=novedadesPendientes();
+  if(!lista.length){marcarVersionVista();return seguir()}
+  const pintar=()=>{
+  pantalla('novedades',`
+  <div class="centro">
+    <span class="ico">✨</span>
+    <h2>${t('nov_tit')}</h2>
+    <p class="mini">${t('nov_sub')}</p>
+    <div class="nov-caja">
+      ${lista.map(n=>`
+        <p class="nov-ver">${t('nov_ver')} ${n.v}${n.fecha?` · ${n.fecha}`:''}</p>
+        <ul class="nov-lista">${(S.lang==='en'?n.en:n.es).map(l=>`<li>${l}</li>`).join('')}</ul>`).join('')}
+    </div>
+    <button class="btn" id="nv-ok" type="button">${t('nov_ok')}</button>
+  </div>`,pintar);
+  $('#nv-ok').onclick=()=>{SFX.click();marcarVersionVista();seguir()};
+  };
+  pintar();
+  SFX.logro();
+}
+
 /* ── FLUJO DE DÍA ── */
 function empezarDia(i){
   /* primera vez que sales a la etapa productiva: cutscene de la empresa */

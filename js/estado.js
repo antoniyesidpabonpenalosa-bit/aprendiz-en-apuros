@@ -7,7 +7,7 @@ const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',ski
   /* av32: el detalle del RETRATO (16×16 de siempre / 32×32 más fino), independiente
      de hd, que es la piel de la interfaz (retro CRT / OLED). Los dos se pueden
      combinar: no son un selector de tres, son dos interruptores. */
-  av32:false,stats:Object.assign({},STATS0)};
+  av32:false,version:'',stats:Object.assign({},STATS0)};
 /** La partida guardada. Con los campos escritos uno por uno, la comprobación
     de tipos (jsconfig.json) avisa si en cualquier archivo se escribe mal uno:
     S.dificultad en vez de S.dif, S.pst en vez de S.pts. (Un "typeof DEF" no
@@ -35,6 +35,7 @@ const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',ski
     @property {string} grupo       código de aula ('' = sin grupo)
     @property {number} dif         0, 1 o 2
     @property {boolean} av32
+    @property {string} version     la última versión del juego que vio este aparato
     @property {Object<string,number>} stats
     @property {string[]} vistos    ayudas ya enseñadas (abajo, en sanear)
     @property {Object<string,number>} mejores   marcas del modo libre
@@ -57,6 +58,7 @@ function sanear(){
   if(typeof S.t2!=='boolean')S.t2=false;
   if(typeof S.legible!=='boolean')S.legible=false;
   if(typeof S.av32!=='boolean')S.av32=false;
+  if(typeof S.version!=='string')S.version='';
   /* No va en DEF a propósito: los arrays de DEF se copian por referencia y
      S.vistos.push() acabaría escribiendo dentro de DEF. Aquí nace uno nuevo. */
   if(!Array.isArray(S.vistos))S.vistos=[];
@@ -145,6 +147,27 @@ const cuantos=(base,min=2)=>Math.max(min,Math.round(base*facCant()));
 const alRitmo=ms=>Math.round(ms*facRitmo());
 const sumaStat=(k,n)=>{S.stats[k]=(S.stats[k]||0)+(n||1);guardar()};
 const mejorStat=(k,n)=>{if(n>(S.stats[k]||0)){S.stats[k]=n;guardar()}};
+
+/* ── NOVEDADES ──
+   Qué hay que contarle a quien abre el juego: las versiones publicadas desde
+   la última que vio ESTE aparato. Es una función pura sobre S y NOVEDADES,
+   así que se puede probar sin navegador (test/novedades.test.mjs).
+
+   A quien estrena el juego no se le cuenta nada: sería enseñarle los cambios
+   de algo que no ha visto nunca. */
+const jugoAlguna=()=>S.pts>0||S.xp>0||!!S.intro||(Array.isArray(S.dias)&&S.dias.some(d=>d>=0));
+function novedadesPendientes(){
+  if(!Array.isArray(NOVEDADES)||!NOVEDADES.length)return [];
+  if(S.version===VERSION||!jugoAlguna())return [];
+  const i=NOVEDADES.findIndex(n=>n.v===S.version);
+  if(i===0)return [];                  /* ya estaba en la más nueva */
+  if(i>0)return NOVEDADES.slice(0,i);  /* todo lo salido desde la suya */
+  /* Sin versión apuntada (partida anterior a que esto existiera) o tan vieja
+     que ya no está en la lista: se enseña lo último, sin abrumar. */
+  return NOVEDADES.slice(0,3);
+}
+/* Se llama cuando ya se le enseñaron (o cuando no había nada que enseñar). */
+const marcarVersionVista=()=>{if(S.version!==VERSION){S.version=VERSION;guardar()}};
 
 /* ── CÓDIGO DE GUARDADO (exportar/importar entre dispositivos) ── */
 function sumaCod(b64){let s=0;for(let i=0;i<b64.length;i++)s=(s+b64.charCodeAt(i)*(i+1))%9973;return s.toString(36).toUpperCase()}
