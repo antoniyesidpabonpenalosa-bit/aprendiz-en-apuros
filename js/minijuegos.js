@@ -306,8 +306,21 @@ function nvSimon(dia){
 
 /* ══════════ MINIJUEGO 5 · QUIZ ══════════ */
 function nvQuiz(dia){
-  const nPreg=cuantos(6,4);
-  const pregs=RETO.elegir('quiz',QUIZ[S.lang].length,nPreg,RETO.rngPara(':quiz'));
+  /* Cuántas preguntas se juegan DE VERDAD. No es un 6 fijo: cuantos() lo mueve
+     con la dificultad (5 en PRÁCTICA, 6 en NORMAL, 8 en PESADILLA) y el banco
+     podría dar menos de las pedidas, así que manda pregs.length y de ahí sale
+     todo lo demás: el contador, el corte y las estrellas.
+
+     Antes el bucle cortaba en 6 a secas. En PRÁCTICA solo se sorteaban 5, así
+     que tras la quinta pedía una sexta que no existía y el cuestionario se
+     quedaba clavado sin avanzar; en PESADILLA se sorteaban 8 y solo se hacían
+     6. Es el único minijuego que puntúa contra un total en vez de por errores,
+     que es por lo que solo le pasaba a este. */
+  const pregs=RETO.elegir('quiz',QUIZ[S.lang].length,cuantos(6,4),RETO.rngPara(':quiz'));
+  const nPreg=pregs.length;
+  /* Aprobar sigue siendo dos tercios, como los "4 de 6" de siempre:
+     4 de 5, 4 de 6, 6 de 8. */
+  const necesarias=Math.max(2,Math.ceil(nPreg*2/3));
   let i=0,buenas=0,malas=0,pts=0;
   pantalla('nivel',`
   <div class="quiz">
@@ -319,7 +332,7 @@ function nvQuiz(dia){
     </div>
     <p class="pregunta" id="q-preg"></p>
     <div class="opciones" id="q-ops"></div>
-    <p class="mini">${t('quiznec')}</p>
+    <p class="mini">${t('quiznec').replace('{a}',necesarias).replace('{t}',nPreg)}</p>
   </div>`);
   retratoVivo($('#j1'),CARAS.instructor());
   retratoVivo($('#j2'),CARAS.lider());
@@ -341,8 +354,8 @@ function nvQuiz(dia){
       }
       tvez(()=>{
         i++;
-        if(i>=6){
-          if(buenas>=4)resultado(dia,buenas===6?3:buenas===5?2:1,pts+100);
+        if(i>=nPreg){
+          if(buenas>=necesarias)resultado(dia,buenas===nPreg?3:buenas>=nPreg-1?2:1,pts+100);
           else fallo(dia);
         }else pinta();
       },900);

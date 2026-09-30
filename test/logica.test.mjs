@@ -388,3 +388,54 @@ test('una partida vieja no pierde los logros al cambiar los nombres', () => {
   assert.equal(b.importarCodigo(codigo), true);
   assert.deepEqual([...b.S.logros], ['titulado', 'contrato']);
 });
+
+/* ══════════ CUÁNTAS RONDAS TRAE UNA PRUEBA ══════════
+   cuantos() mueve el número de rondas con la dificultad, y RETO.elegir() lo
+   recorta si el banco tiene menos. El minijuego tiene que contar las que
+   REALMENTE salieron, no el número que pidió: el cuestionario del día 5
+   cortaba en un 6 fijo y en PRÁCTICA, donde solo se sortean 5, pedía una
+   sexta que no existía y se quedaba clavado sin avanzar. */
+
+test('cada dificultad sortea una cantidad distinta de preguntas', () => {
+  const v = cargarJuego();
+  const por = {};
+  for (const d of [0, 1, 2]) { v.S.dif = d; por[d] = v.cuantos(6, 4); }
+  assert.equal(por[0], 5, 'PRÁCTICA');
+  assert.equal(por[1], 6, 'NORMAL');
+  assert.equal(por[2], 8, 'PESADILLA');
+  assert.notEqual(por[0], por[1], 'no son todas iguales: por eso un tope fijo se rompe');
+});
+
+test('el sorteo nunca devuelve más preguntas de las que hay en el banco', () => {
+  const v = cargarJuego();
+  const banco = v.QUIZ.es.length;
+  assert.equal(v.RETO.elegir('quiz', banco, banco + 50).length, banco,
+    'pedir de más devuelve lo que hay, no lo pedido');
+  for (const d of [0, 1, 2]) {
+    v.S.dif = d;
+    const n = v.cuantos(6, 4);
+    assert.equal(v.RETO.elegir('quiz', banco, n).length, n, `dificultad ${d}`);
+    assert.ok(n <= banco, 'el banco alcanza para la dificultad más dura');
+  }
+});
+
+test('aprobar el cuestionario son dos tercios en cualquier dificultad', () => {
+  /* La misma cuenta que hace nvQuiz: 4 de 5, 4 de 6, 6 de 8. */
+  const necesarias = n => Math.max(2, Math.ceil(n * 2 / 3));
+  assert.equal(necesarias(5), 4);
+  assert.equal(necesarias(6), 4, 'el "4 de 6" de siempre no cambia');
+  assert.equal(necesarias(8), 6);
+  for (const n of [4, 5, 6, 7, 8, 9]) {
+    assert.ok(necesarias(n) <= n, `con ${n} preguntas se puede aprobar`);
+    assert.ok(necesarias(n) >= 2, `con ${n} preguntas no se aprueba de casualidad`);
+  }
+});
+
+test('el aviso de cuántas hacen falta lleva los dos números', () => {
+  const v = cargarJuego();
+  for (const lang of ['es', 'en']) {
+    const txt = v.TXT[lang].quiznec;
+    assert.match(txt, /\{a\}/, `${lang}: falta el hueco de las necesarias`);
+    assert.match(txt, /\{t\}/, `${lang}: falta el hueco del total`);
+  }
+});

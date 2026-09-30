@@ -57,6 +57,7 @@ export function cargarJuego({ guardado = null } = {}) {
     DIALOGOS, LOGROS, NOVEDADES,
     get VERSION(){ return VERSION },
     novedadesPendientes, marcarVersionVista,
+    cuantos, facCant,
     exportarCodigo, importarCodigo, sumaCod,
     rangoDe, rangoNom, maxVidas, facTiempo, facPts, facJefe,
     facCant, facRitmo, maxErr, ojeada, difActual,
