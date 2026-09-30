@@ -19,7 +19,9 @@ on:
   pull_request:
     branches: [ "main" ]
   push:
-    branches: [ "main" ]
+    # También en las ramas de trabajo, como validar.yml: enterarse al abrir el
+    # PR es tarde, y el subconjunto rápido cuesta dos minutos.
+    branches: [ "main", "claude/**" ]
   schedule:
     # 07:10 UTC = 02:10 en Colombia. El minuto no es redondo a propósito: a en
     # punto se amontonan las tareas de todo el mundo y la cola se alarga.
