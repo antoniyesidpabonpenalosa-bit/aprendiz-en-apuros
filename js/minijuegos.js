@@ -526,7 +526,7 @@ function nvRunner(dia){
   const SUELO=140;
   const p={x:44,y:SUELO,vy:0,duck:0};
   const noche=dia>=10; /* deploy nocturno: más rápido y a oscuras */
-  let obs=[],frame=0,golpes=0,cafes=0,pts=0,spawn=0,inv=0,prevA=false,prevAbajo=false,combo=0;
+  let obs=[],frame=0,golpes=0,cafes=0,pts=0,spawn=0,inv=0,prevA=false,prevAbajo=false,combo=0,fin=false;
   let escudo=S.mejoras.includes('escudo')?1:0;
   function comboFly(n,txt){
     const w=$('.cv-wrap');if(!w)return;
@@ -547,8 +547,8 @@ function nvRunner(dia){
   alLimpiar.push(()=>{document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku)});
   function loop(){
     raf=requestAnimationFrame(loop);
-    if(!$('#r-cv')){cancelAnimationFrame(raf);raf=0;return}
-    if(pausado)return;
+    if(!$('#r-cv')){cancelAnimationFrame(raf);raf=0;fin=true;return}
+    if(pausado||fin)return;
     frame++;
     /* mando: A o cruceta-arriba salta, cruceta-abajo agacha */
     const mnd=leerMando();
@@ -574,6 +574,7 @@ function nvRunner(dia){
     /* colisiones */
     const py=p.y-30+p.duck, ph=30-p.duck;
     obs.forEach(o=>{
+      if(fin)return;                  /* la partida ya acabó en un obstáculo anterior */
       const oy=o.tipo==='papel'?SUELO-34:SUELO-14;
       const oh=o.tipo==='papel'?14:14;
       if(o.x<p.x+14&&o.x+16>p.x&&oy<py+ph&&oy+oh>py){
@@ -589,14 +590,20 @@ function nvRunner(dia){
           /* escudo dev: absorbe el primer golpe del nivel */
           if(escudo>0){escudo--;inv=70;SFX.pop();comboFly(0,'🛡');return}
           golpes++;combo=0;inv=60;SFX.mal();sacudir();$('#r-gol').textContent=golpes;
-          if(golpes>=topeGol){limpiarRun();return fallo(dia)}}
+          /* Ojo: este return sale del callback del forEach, NO de loop(). Sin
+             la bandera, la vuelta seguía y más abajo escribía en un #r-seg que
+             fallo() acababa de borrar de la pantalla: "Cannot set properties of
+             null". Lo encontró scripts/barrido.mjs en los días 10 y 15, que son
+             los dos únicos con runner. */
+          if(golpes>=topeGol){fin=true;limpiarRun();fallo(dia);return}}
       }
     });
     /* fin */
+    if(fin)return;                    /* la pantalla ya cambió: nada que pintar */
     const segRest=Math.max(0,Math.ceil((durF-frame)/60));
     $('#r-seg').textContent=segRest;
     if(frame>=durF){
-      limpiarRun();
+      fin=true;limpiarRun();
       const stars=golpes===0?3:golpes===1?2:1;
       /* día final: sobrevivir la oficina era solo la primera fase... */
       if(dia===9)return rCutscene(JEFE_INTRO,()=>nvJefe(dia,pts+400+cafes*20));

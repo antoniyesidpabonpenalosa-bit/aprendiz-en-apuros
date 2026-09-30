@@ -10,3 +10,7 @@ node_modules/
 # Archivos del sistema operativo
 .DS_Store
 Thumbs.db
+
+# Informe que genera scripts/barrido.mjs en cada pasada: es un resultado, no
+# fuente. Se regenera con `node scripts/barrido.mjs` cuando haga falta.
+informe-barrido.md
