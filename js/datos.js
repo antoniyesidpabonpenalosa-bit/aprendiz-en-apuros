@@ -14,8 +14,11 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v28';
+const VERSION='v29';
 const NOVEDADES=[
+  {v:'v29', fecha:'2026-09-30',
+   es:['Arreglado un fallo del runner de los días 10 y 15: al perder por golpes, el juego lanzaba un error por dentro. La partida seguía bien, pero ya no ensucia nada.'],
+   en:['Fixed a runner bug on days 10 and 15: losing by taking hits threw an internal error. The run still worked, but nothing gets dirtied now.']},
   {v:'v28', fecha:'2026-09-30',
    es:['Arreglado el cuestionario del día 5. En dificultad PRÁCTICA se quedaba clavado en la quinta pregunta y no pasaba de ahí.',
        'En PESADILLA ahora sí te hace las ocho preguntas que sortea, no seis. Para aprobar se piden dos tercios en cualquier dificultad.'],
