@@ -121,6 +121,10 @@ function nvBugs(dia){
     const n=Number(e.key);
     if(!Number.isInteger(n)||n<1||n>9)return;
     e.preventDefault();
+    /* El autorrepetido del teclado manda keydown cada ~30 ms mientras la tecla
+       siga abajo: dejando el "5" pulsado se golpeaba solo cada bug que saliera
+       en esa casilla, y el minijuego dejaba de ser de reflejos. */
+    if(e.repeat)return;
     golpear(celdas[n-1]);
   };
   document.addEventListener('keydown',kd);
@@ -408,7 +412,10 @@ function nvReview(dia){
   }
   $('#v-si').onclick=()=>responde(true);
   $('#v-no').onclick=()=>responde(false);
-  const kd=e=>{if(e.code==='ArrowRight')responde(true);if(e.code==='ArrowLeft')responde(false)};
+  /* e.repeat fuera: mantener la flecha un pelo de más respondía una línea por
+     cada repetición del teclado. Medido: una sola pulsación mantenida pasaba
+     de la línea 1 a la 6, aprobando cinco sin leerlas. */
+  const kd=e=>{if(e.repeat)return;if(e.code==='ArrowRight')responde(true);if(e.code==='ArrowLeft')responde(false)};
   document.addEventListener('keydown',kd);
   alLimpiar.push(()=>document.removeEventListener('keydown',kd));
   tcada(()=>{
@@ -541,6 +548,10 @@ function nvRunner(dia){
   $('#r-dn').onpointerup=()=>agacha(0);
   $('#r-dn').onpointerleave=()=>agacha(0);
   cv.onpointerdown=e=>{e.preventDefault();salta()};
+  /* Aquí el autorrepetido del teclado se deja pasar a propósito: salta() ya
+     exige estar en el suelo, así que mantener la tecla solo vuelve a saltar al
+     aterrizar, que es lo que cualquiera espera. (En caza-bugs y code review sí
+     se filtra: allí cada repetición contaba como un golpe o una respuesta.) */
   const kd=e=>{if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();salta()}if(e.code==='ArrowDown'){e.preventDefault();agacha(1)}};
   const ku=e=>{if(e.code==='ArrowDown')agacha(0)};
   document.addEventListener('keydown',kd);document.addEventListener('keyup',ku);
@@ -797,8 +808,13 @@ function nvRegex(dia){
         b.disabled=true;b.classList.add('bien');pts+=60;SFX.pop();quedan--;
         if(quedan<=0)return finRonda();
       }else{
+        /* La opción equivocada se queda en rojo y desactivada, igual que las
+           buenas se quedan en verde. Antes el rojo se iba a los 350 ms y el
+           botón seguía activo: un doble toque sobre la MISMA opción contaba dos
+           errores, y en PESADILLA, con tope de 2, una sola decisión mala tocada
+           dos veces sacaba del nivel. */
+        b.disabled=true;
         errores++;falloAqui=true;SFX.mal();b.classList.add('mal');
-        tvez(()=>b.classList.remove('mal'),350);
         $('#rx-err').textContent=errores;
         if(errores>=topeErr)return fallo(dia);
       }
@@ -878,8 +894,12 @@ function nvTerminal(dia){
       return siguiente(420);
     }
     errores++;SFX.mal();$('#tm-err').textContent=errores;
-    $('#tm-tarea').classList.add('shake');
-    setTimeout(()=>$('#tm-tarea').classList.remove('shake'),260);
+    /* El elemento se guarda ANTES del temporizador: volver a buscarlo 260 ms
+       después fallaba si en ese rato se salía del nivel (pausa → salir), porque
+       #tm-tarea ya no existía. Quitarle la clase a un nodo suelto no hace daño. */
+    const tarea=$('#tm-tarea');
+    tarea.classList.add('shake');
+    setTimeout(()=>tarea.classList.remove('shake'),260);
     $('#tm-pista').textContent='✖ '+t('term_era')+' '+T.cmd;
     if(errores>=topeErr){bloq=true;return tvez(()=>fallo(dia),1200)}
     siguiente(1200);

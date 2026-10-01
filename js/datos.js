@@ -14,8 +14,15 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v29';
+const VERSION='v30';
 const NOVEDADES=[
+  {v:'v30', fecha:'2026-10-01',
+   es:['Code review: dejar una flecha pulsada ya no responde varias líneas de golpe. Una pulsación, una respuesta.',
+       'Caza patrones: tocar dos veces la misma opción equivocada ya no cuenta dos errores; la opción descartada se queda en rojo.',
+       'Caza-bugs: dejar un número pulsado ya no golpea solo.'],
+   en:['Code review: holding an arrow no longer answers several lines at once. One press, one answer.',
+       'Pattern hunt: tapping the same wrong option twice no longer counts two mistakes; it stays red.',
+       'Bug hunt: holding a number key no longer hits on its own.']},
   {v:'v29', fecha:'2026-09-30',
    es:['Arreglado un fallo del runner de los días 10 y 15: al perder por golpes, el juego lanzaba un error por dentro. La partida seguía bien, pero ya no ensucia nada.'],
    en:['Fixed a runner bug on days 10 and 15: losing by taking hits threw an internal error. The run still worked, but nothing gets dirtied now.']},
