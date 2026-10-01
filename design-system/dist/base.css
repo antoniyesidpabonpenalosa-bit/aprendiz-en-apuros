@@ -803,6 +803,9 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 .rx-desc{font-family:'VT323',monospace;font-size:16px;color:var(--tx2)}
 .rx-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:min(380px,100%)}
 .rx-op{font-family:'VT323',monospace;font-size:17px}
+/* Una opción ya resuelta (en verde o en rojo) no se vuelve a tocar: que no
+   parezca que se puede. */
+.rx-op:disabled{cursor:default}
 
 /* ── CUTSCENES ── */
 .cut{cursor:pointer}

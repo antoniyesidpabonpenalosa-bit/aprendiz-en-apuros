@@ -64,6 +64,8 @@ function nvJefe(dia,ptsBase){
     if(e.code==='ArrowLeft'||e.code==='KeyA')izq=false;
     if(e.code==='ArrowRight'||e.code==='KeyD')der=false;
   };
+  /* El autorrepetido del teclado no se filtra aquí a propósito: kd solo pone a
+     true la bandera de movimiento, y repetirlo no cambia nada. */
   document.addEventListener('keydown',kd);document.addEventListener('keyup',ku);
   alLimpiar.push(()=>{document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku)});
   function terminar(){if(raf){cancelAnimationFrame(raf);raf=0}fin=true}
