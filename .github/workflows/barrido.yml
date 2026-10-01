@@ -59,6 +59,12 @@ jobs:
           npm install --no-save playwright@1.56.1
           npx playwright install --with-deps chromium
 
+      # Las regresiones van siempre y primero: son un minuto y vigilan cada
+      # fallo de interacción ya arreglado (teclas mantenidas, dobles toques,
+      # salir deprisa, cambiar de idioma) que el barrido no puede ver.
+      - name: Regresiones
+        run: node scripts/regresiones.mjs
+
       # En un PR o en un push, solo PRÁCTICA en español: es rápido y es donde
       # se han escondido los fallos. El barrido entero va de noche.
       - name: Barrido (PRÁCTICA · español)

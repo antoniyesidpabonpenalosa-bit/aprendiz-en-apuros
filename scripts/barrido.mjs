@@ -15,7 +15,7 @@
    problema del juego y no del robot.
 
    Uso:
-     node scripts/barrido.mjs                     · todo (90 partidas, ~20 min)
+     node scripts/barrido.mjs                     · todo (102 partidas, ~25 min)
      node scripts/barrido.mjs --dias 5            · solo el día 5
      node scripts/barrido.mjs --dias 1-5 --dif 0  · días 1 a 5 en PRÁCTICA
      node scripts/barrido.mjs --lang es           · solo en español
@@ -57,6 +57,11 @@ const LANGS = String(opt('lang', 'es,en')).split(',');
 const PUERTO = +opt('puerto', 8111);
 const INFORME = opt('informe', join(RAIZ, 'informe-barrido.md'));
 const TOPE_MS = +opt('tope', 150000);        // por partida, de sobra para el jefe
+/* Minijuegos que NO son días de campaña (solo salen en modo libre, reto y sin
+   fin). Sin esto el barrido nunca los jugaba: el fallo del terminal se encontró
+   leyendo el código, no barriendo. Se juegan por el modo libre.
+   --libre ninguno para saltárselos. */
+const LIBRES = opt('libre', 'terminal,orden') === 'ninguno' ? [] : String(opt('libre', 'terminal,orden')).split(',');
 
 const NOMBRE_DIF = ['PRÁCTICA', 'NORMAL', 'PESADILLA'];
 
@@ -232,7 +237,7 @@ async function servidor(puerto) {
 }
 
 /* ── una partida ── */
-async function partida(nav, { dia, dif, lang }) {
+async function partida(nav, { dia, dif, lang, tipo }) {
   const ctx = await nav.newContext({ viewport: { width: 390, height: 760 } });
   const pg = await ctx.newPage();
   const errores = [], consola = [];
@@ -248,7 +253,7 @@ async function partida(nav, { dia, dif, lang }) {
   try {
     await pg.goto(`http://127.0.0.1:${PUERTO}/index.html`, { waitUntil: 'load' });
     await pg.waitForFunction(() => typeof pantallaId !== 'undefined', null, { timeout: 15000 });
-    await pg.evaluate(([d, df, lg]) => {
+    await pg.evaluate(([d, df, lg, tp]) => {
       S.dif = df; S.lang = lg; S.nombre = 'ROBOT'; S.intro = true; S.t2 = true;
       S.version = VERSION;
       /* las fichas de control ya vistas: estorban al medir, y tienen su propia
@@ -256,9 +261,9 @@ async function partida(nav, { dia, dif, lang }) {
       S.vistos = ['escribir', 'bugs', 'memoria', 'simon', 'quiz', 'review', 'merge', 'runner', 'sql', 'regex', 'terminal', 'orden', 'jefe'];
       S.dias = Array(15).fill(3);
       aplicarIdioma(); guardar();
-      diaAct = d; vidas = 3;
-      jugarNivel(d);
-    }, [dia, dif, lang]);
+      diaAct = d < 0 ? 0 : d; vidas = 3;
+      if (tp) empezarLibre(tp); else jugarNivel(d);
+    }, [dia, dif, lang, tipo || null]);
     await pg.evaluate(instalarRobot);
     await pg.waitForFunction(
       () => pantallaId !== 'nivel' && pantallaId !== 'cut' && pantallaId !== 'ayuda',
@@ -274,7 +279,7 @@ async function partida(nav, { dia, dif, lang }) {
   robot = await pg.evaluate(() => (window.__bot ? { errs: window.__bot.errs.slice(0, 3), acciones: window.__bot.acciones } : null)).catch(() => null);
   const ms = Date.now() - t0;
   await ctx.close();
-  return { dia, dif, lang, estado, pantallaFinal, ms, errores, consola, robot };
+  return { dia, dif, lang, tipo, estado, pantallaFinal, ms, errores, consola, robot };
 }
 
 /* ── barrido ── */
@@ -282,15 +287,19 @@ const chromium = await cargarPlaywright();
 const srv = await servidor(PUERTO);
 const nav = await chromium.launch();
 const filas = [];
-const total = DIAS.length * DIFS.length * LANGS.length;
+const tandas = [];
+for (const dia of DIAS) for (const dif of DIFS) for (const lang of LANGS) tandas.push({ dia: dia - 1, dif, lang });
+for (const tipo of LIBRES) for (const dif of DIFS) for (const lang of LANGS) tandas.push({ dia: -1, tipo, dif, lang });
+const total = tandas.length;
 let n = 0;
-console.log(`Barrido: ${DIAS.length} día(s) × ${DIFS.length} dificultad(es) × ${LANGS.length} idioma(s) = ${total} partidas\n`);
-for (const dia of DIAS) for (const dif of DIFS) for (const lang of LANGS) {
-  const r = await partida(nav, { dia: dia - 1, dif, lang });
+console.log(`Barrido: ${DIAS.length} día(s) + ${LIBRES.length} minijuego(s) sueltos × ${DIFS.length} dificultad(es) × ${LANGS.length} idioma(s) = ${total} partidas\n`);
+for (const t of tandas) {
+  const r = await partida(nav, t);
   filas.push(r);
   n++;
   const mal = r.estado !== 'terminó' || r.errores.length || r.consola.length;
-  const etiqueta = `día ${String(dia).padStart(2)} · ${NOMBRE_DIF[dif].padEnd(9)} · ${lang}`;
+  const dif = r.dif, lang = r.lang;
+  const etiqueta = `${r.tipo ? ('libre ' + r.tipo).padEnd(7) : 'día ' + String(r.dia + 1).padStart(2)} · ${NOMBRE_DIF[dif].padEnd(9)} · ${lang}`;
   console.log(`${mal ? '✗' : '✓'} [${String(n).padStart(3)}/${total}] ${etiqueta} · ${r.estado}` +
     (r.pantallaFinal ? ` → ${r.pantallaFinal}` : '') + ` · ${(r.ms / 1000).toFixed(1)}s` +
     (r.errores.length ? `\n      ERROR: ${r.errores[0]}` : '') +
@@ -317,7 +326,7 @@ if (malas.length) {
   md += `| Día | Nivel | Dificultad | Idioma | Qué pasó | Detalle |\n|---|---|---|---|---|---|\n`;
   for (const r of malas) {
     const det = r.errores[0] || r.consola[0] || (r.pantallaFinal ? `se quedó en "${r.pantallaFinal}"` : '');
-    md += `| ${r.dia + 1} | ${NIVEL[r.dia]} | ${NOMBRE_DIF[r.dif]} | ${r.lang} | ${r.estado} | ${String(det).replace(/\|/g, '/').slice(0, 120)} |\n`;
+    md += `| ${r.tipo ? '—' : r.dia + 1} | ${r.tipo ? 'LIBRE · ' + r.tipo.toUpperCase() : NIVEL[r.dia]} | ${NOMBRE_DIF[r.dif]} | ${r.lang} | ${r.estado} | ${String(det).replace(/\|/g, '/').slice(0, 120)} |\n`;
   }
   md += `\n`;
 } else {
@@ -327,7 +336,7 @@ if (malas.length) {
 md += `## Resultado de cada partida\n\n`;
 md += `| Día | Nivel | Dificultad | Idioma | Terminó en | Segundos |\n|---|---|---|---|---|---|\n`;
 for (const r of filas)
-  md += `| ${r.dia + 1} | ${NIVEL[r.dia]} | ${NOMBRE_DIF[r.dif]} | ${r.lang} | ${r.pantallaFinal || '—'} | ${(r.ms / 1000).toFixed(1)} |\n`;
+  md += `| ${r.tipo ? '—' : r.dia + 1} | ${r.tipo ? 'LIBRE · ' + r.tipo.toUpperCase() : NIVEL[r.dia]} | ${NOMBRE_DIF[r.dif]} | ${r.lang} | ${r.pantallaFinal || '—'} | ${(r.ms / 1000).toFixed(1)} |\n`;
 
 md += `\n## Qué NO cubre este barrido\n\n`;
 md += `- **Ganarle al jefe** (días 10 y 15). El robot se mueve pero no apunta, así\n`;
