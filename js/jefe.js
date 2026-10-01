@@ -51,9 +51,12 @@ function nvJefe(dia,ptsBase){
   /* controles táctiles */
   const btnI=$('#j-izq'),btnD=$('#j-der');
   btnI.onpointerdown=e=>{e.preventDefault();izq=true};
-  btnI.onpointerup=btnI.onpointerleave=()=>{izq=false};
+  /* pointercancel también suelta: en el celular el sistema cancela el toque
+     (una notificación, un gesto desde el borde) y entonces NO llega pointerup.
+     Sin esto el aprendiz se quedaba moviéndose solo hacia ese lado. */
+  btnI.onpointerup=btnI.onpointerleave=btnI.onpointercancel=()=>{izq=false};
   btnD.onpointerdown=e=>{e.preventDefault();der=true};
-  btnD.onpointerup=btnD.onpointerleave=()=>{der=false};
+  btnD.onpointerup=btnD.onpointerleave=btnD.onpointercancel=()=>{der=false};
   $('#j-giro').onclick=()=>{pedirGiro();SFX.click()};
   /* teclado */
   const kd=e=>{
@@ -66,8 +69,12 @@ function nvJefe(dia,ptsBase){
   };
   /* El autorrepetido del teclado no se filtra aquí a propósito: kd solo pone a
      true la bandera de movimiento, y repetirlo no cambia nada. */
+  /* Al perder el foco (cambiar de ventana o de pestaña con una flecha
+     pulsada) el keyup llega a otra parte: se suelta todo a mano. */
+  const suelta=()=>{izq=false;der=false};
   document.addEventListener('keydown',kd);document.addEventListener('keyup',ku);
-  alLimpiar.push(()=>{document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku)});
+  addEventListener('blur',suelta);
+  alLimpiar.push(()=>{document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku);removeEventListener('blur',suelta)});
   function terminar(){if(raf){cancelAnimationFrame(raf);raf=0}fin=true}
   function loop(){
     if(fin)return;

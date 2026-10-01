@@ -545,8 +545,9 @@ function nvRunner(dia){
   function agacha(v){p.duck=v?26:0}
   $('#r-up').onpointerdown=e=>{e.preventDefault();salta()};
   $('#r-dn').onpointerdown=e=>{e.preventDefault();agacha(1)};
-  $('#r-dn').onpointerup=()=>agacha(0);
-  $('#r-dn').onpointerleave=()=>agacha(0);
+  /* Igual que en el jefe: un toque cancelado por el sistema no manda
+     pointerup, y el aprendiz se quedaba agachado para siempre. */
+  $('#r-dn').onpointerup=$('#r-dn').onpointerleave=$('#r-dn').onpointercancel=()=>agacha(0);
   cv.onpointerdown=e=>{e.preventDefault();salta()};
   /* Aquí el autorrepetido del teclado se deja pasar a propósito: salta() ya
      exige estar en el suelo, así que mantener la tecla solo vuelve a saltar al
@@ -554,8 +555,11 @@ function nvRunner(dia){
      se filtra: allí cada repetición contaba como un golpe o una respuesta.) */
   const kd=e=>{if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();salta()}if(e.code==='ArrowDown'){e.preventDefault();agacha(1)}};
   const ku=e=>{if(e.code==='ArrowDown')agacha(0)};
+  /* Cambiar de ventana con ▼ pulsada: el keyup se pierde, así que se suelta. */
+  const suelta=()=>agacha(0);
   document.addEventListener('keydown',kd);document.addEventListener('keyup',ku);
-  alLimpiar.push(()=>{document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku)});
+  addEventListener('blur',suelta);
+  alLimpiar.push(()=>{document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku);removeEventListener('blur',suelta)});
   function loop(){
     raf=requestAnimationFrame(loop);
     if(!$('#r-cv')){cancelAnimationFrame(raf);raf=0;fin=true;return}

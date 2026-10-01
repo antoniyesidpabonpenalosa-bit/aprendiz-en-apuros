@@ -14,8 +14,13 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v30';
+const VERSION='v31';
 const NOVEDADES=[
+  {v:'v31', fecha:'2026-10-01',
+   es:['Jefe final: si el celular cancelaba un toque (una notificación, un gesto desde el borde), el aprendiz se quedaba moviéndose solo hacia un lado. Ya no.',
+       'Lo mismo al cambiar de ventana con una flecha pulsada, y con el botón de agacharse del runner.'],
+   en:['Final boss: if the phone cancelled a touch (a notification, an edge gesture), the apprentice kept moving on its own. Not anymore.',
+       'Same when switching windows with an arrow held, and with the runner duck button.']},
   {v:'v30', fecha:'2026-10-01',
    es:['Code review: dejar una flecha pulsada ya no responde varias líneas de golpe. Una pulsación, una respuesta.',
        'Caza patrones: tocar dos veces la misma opción equivocada ya no cuenta dos errores; la opción descartada se queda en rojo.',
