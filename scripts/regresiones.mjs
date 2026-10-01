@@ -121,6 +121,31 @@ await caso('cuestionario · en PRÁCTICA llega a la última pregunta (antes: cla
   return [p === 'resultado', `terminó en "${p}"`];
 });
 
+/* ── JEFE · controles que se quedaban pegados ──
+   El movimiento se lee espiando APRENDIZ.dirDe, que recibe cada fotograma el
+   desplazamiento del jugador. */
+const enJefe = pg => pg.evaluate(() => {
+  const o = APRENDIZ.dirDe; APRENDIZ.dirDe = (dx, dy) => { window.__mov = dx; return o(dx, dy); };
+  diaAct = 9; vidas = 3; nvJefe(9, 0);
+});
+await caso('jefe · un toque cancelado por el sistema suelta el botón (antes: se movía solo)', null, async pg => {
+  await prep(pg); await enJefe(pg); await pausa(300);
+  await pg.evaluate(() => { const b = $('#j-izq');
+    b.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    b.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true })); });
+  await pausa(400);
+  const m = await pg.evaluate(() => window.__mov);
+  return [m === 0, `movimiento sin tocar nada: ${m}`];
+});
+await caso('jefe · cambiar de ventana con una flecha pulsada la suelta', null, async pg => {
+  await prep(pg); await enJefe(pg); await pausa(300);
+  await pg.evaluate(() => { document.dispatchEvent(new KeyboardEvent('keydown', { code: 'ArrowLeft', bubbles: true }));
+    window.dispatchEvent(new Event('blur')); });
+  await pausa(400);
+  const m = await pg.evaluate(() => window.__mov);
+  return [m === 0, `movimiento sin tocar nada: ${m}`];
+});
+
 /* ── IDIOMA ── */
 await caso('idioma · el diálogo del día se traduce sin cambiar de día', null, async pg => {
   await prep(pg, { lang: 'es' }); await pg.evaluate(() => { aplicarIdioma(); diaAct = 0; rDialogo(0); }); await pausa(900);
