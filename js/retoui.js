@@ -84,7 +84,10 @@ async function pintarTablaReto() {
 
 /* ── la partida ── */
 function empezarReto() {
-  retoActivo = { tipos: RETO.retosDe(), ronda: 0, pts: 0, aciertos: 0 };
+  /* La fecha se guarda AL EMPEZAR: el reto se sortea con ella, y registrarlo o
+     publicarlo con la del instante de terminar acreditaba el día siguiente a
+     quien empezaba antes de medianoche y acababa después. */
+  retoActivo = { tipos: RETO.retosDe(), ronda: 0, pts: 0, aciertos: 0, fecha: RETO.hoy() };
   RETO.entrar();          // a partir de aquí los minijuegos usan la semilla del día
   siguienteRonda();
 }
@@ -131,14 +134,15 @@ function finReto() {
   const base = retoActivo ? retoActivo.pts : 0;
   const aciertos = retoActivo ? retoActivo.aciertos : 0;
   const total = retoActivo ? retoActivo.tipos.length : 3;
+  const fecha = (retoActivo && retoActivo.fecha) || RETO.hoy();
   retoActivo = null;
   RETO.salir();           // se vuelve al azar normal para la campaña
   limpiarT();
 
-  const res = RETO.registrar(base);          // null si hoy ya estaba cerrado
+  const res = RETO.registrar(base, fecha);   // null si ese día ya estaba cerrado
   if (res) {
     RANKING.publicarReto({ nombre: S.nombre || t('tu'), puntos: res.ganado, xp: S.xp,
-                           dificultad: S.dif, fecha: RETO.hoy(), grupo: S.grupo });
+                           dificultad: S.dif, fecha, grupo: S.grupo });
     sumaStat('retos');
   }
 

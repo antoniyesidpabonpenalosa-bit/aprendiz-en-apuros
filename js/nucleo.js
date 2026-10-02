@@ -59,6 +59,12 @@ function pantalla(id,html,rehacer){
 }
 function starsHtml(n,tot=3){let s='';for(let i=0;i<tot;i++)s+='<span class="'+(i<n?'on':'off')+'">★</span>';return '<span class="stars-row">'+s+'</span>'}
 
+/* ¿Se está jugando la campaña? Los modos sueltos (libre, sin fin, reto diario y
+   sala) reusan los minijuegos pasándoles el día donde cada tipo aparece por
+   primera vez, y para el runner ese día es el 10, el de la pelea final. Quien
+   decide por el número de día tiene que preguntar esto antes. */
+const enCampana=()=>!(retoActivo||libreActivo||sinFinActivo||salaActiva);
+
 /* ── RESULTADO ── */
 function resultado(i,stars,pts){
   /* En el reto diario no hay mapa, ni vidas, ni progreso de días: los
