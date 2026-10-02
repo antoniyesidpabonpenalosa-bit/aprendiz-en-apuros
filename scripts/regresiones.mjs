@@ -245,6 +245,27 @@ await caso('consola × pausa · un Escape con la consola abierta cierra SOLO la 
   return [!r.lab && r.pausa && r.pausado, JSON.stringify(r)];
 });
 
+await caso('tienda · un doble toque al comprar no desequipa el accesorio (antes: pagabas y no lo veías puesto)', { pts: 5000, xp: 5000, intro: true, nombre: 'R', version: 'v0' }, async pg => {
+  await pg.evaluate(() => { if (pantallaId === 'novedades') $('#nv-ok').click(); rTienda(); }); await pausa(150);
+  const id = await pg.evaluate(() => document.querySelector('[data-id]').dataset.id);
+  await pg.locator(`[data-id="${id}"]`).dblclick(); await pausa(200);
+  const r = await pg.evaluate(i => ({ tiene: S.accs.includes(i), puesto: S.acc === i }), id);
+  return [r.tiene && r.puesto, JSON.stringify(r)];
+});
+
+await caso('menús · ninguna pantalla revienta con una partida vieja o con datos raros', { intro: true, nombre: '<b>X</b>', stats: null, mejores: null, vistos: null, reto: null, pesos: null, records: [{ n: null }, 5], version: 'v0' }, async pg => {
+  await pg.evaluate(() => { if (pantallaId === 'novedades') $('#nv-ok').click(); });
+  const mal = await pg.evaluate(() => {
+    const f = [];
+    for (const n of ['rTitulo','rMapa','rTienda','rLogros','rRecords','rStats','rPerso','rLibre','rSinFin','rReto','rBorrar']) {
+      try { window[n] ? window[n]() : eval(n + '()'); const t = $('#screen').innerText; if (/\bNaN\b|undefined|\bnull\b/.test(t)) f.push(n + ': texto roto'); }
+      catch (e) { f.push(n + ': ' + e.message); }
+    }
+    return f;
+  });
+  return [mal.length === 0, mal.join(' | ')];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);
