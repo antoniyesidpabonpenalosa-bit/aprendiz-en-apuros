@@ -298,6 +298,20 @@ await caso('reto diario · un reto empezado antes de medianoche cuenta para el d
   return [r === '2026-10-02', `registrado el ${r}`];
 });
 
+await caso('sala · las mejoras compradas no dan ventaja dentro de una sala (antes: +1 vida y +20 % de tiempo)', null, async pg => {
+  await prep(pg, { mejoras: ['vida', 'tiempo', 'escudo', 'iman'], dif: 1 });
+  const r = await pg.evaluate(() => {
+    const fuera = { vidas: maxVidas(), tiempo: facTiempo(), escudo: mejora('escudo') };
+    salaActiva = { codigo: 'K7M2Q', ronda: 0, juegos: ['quiz'], pts: 0 };
+    const dentro = { vidas: maxVidas(), tiempo: facTiempo(), escudo: mejora('escudo') };
+    salaActiva = null;
+    return { fuera, dentro };
+  });
+  const ok = r.fuera.vidas === 4 && r.fuera.tiempo === 1.2 && r.fuera.escudo === true
+          && r.dentro.vidas === 3 && r.dentro.tiempo === 1 && r.dentro.escudo === false;
+  return [ok, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);
