@@ -216,6 +216,35 @@ await caso('consola · con un ensayo no se entra a una sala', null, async pg => 
   return [p === 'sala-ensayo', p];
 });
 
+/* ── CRUCES ── */
+await caso('consola × ajustes · volver a lo normal conserva idioma, sonido, piel y dificultad', null, async pg => {
+  await prep(pg, { lang: 'es', snd: true, hd: false, dif: 1, pts: 100 });
+  const r = await pg.evaluate(() => {
+    LAB.ejecutar('vidas 9', {});
+    S.lang = 'en'; aplicarIdioma(); S.snd = false; S.hd = true; S.dif = 2; S.pts = 99999;
+    LAB.ejecutar('normal', {});
+    return { lang: S.lang, html: document.documentElement.lang, snd: S.snd, hd: S.hd, dif: S.dif, pts: S.pts };
+  });
+  return [r.lang === 'en' && r.html === 'en' && !r.snd && r.hd && r.dif === 2 && r.pts === 100, JSON.stringify(r)];
+});
+
+await caso('pausa × idioma · el menú de pausa se traduce con la pausa abierta', null, async pg => {
+  await prep(pg, { lang: 'es' }); await pg.evaluate(() => { aplicarIdioma(); diaAct = 4; vidas = 3; nvQuiz(4); }); await pausa(300);
+  await pg.locator('#b-pause').click(); await pausa(150);
+  await pg.locator('#b-lang').click(); await pausa(200);
+  const t = await pg.locator('#p-titulo').textContent(), c = await pg.locator('#p-cont').textContent();
+  return [t === 'PAUSED' && c === 'CONTINUE', `${t} / ${c}`];
+});
+
+await caso('consola × pausa · un Escape con la consola abierta cierra SOLO la consola', null, async pg => {
+  await prep(pg); await pg.evaluate(() => { diaAct = 4; vidas = 3; nvQuiz(4); }); await pausa(300);
+  await pg.locator('#b-pause').click(); await pausa(100);
+  await pg.keyboard.press('`'); await pausa(150);
+  await pg.keyboard.press('Escape'); await pausa(150);
+  const r = await pg.evaluate(() => ({ lab: !$('#lab').hidden, pausa: !$('#pausa').hidden, pausado }));
+  return [!r.lab && r.pausa && r.pausado, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

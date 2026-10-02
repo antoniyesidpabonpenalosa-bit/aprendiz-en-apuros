@@ -14,8 +14,15 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v31';
+const VERSION='v32';
 const NOVEDADES=[
+  {v:'v32', fecha:'2026-10-02',
+   es:['Con el juego en pausa, cambiar de idioma ahora traduce también el menú de pausa.',
+       'Consola: al volver a lo normal ya no pierdes el idioma, el sonido, la piel ni la dificultad que cambiaste mientras tanto.',
+       'Con la consola abierta sobre la pausa, Escape cierra solo la consola.'],
+   en:['With the game paused, switching language now translates the pause menu too.',
+       'Console: going back to normal no longer loses the language, sound, skin or difficulty you changed meanwhile.',
+       'With the console open over the pause menu, Escape closes only the console.']},
   {v:'v31', fecha:'2026-10-01',
    es:['Jefe final: si el celular cancelaba un toque (una notificación, un gesto desde el borde), el aprendiz se quedaba moviéndose solo hacia un lado. Ya no.',
        'Lo mismo al cambiar de ventana con una flecha pulsada, y con el botón de agacharse del runner.'],
