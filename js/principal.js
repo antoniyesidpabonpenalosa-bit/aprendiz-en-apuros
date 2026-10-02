@@ -1,10 +1,16 @@
 'use strict';
 /* ── PAUSA / BOTONES GLOBALES ── */
-$('#b-pause').onclick=()=>{
-  if(pantallaId!=='nivel'&&pantallaId!=='dialogo')return;
-  pausado=true;$('#p-titulo').textContent=t('pausa');
+/* Los textos del menú de pausa se escriben al abrirlo; esto también los pone al
+   día si se cambia de idioma con la pausa abierta (antes se quedaban en el
+   idioma anterior). */
+const textosPausa=()=>{
+  $('#p-titulo').textContent=t('pausa');
   $('#p-cont').textContent=t('continuar');
   $('#p-mapa').textContent=salaActiva?t('sala_volver'):t('salirmapa');
+};
+$('#b-pause').onclick=()=>{
+  if(pantallaId!=='nivel'&&pantallaId!=='dialogo')return;
+  pausado=true;textosPausa();
   $('#pausa').hidden=false;
   /* El foco ENTRA en el diálogo. Sin esto se puede seguir tabulando por
      detrás del overlay, que es como no tener diálogo. */
@@ -18,7 +24,10 @@ const cerrarPausa=()=>{
 $('#p-cont').onclick=()=>{cerrarPausa();SFX.click()};
 /* Escape cierra el diálogo, como cualquier diálogo del sistema */
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'&&!$('#pausa').hidden){e.preventDefault();cerrarPausa();SFX.click()}
+  /* defaultPrevented: la consola (consolaui.js) ya usó este Escape para cerrarse
+     y lo marca. Sin esto, con la consola abierta ENCIMA de la pausa un solo
+     Escape cerraba las dos capas y reanudaba el juego. */
+  if(e.key==='Escape'&&!e.defaultPrevented&&!$('#pausa').hidden){e.preventDefault();cerrarPausa();SFX.click()}
 });
 $('#p-mapa').onclick=()=>{
   SFX.click();
@@ -43,6 +52,7 @@ $('#b-lang').onclick=()=>{
      Un minijuego en marcha no entrega ninguna a propósito —rehacerlo sería
      empezar la ronda de cero—, así que ahí solo se actualiza la cabecera. */
   if(rehacerPantalla)rehacerPantalla();else hud();
+  if(!$('#pausa').hidden)textosPausa();
 };
 
 /* ── ARRANQUE ── */

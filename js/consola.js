@@ -61,6 +61,8 @@ const LAB = (() => {
   PARAMS.forEach(p => { porId[p.id] = p; porId[p.ali] = p; });
 
   /* ── ESTADO DEL LABORATORIO (todo en memoria) ── */
+  /* Ajustes del jugador: sobreviven a volver a lo normal. */
+  const PREFS = ['lang', 'snd', 'mus', 'hd', 'legible', 'av32', 'dif', 'nombre'];
   let puesto = Object.create(null);   /* id -> valor puesto por la consola */
   let ensayoOn = false;     /* ¿esta sesión ya dejó de contar? */
   let avanzadoOn = false;   /* ¿se desbloquearon las órdenes de desarrollo? */
@@ -112,8 +114,16 @@ const LAB = (() => {
     ensayoOn = false;                      /* antes de guardar(), que vuelve a escribir */
     if (copia) {
       try {
-        S = JSON.parse(copia);
-        sanear(); vidas = maxVidas(); aplicarModo(); guardar();
+        /* Lo que el jugador tocó DURANTE el ensayo y es suyo, no progreso del
+           ensayo (idioma, sonido, piel, dificultad, nombre), se conserva: igual
+           que hace borrar la partida con sus "prefs". Antes la copia lo pisaba
+           todo: cambiar de idioma en pleno ensayo y volver a lo normal dejaba
+           S.lang en español con <html lang> en inglés, y se perdían el sonido,
+           la piel y la dificultad elegidos. */
+        const pref = {};
+        for (const k of PREFS) pref[k] = S[k];
+        S = Object.assign(JSON.parse(copia), pref);
+        sanear(); vidas = maxVidas(); aplicarModo(); aplicarIdioma(); guardar();
       } catch (e) { /* si la copia se estropeó, se deja lo que haya en memoria */ }
     }
     copia = null;
