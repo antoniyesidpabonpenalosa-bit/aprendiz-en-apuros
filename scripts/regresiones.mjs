@@ -298,17 +298,21 @@ await caso('reto diario · un reto empezado antes de medianoche cuenta para el d
   return [r === '2026-10-02', `registrado el ${r}`];
 });
 
-await caso('sala · las mejoras compradas no dan ventaja dentro de una sala (antes: +1 vida y +20 % de tiempo)', null, async pg => {
+await caso('sala y reto diario · las mejoras compradas no dan ventaja (antes: +1 vida y +20 % de tiempo)', null, async pg => {
   await prep(pg, { mejoras: ['vida', 'tiempo', 'escudo', 'iman'], dif: 1 });
   const r = await pg.evaluate(() => {
     const fuera = { vidas: maxVidas(), tiempo: facTiempo(), escudo: mejora('escudo') };
     salaActiva = { codigo: 'K7M2Q', ronda: 0, juegos: ['quiz'], pts: 0 };
     const dentro = { vidas: maxVidas(), tiempo: facTiempo(), escudo: mejora('escudo') };
     salaActiva = null;
-    return { fuera, dentro };
+    retoActivo = { ronda: 0, pts: 0, aciertos: 0, tipos: ['quiz'] };
+    const reto = { vidas: maxVidas(), tiempo: facTiempo(), escudo: mejora('escudo') };
+    retoActivo = null;
+    return { fuera, dentro, reto };
   });
   const ok = r.fuera.vidas === 4 && r.fuera.tiempo === 1.2 && r.fuera.escudo === true
-          && r.dentro.vidas === 3 && r.dentro.tiempo === 1 && r.dentro.escudo === false;
+          && r.dentro.vidas === 3 && r.dentro.tiempo === 1 && r.dentro.escudo === false
+          && r.reto.vidas === 3 && r.reto.tiempo === 1 && r.reto.escudo === false;
   return [ok, JSON.stringify(r)];
 });
 
