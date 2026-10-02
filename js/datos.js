@@ -14,8 +14,15 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v33';
+const VERSION='v34';
 const NOVEDADES=[
+  {v:'v34', fecha:'2026-10-02',
+   es:['Modo libre, sin fin y reto diario: al terminar el runner ya no te lanza la pelea del jefe final en mitad de la ronda. Eso solo pasa en la campaña.',
+       'La cabecera del modo libre y del sin fin ya no enseña "DÍA 1/15": ahora muestra el minijuego, la marca a batir o la ronda.',
+       'Reto diario: si lo empiezas antes de medianoche y lo acabas después, cuenta para el día en que lo empezaste.'],
+   en:['Free play, endless and daily challenge: finishing the runner no longer launches the final boss fight mid-round. That only happens in the campaign.',
+       'The free play and endless header no longer shows "DAY 1/15": it now shows the minigame, the score to beat or the round.',
+       'Daily challenge: if you start before midnight and finish after, it counts for the day you started.']},
   {v:'v33', fecha:'2026-10-02',
    es:['Tienda y personaje: un doble toque al comprar un accesorio ya no lo desequipa. Antes pagabas y no lo veías puesto.',
        'Los récords con datos dañados (por ejemplo, de un código de guardado mal escrito) ya no se pintan como "null undefined".'],

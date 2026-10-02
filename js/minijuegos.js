@@ -620,10 +620,15 @@ function nvRunner(dia){
     if(frame>=durF){
       fin=true;limpiarRun();
       const stars=golpes===0?3:golpes===1?2:1;
-      /* día final: sobrevivir la oficina era solo la primera fase... */
-      if(dia===9)return rCutscene(JEFE_INTRO,()=>nvJefe(dia,pts+400+cafes*20));
-      /* deploy nocturno: el BUG FINAL vuelve por venganza */
-      if(dia===14)return rCutscene(JEFE2_INTRO,()=>nvJefe(dia,pts+400+cafes*20));
+      /* día final: sobrevivir la oficina era solo la primera fase...
+         Solo en la campaña: en modo libre, sin fin, reto diario y sala el
+         runner llega con dia=9 y esto lanzaba la historia del jefe en mitad de
+         una ronda suelta (en una sala, con toda la clase compitiendo). */
+      if(enCampana()){
+        if(dia===9)return rCutscene(JEFE_INTRO,()=>nvJefe(dia,pts+400+cafes*20));
+        /* deploy nocturno: el BUG FINAL vuelve por venganza */
+        if(dia===14)return rCutscene(JEFE2_INTRO,()=>nvJefe(dia,pts+400+cafes*20));
+      }
       return resultado(dia,stars,pts+400+cafes*20);
     }
     /* dibujo (paleta nocturna en la etapa productiva) */

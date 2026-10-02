@@ -266,6 +266,38 @@ await caso('menús · ninguna pantalla revienta con una partida vieja o con dato
   return [mal.length === 0, mal.join(' | ')];
 });
 
+/* ── MODOS SUELTOS ── */
+for (const [modo, arr] of [['modo libre', "empezarLibre('runner')"], ['sin fin', "empezarSinFin(); libreActivo = null; sinFinActivo.tipo = 'runner'; vidas = 1; nvRunner(RETO_DIA.runner)"],
+                           ['reto diario', "retoActivo = { ronda: 0, pts: 0, aciertos: 0, tipos: ['runner'], fecha: 'x' }; vidas = 1; nvRunner(RETO_DIA.runner)"]]) {
+  await caso(`${modo} · acabar el runner NO lanza la pelea del jefe (antes: cutscene del jefe en mitad de la ronda)`, null, async pg => {
+    await prep(pg);
+    await pg.evaluate(a => { LAB.ejecutar('tiempo 0.2', {}); LAB.ejecutar('errores 20', {}); new Function(a)(); }, arr);
+    await pg.waitForFunction(() => pantallaId !== 'nivel', null, { timeout: 30000 }).catch(() => {});
+    await pausa(300);
+    const p = await pg.evaluate(() => pantallaId);
+    return [p !== 'cut' && p !== 'nivel', `pantalla "${p}"`];
+  });
+}
+
+await caso('cabecera · el modo libre y el sin fin no enseñan "DÍA x/15" de la campaña', null, async pg => {
+  await prep(pg, { vistos: ['regex'] });
+  await pg.evaluate(() => empezarLibre('regex')); await pausa(250);
+  const libre = await pg.evaluate(() => $('#h-nivel').textContent);
+  await pg.evaluate(() => { limpiarT(); libreActivo = null; empezarSinFin(); }); await pausa(250);
+  const sinfin = await pg.evaluate(() => $('#h-nivel').textContent);
+  return [!/\/15/.test(libre) && !/\/15/.test(sinfin), `libre "${libre}" · sin fin "${sinfin}"`];
+});
+
+await caso('reto diario · un reto empezado antes de medianoche cuenta para el día en que empezó', null, async pg => {
+  await pg.clock.install({ time: new Date(2026, 9, 2, 23, 58, 0) });
+  await pg.reload({ waitUntil: 'load' }); await pausa(300);
+  await prep(pg);
+  await pg.evaluate(() => empezarReto());
+  await pg.clock.setFixedTime(new Date(2026, 9, 3, 0, 3, 0));
+  const r = await pg.evaluate(() => { retoActivo.pts = 300; finReto(); return S.reto.fecha; });
+  return [r === '2026-10-02', `registrado el ${r}`];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

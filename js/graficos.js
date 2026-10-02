@@ -100,6 +100,19 @@ function hud(){
     $('#h-estrellas').textContent='🔥 '+RETO.rachaViva();
     $('#h-pts').textContent=String(Math.min(retoActivo.pts,9999)).padStart(4,'0');
     $('#h-vidas').textContent='';
+  }else if(sinFinActivo){
+    /* Sin fin: ronda y puntos de la racha. Antes caía en la cabecera de la
+       campaña y enseñaba "DÍA 1/15 ★ 0/45", datos que no tienen nada que ver. */
+    $('#h-nivel').textContent='♾ '+(sinFinActivo.ronda+1);
+    $('#h-estrellas').textContent=ICO_TIPO[sinFinActivo.tipo]||'';
+    $('#h-pts').textContent=String(Math.min(sinFinActivo.pts,9999)).padStart(4,'0');
+    $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas));
+  }else if(libreActivo){
+    /* Modo libre: qué minijuego es y la marca a batir. */
+    $('#h-nivel').textContent='🎮 '+t('tipo_'+libreActivo.tipo);
+    $('#h-estrellas').textContent='🏅';
+    $('#h-pts').textContent=String(Math.min(marcaDe(libreActivo.tipo),9999)).padStart(4,'0');
+    $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas));
   }else if(!salaActiva&&pantallaId.startsWith('sala')){
     /* Pantallas de la sala (proyector, espera, tabla): nada de campaña */
     $('#h-nivel').textContent='🏫 '+t('modo_sala');
