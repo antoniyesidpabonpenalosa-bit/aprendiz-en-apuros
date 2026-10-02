@@ -14,8 +14,13 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v32';
+const VERSION='v33';
 const NOVEDADES=[
+  {v:'v33', fecha:'2026-10-02',
+   es:['Tienda y personaje: un doble toque al comprar un accesorio ya no lo desequipa. Antes pagabas y no lo veías puesto.',
+       'Los récords con datos dañados (por ejemplo, de un código de guardado mal escrito) ya no se pintan como "null undefined".'],
+   en:['Shop and character: a double tap when buying an accessory no longer unequips it. Before, you paid and did not see it worn.',
+       'Records with damaged data (for example from a mistyped save code) no longer show as "null undefined".']},
   {v:'v32', fecha:'2026-10-02',
    es:['Con el juego en pausa, cambiar de idioma ahora traduce también el menú de pausa.',
        'Consola: al volver a lo normal ya no pierdes el idioma, el sonido, la piel ni la dificultad que cambiaste mientras tanto.',

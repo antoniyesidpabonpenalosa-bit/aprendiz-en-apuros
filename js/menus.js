@@ -507,6 +507,12 @@ function rAscenso(){
 }
 
 /* ── TIENDA ── */
+/* Un doble toque en el celular: el primero compra y equipa, y como la tienda se
+   redibuja al instante, el segundo caía en el MISMO botón ya comprado y lo
+   desequipaba: se pagaba y no se veía puesto. Tras una compra se ignoran los
+   toques sobre accesorios durante un instante. */
+let compraReciente=0;
+const aTiempo=()=>Date.now()-compraReciente>450;
 function rTienda(){
   const nAcc=id=>t('acc_'+id);
   const nMej={vida:t('mejvida'),tiempo:t('mejtiempo'),doble:t('mejdoble'),iman:t('mejiman'),escudo:t('mejescudo')};
@@ -555,10 +561,11 @@ function rTienda(){
     <button class="btn btn2" id="ti-volver" type="button">${t('volver')}</button>
   </div>`,rTienda);
   $$('[data-id]').forEach(el=>el.onclick=()=>{
+    if(!aTiempo())return;
     const a=ACCS.find(x=>x.id===el.dataset.id);
     if(S.accs.includes(a.id)){S.acc=S.acc===a.id?'':a.id;guardar();SFX.click();rTienda();return}
     if(S.pts<a.precio){SFX.mal();return}
-    S.pts-=a.precio;S.accs.push(a.id);S.acc=a.id;guardar();
+    S.pts-=a.precio;S.accs.push(a.id);S.acc=a.id;guardar();compraReciente=Date.now();
     SFX.moneda();darLogro('comprador');
     if(ACCS.every(x=>S.accs.includes(x.id)))darLogro('coleccionista');
     rTienda();
@@ -982,7 +989,7 @@ function rPerso(){
   function comprar(){
     const a=pendiente;pendiente=null;
     if(!a||S.pts<a.precio)return refrescar();
-    S.pts-=a.precio;S.accs.push(a.id);S.acc=a.id;guardar();
+    S.pts-=a.precio;S.accs.push(a.id);S.acc=a.id;guardar();compraReciente=Date.now();
     SFX.moneda();darLogro('comprador');
     if(ACCS.every(x=>S.accs.includes(x.id)))darLogro('coleccionista');
     refrescar();latido();confeti();
@@ -990,6 +997,7 @@ function rPerso(){
   }
   function enlazarAccs(){
     $$('#pe-accs .acc-op').forEach(b=>b.onclick=()=>{
+      if(!aTiempo())return;
       const id=b.dataset.a;
       if(!id){S.acc='';guardar();SFX.click();pendiente=null;refrescar();latido();avisar(t('pe_guardado'));return}
       const a=ACCS.find(x=>x.id===id);

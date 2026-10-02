@@ -439,3 +439,12 @@ test('el aviso de cuántas hacen falta lleva los dos números', () => {
     assert.match(txt, /\{t\}/, `${lang}: falta el hueco del total`);
   }
 });
+
+test('los récords locales con basura no entran a la partida', () => {
+  const a = cargarJuego();
+  a.S.records = [{ n: 'ANA', p: 50, x: 60, yo: 1 }, { n: null, p: undefined }, {}, 'x', { n: 'LUIS', p: 'mucho' }];
+  const b = cargarJuego();
+  assert.equal(b.importarCodigo(a.exportarCodigo()), true);
+  assert.equal(b.S.records.length, 1, 'solo la marca válida');
+  assert.equal(b.S.records[0].n, 'ANA');
+});

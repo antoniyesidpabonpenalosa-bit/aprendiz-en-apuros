@@ -59,6 +59,12 @@ function sanear(){
   if(typeof S.legible!=='boolean')S.legible=false;
   if(typeof S.av32!=='boolean')S.av32=false;
   if(typeof S.version!=='string')S.version='';
+  /* Marcas locales: solo entran las que traen nombre y números. Un código de
+     guardado escrito a mano con basura dentro pintaba "null undefined" en la
+     tabla de récords. */
+  S.records=(Array.isArray(S.records)?S.records:[])
+    .filter(r=>r&&typeof r.n==='string'&&Number.isFinite(r.p))
+    .map(r=>({n:r.n.slice(0,10),p:r.p,x:Number.isFinite(r.x)?r.x:0,...(r.yo?{yo:1}:{})}));
   /* No va en DEF a propósito: los arrays de DEF se copian por referencia y
      S.vistos.push() acabaría escribiendo dentro de DEF. Aquí nace uno nuevo. */
   if(!Array.isArray(S.vistos))S.vistos=[];
