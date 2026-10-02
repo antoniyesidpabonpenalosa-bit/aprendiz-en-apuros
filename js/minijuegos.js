@@ -102,7 +102,7 @@ function nvBugs(dia){
     }
     c.classList.add('plaf');const px=c.querySelector('.px');px.textContent='✨';
     setTimeout(()=>{c.classList.remove('plaf');},180);
-    if(esCafe){pts+=80+(S.mejoras.includes('iman')?40:0);SFX.moneda()}
+    if(esCafe){pts+=80+(mejora('iman')?40:0);SFX.moneda()}
     else{hits++;combo++;sumaStat('bugs');pts+=40+(combo>=3?combo*5:0);SFX.pop();
       if(combo>0&&combo%5===0)SFX.moneda()}
     $('#b-hits').textContent=hits;
@@ -534,7 +534,7 @@ function nvRunner(dia){
   const p={x:44,y:SUELO,vy:0,duck:0};
   const noche=dia>=10; /* deploy nocturno: más rápido y a oscuras */
   let obs=[],frame=0,golpes=0,cafes=0,pts=0,spawn=0,inv=0,prevA=false,prevAbajo=false,combo=0,fin=false;
-  let escudo=S.mejoras.includes('escudo')?1:0;
+  let escudo=mejora('escudo')?1:0;
   function comboFly(n,txt){
     const w=$('.cv-wrap');if(!w)return;
     const el=document.createElement('span');
@@ -595,7 +595,7 @@ function nvRunner(dia){
       if(o.x<p.x+14&&o.x+16>p.x&&oy<py+ph&&oy+oh>py){
         if(o.tipo==='cafe'){
           cafes++;combo++;sumaStat('cafes');mejorStat('racha',combo);
-          pts+=60+(S.mejoras.includes('iman')?40:0)+(combo>=3?combo*15:0);SFX.moneda();
+          pts+=60+(mejora('iman')?40:0)+(combo>=3?combo*15:0);SFX.moneda();
           $('#r-caf').textContent=cafes;o.x=-99;
           if(combo>=3)comboFly(combo);
           if(combo>=5)darLogro('combo');

@@ -14,8 +14,11 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v34';
+const VERSION='v35';
 const NOVEDADES=[
+  {v:'v35', fecha:'2026-10-02',
+   es:['Salas de clase: las mejoras compradas (tiempo extra, vida extra, escudo, imán) ya no cuentan dentro de una sala. Todos juegan en igualdad y el podio compara de tú a tú. En la campaña siguen valiendo igual.'],
+   en:['Classroom rooms: purchased upgrades (extra time, extra life, shield, magnet) no longer count inside a room. Everyone plays on equal terms and the podium compares fairly. In the campaign they work as before.']},
   {v:'v34', fecha:'2026-10-02',
    es:['Modo libre, sin fin y reto diario: al terminar el runner ya no te lanza la pelea del jefe final en mitad de la ronda. Eso solo pasa en la campaña.',
        'La cabecera del modo libre y del sin fin ya no enseña "DÍA 1/15": ahora muestra el minijuego, la marca a batir o la ronda.',

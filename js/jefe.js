@@ -41,7 +41,7 @@ function nvJefe(dia,ptsBase){
   modoJefe=true; /* activa el tema musical tenso */
   /* factor de agresividad: dificultad × revancha nocturna (día 15) */
   const fj=facJefe()*(dia===14?1.25:1);
-  let escudo=S.mejoras.includes('escudo')?1:0;
+  let escudo=mejora('escudo')?1:0;
   const p={x:152,ancho:16};
   const jefe={x:160,y:36,hp:100,dir:1};
   let balas=[],errores=[],frame=0,golpes=0,pts=0,inv=0,fin=false;
