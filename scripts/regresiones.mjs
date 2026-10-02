@@ -312,6 +312,48 @@ await caso('sala · las mejoras compradas no dan ventaja dentro de una sala (ant
   return [ok, JSON.stringify(r)];
 });
 
+/* ── GUARDADO ── */
+for (const [nom, raw] of [
+  ['idioma desconocido', { lang: 'xx', intro: true, nombre: 'R' }],
+  ['listas que no son listas', { accs: 'gafas', mejoras: null, logros: {}, intro: true, nombre: 'R' }],
+  ['piel y camisa fuera de rango', { skin: 99, camisa: -3, intro: true, nombre: 'R' }],
+  ['__proto__ dentro del JSON', '{"__proto__":{"polluted":1},"intro":true,"nombre":"R"}'],
+]) {
+  total++;
+  const ctx = await nav.newContext({ viewport: { width: 390, height: 760 } });
+  await ctx.addInitScript(r => localStorage.setItem('pa3', r), typeof raw === 'string' ? raw : JSON.stringify(raw));
+  const pg = await ctx.newPage(); const errs = [];
+  pg.on('pageerror', e => errs.push(e.message));
+  await pg.goto(`http://127.0.0.1:${PUERTO}/index.html`, { waitUntil: 'load' }); await pausa(500);
+  const r = await pg.evaluate(() => ({ texto: ($('#screen').innerText || '').length, contaminada: S.polluted === 1 }));
+  const ok = !errs.length && r.texto > 0 && !r.contaminada;
+  if (!ok) fallos++;
+  console.log(`${ok ? '✓' : '✗'} guardado corrupto · ${nom} → el juego arranca${ok ? '' : ': ' + (errs[0] || JSON.stringify(r))}`);
+  await ctx.close();
+}
+
+await caso('importar · con un ensayo en marcha termina el ensayo y se guarda entero', { intro: true, nombre: 'R', pts: 500, xp: 500, version: 'v0' }, async pg => {
+  const r = await pg.evaluate(() => {
+    const c = JSON.stringify(Object.assign({}, S, { pts: 9000, xp: 9000, nombre: 'OTRO' }));
+    const b = btoa(unescape(encodeURIComponent(c)));
+    LAB.ejecutar('vidas 9', {});
+    importarCodigo('PA4.' + sumaCod(b) + '.' + b);
+    const d = JSON.parse(localStorage.getItem('pa3'));
+    return { ensayo: LAB.ensayo(), memoria: S.pts, disco: d.pts, nombre: d.nombre };
+  });
+  return [!r.ensayo && r.memoria === 9000 && r.disco === 9000 && r.nombre === 'OTRO', JSON.stringify(r)];
+});
+
+await caso('borrar · con un ensayo en marcha borra de verdad', { intro: true, nombre: 'R', pts: 500, xp: 500, version: 'v0' }, async pg => {
+  await pg.evaluate(() => { if (pantallaId === 'novedades') $('#nv-ok').click(); LAB.ejecutar('vidas 9', {}); rBorrar(); });
+  await pausa(150);
+  await pg.locator('#bo-si').click(); await pausa(300);
+  await pg.evaluate(() => { const b = document.querySelector('#bo-si2, #bo-ok, #bo-si'); if (b) b.click(); });
+  await pausa(300);
+  const r = await pg.evaluate(() => ({ ensayo: LAB.ensayo(), pts: S.pts, disco: (JSON.parse(localStorage.getItem('pa3')) || {}).pts }));
+  return [!r.ensayo && r.pts === 0 && r.disco === 0, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);
