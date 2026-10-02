@@ -32,6 +32,12 @@ function salirDeModos(){
   RETO.salir();difForzada=-1;
 }
 
+/* Pone el foco del teclado en la acción principal de una pantalla "puerta" (la
+   que obliga a pulsar algo para seguir). Sin esto el foco se quedaba en la nada
+   tras cada cambio de pantalla y con teclado había que recorrer toda la
+   cabecera con Tab para llegar al botón. */
+const enfocar=sel=>{const e=$(sel);if(e)e.focus({preventScroll:true})};
+
 /* ── ROUTER ── */
 /* Cómo se vuelve a pintar lo que hay en pantalla AHORA. Lo entrega cada
    pantalla al pintarse y lo usa el botón de idioma (js/principal.js).
@@ -108,6 +114,7 @@ function resultado(i,stars,pts){
   else if(i===14)$('#r-fin').onclick=()=>{SFX.click();rCutscene(FINAL2,rAscenso)};
   else $('#r-sig').onclick=()=>{SFX.click();empezarDia(Math.min(i+1,NIVELES.length-1))};
   $('#r-mapa').onclick=()=>{SFX.click();rMapa()};
+  enfocar('#r-sig,#r-fin');
   };
   pintar();
   tvez(SFX.star,300);
@@ -129,6 +136,7 @@ function fallo(i,reintento){
       <button class="btn btn2" id="g-mapa" type="button">${t('salirmapa')}</button>
     </div>`,pintarGO);
     $('#g-mapa').onclick=()=>{SFX.click();rMapa()};
+    enfocar('#g-mapa');
     };
     pintarGO();
     return;
@@ -144,6 +152,7 @@ function fallo(i,reintento){
   </div>`,pintar);
   $('#f-re').onclick=()=>{SFX.click();(reintento||(()=>jugarNivel(i)))()};
   $('#f-mapa').onclick=()=>{SFX.click();rMapa()};
+  enfocar('#f-re');
   };
   pintar();
 }
