@@ -1110,13 +1110,13 @@ html.apaisado .l1:has(>#tm-ok)>:not(.entrada):not(#tm-ok){grid-column:1/-1}
 /* ── canvas (runner y jefe): lienzo a la izquierda, mando a la derecha ──
    Apilados, en un móvil de lado los botones quedaban DEBAJO del borde y
    había que hacer scroll en plena partida. El lienzo toma el alto que
-   quede y el ancho que deje el mando, sin salirse de 16:9. */
+   quede y el ancho que deje el mando, sin salirse de su proporción (16:9, o la de la arena del jefe final: --ar). */
 html.apaisado .cv-wrap{display:grid;grid-template-columns:auto auto;
   grid-template-areas:"tope tope" "cv ctrl" "msg ctrl";
   justify-content:center;align-items:center;column-gap:18px;row-gap:8px}
 html.apaisado .cv-wrap>.tope{grid-area:tope}
 html.apaisado .cv-wrap>canvas.juego{grid-area:cv;
-  width:min(calc(100cqw - 200px),calc((100cqh - 86px)*16/9))}
+  width:min(calc(100cqw - 200px),calc((100cqh - 86px)*var(--ar,1.7778)))}
 html.apaisado .cv-wrap>.cv-msg{grid-area:msg}
 html.apaisado .cv-wrap>.fila-cv{grid-area:ctrl;flex-direction:column;width:auto}
 
@@ -1435,3 +1435,10 @@ html.hd #aviso-ver .av-btn{border-radius:6px}
   #aviso-ver .av-txt{font-size:15px}
   #aviso-ver .av-btn{font-size:7px;padding:8px}
 }
+
+/* ── JEFE FINAL (día 15): cabecera verde de terminal ──
+   La arena del último día es una terminal hacker (js/jefe.js, matrix()); la
+   cabecera de la pelea se tiñe a juego para que no parezca un añadido. */
+.jefe-final .tope{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,.45)}
+.jefe-final .tope b{color:#aaffc4}
+.jefe-final canvas.juego{border-color:#00ff41;box-shadow:0 0 0 2px #00280c,0 0 18px rgba(0,255,65,.35)}

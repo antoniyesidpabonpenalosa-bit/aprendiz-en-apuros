@@ -14,8 +14,15 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v37';
+const VERSION='v38';
 const NOVEDADES=[
+  {v:'v38', fecha:'2026-10-02',
+   es:['Última etapa: la pelea contra el jefe del día 15 ahora es en una arena más grande, con lluvia de código verde tipo Matrix y todo al estilo hacker.',
+       'El abanico del jefe es más lento: sale menos seguido y las ❌ caen más despacio, en los dos días.',
+       'Reto diario: las mejoras compradas tampoco cuentan ahí, igual que en las salas. Todos juegan en igualdad.'],
+   en:['Final stage: the day 15 boss fight is now in a bigger arena, with green Matrix-style code rain and a full hacker look.',
+       'The boss fan attack is slower: it comes less often and the ❌ fall more slowly, on both days.',
+       'Daily challenge: purchased upgrades no longer count there either, just like in rooms. Everyone plays on equal terms.']},
   {v:'v37', fecha:'2026-10-02',
    es:['Teclado: en las pantallas que piden pulsar algo para seguir (novedades, controles, fallo, resultado, borrar partida) el foco ya cae en el botón principal, sin recorrer toda la cabecera con Tab.',
        'Las escenas de la historia ahora avanzan con Enter o Espacio, no solo con el toque.',

@@ -29,6 +29,15 @@ function nvJefe(dia,ptsBase){
   </div>`);
   const cv=$('#j-cv'),c=cv.getContext('2d');
   const HD=!!S.hd;
+  /* LA ARENA. En la última etapa (día 15, la revancha nocturna) la pelea es en
+     un espacio más grande y con aire de terminal hacker: más ancho y MUCHO más
+     alto, así las ❌ tardan más en caer y hay margen para esquivar. El resto de
+     números de este archivo cuelgan de W y H en vez de ser 320 y 180. */
+  const FINAL=dia===14;
+  const W=FINAL?400:320, H=FINAL?270:180;
+  cv.style.aspectRatio=W+'/'+H;
+  cv.style.setProperty('--ar',W/H);       /* la rejilla apaisada del CSS dimensiona con esto */
+  if(FINAL)$('.cv-wrap').classList.add('jefe-final');
   /* El lienzo se dibuja SIEMPRE en el espacio lógico de 320×180: el búfer se
      agranda según la densidad real de la pantalla y el transform lo compensa,
      así que ninguna coordenada del juego cambia. Antes esto era todo o nada
@@ -36,18 +45,18 @@ function nvJefe(dia,ptsBase){
      en un móvil de alta densidad: borroso. El modo HD sigue sumando nitidez
      encima, ahora como multiplicador. */
   const dpr=densidad()*(HD?1.5:1);
-  cv.width=Math.round(320*dpr); cv.height=Math.round(180*dpr);
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
   c.setTransform(dpr,0,0,dpr,0,0);
   modoJefe=true; /* activa el tema musical tenso */
   /* factor de agresividad: dificultad × revancha nocturna (día 15) */
   const fj=facJefe()*(dia===14?1.25:1);
   let escudo=mejora('escudo')?1:0;
-  const p={x:152,ancho:16};
-  const jefe={x:160,y:36,hp:100,dir:1};
+  const p={x:W/2-8,ancho:16};
+  const jefe={x:W/2,y:36,hp:100,dir:1};
   let balas=[],errores=[],frame=0,golpes=0,pts=0,inv=0,fin=false;
   let izq=false,der=false,prevGolpe=0,faseAnt=1;
   /* láser telegrafiado (fases 2-3): 0 nada · 1 aviso · 2 disparando */
-  let laserEstado=0,laserT=0,laserX=160;
+  let laserEstado=0,laserT=0,laserX=W/2;
   /* controles táctiles */
   const btnI=$('#j-izq'),btnD=$('#j-der');
   btnI.onpointerdown=e=>{e.preventDefault();izq=true};
@@ -75,6 +84,28 @@ function nvJefe(dia,ptsBase){
   document.addEventListener('keydown',kd);document.addEventListener('keyup',ku);
   addEventListener('blur',suelta);
   alLimpiar.push(()=>{document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku);removeEventListener('blur',suelta)});
+  /* Lluvia de código tipo Matrix: columnas de caracteres que caen, con la cabeza
+     brillante y la cola apagándose. Determinista por (columna, fila, fotograma/7)
+     en vez de azar por fotograma, que parpadearía sin control. Con "reducir
+     movimiento" se queda quieta. */
+  const GLIFOS='01アイウエオカキクケコサシスセソタチツテトナニヌネ<>/{}$#;=+';
+  const COLS=Math.floor(W/14);
+  function matrix(){
+    c.font='12px monospace';c.textAlign='center';c.textBaseline='top';
+    const f=quieto()?0:frame;
+    for(let k=0;k<COLS;k++){
+      const x=7+k*14, vel=.7+(k*7%5)*.22, largo=7+(k*13%7);
+      const cab=((f*vel)+k*53)%(H+largo*12);
+      for(let r=0;r<largo;r++){
+        const y=cab-r*12;
+        if(y<-12||y>H)continue;
+        const g=GLIFOS[(k*31+r*17+Math.floor(f/7))%GLIFOS.length];
+        c.fillStyle=r===0?'#d4ffe0':'rgba(0,255,65,'+(0.42-r*0.05).toFixed(2)+')';
+        c.fillText(g,x,y);
+      }
+    }
+    c.textAlign='start';c.textBaseline='alphabetic';
+  }
   function terminar(){if(raf){cancelAnimationFrame(raf);raf=0}fin=true}
   function loop(){
     if(fin)return;
@@ -95,16 +126,16 @@ function nvJefe(dia,ptsBase){
       if(m.der)mov+=1;
     }
     if(giroActivo&&Math.abs(giroGamma)>6)mov+=giroGamma/22;
-    p.x=Math.max(8,Math.min(296,p.x+mov*3.4));
+    p.x=Math.max(8,Math.min(W-24,p.x+mov*3.4));
     /* a dónde mira el aprendiz: sigue el movimiento, de frente si está quieto */
     p.dir=APRENDIZ.dirDe(Math.abs(mov)>.1?mov:0,0);
     /* ── disparo automático ── */
-    if(frame%16===0){balas.push({x:p.x+7,y:150});beep(880,.03,'triangle',.05)}
+    if(frame%16===0){balas.push({x:p.x+7,y:H-30});beep(880,.03,'triangle',.05)}
     balas.forEach(b=>b.y-=4.5);
     balas=balas.filter(b=>b.y>0);
     /* ── jefe se mueve y ataca ── */
     jefe.x+=jefe.dir*(0.8+fase*0.55);
-    if(jefe.x<50||jefe.x>270)jefe.dir*=-1;
+    if(jefe.x<50||jefe.x>W-50)jefe.dir*=-1;
     /* lluvia base de errores (más frecuente en dificultades altas) */
     const cadencia=Math.max(12,Math.round((52-fase*12)/fj));
     if(frame%cadencia===0){
@@ -113,14 +144,16 @@ function nvJefe(dia,ptsBase){
     }
     /* fase 3: ráfaga en abanico que se abre. Antes salía también en la fase 2,
        pero con el rayo encima la fase 2 era demasiado; ahora el abanico se
-       reserva para el tramo final. */
-    if(fase===3&&frame%Math.round(95/fj)===0){
-      for(let a=-2;a<=2;a++)errores.push({x:jefe.x+a*16,y:58,v:(1.2+fase*.35)*fj,vx:a*0.45});
+       reserva para el tramo final. Es más LENTO que antes (cada 125 fotogramas
+       en vez de 95, y las ❌ caen a tres cuartos de la velocidad): era lo que
+       más golpes daba. */
+    if(fase===3&&frame%Math.round(125/fj)===0){
+      for(let a=-2;a<=2;a++)errores.push({x:jefe.x+a*16,y:58,v:(1.2+fase*.35)*.75*fj,vx:a*0.34});
       beep(180,.08,'sawtooth',.06);
     }
     /* fase 2+: láser telegrafiado (avisa antes de disparar en la columna del jugador) */
     if(fase>=2&&laserEstado===0&&frame%Math.round((fase===3?150:230)/fj)===0){
-      laserEstado=1;laserT=42;laserX=Math.max(14,Math.min(306,p.x+8));beep(1200,.12,'square',.05);
+      laserEstado=1;laserT=42;laserX=Math.max(14,Math.min(W-14,p.x+8));beep(1200,.12,'square',.05);
     }
     if(laserEstado===1){if(--laserT<=0){laserEstado=2;laserT=fase===3?34:26;beep(300,.25,'sawtooth',.12)}}
     else if(laserEstado===2){
@@ -135,7 +168,7 @@ function nvJefe(dia,ptsBase){
       if(--laserT<=0)laserEstado=0;
     }
     errores.forEach(o=>{o.y+=o.v;o.x+=o.vx||0});
-    errores=errores.filter(o=>o.y<185&&o.x>-20&&o.x<340);
+    errores=errores.filter(o=>o.y<H+5&&o.x>-20&&o.x<W+20);
     if(inv>0)inv--;
     /* ── colisiones: balas contra jefe ── */
     balas.forEach(b=>{
@@ -161,7 +194,7 @@ function nvJefe(dia,ptsBase){
     /* ── colisiones: errores contra jugador ── */
     errores.forEach(o=>{
       if(fin)return;
-      if(inv<=0&&o.y>150&&o.y<176&&Math.abs(o.x-(p.x+8))<14){
+      if(inv<=0&&o.y>H-30&&o.y<H-4&&Math.abs(o.x-(p.x+8))<14){
         o.y=999;
         if(escudo>0){escudo--;inv=60;SFX.pop();return}
         golpes++;inv=55;SFX.mal();sacudir();
@@ -171,21 +204,29 @@ function nvJefe(dia,ptsBase){
     });
     if(fin)return;
     /* ── dibujo ── */
-    if(HD){
-      const g=c.createLinearGradient(0,0,0,180);
-      g.addColorStop(0,'#1a0f2e');g.addColorStop(.7,'#08050f');g.addColorStop(1,'#030208');
-      c.fillStyle=g;
-    }else c.fillStyle='#120a20';
-    c.fillRect(0,0,320,180);
-    /* lluvia digital de fondo */
-    c.fillStyle=HD?'rgba(140,61,240,.16)':'#241048';
-    for(let k=0;k<8;k++){const y=(frame*2+k*47)%200;c.fillRect(20+k*40,y-20,2,12)}
-    /* barra de vida del jefe */
-    c.fillStyle='#07080f';c.fillRect(60,6,200,8);
-    c.fillStyle=jefe.hp>33?'#c22e44':'#ff5468';
-    if(HD){c.shadowColor='#ff5468';c.shadowBlur=8}
-    c.fillRect(60,6,jefe.hp*2,8);
+    if(FINAL){
+      /* ── última etapa: terminal hacker, lluvia de código tipo Matrix ── */
+      c.fillStyle='#000a03';c.fillRect(0,0,W,H);
+      matrix();
+    }else{
+      if(HD){
+        const g=c.createLinearGradient(0,0,0,H);
+        g.addColorStop(0,'#1a0f2e');g.addColorStop(.7,'#08050f');g.addColorStop(1,'#030208');
+        c.fillStyle=g;
+      }else c.fillStyle='#120a20';
+      c.fillRect(0,0,W,H);
+      /* lluvia digital de fondo */
+      c.fillStyle=HD?'rgba(140,61,240,.16)':'#241048';
+      for(let k=0;k<8;k++){const y=(frame*2+k*47)%200;c.fillRect(20+k*40,y-20,2,12)}
+    }
+    /* barra de vida del jefe (en la última etapa, verde de terminal) */
+    const bx=(W-200)/2;
+    c.fillStyle=FINAL?'#001a07':'#07080f';c.fillRect(bx,6,200,8);
+    c.fillStyle=jefe.hp>33?(FINAL?'#00ff41':'#c22e44'):'#ff5468';
+    if(HD||FINAL){c.shadowColor=jefe.hp>33&&FINAL?'#00ff41':'#ff5468';c.shadowBlur=8}
+    c.fillRect(bx,6,jefe.hp*2,8);
     c.shadowBlur=0;
+    if(FINAL){c.strokeStyle='#00ff41';c.lineWidth=1;c.strokeRect(bx-.5,5.5,201,9)}
     /* jefe (parpadea al recibir daño) */
     if(frame-prevGolpe>4||frame%4<2){
       c.font=fase===3?'44px serif':'38px serif';
@@ -195,7 +236,7 @@ function nvJefe(dia,ptsBase){
     }
     /* balas (commits) */
     if(HD){c.shadowColor='#54c41a';c.shadowBlur=6}
-    c.fillStyle='#54c41a';
+    c.fillStyle=FINAL?'#7dffa0':'#54c41a';
     balas.forEach(b=>c.fillRect(b.x,b.y,3,8));
     c.shadowBlur=0;
     /* errores que caen */
@@ -203,24 +244,25 @@ function nvJefe(dia,ptsBase){
     errores.forEach(o=>c.fillText('❌',o.x-6,o.y));
     /* láser del jefe: aviso parpadeante y luego rayo */
     if(laserEstado===1){
-      if(frame%6<3){c.fillStyle='rgba(255,84,104,.5)';c.fillRect(laserX-2,jefe.y+8,4,168-jefe.y)}
+      if(frame%6<3){c.fillStyle='rgba(255,84,104,.5)';c.fillRect(laserX-2,jefe.y+8,4,H-12-jefe.y)}
       c.fillStyle='#ff5468';c.font='bold 9px monospace';c.textAlign='center';
       c.fillText(t('avisolaser'),laserX,jefe.y+2);
       c.textAlign='start';
     }else if(laserEstado===2){
       const w=10+(laserT%4<2?2:0);
       if(HD){c.shadowColor='#ff5468';c.shadowBlur=14}
-      c.fillStyle='#ff5468';c.fillRect(laserX-w/2,jefe.y+8,w,170-jefe.y);
-      c.fillStyle='#ffd0d6';c.fillRect(laserX-2,jefe.y+8,4,170-jefe.y);
+      c.fillStyle='#ff5468';c.fillRect(laserX-w/2,jefe.y+8,w,H-10-jefe.y);
+      c.fillStyle='#ffd0d6';c.fillRect(laserX-2,jefe.y+8,4,H-10-jefe.y);
       c.shadowBlur=0;
     }
     /* jugador (parpadea si invulnerable). El aprendiz de cuerpo entero mira
        hacia donde se mueve; si el sprite no cargó, cae al bloque de siempre. */
     if(inv%12<8){
-      if(!APRENDIZ.dibujar(c,p.x+8,176,30,p.dir??APRENDIZ.idx.south)){
-        c.fillStyle=CAMISAS[S.camisa];c.fillRect(p.x,158,16,16);
-        c.fillStyle=SKINS[S.skin];c.fillRect(p.x+2,148,12,12);
-        c.fillStyle='#101018';c.fillRect(p.x+9,152,2,2);
+      if(!APRENDIZ.dibujar(c,p.x+8,H-4,30,p.dir??APRENDIZ.idx.south)){
+        const dy=H-180;
+        c.fillStyle=CAMISAS[S.camisa];c.fillRect(p.x,158+dy,16,16);
+        c.fillStyle=SKINS[S.skin];c.fillRect(p.x+2,148+dy,12,12);
+        c.fillStyle='#101018';c.fillRect(p.x+9,152+dy,2,2);
       }
     }
   }
