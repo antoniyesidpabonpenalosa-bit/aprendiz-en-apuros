@@ -298,17 +298,21 @@ await caso('reto diario · un reto empezado antes de medianoche cuenta para el d
   return [r === '2026-10-02', `registrado el ${r}`];
 });
 
-await caso('sala · las mejoras compradas no dan ventaja dentro de una sala (antes: +1 vida y +20 % de tiempo)', null, async pg => {
+await caso('sala y reto diario · las mejoras compradas no dan ventaja (antes: +1 vida y +20 % de tiempo)', null, async pg => {
   await prep(pg, { mejoras: ['vida', 'tiempo', 'escudo', 'iman'], dif: 1 });
   const r = await pg.evaluate(() => {
     const fuera = { vidas: maxVidas(), tiempo: facTiempo(), escudo: mejora('escudo') };
     salaActiva = { codigo: 'K7M2Q', ronda: 0, juegos: ['quiz'], pts: 0 };
     const dentro = { vidas: maxVidas(), tiempo: facTiempo(), escudo: mejora('escudo') };
     salaActiva = null;
-    return { fuera, dentro };
+    retoActivo = { ronda: 0, pts: 0, aciertos: 0, tipos: ['quiz'] };
+    const reto = { vidas: maxVidas(), tiempo: facTiempo(), escudo: mejora('escudo') };
+    retoActivo = null;
+    return { fuera, dentro, reto };
   });
   const ok = r.fuera.vidas === 4 && r.fuera.tiempo === 1.2 && r.fuera.escudo === true
-          && r.dentro.vidas === 3 && r.dentro.tiempo === 1 && r.dentro.escudo === false;
+          && r.dentro.vidas === 3 && r.dentro.tiempo === 1 && r.dentro.escudo === false
+          && r.reto.vidas === 3 && r.reto.tiempo === 1 && r.reto.escudo === false;
   return [ok, JSON.stringify(r)];
 });
 
@@ -382,6 +386,63 @@ await caso('movimiento · con "reducir movimiento" la casilla del jefe no pulsa'
   await pg.evaluate(() => rMapa()); await pausa(200);
   const a = await pg.evaluate(() => getComputedStyle(document.querySelector('#m-jefe')).animationName);
   return [a === 'none', `animación: ${a}`];
+});
+
+/* ── EL JEFE, GANADO DE PUNTA A PUNTA ──
+   El barrido no puede ganarle (su robot no apunta). Este sí: espía dónde se
+   dibuja el jefe y las ❌ (por fillText), apunta con ADELANTO —la bala tarda ~25
+   fotogramas y el jefe se mueve 35-60 px en ese rato— y esquiva lo que cae y el
+   aviso del láser. La agresividad va al mínimo desde la consola: lo que se prueba
+   es el CAMINO de victoria y lo que viene después, no la dificultad. Sin escudo
+   ni ayudas: en el día 15 (arena grande, abanico lento) tiene que poder ganar. */
+const robotJefe = d => {
+  Object.assign(S, { nombre: 'ROBOT', intro: true, t2: true, version: VERSION, vistos: ['jefe'] });
+  LAB.ejecutar('jefe 0.2', {});
+  const W = d === 14 ? 400 : 320;                    // la arena del día 15 es más ancha
+  const X = window.__x = { jefe: W / 2, vel: 0, p: W / 2 - 8, err: [], errNext: [] };
+  const aviso = t('avisolaser');
+  const ft = CanvasRenderingContext2D.prototype.fillText;
+  CanvasRenderingContext2D.prototype.fillText = function (txt, x, y) {
+    if (txt === '👾' || txt === '😡' || txt === '🤬') { X.vel = X.vel * .6 + (x - X.jefe) * .4; X.jefe = x; X.err = X.errNext; X.errNext = []; }
+    else if (txt === '❌') X.errNext.push([x + 6, y]);
+    else if (txt === aviso) X.laser = { x, hasta: performance.now() + 1500 };
+    return ft.apply(this, arguments);
+  };
+  const o = APRENDIZ.dirDe;
+  APRENDIZ.dirDe = (dx, dy) => { X.p = Math.max(8, Math.min(W - 24, X.p + dx * 3.4)); return o(dx, dy); };
+  const tecla = (code, on) => document.dispatchEvent(new KeyboardEvent(on ? 'keydown' : 'keyup', { code, bubbles: true }));
+  (function paso() {
+    let obj = Math.max(8, Math.min(W - 24, X.jefe + X.vel * 27 - 7));
+    const amen = X.err.filter(([ex, ey]) => ey > 85 && Math.abs(ex - (X.p + 8)) < 26).sort((a, b) => b[1] - a[1])[0];
+    if (amen) obj = amen[0] > X.p + 8 ? X.p - 40 : X.p + 40;
+    if (X.laser && performance.now() < X.laser.hasta && Math.abs(X.laser.x - (X.p + 8)) < 44) obj = X.laser.x > X.p + 8 ? X.p - 60 : X.p + 60;
+    obj = Math.max(8, Math.min(W - 24, obj));
+    tecla('ArrowLeft', obj < X.p - 1.8); tecla('ArrowRight', obj > X.p + 1.8);
+    requestAnimationFrame(paso);
+  })();
+  diaAct = d; vidas = 3; nvJefe(d, 0);
+};
+for (const [dia, final, etiqueta] of [[9, /CONTRATO DE APRENDIZAJE/, 'día 10 → contrato de aprendizaje'], [14, /TÉCNICO EN PROGRAMACIÓN DE SOFTWARE/, 'día 15 → título de técnico']]) {
+  await caso(`jefe · se le gana de punta a punta y la victoria lleva a: ${etiqueta}`, null, async pg => {
+    await pg.evaluate(robotJefe, dia);
+    await pg.waitForFunction(() => pantallaId !== 'nivel', null, { timeout: 150000 }).catch(() => {});
+    const gano = await pg.evaluate(() => ({ p: pantallaId, logro: S.logros.includes('jefe'), jefes: S.stats.jefes }));
+    if (gano.p !== 'resultado') return [false, `no ganó: pantalla "${gano.p}"`];
+    await pg.locator('#r-fin').click(); await pausa(300);
+    for (let i = 0; i < 5 && await pg.evaluate(() => pantallaId) === 'cut'; i++) { await pg.locator('#cut-zona').click(); await pausa(200); }
+    const txt = await pg.evaluate(() => $('#screen').innerText);
+    const logroFin = await pg.evaluate(d => S.logros.includes(d === 9 ? 'titulado' : 'contrato'), dia);
+    return [gano.logro && gano.jefes === 1 && final.test(txt) && logroFin,
+            `logro jefe ${gano.logro}, victorias ${gano.jefes}, logro de fin ${logroFin}, pantalla: ${txt.slice(0, 28).replace(/\s+/g, ' ')}`];
+  });
+}
+
+await caso('jefe · la arena del día 15 es más grande y la del día 10 no cambia', null, async pg => {
+  await prep(pg);
+  const r = await pg.evaluate(() => { const o = {};
+    for (const d of [9, 14]) { diaAct = d; vidas = 3; nvJefe(d, 0); const c = $('#j-cv'); o[d] = [c.width / (densidad() * (S.hd ? 1.5 : 1)), c.height / (densidad() * (S.hd ? 1.5 : 1))].map(Math.round).join('x'); }
+    return o; });
+  return [r[9] === '320x180' && r[14] === '400x270', JSON.stringify(r)];
 });
 
 await nav.close();

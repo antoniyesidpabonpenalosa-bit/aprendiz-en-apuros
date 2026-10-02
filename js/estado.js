@@ -165,13 +165,15 @@ let difForzada=-1;
    tiene que saber que existe. */
 const lab=(id,base)=>typeof LAB!=='undefined'?LAB.ajuste(id,base):base;
 const difActual=()=>DIFS[lab('dif',difForzada>=0?difForzada:S.dif)]||DIFS[1];
-/* ¿Cuenta esta mejora comprada? Dentro de una SALA DE CLASE no: ahí todos juegan
+/* ¿Cuenta esta mejora comprada? Dentro de una SALA DE CLASE y del RETO DIARIO no
+   (los dos tienen ranking y todos juegan lo mismo): ahí todos juegan
    con el mismo contenido y la misma dificultad, y el podio compara a la gente de
    tú a tú; con la mejora de tiempo (+20 %), la vida extra, el escudo o el imán
    puestos, quien las había comprado partía con ventaja. Una sola función para
    que ninguna se escape. (typeof: salaActiva vive en salaui.js, que las pruebas
    de node no cargan.) */
-const mejora=id=>S.mejoras.includes(id)&&!(typeof salaActiva!=='undefined'&&salaActiva);
+const mejora=id=>S.mejoras.includes(id)&&!(typeof salaActiva!=='undefined'&&salaActiva)
+  &&!(typeof retoActivo!=='undefined'&&retoActivo);
 const maxVidas=()=>lab('vidas',Math.max(1,3+(mejora('vida')?1:0)+difActual().vida));
 const facTiempo=()=>lab('tiempo',(mejora('tiempo')?1.2:1)*difActual().tiempo);
 const facPts=()=>lab('puntos',S.mejoras.includes('doble')?2:1);
