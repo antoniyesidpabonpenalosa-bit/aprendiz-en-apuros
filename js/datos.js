@@ -14,8 +14,13 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v35';
+const VERSION='v36';
 const NOVEDADES=[
+  {v:'v36', fecha:'2026-10-02',
+   es:['Partida guardada: si un código de guardado (o una partida vieja) traía datos raros, como un idioma desconocido, el juego se quedaba en blanco y no había forma de arreglarlo. Ahora cada dato se corrige al cargar y el juego siempre arranca.',
+       'Importar o borrar la partida con un ensayo de la consola en marcha ya no la deja a medias: primero se termina el ensayo.'],
+   en:['Saved game: if a save code (or an old save) had odd data, such as an unknown language, the game went blank with no way to fix it. Every field is now corrected on load and the game always starts.',
+       'Importing or deleting the save with a console rehearsal running no longer leaves it half done: the rehearsal ends first.']},
   {v:'v35', fecha:'2026-10-02',
    es:['Salas de clase: las mejoras compradas (tiempo extra, vida extra, escudo, imán) ya no cuentan dentro de una sala. Todos juegan en igualdad y el podio compara de tú a tú. En la campaña siguen valiendo igual.'],
    en:['Classroom rooms: purchased upgrades (extra time, extra life, shield, magnet) no longer count inside a room. Everyone plays on equal terms and the podium compares fairly. In the campaign they work as before.']},

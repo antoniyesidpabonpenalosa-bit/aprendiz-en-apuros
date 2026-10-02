@@ -448,3 +448,34 @@ test('los récords locales con basura no entran a la partida', () => {
   assert.equal(b.S.records.length, 1, 'solo la marca válida');
   assert.equal(b.S.records[0].n, 'ANA');
 });
+
+/* ══════════ UNA PARTIDA DE FUERA PUEDE TRAER CUALQUIER COSA ══════════
+   Un código de guardado escrito a mano, o una versión muy vieja. Un idioma
+   desconocido dejaba el juego en blanco y, al guardarse, también al recargar. */
+const cod = (v, o) => {
+  const c = JSON.stringify(Object.assign({}, v.S, o));
+  const b = Buffer.from(c, 'utf8').toString('base64');
+  return 'PA4.' + v.sumaCod(b) + '.' + b;
+};
+test('importar deja cada campo de un tipo que el juego pueda usar', () => {
+  const v = cargarJuego();
+  v.S.dias = [1];
+  assert.equal(v.importarCodigo(cod(v, { lang: 'xx', skin: 99, camisa: -1, pts: 'abc', xp: -5,
+    accs: 'gafas', mejoras: null, logros: {}, acc: 'nada', dias: ['a', 99, null, 2] })), true);
+  assert.equal(v.S.lang, 'es');
+  assert.equal(v.S.skin, 0); assert.equal(v.S.camisa, 0);
+  assert.equal(v.S.pts, 0); assert.equal(v.S.xp, 0);
+  for (const k of ['accs', 'mejoras', 'logros']) assert.ok(Array.isArray(v.S[k]), k + ' es una lista');
+  assert.equal(v.S.acc, '');
+  assert.deepEqual([...v.S.dias].slice(0, 4), [-1, -1, -1, 2]);
+  assert.equal(v.S.dias.length, v.TOT_DIAS);
+});
+
+test('"__proto__" en el código de guardado no entra a la partida', () => {
+  const v = cargarJuego();
+  const c = '{"__proto__":{"polluted":1},"dias":[3],"intro":true}';
+  const b = Buffer.from(c, 'utf8').toString('base64');
+  assert.equal(v.importarCodigo('PA4.' + v.sumaCod(b) + '.' + b), true);
+  assert.equal(v.S.polluted, undefined);
+  assert.equal(({}).polluted, undefined);
+});

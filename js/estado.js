@@ -48,11 +48,38 @@ let S;
    código de guardado importado o de borrar la partida. Las tres vías pasan por
    aquí para que ninguna olvide un campo: si borrar dejaba sin crear
    S.mejores, el modo libre se rompía hasta recargar la página. */
+/* Copia de un objeto que vino de fuera (localStorage o un código de guardado)
+   sin la clave "__proto__": con JSON.parse esa clave nace como propiedad propia
+   y Object.assign la aplica como PROTOTIPO del destino, dejando que quien
+   escribió el código ponga propiedades heredadas en la partida. Lo que no es un
+   objeto (null, un número, un texto, un arreglo) se queda en {}. */
+/** @param {any} o @returns {any} */
+function ajeno(o){
+  /** @type {any} */
+  const r={};
+  if(!o||typeof o!=='object'||Array.isArray(o))return r;
+  for(const k of Object.keys(o))if(k!=='__proto__')r[k]=o[k];
+  return r;
+}
 function sanear(){
+  /* Lo que viene de fuera puede traer cualquier cosa (un código escrito a
+     mano, una versión muy vieja): cada campo se deja de un tipo que el resto del
+     juego pueda usar. Un idioma desconocido dejaba el juego en BLANCO y, como se
+     guarda, también al recargar: ni siquiera se llegaba a "borrar partida". */
+  if(S.lang!=='es'&&S.lang!=='en')S.lang='es';
+  for(const k of ['logros','accs','mejoras'])
+    S[k]=(Array.isArray(S[k])?S[k]:[]).filter(x=>typeof x==='string');
+  const ent=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
+  if(!ent(S.skin,0,SKINS.length-1))S.skin=0;
+  if(!ent(S.camisa,0,CAMISAS.length-1))S.camisa=0;
+  if(!Number.isFinite(S.pts)||S.pts<0)S.pts=0;
+  if(!Number.isFinite(S.xp)||S.xp<0)S.xp=0;
+  if(typeof S.nombre!=='string')S.nombre=String(S.nombre==null?'':S.nombre);
+  if(typeof S.acc!=='string'||(S.acc&&!ACCS.some(a=>a.id===S.acc)))S.acc='';
   /* migración: partidas viejas de 10 días se extienden a 15 */
   if(!Array.isArray(S.dias))S.dias=Array(TOT_DIAS).fill(-1);
   while(S.dias.length<TOT_DIAS)S.dias.push(-1);
-  S.dias=S.dias.slice(0,TOT_DIAS);
+  S.dias=S.dias.slice(0,TOT_DIAS).map(d=>ent(d,-1,3)?d:-1);
   if(typeof S.dif!=='number'||S.dif<0||S.dif>2)S.dif=1;
   if(typeof S.mus!=='boolean')S.mus=true;
   if(typeof S.t2!=='boolean')S.t2=false;
@@ -71,18 +98,18 @@ function sanear(){
   /* Marcas del modo libre, por minijuego y dificultad. Tampoco va en DEF:
      Object.assign copia el objeto por referencia y escribir una marca
      acabaría dentro de DEF. */
-  if(!S.mejores||typeof S.mejores!=='object')S.mejores={};
+  S.mejores=ajeno(S.mejores);
   if(typeof S.mejorSinFin!=='number'||!(S.mejorSinFin>=0))S.mejorSinFin=0;
   /* Código de aula: mayúsculas, dígitos, 3 a 8 caracteres. Se sanea aquí
      porque puede venir de un código de guardado escrito a mano. */
   S.grupo=String(S.grupo||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
-  S.stats=Object.assign({},STATS0,(S.stats&&typeof S.stats==='object')?S.stats:{});
+  S.stats=Object.assign({},STATS0,ajeno(S.stats));
 }
 /** Lo guardado puede ser cualquier cosa (una versión vieja, datos rotos):
     sanear() lo deja en forma. @type {any} */
 let guardado={};
 try{guardado=JSON.parse(localStorage.getItem('pa3')||'{}')}catch(e){}
-S=Object.assign({},DEF,guardado);
+S=Object.assign({},DEF,ajeno(guardado));
 sanear();
 /* Durante un ensayo del laboratorio (js/consola.js) NO se escribe nada: es lo
    que hace verdad la promesa de que la consola no toca la partida guardada.
@@ -195,7 +222,12 @@ function importarCodigo(cod){
     if(sumaCod(p[2])!==p[1])return false;
     const d=JSON.parse(decodeURIComponent(escape(atob(p[2]))));
     if(!d||typeof d!=='object'||!Array.isArray(d.dias))return false;
-    S=Object.assign({},DEF,d);
+    /* Un ensayo de la consola (js/consola.js) guarda una copia de la partida y
+       no escribe en disco: importar encima lo dejaba a medias —el nombre
+       sobrevivía y el progreso no—. Primero se termina el ensayo. Va aquí, tras
+       validar el código, para que uno malo no se lleve por delante el ensayo. */
+    if(typeof LAB!=='undefined'&&LAB.ensayo())LAB.volverANormal();
+    S=Object.assign({},DEF,ajeno(d));
     sanear();
     guardar();vidas=maxVidas();aplicarModo();
     return true;
