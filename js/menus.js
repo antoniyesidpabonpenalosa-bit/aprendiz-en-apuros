@@ -147,6 +147,7 @@ function rBorrar(){
     <button class="btn-r" id="bo-si" type="button">${t('sioborrar')}</button>
   </div>`,rBorrar);
   $('#bo-no').onclick=()=>{SFX.click();rTitulo()};
+  enfocar('#bo-no');           /* el foco empieza en lo seguro: CANCELAR */
   $('#bo-si').onclick=()=>{
     /* Igual que al importar: borrar con un ensayo en marcha dejaba la partida
        sin borrar en disco (guardar() no escribe en ensayo) y la copia volvía
@@ -209,7 +210,7 @@ function rCutscene(guion,fin){
     const paginas=guion[S.lang]||guion.es;
     i=Math.min(i,paginas.length-1);
     pantalla('cut',`
-    <div class="centro cut" id="cut-zona">
+    <div class="centro cut" id="cut-zona" tabindex="0" role="button" aria-label="${t('toca')}">
       <span class="ico">${paginas[i].ico}</span>
       <p class="desc">${paginas[i].t}</p>
       <div class="cut-nav"><span class="cut-prog">${t('pagina')} ${i+1}/${paginas.length}</span></div>
@@ -222,6 +223,13 @@ function rCutscene(guion,fin){
       i<paginas.length?pag():fin();
     };
     $('#cut-skip').onclick=e=>{e.stopPropagation();SFX.click();fin()};
+    /* Con teclado la escena solo se podía saltar entera: ahora Enter o Espacio
+       avanzan página, como el toque. */
+    $('#cut-zona').onkeydown=e=>{
+      if(e.target.id==='cut-skip')return;
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!e.repeat)$('#cut-zona').click()}
+    };
+    enfocar('#cut-zona');
   }
   pag();
 }
@@ -332,6 +340,7 @@ function rNovedades(seguir){
     <button class="btn" id="nv-ok" type="button">${t('nov_ok')}</button>
   </div>`,pintar);
   $('#nv-ok').onclick=()=>{SFX.click();marcarVersionVista();seguir()};
+  enfocar('#nv-ok');
   };
   pintar();
   SFX.logro();
@@ -405,6 +414,7 @@ function conAyuda(tipo,seguir){
     <p class="mini">${t('ayuda_nota')}</p>
   </div>`,pintar);
   $('#ay-ok').onclick=()=>{SFX.click();seguir()};
+  enfocar('#ay-ok');
   };
   pintar();
 }

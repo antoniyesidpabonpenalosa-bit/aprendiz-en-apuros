@@ -14,8 +14,15 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v36';
+const VERSION='v37';
 const NOVEDADES=[
+  {v:'v37', fecha:'2026-10-02',
+   es:['Teclado: en las pantallas que piden pulsar algo para seguir (novedades, controles, fallo, resultado, borrar partida) el foco ya cae en el botón principal, sin recorrer toda la cabecera con Tab.',
+       'Las escenas de la historia ahora avanzan con Enter o Espacio, no solo con el toque.',
+       'Con "reducir movimiento" activado en el sistema, la casilla del jefe en el mapa ya no sigue pulsando.'],
+   en:['Keyboard: on screens that ask you to press something to continue (news, controls, fail, result, delete save) focus now lands on the main button, without tabbing through the whole header.',
+       'Story scenes now advance with Enter or Space, not only by tapping.',
+       'With "reduce motion" on in the system, the boss tile on the map no longer keeps pulsing.']},
   {v:'v36', fecha:'2026-10-02',
    es:['Partida guardada: si un código de guardado (o una partida vieja) traía datos raros, como un idioma desconocido, el juego se quedaba en blanco y no había forma de arreglarlo. Ahora cada dato se corrige al cargar y el juego siempre arranca.',
        'Importar o borrar la partida con un ensayo de la consola en marcha ya no la deja a medias: primero se termina el ensayo.'],

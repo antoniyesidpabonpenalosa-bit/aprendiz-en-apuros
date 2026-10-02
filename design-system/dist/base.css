@@ -663,7 +663,11 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 @keyframes blink{50%{opacity:.25}}
 /* Quien pide menos movimiento no debe ver el fondo derivando ni el latido */
 @media(prefers-reduced-motion:reduce){
-  .mte,.btn-jugar,.btn-jugar::after,.tit-reto .r-llama,.blink,.punto-nuevo,.memo-aviso{animation:none!important}
+  /* .etapa-jefe lleva !important por una razón: su animación se declara MÁS
+     ABAJO que el bloque que la apagaba (línea ~699), con la misma
+     especificidad, y ganaba la de después: la casilla "???" del mapa seguía
+     pulsando con "reducir movimiento" puesto. */
+  .mte,.btn-jugar,.btn-jugar::after,.tit-reto .r-llama,.blink,.punto-nuevo,.memo-aviso,.etapa-jefe{animation:none!important}
 }
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @keyframes logro-entra{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}

@@ -354,6 +354,36 @@ await caso('borrar · con un ensayo en marcha borra de verdad', { intro: true, n
   return [!r.ensayo && r.pts === 0 && r.disco === 0, JSON.stringify(r)];
 });
 
+/* ── TECLADO Y MOVIMIENTO ── */
+await caso('cutscene · Enter avanza una página y mantenerlo no se las salta todas', null, async pg => {
+  await prep(pg); await pg.evaluate(() => rCutscene(INTRO, () => {})); await pausa(200);
+  const p0 = await pg.locator('.cut-prog').textContent();
+  await pg.evaluate(() => { const z = $('#cut-zona'); z.focus();
+    z.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    for (let i = 0; i < 4; i++) z.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', repeat: true, bubbles: true })); });
+  await pausa(150);
+  const p1 = await pg.locator('.cut-prog').textContent();
+  return [/1\//.test(p0) && /2\//.test(p1), `${p0} → ${p1}`];
+});
+
+await caso('foco · las pantallas "puerta" ponen el foco en su acción principal', { intro: true, pts: 5, xp: 5, nombre: 'R', version: 'v0' }, async pg => {
+  const r = {};
+  const foco = () => pg.evaluate(() => (document.activeElement && document.activeElement.id) || 'nada');
+  r.novedades = await foco();
+  await pg.locator('#nv-ok').click(); await pausa(150);
+  await pg.evaluate(() => { vidas = 3; fallo(0); }); await pausa(150); r.fallo = await foco();
+  await pg.evaluate(() => rBorrar()); await pausa(150); r.borrar = await foco();
+  const ok = r.novedades === 'nv-ok' && r.fallo === 'f-re' && r.borrar === 'bo-no';
+  return [ok, JSON.stringify(r)];
+});
+
+await caso('movimiento · con "reducir movimiento" la casilla del jefe no pulsa', { intro: true, nombre: 'R', pts: 5, xp: 5, version: 'v36', dias: Array(15).fill(3) }, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await pg.evaluate(() => rMapa()); await pausa(200);
+  const a = await pg.evaluate(() => getComputedStyle(document.querySelector('#m-jefe')).animationName);
+  return [a === 'none', `animación: ${a}`];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);
