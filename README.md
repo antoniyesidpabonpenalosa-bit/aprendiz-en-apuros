@@ -127,9 +127,15 @@ aprendiz-en-apuros/
     ├── ranking.js        → marcador global (Supabase vía fetch, sin SDK)
     ├── entrada.js        → soporte de mando (Gamepad API) y giroscopio
     ├── nucleo.js         → router de pantallas, logros, resultado/fallo
-    ├── menus.js          → título, mapa, tienda, récords, avatar, certificado
+    ├── menus.js          → portada, mapa, cutscenes, novedades, flujo del día y ayuda
+    ├── certificados.js   → contrato (día 10), título (día 15), marcas y compartir
+    ├── tienda.js         → tienda y personalizar el avatar
+    ├── records.js        → logros, récords, código de aula y estadísticas
     ├── retoui.js         → pantallas del reto diario
-    ├── minijuegos.js     → los minijuegos de las 2 temporadas (15 días)
+    ├── minijuegos.js     → minijuegos 1-5: escribir, caza-bugs, memoria, simon git, quiz
+    ├── minijuegos-codigo.js    → 6-7: code review y conflicto de merge
+    ├── minijuegos-runner.js    → 8: el runner
+    ├── minijuegos-avanzados.js → 9-12: SQL, ordena, regex y terminal
     ├── jefe.js           → la batalla final contra EL BUG FINAL
     ├── sprite.js         → sprite del aprendiz: carga, recoloreo por jugador y dibujo
     ├── sala.js           → salas de clase: datos, red y lógica (sin pantallas)
