@@ -36,6 +36,60 @@ function guardarMarca(tipo, pts, dif = S.dif) {
   return true;
 }
 
+/* ══════════ REPASO ══════════
+   Los puntos débiles —lo que has fallado y aún no has vuelto a acertar— ya se
+   guardan en S.pesos. Aquí se juegan: un minijuego suelto cuyo sorteo se queda
+   SOLO con esos ítems (RETO.repasoSolo). Acertar uno lo va quitando de la lista
+   (RETO.marcar), así que repasar de verdad vacía el repaso.
+
+   Cada tema del repaso es un pool de contenido y se juega con el minijuego que
+   lo usa. Caza-bugs y runner no tienen contenido que fallar, así que no salen. */
+const POOL_A_TIPO = { quiz: 'quiz', review: 'review', sql: 'sql', regex: 'regex', merge: 'merge',
+                      palabras: 'escribir', git: 'simon', parejas: 'memoria', terminal: 'terminal', orden: 'orden' };
+/* Los temas con su tamaño y cuántos tiene pendientes cada uno, de más a menos
+   deuda. Una sola lista para el repaso y para las estadísticas: antes la de
+   estadísticas olvidaba parejas, terminal y ordena. */
+function temasRepaso() {
+  const total = { quiz: QUIZ[S.lang].length, review: CODIGO.length, sql: SQLS.length, regex: REGEXS.length,
+                  merge: CONFLICTOS.length, palabras: PALABRAS.length, git: CMDS.length, parejas: PAREJAS.length,
+                  terminal: TERMINALES.length, orden: PASOS.length };
+  return RETO.repaso(Object.keys(POOL_A_TIPO).map(pool => ({
+    pool, total: total[pool], tipo: POOL_A_TIPO[pool], etiqueta: t('tipo_' + POOL_A_TIPO[pool]),
+  }))).map(r => Object.assign({ tipo: POOL_A_TIPO[r.pool] }, r)).filter(r => r.total > 0);
+}
+const pendientesRepaso = () => temasRepaso().reduce((a, r) => a + r.pendientes, 0);
+
+function rRepaso() {
+  const temas = temasRepaso().filter(r => r.pendientes > 0);
+  pantalla('repaso', `
+  <div class="centro">
+    <h2>🎯 ${t('repaso_tit')}</h2>
+    <p class="desc" style="text-align:center">${t('repaso_expl')}</p>
+    ${temas.length ? `<div class="flojo-lista" id="rp-lista">
+      ${temas.map(r => `<button class="flojo-fila rp-fila" data-tipo="${r.tipo}" type="button"
+          aria-label="${t('repaso_btn')}: ${r.etiqueta}, ${r.pendientes}">
+        <span class="f-nom">${ICO_TIPO[r.tipo] || '🎯'} ${r.etiqueta}</span>
+        <div class="barra"><div class="barra-fill ${r.pc > 40 ? 'peligro' : ''}" style="width:${Math.max(6, r.pc)}%"></div></div>
+        <span class="f-num">${r.pendientes}/${r.total}</span>
+      </button>`).join('')}
+    </div>
+    <p class="mini">${t('repaso_toca')}</p>`
+    : `<p class="desc" style="text-align:center">${t('flojo_nada')}</p>`}
+    <button class="btn btn2" id="rp-volver" type="button">${t('volver')}</button>
+  </div>`, rRepaso);
+  $$('.rp-fila').forEach(b => { b.onclick = () => { SFX.click(); empezarRepaso(b.dataset.tipo); }; });
+  $('#rp-volver').onclick = () => { SFX.click(); rLibre(); };
+}
+
+function empezarRepaso(tipo) {
+  conAyuda(tipo, () => {
+    RETO.repasoSolo(true);
+    libreActivo = { tipo, repaso: true };
+    vidas = maxVidas();
+    fnDeTipo(tipo)(RETO_DIA[tipo] ?? 0);
+  });
+}
+
 /* ══════════ MODO LIBRE ══════════ */
 
 function rLibre() {
@@ -45,6 +99,8 @@ function rLibre() {
     <h2>🎮 ${t('libre_tit')}</h2>
     <p class="desc" style="text-align:center">${t('libre_expl')}</p>
     <div class="tit-id"><span>${d.ico} ${tj(d)}</span></div>
+    <button class="btn btn3 repaso-entrada" id="lb-repaso" type="button">🎯 ${t('repaso_tit')}
+      <span class="repaso-n">${pendientesRepaso() ? pendientesRepaso() + ' ' + t('repaso_pend') : t('repaso_alDia')}</span></button>
     <div class="tit-rejilla c3" id="lb-lista">
       ${TIPOS_LIBRES.map(tipo => {
         const m = marcaDe(tipo);
@@ -60,6 +116,7 @@ function rLibre() {
   $$('#lb-lista .menu-fila').forEach(b => {
     b.onclick = () => { SFX.click(); empezarLibre(b.dataset.tipo); };
   });
+  $('#lb-repaso').onclick = () => { SFX.click(); rRepaso(); };
   $('#lb-volver').onclick = () => { SFX.click(); rTitulo(); };
 }
 
@@ -78,10 +135,12 @@ function empezarLibre(tipo) {
    deja es la marca personal. */
 function libreFin(stars, pts) {
   if (!libreActivo) return;
-  const tipo = libreActivo.tipo;
+  const tipo = libreActivo.tipo, repaso = !!libreActivo.repaso;
   libreActivo = null;
+  RETO.repasoSolo(false);
   limpiarT();
   const ganados = Math.max(0, pts);
+  const quedan = repaso ? temasRepaso().filter(r => r.tipo === tipo).reduce((a, r) => a + r.pendientes, 0) : 0;
   const nueva = ganados > 0 && guardarMarca(tipo, ganados);
   if (stars > 0) SFX.win(); else SFX.lose();
   /* Solo dibuja: lo de arriba ya pasó y no se repite al cambiar de idioma. */
@@ -94,11 +153,12 @@ function libreFin(stars, pts) {
     <p class="pts-final">${ganados} ${t('rec_pts')}</p>
     ${nueva ? `<p class="mini verde">${t('marca_nueva')}</p>`
             : `<p class="mini">${t('libre_mejor')}: ${marcaDe(tipo)}</p>`}
-    <button class="btn" id="lf-otra" type="button">${t('libre_otra')}</button>
+    ${repaso ? `<p class="mini ${quedan ? '' : 'verde'}">🎯 ${quedan ? t('repaso_quedan').replace('{n}', quedan) : t('repaso_limpio')}</p>` : ''}
+    ${repaso && !quedan ? '' : `<button class="btn" id="lf-otra" type="button">${t('libre_otra')}</button>`}
     <button class="btn btn2" id="lf-volver" type="button">${t('volver')}</button>
   </div>`, pintar);
-  $('#lf-otra').onclick = () => { SFX.click(); empezarLibre(tipo); };
-  $('#lf-volver').onclick = () => { SFX.click(); rLibre(); };
+  if ($('#lf-otra')) $('#lf-otra').onclick = () => { SFX.click(); repaso ? empezarRepaso(tipo) : empezarLibre(tipo); };
+  $('#lf-volver').onclick = () => { SFX.click(); repaso ? rRepaso() : rLibre(); };
   };
   pintar();
   if (nueva) { confeti(); tvez(SFX.star, 300); }

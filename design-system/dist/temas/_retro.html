@@ -1450,6 +1450,17 @@ html.hd #aviso-ver .av-btn{border-radius:6px}
 .jefe-final .tope b{color:#aaffc4}
 .jefe-final canvas.juego{border-color:#00ff41;box-shadow:0 0 0 2px #00280c,0 0 18px rgba(0,255,65,.35)}
 
+/* ── REPASO (modos.js rRepaso) ── */
+.repaso-entrada{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.repaso-n{font-family:'VT323',monospace;font-size:17px;letter-spacing:0;opacity:.85}
+button.rp-fila{width:100%;background:var(--pan);border:2px solid var(--bl);
+  color:inherit;cursor:pointer;text-align:left;padding:10px 12px;
+  box-shadow:0 3px 0 var(--bd)}
+button.rp-fila:hover,button.rp-fila:focus-visible{border-color:var(--g3)}
+button.rp-fila:active{transform:translateY(3px);box-shadow:none}
+#rp-lista{display:flex;flex-direction:column;gap:9px;width:min(440px,100%)}
+html.hd button.rp-fila,html.hd .repaso-entrada{border-radius:10px}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}

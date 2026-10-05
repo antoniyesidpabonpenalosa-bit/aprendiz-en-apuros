@@ -29,7 +29,7 @@ function programarInterrupcion(){
    campaña seguía con su dificultad forzada. */
 function salirDeModos(){
   retoActivo=null;libreActivo=null;sinFinActivo=null;salaActiva=null;
-  RETO.salir();difForzada=-1;
+  RETO.salir();RETO.repasoSolo(false);difForzada=-1;
 }
 
 /* Pone el foco del teclado en la acción principal de una pantalla "puerta" (la

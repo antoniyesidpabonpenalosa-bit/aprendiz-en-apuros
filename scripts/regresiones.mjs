@@ -445,6 +445,40 @@ await caso('jefe · la arena del día 15 es más grande y la del día 10 no camb
   return [r[9] === '320x180' && r[14] === '400x270', JSON.stringify(r)];
 });
 
+/* ── MODO REPASO ── */
+await caso('repaso · solo salen preguntas débiles y acertarlas vacía la lista', { intro: true, nombre: 'R', version: 'v0', dif: 1,
+  vistos: ['quiz'], pesos: { 'quiz:1': 2, 'quiz:4': 1, 'quiz:7': 1, 'quiz:9': 3, 'quiz:12': 1, 'quiz:15': 2, 'quiz:18': 1 } }, async pg => {
+  await pg.evaluate(() => { if (pantallaId === 'novedades') $('#nv-ok').click(); rRepaso(); }); await pausa(200);
+  const lista = await pg.evaluate(() => [...document.querySelectorAll('.rp-fila')].map(b => b.dataset.tipo));
+  if (!lista.includes('quiz')) return [false, 'el tema quiz no sale en el repaso: ' + lista];
+  await pg.locator('.rp-fila[data-tipo="quiz"]').click(); await pausa(400);
+  const debiles = [1, 4, 7, 9, 12, 15, 18];
+  const vistas = [];
+  for (let v = 0; v < 8; v++) {
+    if (await pg.evaluate(() => pantallaId) !== 'nivel') break;
+    const r = await pg.evaluate(() => {
+      const i = QUIZ[S.lang].findIndex(x => x.q === $('#q-preg').textContent);
+      const q = QUIZ[S.lang][i]; document.querySelectorAll('#q-ops .op')[q.r].click(); return i; });
+    vistas.push(r); await pausa(1000);
+  }
+  const fin = await pg.evaluate(() => ({ p: pantallaId, suelto: !libreActivo, quedan: Object.keys(S.pesos).filter(k => k.startsWith('quiz:')).length }));
+  const todasDebiles = vistas.length >= 4 && vistas.every(i => debiles.includes(i));
+  return [todasDebiles && fin.p === 'libre-fin' && fin.quedan < 7, `preguntas ${vistas}, débiles que quedan ${fin.quedan}, pantalla ${fin.p}`];
+});
+
+await caso('repaso · salir del modo suelta el sorteo especial', { intro: true, nombre: 'R', version: 'v0', vistos: ['quiz'], pesos: { 'quiz:1': 2 } }, async pg => {
+  await pg.evaluate(() => { empezarRepaso('quiz'); }); await pausa(300);
+  await pg.evaluate(() => { salirDeModos(); rMapa(); }); await pausa(100);
+  const visto = await pg.evaluate(() => { const s = new Set(); for (let k = 0; k < 120; k++) RETO.elegir('quiz', 30, 6).forEach(i => s.add(i)); return s.size; });
+  return [visto > 15, `ítems distintos tras salir: ${visto}`];
+});
+
+await caso('repaso · sin nada pendiente dice que vas al día', { intro: true, nombre: 'R', version: 'v0' }, async pg => {
+  await pg.evaluate(() => { if (pantallaId === 'novedades') $('#nv-ok').click(); rRepaso(); }); await pausa(150);
+  const t = await pg.evaluate(() => $('#screen').innerText);
+  return [/al día|caught up|Nada pendiente|Nothing left/i.test(t) && !(await pg.locator('.rp-fila').count()), t.slice(0, 50).replace(/\s+/g, ' ')];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

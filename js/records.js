@@ -182,15 +182,7 @@ function rStats(){
     ['🎓',st.partidas,'st_partidas'],['⚡',st.retos||0,'st_retos'],
   ];
   /* Temas flojos: sale de los pesos que ya se guardan al fallar un ítem. */
-  const repaso=RETO.repaso([
-    {pool:'quiz',  total:QUIZ[S.lang].length, etiqueta:t('tipo_quiz')},
-    {pool:'review',total:CODIGO.length,       etiqueta:t('tipo_review')},
-    {pool:'sql',   total:SQLS.length,         etiqueta:t('tipo_sql')},
-    {pool:'regex', total:REGEXS.length,       etiqueta:t('tipo_regex')},
-    {pool:'merge', total:CONFLICTOS.length,   etiqueta:t('tipo_merge')},
-    {pool:'palabras',total:PALABRAS.length,   etiqueta:t('tipo_palabras')},
-    {pool:'git',   total:CMDS.length,         etiqueta:t('tipo_git')},
-  ]).filter(r=>r.pendientes>0);
+  const repaso=temasRepaso().filter(r=>r.pendientes>0);
   const vacio=filas.every(f=>!f[1]);
   pantalla('stats',`
   <div class="centro">
@@ -212,6 +204,7 @@ function rStats(){
            </div>`).join('')}
          </div>`
       : `<p class="desc" style="text-align:center">${t('flojo_nada')}</p>`}
+    ${repaso.length?`<button class="btn btn3" id="es-repaso" type="button">🎯 ${t('repaso_btn')}</button>`:''}
     </div>
     <div class="col">
     <h3>${t('guardado')}</h3>
@@ -231,6 +224,7 @@ function rStats(){
     p.querySelector('p').textContent=txt;
     p.hidden=false;setTimeout(()=>{p.hidden=true},2200);
   };
+  if($('#es-repaso'))$('#es-repaso').onclick=()=>{SFX.click();rRepaso()};
   $('#es-exp').onclick=()=>{
     const cod=exportarCodigo();
     const ta=$('#es-code');ta.value=cod;ta.select();
