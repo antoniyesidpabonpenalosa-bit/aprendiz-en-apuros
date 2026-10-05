@@ -479,6 +479,34 @@ await caso('repaso · sin nada pendiente dice que vas al día', { intro: true, n
   return [/al día|caught up|Nada pendiente|Nothing left/i.test(t) && !(await pg.locator('.rp-fila').count()), t.slice(0, 50).replace(/\s+/g, ' ')];
 });
 
+await caso('panel del instructor · lista lo más fallado, sin nombres, y no revienta con índices que no existen', { intro: true, nombre: 'R', version: 'v0' }, async pg => {
+  await pg.evaluate(() => { if (pantallaId === 'novedades') $('#nv-ok').click(); });
+  const r = await pg.evaluate(() => {
+    const caja = document.createElement('div'); document.body.appendChild(caja);
+    pintarPanel(caja, { temas: [
+      { tema: 'quiz', item: 0, intentos: 6, fallos: 5 }, { tema: 'git', item: 1, intentos: 4, fallos: 1 },
+      { tema: 'sql', item: 99999, intentos: 3, fallos: 3 }, { tema: 'regex', item: 0, intentos: 5, fallos: 0 }] });
+    return { filas: caja.querySelectorAll('.panel-fila').length, txt: caja.innerText };
+  });
+  return [r.filas === 3 && /5 de 6/.test(r.txt) && /sql #99999/.test(r.txt), `filas ${r.filas}`];
+});
+
+await caso('sala en vivo · crear: el modo EN VIVO esconde los minijuegos y guarda n y segundos', { intro: true, nombre: 'R', version: 'v0' }, async pg => {
+  await pg.evaluate(() => { if (pantallaId === 'novedades') $('#nv-ok').click(); });
+  await pg.evaluate(() => {
+    window.__cfg = null;
+    SALA.crear = async () => ({ ok: true, datos: { codigo: 'K7M2Q', token: 'x' } });
+    SALA.fijarVivo = (c, cfg) => { window.__cfg = [c, cfg]; };
+    SALA.vigilar = () => {}; rSalaCrear();
+  });
+  await pausa(100);
+  await pg.click('#sc-modo [data-vivo="1"]');
+  const oculto = await pg.$eval('#sc-ritmo', e => e.hidden);
+  await pg.click('#sc-vn [data-n="10"]'); await pg.click('#sc-vl [data-l="30"]'); await pg.click('#sc-crear'); await pausa(200);
+  const cfg = await pg.evaluate(() => window.__cfg);
+  return [oculto && cfg && cfg[0] === 'K7M2Q' && cfg[1].n === 10 && cfg[1].limite === 30, JSON.stringify(cfg)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);
