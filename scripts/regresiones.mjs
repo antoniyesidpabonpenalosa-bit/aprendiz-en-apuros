@@ -398,7 +398,7 @@ await caso('movimiento · con "reducir movimiento" la casilla del jefe no pulsa'
 const robotJefe = d => {
   Object.assign(S, { nombre: 'ROBOT', intro: true, t2: true, version: VERSION, vistos: ['jefe'] });
   LAB.ejecutar('jefe 0.2', {});
-  const W = d === 14 ? 400 : 320;                    // la arena del día 15 es más ancha
+  const W = d === 14 ? 400 : 320, H = d === 14 ? 270 : 180;   // la arena del día 15 es más grande
   const X = window.__x = { jefe: W / 2, vel: 0, p: W / 2 - 8, err: [], errNext: [] };
   const aviso = t('avisolaser');
   const ft = CanvasRenderingContext2D.prototype.fillText;
@@ -411,9 +411,23 @@ const robotJefe = d => {
   const o = APRENDIZ.dirDe;
   APRENDIZ.dirDe = (dx, dy) => { X.p = Math.max(8, Math.min(W - 24, X.p + dx * 3.4)); return o(dx, dy); };
   const tecla = (code, on) => document.dispatchEvent(new KeyboardEvent(on ? 'keydown' : 'keyup', { code, bubbles: true }));
+  /* Dónde caerá cada ❌: el abanico las abre de lado, y en la arena alta del
+     día 15 derivan mucho antes de llegar abajo. Se empareja cada una con la
+     más cercana del fotograma anterior para sacar su velocidad. */
+  let antes = [];
+  const caida = () => {
+    const ahora = X.err.map(([ex, ey]) => {
+      const prev = antes.filter(([px, py]) => ey - py > 0 && ey - py < 6 && Math.abs(ex - px) < 4)
+        .sort((a, b) => Math.abs(ex - a[0]) - Math.abs(ex - b[0]))[0];
+      const vx = prev ? ex - prev[0] : 0, vy = prev ? ey - prev[1] : 1;
+      return [ex + vx * Math.max(0, H - 30 - ey) / Math.max(.2, vy), ey];
+    });
+    antes = X.err;
+    return ahora;
+  };
   (function paso() {
     let obj = Math.max(8, Math.min(W - 24, X.jefe + X.vel * 27 - 7));
-    const amen = X.err.filter(([ex, ey]) => ey > 85 && Math.abs(ex - (X.p + 8)) < 26).sort((a, b) => b[1] - a[1])[0];
+    const amen = caida().filter(([ex, ey]) => ey > H - 95 && Math.abs(ex - (X.p + 8)) < 26).sort((a, b) => b[1] - a[1])[0];
     if (amen) obj = amen[0] > X.p + 8 ? X.p - 40 : X.p + 40;
     if (X.laser && performance.now() < X.laser.hasta && Math.abs(X.laser.x - (X.p + 8)) < 44) obj = X.laser.x > X.p + 8 ? X.p - 60 : X.p + 60;
     obj = Math.max(8, Math.min(W - 24, obj));
