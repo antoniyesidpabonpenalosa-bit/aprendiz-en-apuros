@@ -14,8 +14,13 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v38';
+const VERSION='v39';
 const NOVEDADES=[
+  {v:'v39', fecha:'2026-10-05',
+   es:['Nuevo modo REPASO (dentro de Modo libre y en Estadísticas): juega solo lo que has fallado y aún no has vuelto a acertar. Cada acierto lo quita de la lista.',
+       'La lista de "en qué flojeas" ahora incluye también memoria, terminal y ordena, que se quedaban fuera.'],
+   en:['New REVIEW mode (inside Free play and in Stats): play only what you got wrong and have not nailed since. Every right answer takes it off the list.',
+       'The "what to review" list now also includes memory, terminal and ordering, which were left out.']},
   {v:'v38', fecha:'2026-10-02',
    es:['Última etapa: la pelea contra el jefe del día 15 ahora es en una arena más grande, con lluvia de código verde tipo Matrix y todo al estilo hacker.',
        'El abanico del jefe es más lento: sale menos seguido y las ❌ caen más despacio, en los dos días.',
@@ -707,7 +712,11 @@ const TXT={
   glob_campana:'CAMPAÑA',glob_sinfin:'SIN FIN',
   rango_max:'RANGO MÁXIMO',progreso_lbl:'PROGRESO',estad_corto:'STATS',
   perso_sub:'Tu progreso, tu historia',
-  flojo_tit:'🎯 EN QUÉ FLOJEAS',
+  repaso_tit:'REPASO',repaso_btn:'REPASAR',repaso_pend:'pendientes',repaso_alDia:'vas al día',
+ repaso_expl:'Solo lo que has fallado y aún no has vuelto a acertar. Cada acierto lo quita de la lista.',
+ repaso_toca:'Toca un tema para repasarlo',repaso_quedan:'Te quedan {n} pendientes en este tema',
+ repaso_limpio:'¡Tema al día! No te queda nada pendiente aquí',
+ flojo_tit:'🎯 EN QUÉ FLOJEAS',
   flojo_txt:'Lo que has fallado y aún no has vuelto a acertar. El juego te lo repite más seguido.',
   flojo_nada:'Nada pendiente de repaso. ¡Vas al día!',
   reto_tit:'RETO DIARIO',reto_racha:'DÍAS SEGUIDOS',reto_ya:'▶ JUGAR EL RETO',
@@ -829,6 +838,10 @@ const TXT={
   glob_campana:'CAMPAIGN',glob_sinfin:'ENDLESS',
   rango_max:'MAX RANK',progreso_lbl:'PROGRESS',estad_corto:'STATS',
   perso_sub:'Your progress, your story',
+  repaso_tit:'REVIEW',repaso_btn:'REVIEW',repaso_pend:'pending',repaso_alDia:'all caught up',
+  repaso_expl:'Only what you got wrong and have not nailed since. Every right answer takes it off the list.',
+  repaso_toca:'Tap a topic to review it',repaso_quedan:'You have {n} left in this topic',
+  repaso_limpio:'Topic cleared! Nothing left to review here',
   flojo_tit:'🎯 WHAT TO REVIEW',
   flojo_txt:'What you got wrong and have not nailed since. The game brings it back sooner.',
   flojo_nada:'Nothing left to review. You are up to date!',

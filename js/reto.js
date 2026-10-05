@@ -63,6 +63,23 @@ const RETO = (() => {
   /* Los pesos que inclinan el sorteo: ninguno en una sala (ver entrar). */
   const pesosSorteo = () => sorteoParejo ? {} : pesos();
 
+  /* MODO REPASO: con `soloDebiles` puesto, el sorteo ya no se limita a SESGAR
+     hacia lo fallado: se queda con lo fallado. Si hay n o más ítems débiles, solo
+     salen ésos; si hay menos, salen todos y el resto se completa con el sorteo
+     normal, para que una ronda nunca se quede corta. Lo pone modos.js solo
+     mientras dura una sesión de repaso (y lo suelta salirDeModos). */
+  let soloDebiles = false;
+  const repasoSolo = on => { soloDebiles = !!on; };
+  function reservarDebiles(pool, quedan, salida, n, p, rnd, poner) {
+    if (!soloDebiles) return;
+    const debiles = quedan.filter(i => (p[clave(pool, i)] || 0) > 0);
+    if (debiles.length >= n) { poner(debiles); return; }
+    /* todos los débiles entran, en orden aleatorio; el resto sigue en el sorteo */
+    for (let i = debiles.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [debiles[i], debiles[j]] = [debiles[j], debiles[i]]; }
+    salida.push(...debiles);
+    poner(quedan.filter(i => !debiles.includes(i)));
+  }
+
   /* Registra cómo te fue con un ítem. Fallarlo lo acerca; acertarlo lo aleja. */
   function marcar(pool, i, acerto) {
     const p = pesos();
@@ -76,10 +93,11 @@ const RETO = (() => {
      fallado. Sin historial todos pesan igual y esto es un sorteo normal. */
   function elegir(pool, total, n, rnd = Math.random) {
     const p = pesosSorteo();
-    const quedan = [];
+    let quedan = [];
     for (let i = 0; i < total; i++) quedan.push(i);
     const salida = [];
     n = Math.min(n, total);
+    reservarDebiles(pool, quedan, salida, n, p, rnd, q => { quedan = q; });
     while (salida.length < n) {
       const pesoDe = i => 1 + (p[clave(pool, i)] || 0);
       const suma = quedan.reduce((a, i) => a + pesoDe(i), 0);
@@ -104,9 +122,10 @@ const RETO = (() => {
      falta cuando el banco es mayor que lo que cabe en pantalla y además no
      todo el banco vale para ese día (los comandos de git avanzado). */
   function elegirDe(pool, permitidos, n, rnd = Math.random) {
-    const bolsa = permitidos.slice();
+    let bolsa = permitidos.slice();
     const salida = [];
     n = Math.min(n, bolsa.length);
+    reservarDebiles(pool, bolsa, salida, n, pesosSorteo(), rnd, q => { bolsa = q; });
     while (salida.length < n) {
       const i = unoDe(pool, bolsa, rnd);
       salida.push(i);
@@ -257,7 +276,7 @@ const RETO = (() => {
 
   return {
     fechaDe, hoy, diasEntre, semillaDe, rngCon,
-    marcar, elegir, elegirDe, unoDe, pesos, repaso,
+    marcar, elegir, elegirDe, unoDe, pesos, repaso, repasoSolo,
     datos, rachaViva, jugadoHoy, multiplicador, registrar,
     PREMIOS, premiosGanados, proximoPremio,
     TIPOS, retosDe, rngDelDia,

@@ -109,7 +109,7 @@ function hud(){
     $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas));
   }else if(libreActivo){
     /* Modo libre: qué minijuego es y la marca a batir. */
-    $('#h-nivel').textContent='🎮 '+t('tipo_'+libreActivo.tipo);
+    $('#h-nivel').textContent=(libreActivo.repaso?'🎯 ':'🎮 ')+t('tipo_'+libreActivo.tipo);
     $('#h-estrellas').textContent='🏅';
     $('#h-pts').textContent=String(Math.min(marcaDe(libreActivo.tipo),9999)).padStart(4,'0');
     $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas));
