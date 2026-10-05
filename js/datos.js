@@ -14,8 +14,13 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v39';
+const VERSION='v40';
 const NOVEDADES=[
+  {v:'v40', fecha:'2026-10-05',
+   es:['Salas EN VIVO, estilo Kahoot: el instructor lanza cada pregunta, todos responden a la vez en su celular (4 botones con forma y letra) y el proyector muestra el podio al instante. Más rápido = más puntos.',
+       'Panel del instructor: al jugar una sala, el proyector enseña qué temas falló más la clase ("5 de 6 fallaron…"). Solo conteos, nunca nombres.'],
+   en:['LIVE rooms, Kahoot style: the instructor launches each question, everyone answers at once on their phone (4 buttons with shape and letter) and the projector shows the podium instantly. Faster = more points.',
+       'Instructor panel: while a room plays, the projector shows which topics the class missed most ("5 of 6 missed…"). Counts only, never names.']},
   {v:'v39', fecha:'2026-10-05',
    es:['Nuevo modo REPASO (dentro de Modo libre y en Estadísticas): juega solo lo que has fallado y aún no has vuelto a acertar. Cada acierto lo quita de la lista.',
        'La lista de "en qué flojeas" ahora incluye también memoria, terminal y ordena, que se quedaban fuera.'],
@@ -752,7 +757,8 @@ const TXT={
  sala_soy_apr:'APRENDIZ',sala_codigo:'CÓDIGO DE SALA',sala_unirme:'ENTRAR',sala_cod_malo:'El código tiene 5 letras o números',
  sala_volver_a:'VOLVER A LA SALA',sala_no_existe:'Esa sala no existe o ya caducó',sala_cerrada:'Esa sala ya terminó',
  sala_llena:'La sala está llena (60)',sala_error:'No se pudo, inténtalo otra vez',
- sala_nueva:'NUEVA SALA',sala_juegos:'MINIJUEGOS',sala_orden:'Se juegan en el orden en que los marques (de 1 a 6).',
+ sala_nueva:'NUEVA SALA',
+ sala_modo:'MODO',sala_modo_ritmo:'A SU RITMO',sala_modo_vivo:'EN VIVO',sala_modo_vivo_desc:'Tú lanzas cada pregunta, todos responden a la vez en su celular y el proyector enseña el podio al instante.',sv_preguntas:'PREGUNTAS',sv_segundos:'TIEMPO POR PREGUNTA',sv_pregunta:'PREGUNTA {a}/{b}',sv_responden:'{a} de {b} han respondido',sv_revelar:'REVELAR',sv_siguiente:'SIGUIENTE ▶',sv_podio:'VER PODIO 🏆',sv_correcto:'¡CORRECTO!',sv_incorrecto:'INCORRECTO',sv_nollegaste:'No alcanzaste a responder',sv_enviado:'Respuesta enviada…',sv_tiempo:'¡Se acabó el tiempo!',sv_puesto:'Vas en el puesto {p} de {n}',sv_sinpregunta:'Esta pregunta no está en tu versión del juego. Recarga.',sv_noenvio:'No se pudo enviar. ¿Sin conexión?',panel_tit:'LO QUE MÁS FALLÓ LA CLASE',panel_expl:'Solo cuentas, nunca nombres.',panel_fallaron:'{a} de {b} fallaron',sala_juegos:'MINIJUEGOS',sala_orden:'Se juegan en el orden en que los marques (de 1 a 6).',
  sala_expulsar:'Sacar de la sala',sala_entra_en:'ENTRA EN',sala_jugadores:'JUGADORES',
  sala_empezar:'▶ EMPEZAR',sala_jugar_yo:'JUGAR TAMBIÉN',sala_mi_partida:'JUGAR MI PARTIDA',sala_terminar:'TERMINAR',
  sala_seguro:'¿SEGURO? TOCA OTRA VEZ',sala_nadie_aun:'Espera a que entre alguien',
@@ -877,7 +883,8 @@ const TXT={
   sala_soy_apr:'APPRENTICE',sala_codigo:'ROOM CODE',sala_unirme:'JOIN',sala_cod_malo:'The code has 5 letters or digits',
   sala_volver_a:'BACK TO ROOM',sala_no_existe:'That room does not exist or has expired',sala_cerrada:'That room has already ended',
   sala_llena:'The room is full (60)',sala_error:'That did not work, try again',
-  sala_nueva:'NEW ROOM',sala_juegos:'MINIGAMES',sala_orden:'They are played in the order you tick them (1 to 6).',
+  sala_nueva:'NEW ROOM',
+ sala_modo:'MODE',sala_modo_ritmo:'SELF-PACED',sala_modo_vivo:'LIVE',sala_modo_vivo_desc:'You launch each question, everyone answers at once on their phone and the projector shows the podium instantly.',sv_preguntas:'QUESTIONS',sv_segundos:'TIME PER QUESTION',sv_pregunta:'QUESTION {a}/{b}',sv_responden:'{a} of {b} have answered',sv_revelar:'REVEAL',sv_siguiente:'NEXT ▶',sv_podio:'SEE PODIUM 🏆',sv_correcto:'CORRECT!',sv_incorrecto:'WRONG',sv_nollegaste:'You did not answer in time',sv_enviado:'Answer sent…',sv_tiempo:'Time is up!',sv_puesto:'You are in place {p} of {n}',sv_sinpregunta:'This question is not in your game version. Reload.',sv_noenvio:'Could not send. Offline?',panel_tit:'WHAT THE CLASS MISSED MOST',panel_expl:'Counts only, never names.',panel_fallaron:'{a} of {b} missed',sala_juegos:'MINIGAMES',sala_orden:'They are played in the order you tick them (1 to 6).',
   sala_expulsar:'Remove from room',sala_entra_en:'GO TO',sala_jugadores:'PLAYERS',
   sala_empezar:'▶ START',sala_jugar_yo:'PLAY TOO',sala_mi_partida:'PLAY MY TURN',sala_terminar:'FINISH',
   sala_seguro:'SURE? TAP AGAIN',sala_nadie_aun:'Wait for someone to join',

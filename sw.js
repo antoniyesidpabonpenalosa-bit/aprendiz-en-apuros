@@ -4,7 +4,7 @@
 /* Va a la par con VERSION de js/datos.js: scripts/validar.mjs falla si se
    separan, porque entonces el juego enseñaría unas novedades y la caché
    serviría otra versión. */
-const CACHE = 'pa4-v39';
+const CACHE = 'pa4-v40';
 /* Cuánto se espera a la red antes de servir la copia guardada. Con "red
    primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
    archivo colgado hasta que el navegador se rindiera, aunque estuviera en
@@ -17,7 +17,7 @@ const BASE = [
   './js/datos.js', './js/estado.js', './js/consola.js', './js/reto.js', './js/ranking.js', './js/audio.js', './js/graficos.js',
   './js/entrada.js', './js/nucleo.js', './js/menus.js', './js/certificados.js', './js/tienda.js', './js/records.js', './js/retoui.js',
   './js/minijuegos.js', './js/minijuegos-codigo.js', './js/minijuegos-runner.js', './js/minijuegos-avanzados.js',
-  './js/jefe.js', './js/modos.js', './js/sala.js', './js/salaui.js', './js/sprite.js', './js/consolaui.js', './js/principal.js',
+  './js/jefe.js', './js/modos.js', './js/sala.js', './js/salaui.js', './js/salavivo.js', './js/sprite.js', './js/consolaui.js', './js/principal.js',
 ];
 
 self.addEventListener('install', e => {

@@ -20,11 +20,15 @@ const SALA = (() => {
   const MAX_JUEGOS = 6;
   const CLAVE = 'pa4-sala';
 
-  /** @typedef {{codigo:string, host?:string, id?:string, token?:string}} Sesion */
+  /** @typedef {{codigo:string, host?:string, id?:string, token?:string,
+                 vivo?:{n:number, limite:number}}} Sesion */
   /** @typedef {{id:string, nombre:string, skin:number, camisa:number, acc:string,
                  av32:boolean, ronda:number, puntos:number, host:boolean}} Jugador */
   /** @typedef {{codigo:string, dificultad:number, juegos:string[],
-                 estado:'espera'|'jugando'|'fin', jugadores:Jugador[]}} Estado */
+                 estado:'espera'|'jugando'|'fin', jugadores:Jugador[],
+                 modo?:'ritmo'|'vivo', items?:number[], q_n?:number, q_total?:number,
+                 revelada?:boolean, limite?:number, ms?:number|null,
+                 respondieron?:number, dist?:number[]|null}} Estado */
 
   /** @returns {Sesion|null} */
   function sesion() {
@@ -102,7 +106,7 @@ const SALA = (() => {
    corta al cambiar de pantalla. Con la pestaña oculta no pide nada (un
    proyector minimizado no gasta), y si falla espera el doble antes de volver
    a intentar. Una respuesta que llega tarde, detrás de otra más nueva, se tira. */
-  function vigilar(codigo, alLlegar) {
+  function vigilar(codigo, alLlegar, cadencia) {
     let vivo = true, pedidas = 0, reloj = 0;
     const vuelta = async () => {
       if (!vivo) return;
@@ -112,6 +116,7 @@ const SALA = (() => {
         const r = await estado(codigo);
         if (!vivo || mia !== pedidas) return;
         if (!r.ok) espera = 6000;
+        else if (cadencia) { try { espera = cadencia(r) || espera; } catch (e) {} }
         alLlegar(r);
       }
       if (vivo) reloj = setTimeout(vuelta, espera);
@@ -120,7 +125,83 @@ const SALA = (() => {
     alLimpiar.push(() => { vivo = false; clearTimeout(reloj); });
   }
 
+  /* ── RONDA EN VIVO y PANEL (db/sala-vivo.sql) ──
+     El instructor lanza una pregunta, todos responden a la vez y el proyector
+     enseña el podio al instante. La pregunta actual y su reloj viven en el
+     servidor: cada dispositivo solo pregunta cuál es y cuánto lleva. */
+
+  /* La configuración de la ronda en vivo (cuántas preguntas y cuántos
+     segundos) la elige el instructor al crear la sala y se guarda en SU
+     sesión, junto a su token: solo la usa el dispositivo que proyecta. */
+  /** @param {string} codigo @param {{n:number,limite:number}|null} cfg */
+  function fijarVivo(codigo, cfg) {
+    const s = sesion();
+    if (!s || s.codigo !== codigo) return;
+    guardarSesion(Object.assign({}, s, { vivo: cfg || undefined }));
+  }
+  const configVivo = codigo => { const s = sesion(); return s && s.codigo === codigo && s.vivo ? s.vivo : null; };
+
+  const vivoMando = (codigo, accion, items, limite) => {
+    const s = sesion();
+    return RANKING.rpc('sala_vivo', { p_codigo: codigo, p_token: s && s.host || '', p_accion: accion,
+                                      p_items: items || null, p_limite: limite || 20 });
+  };
+
+  /* Responder: devuelve los puntos ganados, o -1 si el servidor no lo acepta
+     (ya respondida, fuera de tiempo, pregunta que no es la actual…). */
+  async function responder(codigo, q, opcion, ok) {
+    const s = sesion();
+    if (!s || s.codigo !== codigo || !s.id) return { ok: false, error: 'sin sesión' };
+    return RANKING.rpc('sala_responder', { p_id: s.id, p_token: s.token, p_q: q, p_opcion: opcion, p_ok: !!ok });
+  }
+
+  /* Panel del instructor: lo jugado en una ronda, para que el proyector pueda
+     enseñar qué temas falló más la clase. Solo agregados, nunca nombres. Un
+     ensayo de la consola no reporta; y si un envío falla se reintenta una vez:
+     el servidor solo cuenta una vez por jugador y ronda, así que repetir es
+     inofensivo. No usa tvez(): la pantalla cambia justo después y limpiarT()
+     lo cancelaría. */
+  function reportar(codigo, ronda, items) {
+    if (typeof LAB !== 'undefined' && LAB.ensayo()) return;
+    const s = sesion();
+    if (!s || s.codigo !== codigo || !s.id || !items || !items.length) return;
+    const lote = items.slice(0, 40);
+    const mandar = vez => RANKING.rpc('sala_reportar', { p_id: s.id, p_token: s.token, p_ronda: ronda, p_items: lote })
+      .then(r => { if (!r.ok && vez < 1) setTimeout(() => mandar(vez + 1), 2500); });
+    mandar(0);
+  }
+  const resumen = codigo => RANKING.rpc('sala_resumen', { p_codigo: codigo });
+
   /* ── lógica pura ── */
+
+  /* n preguntas distintas de un banco de `total`, al azar. El instructor las
+     escoge al empezar y las guarda el servidor, así todos ven las mismas. */
+  /** @returns {number[]} */
+  function preguntasVivo(n, total, rnd = Math.random) {
+    const bolsa = Array.from({ length: total }, (_, i) => i);
+    const k = Math.max(0, Math.min(n, total));
+    for (let i = 0; i < k; i++) {
+      const j = i + Math.floor(rnd() * (bolsa.length - i));
+      [bolsa[i], bolsa[j]] = [bolsa[j], bolsa[i]];
+    }
+    return bolsa.slice(0, k);
+  }
+
+  /* Los puntos por rapidez, igual que en sala_responder (el servidor es quien
+     manda; esto sirve para enseñar la escala y para probarla): de 1000 al
+     instante a 300 al límite, y 0 si se falla. */
+  const puntosPorRapidez = (ms, limiteS, acerto = true) =>
+    !acerto ? 0 : Math.max(300, 1000 - Math.round(700 * Math.min(ms, limiteS * 1000) / (limiteS * 1000)));
+
+  /* Cuánto queda de la pregunta. `est.ms` es lo que llevaba según el reloj del
+     SERVIDOR cuando respondió; se le suma lo que ha pasado en este dispositivo
+     desde entonces, así los relojes de los celulares no tienen que coincidir. */
+  /** @param {any} est @param {number} recibidoEn @param {number} ahora */
+  const restanteMs = (est, recibidoEn, ahora) =>
+    est && est.ms != null ? Math.max(0, est.limite * 1000 - (est.ms + (ahora - recibidoEn))) : 0;
+
+  const esVivo = est => !!est && est.modo === 'vivo';
+
 
   /* Orden de la tabla: puntos, luego quien lleva más rondas (va por delante
      aunque empate) y, a igualdad, el orden en que llegaron del servidor, que
@@ -162,6 +243,8 @@ const SALA = (() => {
     CODIGO_OK, MAX_JUEGOS, limpiaCodigo,
     sesion, guardarSesion, soyHost, miId,
     crear, unirse, estado, mando, puntuar, vigilar,
+    fijarVivo, configVivo, vivoMando, responder, reportar, resumen,
+    preguntasVivo, puntosPorRapidez, restanteMs, esVivo,
     ordenar, puestos, todosTerminaron, caraDe,
   };
 })();

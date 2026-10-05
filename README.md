@@ -140,6 +140,7 @@ aprendiz-en-apuros/
     ├── sprite.js         → sprite del aprendiz: carga, recoloreo por jugador y dibujo
     ├── sala.js           → salas de clase: datos, red y lógica (sin pantallas)
     ├── salaui.js         → salas de clase: crear, proyector, espera y podio
+    ├── salavivo.js       → ronda en vivo (proyector y celular) y panel del instructor
     ├── consola.js        → consola de laboratorio: parámetros y órdenes (sin pantallas)
     ├── consolaui.js      → el panel de la consola y el gesto que la abre
     └── principal.js      → arranque del juego y botones globales
@@ -272,6 +273,30 @@ guarda en su dispositivo (la base solo guarda su hash): así el proyector
 recupera el mando si se recarga. No hay tiempo real: el proyector y la sala de
 espera preguntan cada 3 segundos (nada si la pestaña está oculta) y, mientras
 se juega, cada aprendiz solo envía su total al cerrar cada ronda.
+
+### Ronda en vivo y panel del instructor
+
+Al crear la sala se elige **A SU RITMO** (lo de arriba) o **EN VIVO**, estilo
+Kahoot: el instructor escoge 5, 8 o 10 preguntas y 15, 20 o 30 s por pregunta;
+el proyector muestra la pregunta en grande con su reloj y cuántos han
+respondido, cada celular tiene **cuatro botones con forma y letra** (▲ ◆ ● ■,
+no solo color) y, al revelar —solo, cuando todos respondieron o se acaba el
+tiempo; o con **Espacio / →**—, el proyector marca la buena y cuántos
+eligieron cada opción. Más rápido = más puntos (1000 → 300). El reloj de la
+pregunta es **el del servidor**: ningún celular depende de que su hora
+coincida con la de otro.
+
+**Panel del instructor**: mientras se juega y al terminar, el proyector
+enseña qué temas falló más la clase («5 de 6 fallaron: ¿Qué es rebase?»).
+Son solo conteos por ítem, nunca nombres. Las salas a su ritmo también
+alimentan el panel: cada aprendiz manda al cerrar cada ronda qué ítems acertó
+o falló.
+
+Por dentro: `db/sala-vivo.sql` solo **añade** (columnas con valor por defecto,
+tres tablas y cuatro funciones; nada existente se modifica) y se prueba con
+`bash db/pruebas/sala-vivo.sh` (57 comprobaciones de permisos, abusos y
+tiempos contra un Postgres local) y `node db/pruebas/vivo-e2e.mjs` (un
+instructor y dos alumnos en navegadores reales contra ese mismo Postgres).
 
 ---
 

@@ -81,7 +81,13 @@ const RETO = (() => {
   }
 
   /* Registra cómo te fue con un ítem. Fallarlo lo acerca; acertarlo lo aleja. */
+  /* Quien quiera enterarse de cada ítem jugado (el panel del instructor, en
+     salavivo.js) se apunta aquí: recibe (pool, índice, acertó). */
+  let escucha = null;
+  const escuchar = f => { escucha = typeof f === 'function' ? f : null; };
+
   function marcar(pool, i, acerto) {
+    if (escucha) { try { escucha(pool, i, !!acerto); } catch (e) { /* un oyente roto no puede romper el juego */ } }
     const p = pesos();
     const k = clave(pool, i);
     const v = (p[k] || 0) + (acerto ? -1 : 1);
@@ -276,7 +282,7 @@ const RETO = (() => {
 
   return {
     fechaDe, hoy, diasEntre, semillaDe, rngCon,
-    marcar, elegir, elegirDe, unoDe, pesos, repaso, repasoSolo,
+    marcar, elegir, elegirDe, unoDe, pesos, repaso, repasoSolo, escuchar,
     datos, rachaViva, jugadoHoy, multiplicador, registrar,
     PREMIOS, premiosGanados, proximoPremio,
     TIPOS, retosDe, rngDelDia,

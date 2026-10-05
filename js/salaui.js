@@ -112,7 +112,7 @@ function volverASala(codigo) {
 /* ══════════ CREAR (instructor) ══════════ */
 
 function rSalaCrear() {
-  let dif = S.dif;
+  let dif = S.dif, vivo = false, vn = 8, vl = 20;
   const sel = ['escribir', 'quiz', 'review'];      // una propuesta variada y corta
   pantalla('sala-crear', `
   <div class="centro sala-crear">
@@ -126,6 +126,21 @@ function rSalaCrear() {
         </button>`).join('')}
       </div>
     </div>
+    <div class="dif-panel">
+      <span class="dif-cap">${t('sala_modo')}</span>
+      <div class="dif-sel sv-modo" id="sc-modo">
+        <button class="dif-op" data-vivo="0" type="button" aria-pressed="true"><span class="dif-ico">🕹️</span>${t('sala_modo_ritmo')}</button>
+        <button class="dif-op" data-vivo="1" type="button" aria-pressed="false"><span class="dif-ico">📡</span>${t('sala_modo_vivo')}</button>
+      </div>
+    </div>
+    <div id="sc-vivo" hidden>
+      <p class="mini">${t('sala_modo_vivo_desc')}</p>
+      <span class="dif-cap">${t('sv_preguntas')}</span>
+      <div class="dif-sel" id="sc-vn">${[5, 8, 10].map(n => `<button class="dif-op" data-n="${n}" type="button" aria-pressed="false">${n}</button>`).join('')}</div>
+      <span class="dif-cap">${t('sv_segundos')}</span>
+      <div class="dif-sel" id="sc-vl">${[15, 20, 30].map(n => `<button class="dif-op" data-l="${n}" type="button" aria-pressed="false">${n} s</button>`).join('')}</div>
+    </div>
+    <div id="sc-ritmo">
     <h3>${t('sala_juegos')} <span class="sc-n" id="sc-n"></span></h3>
     <p class="mini">${t('sala_orden')}</p>
     <div class="tit-rejilla c3 sala-juegos" id="sc-lista">
@@ -134,6 +149,7 @@ function rSalaCrear() {
         <span class="m-ico">${ICO_TIPO[tipo] || '🎮'}</span>
         <span class="m-txt">${t('tipo_' + tipo)}</span>
       </button>`).join('')}
+    </div>
     </div>
     <div class="jugar-marco">
       <i></i><i></i><i></i><i></i>
@@ -157,8 +173,15 @@ function rSalaCrear() {
       b.disabled = i < 0 && sel.length >= SALA.MAX_JUEGOS;
     });
     $('#sc-n').textContent = `${sel.length}/${SALA.MAX_JUEGOS}`;
-    $('#sc-crear').disabled = !sel.length;
+    $('#sc-crear').disabled = !vivo && !sel.length;
+    $$('#sc-modo .dif-op').forEach(b => { const on = (b.dataset.vivo === '1') === vivo; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', String(on)); });
+    $$('#sc-vn .dif-op').forEach(b => { const on = +b.dataset.n === vn; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', String(on)); });
+    $$('#sc-vl .dif-op').forEach(b => { const on = +b.dataset.l === vl; b.classList.toggle('sel', on); b.setAttribute('aria-pressed', String(on)); });
+    $('#sc-vivo').hidden = !vivo; $('#sc-ritmo').hidden = vivo;
   };
+  $$('#sc-modo .dif-op').forEach(b => b.onclick = () => { vivo = b.dataset.vivo === '1'; SFX.click(); pinta(); });
+  $$('#sc-vn .dif-op').forEach(b => b.onclick = () => { vn = +b.dataset.n; SFX.click(); pinta(); });
+  $$('#sc-vl .dif-op').forEach(b => b.onclick = () => { vl = +b.dataset.l; SFX.click(); pinta(); });
   $$('#sc-dif .dif-op').forEach(b => b.onclick = () => { dif = +b.dataset.dif; SFX.click(); pinta(); });
   $$('#sc-lista .sala-j').forEach(b => b.onclick = () => {
     const i = sel.indexOf(b.dataset.tipo);
@@ -168,9 +191,10 @@ function rSalaCrear() {
   $('#sc-crear').onclick = async () => {
     const b = $('#sc-crear');
     b.disabled = true; $('#sc-aviso').textContent = t('glob_carga');
-    const r = await SALA.crear(dif, sel.slice());
+    const r = await SALA.crear(dif, vivo ? ['quiz'] : sel.slice());
     if (!$('#sc-crear')) return;
     if (!r.ok) { b.disabled = false; $('#sc-aviso').textContent = errorSala(r); SFX.mal(); return; }
+    if (vivo) SALA.fijarVivo(r.datos.codigo, { n: vn, limite: vl });
     SFX.ok(); rProyector(r.datos.codigo);
   };
   $('#sc-volver').onclick = () => { SFX.click(); rSala(); };
@@ -303,10 +327,12 @@ function rProyector(codigo) {
       <div class="sp-mandos" id="sp-mandos"></div>
     </div>
     <div class="sp-main">
+      <div id="sv-proy"></div>
       <div id="sp-podio"></div>
       <h3 id="sp-tit">${t('sala_jugadores')}</h3>
       <div id="sp-lista" class="sala-lista"></div>
       <p class="mini sp-vacio" id="sp-vacio"></p>
+      <div id="sp-panel" class="panel-caja"></div>
     </div>
   </div>`,()=>rProyector(codigo));
 
@@ -315,14 +341,17 @@ function rProyector(codigo) {
     const yo = SALA.miId(codigo);
     const mio = est.jugadores.find(j => j.id === yo);
     const pendiente = mio && mio.ronda < est.juegos.length;
-    const clave = [est.estado, !!mio, pendiente, est.jugadores.length > 0].join('|');
+    if (SALA.esVivo(est) && est.estado === 'jugando') { mandosClave = ''; return mandosVivo(codigo, est); }
+    mvClave = '';
+    const enVivo = !!SALA.configVivo(codigo) && est.estado === 'espera';
+    const clave = [est.estado, !!mio, pendiente, est.jugadores.length > 0, enVivo].join('|');
     if (clave === mandosClave) return;              // no se re-pinta: no roba el foco
     mandosClave = clave;
     const b = (id, cls, txt) => `<button class="btn ${cls}" id="${id}" type="button">${txt}</button>`;
     let h = '';
     if (est.estado === 'espera') {
       h += `<div class="jugar-marco"><i></i><i></i><i></i><i></i>${b('sp-empezar', 'btn-jugar', t('sala_empezar'))}</div>`;
-      if (!mio) h += b('sp-jugar-yo', 'btn3', '🎮 ' + t('sala_jugar_yo'));
+      if (!mio && !enVivo) h += b('sp-jugar-yo', 'btn3', '🎮 ' + t('sala_jugar_yo'));
     } else if (est.estado === 'jugando') {
       if (pendiente) h += b('sp-mi-partida', 'btn3', '▶ ' + t('sala_mi_partida'));
       else if (!mio) h += b('sp-jugar-yo', 'btn3', '🎮 ' + t('sala_jugar_yo'));
@@ -337,7 +366,8 @@ function rProyector(codigo) {
     on('sp-empezar', async () => {
       if (!est.jugadores.length) { $('#sp-estado').textContent = t('sala_nadie_aun'); SFX.mal(); return; }
       $('#sp-empezar').disabled = true; SFX.star();
-      await SALA.mando(codigo, 'empezar');
+      if (SALA.configVivo(codigo)) await empezarVivo(codigo);
+      else await SALA.mando(codigo, 'empezar');
     });
     on('sp-jugar-yo', async () => {
       $('#sp-jugar-yo').disabled = true; SFX.click();
@@ -370,24 +400,34 @@ function rProyector(codigo) {
     if (!r.ok) { estado.textContent = t('glob_sinred'); return; }
     if (!r.datos) { estado.textContent = t('sala_no_existe'); $('#sp-mandos').innerHTML = ''; return; }
     const est = ultimo = r.datos;
+    const vivoYa = SALA.esVivo(est);
     $('#sp-reglas').innerHTML = `<span>${difChip(est.dificultad)}</span><span class="sp-juegos">${iconosJuegos(est.juegos)}</span>`;
+    /* en vivo no hay "rondas" por jugador: la lista enseña cuántas preguntas
+       lleva cada uno como progreso */
+    const vista = vivoYa ? Object.assign({}, est, {
+      juegos: Array(Math.max(1, est.q_total || 1)).fill('quiz'),
+      jugadores: est.jugadores.map(j => Object.assign({}, j, { ronda: j.resp || 0 })),
+    }) : est;
     const n = est.jugadores.length, hechos = est.jugadores.filter(j => j.ronda >= est.juegos.length).length;
-    const fin = est.estado === 'fin' || est.estado === 'jugando' && SALA.todosTerminaron(est);
+    const fin = est.estado === 'fin' || !vivoYa && est.estado === 'jugando' && SALA.todosTerminaron(est);
     estado.textContent = est.estado === 'espera' ? t('sala_esperan').replace('{n}', n)
-      : est.estado === 'jugando' ? t('sala_van').replace('{a}', hechos).replace('{n}', n)
+      : est.estado === 'jugando' ? (vivoYa ? t('sv_pregunta').replace('{a}', est.q_n).replace('{b}', est.q_total) : t('sala_van').replace('{a}', hechos).replace('{n}', n))
       : t('sala_final');
     $('#sp-tit').textContent = `${t('sala_jugadores')} · ${n}`;
     $('#sp-vacio').textContent = n ? '' : t('sala_vacia');
-    pintarLista($('#sp-lista'), est, {
+    pintarLista($('#sp-lista'), vista, {
       modo: est.estado === 'espera' ? 'espera' : 'tabla',
       yo: SALA.miId(codigo), mando: est.estado !== 'fin',
     });
+    proyectorVivo(codigo, est);
+    panelProyector(codigo, est);
     if (fin) {
       pintarPodio($('#sp-podio'), est);
       if (!celebrado && n) { celebrado = true; if (!quieto()) confeti(); SFX.win(); }
     }
     pintaMandos(est);
-  });
+  /* al empezar en vivo se sondea rápido, para que la primera pregunta salga ya */
+  }, r => (r.datos && r.datos.estado === 'espera' && SALA.configVivo(codigo)) ? 1200 : SV_CADENCIA(r));
 }
 
 /* ══════════ SALA DE ESPERA (aprendiz) ══════════ */
@@ -421,7 +461,9 @@ function rSalaEspera(codigo) {
     $('#se-dif').textContent = difChip(est.dificultad);
     $('#se-juegos').innerHTML = iconosJuegos(est.juegos);
     const total = est.juegos.length;
-    if (mio.ronda >= total || est.estado === 'fin') return rSalaTabla(codigo);
+    if (est.estado === 'fin') return rSalaTabla(codigo);
+    if (SALA.esVivo(est) && est.estado === 'jugando') { arrancando = true; return rSalaVivo(codigo); }
+    if (mio.ronda >= total) return rSalaTabla(codigo);
     if (est.estado === 'espera') {
       msg.innerHTML = `${t('sala_espera_prof')}<span class="puntos-anim" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>`;
       pintarLista($('#se-lista'), est, { modo: 'espera', yo });
@@ -472,7 +514,7 @@ function cuentaAtras(seguir) {
 function empezarSala(est, mio) {
   salasArrancadas.add(est.codigo);
   salaActiva = { codigo: est.codigo, juegos: est.juegos.slice(), dificultad: est.dificultad,
-                 ronda: mio.ronda, pts: mio.puntos };
+                 ronda: mio.ronda, pts: mio.puntos, items: [] };
   difForzada = est.dificultad;                 // la de la sala, igual para todos
   RETO.entrar('sala-' + est.codigo, true);     // mismo contenido, sin sesgo personal
   siguienteSala();
@@ -498,6 +540,7 @@ function salaRonda(stars, pts) {
   a.pts = Math.min(100000, a.pts + Math.max(0, Math.round(pts || 0)));
   a.ronda++;
   SALA.puntuar(a.codigo, a.ronda, a.pts);
+  SALA.reportar(a.codigo, a.ronda, a.items.splice(0));
   limpiarT();
   if (a.ronda >= a.juegos.length) return finSala();
   SFX.ok();
