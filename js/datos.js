@@ -14,8 +14,13 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v39';
+const VERSION='v40';
 const NOVEDADES=[
+  {v:'v40', fecha:'2026-10-05',
+   es:['Salas EN VIVO, estilo Kahoot: el instructor lanza cada pregunta, todos responden a la vez en su celular (4 botones con forma y letra) y el proyector muestra el podio al instante. Más rápido = más puntos.',
+       'Panel del instructor: al jugar una sala, el proyector enseña qué temas falló más la clase ("5 de 6 fallaron…"). Solo conteos, nunca nombres.'],
+   en:['LIVE rooms, Kahoot style: the instructor launches each question, everyone answers at once on their phone (4 buttons with shape and letter) and the projector shows the podium instantly. Faster = more points.',
+       'Instructor panel: while a room plays, the projector shows which topics the class missed most ("5 of 6 missed…"). Counts only, never names.']},
   {v:'v39', fecha:'2026-10-05',
    es:['Nuevo modo REPASO (dentro de Modo libre y en Estadísticas): juega solo lo que has fallado y aún no has vuelto a acertar. Cada acierto lo quita de la lista.',
        'La lista de "en qué flojeas" ahora incluye también memoria, terminal y ordena, que se quedaban fuera.'],
