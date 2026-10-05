@@ -84,14 +84,14 @@ ok(await hasta(prof, () => !!document.querySelector('#sv-proy .sv-caja')), 'el p
 /* Cada pregunta: Ana siempre acierta, Beto siempre falla. */
 for (let q = 1; q <= 5; q++) {
   for (const a of alumnos) await hasta(a, n => document.querySelector('#sv-num').textContent.includes(n) && document.querySelectorAll('#sv-ops .sv-op').length === 4, ` ${q}/5`);
-  const k = await alumnos[0].evaluate(() => {
+  const [k, nOps] = await alumnos[0].evaluate(() => {
     const txt = document.querySelector('#sv-preg').textContent;
-    const Q = QUIZ[S.lang].find(x => x.q === txt); return Q ? Q.r : -1;
+    const Q = QUIZ[S.lang].find(x => x.q === txt); return [Q ? Q.r : -1, Q ? Q.o.length : 0];
   });
   ok(k >= 0, `pregunta ${q}: el alumno encuentra la pregunta en su banco`);
   console.log("  q", q, "k", k);
   await alumnos[0].click(`#sv-ops .sv-op[data-k="${k}"]`);
-  await alumnos[1].click(`#sv-ops .sv-op[data-k="${(k + 1) % 4}"]`);
+  await alumnos[1].click(`#sv-ops .sv-op[data-k="${(k + 1) % nOps}"]`);
   const revelo = await hasta(prof, () => !!document.querySelector('#sv-proy .sv-op.bien'));
   if (q === 1) {
     ok(revelo, 'al responder todos, el proyector revela solo (la buena queda marcada)');
