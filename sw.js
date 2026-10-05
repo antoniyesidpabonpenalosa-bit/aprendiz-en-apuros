@@ -17,7 +17,7 @@ const BASE = [
   './js/datos.js', './js/estado.js', './js/consola.js', './js/reto.js', './js/ranking.js', './js/audio.js', './js/graficos.js',
   './js/entrada.js', './js/nucleo.js', './js/menus.js', './js/certificados.js', './js/tienda.js', './js/records.js', './js/retoui.js',
   './js/minijuegos.js', './js/minijuegos-codigo.js', './js/minijuegos-runner.js', './js/minijuegos-avanzados.js',
-  './js/jefe.js', './js/modos.js', './js/sala.js', './js/salaui.js', './js/sprite.js', './js/consolaui.js', './js/principal.js',
+  './js/jefe.js', './js/modos.js', './js/sala.js', './js/salaui.js', './js/salavivo.js', './js/sprite.js', './js/consolaui.js', './js/principal.js',
 ];
 
 self.addEventListener('install', e => {

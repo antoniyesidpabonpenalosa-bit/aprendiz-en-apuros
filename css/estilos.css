@@ -1453,3 +1453,36 @@ button.rp-fila:hover,button.rp-fila:focus-visible{border-color:var(--g3)}
 button.rp-fila:active{transform:translateY(3px);box-shadow:none}
 #rp-lista{display:flex;flex-direction:column;gap:9px;width:min(440px,100%)}
 html.hd button.rp-fila,html.hd .repaso-entrada{border-radius:10px}
+
+/* ── RONDA EN VIVO y PANEL DEL INSTRUCTOR ── */
+.sv-caja,.sv-alumno{display:flex;flex-direction:column;gap:12px}
+.sv-cab{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sv-num{font-family:var(--f-px);font-size:1rem;color:var(--a3)}
+.sv-reloj{font-family:var(--f-px);font-size:2.2rem;min-width:3ch;text-align:right;color:var(--v4)}
+.sv-barra{height:12px;background:rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.28)}
+.sv-barra i{display:block;height:100%;width:100%;background:var(--v3);transition:width .2s linear}
+.sv-barra i.peligro{background:var(--r3)}
+.sv-preg{font-size:clamp(1.05rem,2.6vw,1.7rem);line-height:1.35;margin:4px 0;text-align:left}
+.sv-ops{display:grid;gap:10px;grid-template-columns:1fr}
+.sv-op{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:12px 14px;text-align:left;color:#fff;
+  border:3px solid #000;font:inherit;font-size:clamp(.85rem,1.9vw,1.2rem);position:relative;min-height:60px;cursor:pointer}
+.sv-op:disabled{cursor:default}
+.sv-a{background:#c0392b}.sv-b{background:#2a6fb5}.sv-c{background:#b8860b}.sv-d{background:#2e8b57}
+.sv-forma{font-size:1.5em;line-height:1;flex:none;width:1.3em;text-align:center}
+.sv-txt{flex:1 1 12ch;min-width:0;overflow-wrap:anywhere}
+.sv-op.apagada{opacity:.4;filter:grayscale(.6)}
+.sv-op.bien{outline:4px solid #fff;box-shadow:0 0 0 4px var(--v3)}
+.sv-op.elegida{outline:4px dashed #fff}
+.sv-n{display:flex;align-items:center;gap:8px;flex:1 0 100%;font-style:normal;padding-left:calc(1.3em + 12px)}
+.sv-n i{display:block;height:10px;background:#fff;opacity:.85;min-width:2px}
+.sv-n b{font-family:var(--f-px)}
+.sv-resp,.sv-msg{min-height:1.4em;font-size:1.05rem}
+.sv-msg.verde{color:var(--v4)}.sv-msg.rojo{color:var(--r4)}
+.panel-caja{margin-top:14px;text-align:left}
+.panel-flojos{display:flex;flex-direction:column;gap:12px}
+.panel-fila{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center}
+.pf-tema{grid-column:1;grid-row:1;font-family:var(--f-px);font-size:.8rem;color:var(--a3)}
+.pf-num{grid-column:2;grid-row:1;font-size:.85rem;text-align:right;white-space:nowrap}
+.pf-txt{grid-column:1 / -1;grid-row:2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.95rem}
+.panel-fila .barra{grid-column:1 / -1;grid-row:3}
+#sc-vivo[hidden],#sc-ritmo[hidden]{display:none}
