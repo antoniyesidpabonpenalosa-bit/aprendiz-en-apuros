@@ -438,16 +438,28 @@ const robotJefe = d => {
 };
 for (const [dia, final, etiqueta] of [[9, /CONTRATO DE APRENDIZAJE/, 'día 10 → contrato de aprendizaje'], [14, /TÉCNICO EN PROGRAMACIÓN DE SOFTWARE/, 'día 15 → título de técnico']]) {
   await caso(`jefe · se le gana de punta a punta y la victoria lleva a: ${etiqueta}`, null, async pg => {
-    await pg.evaluate(robotJefe, dia);
-    await pg.waitForFunction(() => pantallaId !== 'nivel', null, { timeout: 150000 }).catch(() => {});
-    const gano = await pg.evaluate(() => ({ p: pantallaId, logro: S.logros.includes('jefe'), jefes: S.stats.jefes }));
-    if (gano.p !== 'resultado') return [false, `no ganó: pantalla "${gano.p}"`];
+    /* Hasta 3 intentos: el robot esquiva bien pero no perfecto, y alguna
+       partida la pierde (el CI fallaba así ~1 de cada 6 días, con y sin los
+       efectos de v41). Lo que se prueba es que ganar lleva a donde debe, no
+       la puntería del robot; si pierde las tres, sí es que algo se rompió. */
+    let gano, intento = 1;
+    for (; intento <= 3; intento++) {
+      if (intento > 1) {
+        await pg.reload({ waitUntil: 'load' });
+        await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+      }
+      await pg.evaluate(robotJefe, dia);
+      await pg.waitForFunction(() => pantallaId !== 'nivel', null, { timeout: 150000 }).catch(() => {});
+      gano = await pg.evaluate(() => ({ p: pantallaId, logro: S.logros.includes('jefe'), jefes: S.stats.jefes }));
+      if (gano.p === 'resultado') break;
+    }
+    if (gano.p !== 'resultado') return [false, `no ganó en 3 intentos: pantalla "${gano.p}"`];
     await pg.locator('#r-fin').click(); await pausa(300);
     for (let i = 0; i < 5 && await pg.evaluate(() => pantallaId) === 'cut'; i++) { await pg.locator('#cut-zona').click(); await pausa(200); }
     const txt = await pg.evaluate(() => $('#screen').innerText);
     const logroFin = await pg.evaluate(d => S.logros.includes(d === 9 ? 'titulado' : 'contrato'), dia);
     return [gano.logro && gano.jefes === 1 && final.test(txt) && logroFin,
-            `logro jefe ${gano.logro}, victorias ${gano.jefes}, logro de fin ${logroFin}, pantalla: ${txt.slice(0, 28).replace(/\s+/g, ' ')}`];
+            `intento ${intento}, logro jefe ${gano.logro}, victorias ${gano.jefes}, logro de fin ${logroFin}, pantalla: ${txt.slice(0, 28).replace(/\s+/g, ' ')}`];
   });
 }
 
