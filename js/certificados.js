@@ -66,7 +66,7 @@ function rCertificado(){
   $('#c-volver').onclick=()=>{SFX.click();rTitulo()};
   };
   pintar();
-  confeti();
+  confeti();FX.fuegos();
 }
 
 /* ── TÍTULO DE TÉCNICO (final de la etapa productiva) ── */
@@ -98,5 +98,5 @@ function rAscenso(){
   $('#a-volver').onclick=()=>{SFX.click();rTitulo()};
   };
   pintar();
-  confeti();
+  confeti();FX.fuegos();
 }

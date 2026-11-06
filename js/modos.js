@@ -161,7 +161,7 @@ function libreFin(stars, pts) {
   $('#lf-volver').onclick = () => { SFX.click(); repaso ? rRepaso() : rLibre(); };
   };
   pintar();
-  if (nueva) { confeti(); tvez(SFX.star, 300); }
+  if (nueva) { confeti(); FX.fuegos(); tvez(SFX.star, 300); }
 }
 
 /* ══════════ SIN FIN ══════════ */
@@ -283,5 +283,5 @@ function sinFinFin() {
   $('#sff-volver').onclick = () => { SFX.click(); rSinFin(); };
   };
   pintar();
-  if (nueva && pts > 0) { confeti(); tvez(SFX.star, 300); }
+  if (nueva && pts > 0) { confeti(); FX.fuegos(); tvez(SFX.star, 300); }
 }

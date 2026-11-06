@@ -54,6 +54,7 @@ const enfocar=sel=>{const e=$(sel);if(e)e.focus({preventScroll:true})};
 let rehacerPantalla=null;
 function pantalla(id,html,rehacer){
   limpiarT();pausado=false;modoJefe=false;$('#pausa').hidden=true;$('#interrupcion').hidden=true;
+  const otra=id!==pantallaId;
   pantallaId=id;rehacerPantalla=rehacer||null;
   /* Si mientras jugabas salió una versión nueva, el aviso esperaba a que
      terminaras: este es el momento (js/principal.js). */
@@ -61,6 +62,9 @@ function pantalla(id,html,rehacer){
   const sc=$('#screen');
   sc.innerHTML=html;
   sc.classList.remove('fade-in');void sc.offsetWidth;sc.classList.add('fade-in');
+  /* efectos (js/efectos.js): destapar a pixeles si es otra pantalla, puntos
+     que ruedan, y quitar el latido de peligro de la partida anterior */
+  if(typeof FX!=='undefined')FX.alPintar(otra);
   hud();
 }
 function starsHtml(n,tot=3){let s='';for(let i=0;i<tot;i++)s+='<span class="'+(i<n?'on':'off')+'">★</span>';return '<span class="stars-row">'+s+'</span>'}
@@ -119,6 +123,7 @@ function resultado(i,stars,pts){
   pintar();
   tvez(SFX.star,300);
   confeti();
+  if(stars===3)tvez(()=>FX.rotulo(t('perfecto_fx')),450);
 }
 function fallo(i,reintento){
   if(retoActivo)return retoRonda(0,0);   /* en el reto se sigue, sin perder vidas */

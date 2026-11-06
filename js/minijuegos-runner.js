@@ -36,13 +36,20 @@ function nvRunner(dia){
   const noche=dia>=10; /* deploy nocturno: más rápido y a oscuras */
   let obs=[],frame=0,golpes=0,cafes=0,pts=0,spawn=0,inv=0,prevA=false,prevAbajo=false,combo=0,fin=false;
   let escudo=mejora('escudo')?1:0;
+  /* Efectos de "sensación de juego" (js/efectos.js), solo dibujo: alto =
+     fotogramas que el mundo se queda quieto tras un golpe; rastro = posiciones
+     recientes en el aire para la estela; aterriza = cuenta del aplastón al caer. */
+  let alto=0,aterriza=0;
+  /** @type {{y:number,f:number}[]} */ let rastro=[];
+  const polvo=n=>{const q=FX.deCanvas(cv,p.x+7,SUELO,320,180);
+    FX.chispas(q.x,q.y,{n,vel:70,col:['#9aa3d6','#e9ecff'],arco:[-Math.PI,0],g:60})};
   function comboFly(n,txt){
     const w=$('.cv-wrap');if(!w)return;
     const el=document.createElement('span');
     el.className='combo-fly';el.textContent=txt||('🔥 '+t('combo')+' x'+n);
     w.appendChild(el);setTimeout(()=>{el.remove()},700);
   }
-  function salta(){if(p.y>=SUELO&&!pausado){p.vy=-8.2;beep(500,.07,'triangle',.1)}}
+  function salta(){if(p.y>=SUELO&&!pausado){p.vy=-8.2;beep(500,.07,'triangle',.1);polvo(5)}}
   function agacha(v){p.duck=v?26:0}
   $('#r-up').onpointerdown=e=>{e.preventDefault();salta()};
   $('#r-dn').onpointerdown=e=>{e.preventDefault();agacha(1)};
@@ -65,6 +72,8 @@ function nvRunner(dia){
     raf=requestAnimationFrame(loop);
     if(!$('#r-cv')){cancelAnimationFrame(raf);raf=0;fin=true;return}
     if(pausado||fin)return;
+    /* congelado del golpe: el último cuadro se queda en pantalla */
+    if(alto>0){alto--;return}
     frame++;
     /* mando: A o cruceta-arriba salta, cruceta-abajo agacha */
     const mnd=leerMando();
@@ -76,8 +85,13 @@ function nvRunner(dia){
     }
     const vel=2.4+frame/900+(noche?0.7:0);
     /* física */
+    const enAire=p.y<SUELO;
     p.vy+=0.42;p.y+=p.vy;
     if(p.y>SUELO){p.y=SUELO;p.vy=0}
+    if(enAire&&p.y>=SUELO){aterriza=8;polvo(8)}
+    if(aterriza>0)aterriza--;
+    if(p.y<SUELO&&frame%2===0)rastro.push({y:p.y,f:frame});
+    rastro=rastro.filter(r=>frame-r.f<12);
     if(inv>0)inv--;
     /* spawns */
     if(--spawn<=0){
@@ -96,16 +110,28 @@ function nvRunner(dia){
       if(o.x<p.x+14&&o.x+16>p.x&&oy<py+ph&&oy+oh>py){
         if(o.tipo==='cafe'){
           cafes++;combo++;sumaStat('cafes');mejorStat('racha',combo);
-          pts+=60+(mejora('iman')?40:0)+(combo>=3?combo*15:0);SFX.moneda();
+          const gan=60+(mejora('iman')?40:0)+(combo>=3?combo*15:0);
+          pts+=gan;SFX.moneda();
+          /* chispas de café y los puntos que suben desde el aprendiz */
+          const q=FX.deCanvas(cv,p.x+7,p.y-15+p.duck/2,320,180);
+          FX.chispas(q.x,q.y,{n:combo>=3?20:12,vel:150,col:['#ffcf3f','#fff1a8','#c98a4a']});
+          FX.flotante(q.x,q.y-14,'+'+gan,combo>=3?'#ff9d2e':'#ffcf3f');
+          if(combo>=3)FX.onda(q.x,q.y,'#ff9d2e',44);
           $('#r-caf').textContent=cafes;o.x=-99;
-          if(combo>=3)comboFly(combo);
+          FX.monedas(q.x,q.y,$('#r-caf'),combo>=3?6:4);
+          /* la racha grande al llegar a 3 y cada 5; entre medias, la de siempre */
+          if(combo>=3&&!((combo===3||combo%5===0)&&FX.rotulo('🔥 '+t('combo')+' x'+combo)))comboFly(combo);
           if(combo>=5)darLogro('combo');
         }
         else if(inv<=0){
           o.x=-99;
           /* escudo dev: absorbe el primer golpe del nivel */
-          if(escudo>0){escudo--;inv=70;SFX.pop();comboFly(0,'🛡');return}
+          const q=FX.deCanvas(cv,p.x+7,p.y-15+p.duck/2,320,180);
+          if(escudo>0){escudo--;inv=70;SFX.pop();comboFly(0,'🛡');FX.onda(q.x,q.y,'#6fd2f0',50);return}
+          FX.marca(q.x,q.y);FX.onda(q.x,q.y,'#ff5468',58);
           golpes++;combo=0;inv=60;SFX.mal();sacudir();$('#r-gol').textContent=golpes;
+          if(!quieto()){alto=6;p.vy=Math.min(p.vy,-3)}
+          if(golpes===topeGol-1&&topeGol>1)FX.peligro(true);
           /* Ojo: este return sale del callback del forEach, NO de loop(). Sin
              la bandera, la vuelta seguía y más abajo escribía en un #r-seg que
              fallo() acababa de borrar de la pantalla: "Cannot set properties of
@@ -162,7 +188,22 @@ function nvRunner(dia){
        p.x/p.y. Las zapatillas van claras porque sobre el fondo oscuro el
        pantalón no se distingue, y lo que se ve correr es el ir y venir de los
        pies. */
+    /* estela: copias azuladas de donde estuvo en el aire, arrastradas por el mundo */
+    if(!p.duck&&!quieto())for(const r of rastro){
+      const k=(frame-r.f)/12;
+      c.fillStyle='rgba(111,210,240,'+((1-k)*.32).toFixed(2)+')';
+      c.fillRect(p.x-(frame-r.f)*vel*.5,r.y-30,14,30);
+    }
     if(inv%12<8){
+      /* aplastar y estirar: se estira en el aire y se aplasta al caer, desde los pies */
+      let sx=1,sy=1;
+      if(!quieto()&&!p.duck){
+        if(p.y<SUELO){const k=Math.min(1,Math.abs(p.vy)/8);sy=1+.22*k;sx=1-.15*k}
+        else if(aterriza>0){const k=Math.sin(aterriza/8*Math.PI);sy=1-.3*k;sx=1+.3*k}
+      }
+      c.save();
+      c.translate(p.x+7,p.y);c.scale(sx,sy);c.translate(-(p.x+7),-p.y);
+      if(alto>0)c.filter='brightness(0) invert(1)';   /* blanco en el instante del golpe */
       const enSuelo=p.y>=SUELO,agachado=p.duck>0,paso=(frame>>3)&1;
       const fy=agachado?p.y-20:p.y-30-(enSuelo&&paso?1:0);
       c.fillStyle=CAMISAS[S.camisa];
@@ -182,6 +223,7 @@ function nvRunner(dia){
       }
       c.fillStyle=SKINS[S.skin];c.fillRect(p.x+1,fy,12,12);
       c.fillStyle='#101018';c.fillRect(p.x+8,fy+4,2,2);
+      c.restore();
     }
     /* obstáculos */
     c.font='16px serif';c.textBaseline='top';

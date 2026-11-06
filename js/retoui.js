@@ -165,5 +165,5 @@ function finReto() {
   $('#rf-volver').onclick = () => { SFX.click(); rReto(); };
   };
   pintar();
-  if (res) { confeti(); tvez(SFX.star, 300); }
+  if (res) { confeti(); FX.fuegos(); tvez(SFX.star, 300); }
 }

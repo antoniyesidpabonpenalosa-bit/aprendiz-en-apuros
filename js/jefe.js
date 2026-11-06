@@ -54,7 +54,10 @@ function nvJefe(dia,ptsBase){
   const p={x:W/2-8,ancho:16};
   const jefe={x:W/2,y:36,hp:100,dir:1};
   let balas=[],errores=[],frame=0,golpes=0,pts=0,inv=0,fin=false;
-  let izq=false,der=false,prevGolpe=0,faseAnt=1;
+  let izq=false,der=false,prevGolpe=-99,faseAnt=1;
+  /* alto: fotogramas que todo se queda quieto tras un golpe (js/efectos.js) */
+  let alto=0;
+  const golpeado=()=>{if(!quieto())alto=6;if(golpes===2)FX.peligro(true)};
   /* láser telegrafiado (fases 2-3): 0 nada · 1 aviso · 2 disparando */
   let laserEstado=0,laserT=0,laserX=W/2;
   /* controles táctiles */
@@ -112,6 +115,7 @@ function nvJefe(dia,ptsBase){
     raf=requestAnimationFrame(loop);
     if(!$('#j-cv')){cancelAnimationFrame(raf);raf=0;fin=true;return}
     if(pausado)return;
+    if(alto>0){alto--;return}
     frame++;
     const fase=jefe.hp>66?1:jefe.hp>33?2:3;
     if(fase!==faseAnt){faseAnt=fase;const fe=$('#j-fase');if(fe)fe.textContent=fase}
@@ -158,9 +162,11 @@ function nvJefe(dia,ptsBase){
     if(laserEstado===1){if(--laserT<=0){laserEstado=2;laserT=fase===3?34:26;beep(300,.25,'sawtooth',.12)}}
     else if(laserEstado===2){
       if(inv<=0&&Math.abs((p.x+8)-laserX)<13){
-        if(escudo>0){escudo--;inv=60;SFX.pop()}
+        const q=FX.deCanvas(cv,p.x+8,H-14,W,H);
+        if(escudo>0){escudo--;inv=60;SFX.pop();FX.onda(q.x,q.y,'#6fd2f0',50)}
         else{
-          golpes++;inv=55;SFX.mal();sacudir();
+          FX.marca(q.x,q.y);FX.onda(q.x,q.y,'#ff5468',58);
+          golpes++;inv=55;SFX.mal();sacudir();golpeado();
           const ge=$('#j-gol');if(ge)ge.textContent=3-golpes;
           if(golpes>=3){terminar();fallo(dia,()=>nvJefe(dia,ptsBase));return}
         }
@@ -176,7 +182,12 @@ function nvJefe(dia,ptsBase){
       if(Math.abs(b.x-jefe.x)<24&&Math.abs(b.y-jefe.y)<18){
         jefe.hp=Math.max(0,jefe.hp-2);pts+=10;b.y=-9;
         prevGolpe=frame;
+        const q=FX.deCanvas(cv,b.x,jefe.y+8,W,H);
+        FX.chispas(q.x,q.y,{n:7,vel:120,col:['#ffcf3f','#ffffff','#ff9d2e'],arco:[0,Math.PI]});
         if(jefe.hp<=0){
+          const x=FX.deCanvas(cv,jefe.x,jefe.y,W,H);
+          FX.explosion(x.x,x.y);
+          setTimeout(()=>FX.fuegos(),500);   /* setTimeout: tvez se borraría al pasar al resultado */
           terminar();
           darLogro('jefe');
           sumaStat('jefes');
@@ -196,8 +207,10 @@ function nvJefe(dia,ptsBase){
       if(fin)return;
       if(inv<=0&&o.y>H-30&&o.y<H-4&&Math.abs(o.x-(p.x+8))<14){
         o.y=999;
-        if(escudo>0){escudo--;inv=60;SFX.pop();return}
-        golpes++;inv=55;SFX.mal();sacudir();
+        const q=FX.deCanvas(cv,p.x+8,H-14,W,H);
+        if(escudo>0){escudo--;inv=60;SFX.pop();FX.onda(q.x,q.y,'#6fd2f0',50);return}
+        FX.marca(q.x,q.y);FX.onda(q.x,q.y,'#ff5468',58);
+        golpes++;inv=55;SFX.mal();sacudir();golpeado();
         if(golpes>=3){terminar();fallo(dia,()=>nvJefe(dia,ptsBase));return}
         $('#j-gol').textContent=3-golpes;
       }
@@ -227,12 +240,17 @@ function nvJefe(dia,ptsBase){
     c.fillRect(bx,6,jefe.hp*2,8);
     c.shadowBlur=0;
     if(FINAL){c.strokeStyle='#00ff41';c.lineWidth=1;c.strokeRect(bx-.5,5.5,201,9)}
-    /* jefe (parpadea al recibir daño) */
-    if(frame-prevGolpe>4||frame%4<2){
+    /* jefe: al recibir un disparo se pone blanco un instante y retrocede un
+       pixel; donde el canvas no sabe filtros (o con "reducir movimiento"),
+       parpadea como siempre */
+    const herido=frame-prevGolpe<=3,blanco=herido&&!quieto()&&'filter' in c;
+    if(blanco||frame-prevGolpe>4||frame%4<2){
+      c.save();
+      if(blanco)c.filter='brightness(0) invert(1)';
       c.font=fase===3?'44px serif':'38px serif';
       c.textAlign='center';c.textBaseline='middle';
-      c.fillText(fase===1?'👾':fase===2?'😡':'🤬',jefe.x,jefe.y+4);
-      c.textAlign='start';c.textBaseline='alphabetic';
+      c.fillText(fase===1?'👾':fase===2?'😡':'🤬',jefe.x,jefe.y+4-(blanco?2:0));
+      c.restore();
     }
     /* balas (commits) */
     if(HD){c.shadowColor='#54c41a';c.shadowBlur=6}
@@ -258,12 +276,15 @@ function nvJefe(dia,ptsBase){
     /* jugador (parpadea si invulnerable). El aprendiz de cuerpo entero mira
        hacia donde se mueve; si el sprite no cargó, cae al bloque de siempre. */
     if(inv%12<8){
+      c.save();
+      if(alto>0)c.filter='brightness(0) invert(1)';   /* blanco en el instante del golpe */
       if(!APRENDIZ.dibujar(c,p.x+8,H-4,30,p.dir??APRENDIZ.idx.south)){
         const dy=H-180;
         c.fillStyle=CAMISAS[S.camisa];c.fillRect(p.x,158+dy,16,16);
         c.fillStyle=SKINS[S.skin];c.fillRect(p.x+2,148+dy,12,12);
         c.fillStyle='#101018';c.fillRect(p.x+9,152+dy,2,2);
       }
+      c.restore();
     }
   }
   loop();

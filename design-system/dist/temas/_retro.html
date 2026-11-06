@@ -703,11 +703,8 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 .entrada[aria-invalid="true"]{border-color:var(--r3)}
 /* .mini va después de .rojo y le ganaba el color: un aviso tiene que verse */
 .mini.rojo{color:var(--r3)}
-.confeti{position:absolute;top:-24px;z-index:40;pointer-events:none;line-height:1;
-  animation:confeti-cae 2.8s linear forwards}
-@keyframes confeti-cae{to{transform:translateY(105vh) rotate(720deg);opacity:.1}}
 .combo-txt{color:var(--y2)}
-@media (prefers-reduced-motion:reduce){.blink,#screen>*,.confeti,.fade-in,.etapa-jefe,.sacudida{animation:none}}
+@media (prefers-reduced-motion:reduce){.blink,#screen>*,.fade-in,.etapa-jefe,.sacudida,.sacudida2{animation:none}}
 
 /* ── MAPA DE CARRERA ── */
 .mapa h2{margin:.15em 0}
@@ -762,7 +759,28 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 
 /* ── SACUDIDA AL RECIBIR DAÑO ── */
 .sacudida{animation:sacudir .3s}
+.sacudida2{animation:sacudir2 .55s}
+@keyframes sacudir2{0%,100%{transform:translate(0,0)}10%{transform:translate(-11px,6px)}25%{transform:translate(11px,-6px)}40%{transform:translate(-9px,5px)}55%{transform:translate(8px,-4px)}70%{transform:translate(-5px,3px)}85%{transform:translate(3px,-2px)}}
 @keyframes sacudir{0%,100%{transform:translate(0,0)}20%{transform:translate(-6px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,2px)}80%{transform:translate(4px,-2px)}}
+/* ── EFECTOS (js/efectos.js): contador que salta, rótulo grande, interferencia
+   al fallar y latido de peligro con una vida ── */
+.salto{display:inline-block;animation:salto .25s ease-out}
+@keyframes salto{0%{transform:scale(1.6)}100%{transform:scale(1)}}
+.rotulo-fx{position:fixed;z-index:51;display:grid;place-items:center;pointer-events:none;text-align:center;
+  font-family:'Press Start 2P',monospace;line-height:1.3;opacity:0;
+  text-shadow:0 3px 0 #7a3b00,3px 0 0 #0b0e22,-3px 0 0 #0b0e22,0 -3px 0 #0b0e22}
+#screen>.glitch{animation:glitch .32s steps(2) 1}
+@keyframes glitch{
+  0%{transform:translate(0);filter:drop-shadow(4px 0 #ff5468) drop-shadow(-4px 0 #6fd2f0);clip-path:inset(10% 0 55% 0)}
+  25%{transform:translate(-6px,2px);clip-path:inset(40% 0 20% 0)}
+  50%{transform:translate(5px,-1px);filter:drop-shadow(-5px 0 #ff5468) drop-shadow(5px 0 #6fd2f0);clip-path:inset(0 0 70% 0)}
+  75%{transform:translate(-3px,0);clip-path:inset(60% 0 5% 0)}
+  100%{transform:translate(0);filter:none;clip-path:inset(0)}}
+.peligro-fx{position:fixed;inset:0;z-index:49;pointer-events:none;opacity:.3;
+  box-shadow:inset 0 0 70px 22px rgba(255,84,104,.8);animation:latido 1s ease-in-out infinite}
+@keyframes latido{0%,100%{opacity:.25}15%{opacity:1}30%{opacity:.45}45%{opacity:.9}}
+/* sin movimiento: el borde de peligro queda fijo (avisa sin latir) y el contador no salta */
+@media (prefers-reduced-motion:reduce){.salto,.peligro-fx{animation:none}.peligro-fx{opacity:.55}}
 
 /* ── CÓDIGO DE GUARDADO ── */
 .guardado-zona{display:flex;flex-direction:column;gap:8px;width:min(420px,100%);align-items:center}
