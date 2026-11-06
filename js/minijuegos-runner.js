@@ -96,7 +96,13 @@ function nvRunner(dia){
       if(o.x<p.x+14&&o.x+16>p.x&&oy<py+ph&&oy+oh>py){
         if(o.tipo==='cafe'){
           cafes++;combo++;sumaStat('cafes');mejorStat('racha',combo);
-          pts+=60+(mejora('iman')?40:0)+(combo>=3?combo*15:0);SFX.moneda();
+          const gan=60+(mejora('iman')?40:0)+(combo>=3?combo*15:0);
+          pts+=gan;SFX.moneda();
+          /* chispas de café y los puntos que suben desde el aprendiz */
+          const q=FX.deCanvas(cv,p.x+7,p.y-15+p.duck/2,320,180);
+          FX.chispas(q.x,q.y,{n:combo>=3?20:12,vel:150,col:['#ffcf3f','#fff1a8','#c98a4a']});
+          FX.flotante(q.x,q.y-14,'+'+gan,combo>=3?'#ff9d2e':'#ffcf3f');
+          if(combo>=3)FX.onda(q.x,q.y,'#ff9d2e',44);
           $('#r-caf').textContent=cafes;o.x=-99;
           if(combo>=3)comboFly(combo);
           if(combo>=5)darLogro('combo');
@@ -104,7 +110,9 @@ function nvRunner(dia){
         else if(inv<=0){
           o.x=-99;
           /* escudo dev: absorbe el primer golpe del nivel */
-          if(escudo>0){escudo--;inv=70;SFX.pop();comboFly(0,'🛡');return}
+          const q=FX.deCanvas(cv,p.x+7,p.y-15+p.duck/2,320,180);
+          if(escudo>0){escudo--;inv=70;SFX.pop();comboFly(0,'🛡');FX.onda(q.x,q.y,'#6fd2f0',50);return}
+          FX.marca(q.x,q.y);FX.onda(q.x,q.y,'#ff5468',58);
           golpes++;combo=0;inv=60;SFX.mal();sacudir();$('#r-gol').textContent=golpes;
           /* Ojo: este return sale del callback del forEach, NO de loop(). Sin
              la bandera, la vuelta seguía y más abajo escribía en un #r-seg que

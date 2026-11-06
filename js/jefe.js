@@ -158,8 +158,10 @@ function nvJefe(dia,ptsBase){
     if(laserEstado===1){if(--laserT<=0){laserEstado=2;laserT=fase===3?34:26;beep(300,.25,'sawtooth',.12)}}
     else if(laserEstado===2){
       if(inv<=0&&Math.abs((p.x+8)-laserX)<13){
-        if(escudo>0){escudo--;inv=60;SFX.pop()}
+        const q=FX.deCanvas(cv,p.x+8,H-14,W,H);
+        if(escudo>0){escudo--;inv=60;SFX.pop();FX.onda(q.x,q.y,'#6fd2f0',50)}
         else{
+          FX.marca(q.x,q.y);FX.onda(q.x,q.y,'#ff5468',58);
           golpes++;inv=55;SFX.mal();sacudir();
           const ge=$('#j-gol');if(ge)ge.textContent=3-golpes;
           if(golpes>=3){terminar();fallo(dia,()=>nvJefe(dia,ptsBase));return}
@@ -176,7 +178,11 @@ function nvJefe(dia,ptsBase){
       if(Math.abs(b.x-jefe.x)<24&&Math.abs(b.y-jefe.y)<18){
         jefe.hp=Math.max(0,jefe.hp-2);pts+=10;b.y=-9;
         prevGolpe=frame;
+        const q=FX.deCanvas(cv,b.x,jefe.y+8,W,H);
+        FX.chispas(q.x,q.y,{n:7,vel:120,col:['#ffcf3f','#ffffff','#ff9d2e'],arco:[0,Math.PI]});
         if(jefe.hp<=0){
+          const x=FX.deCanvas(cv,jefe.x,jefe.y,W,H);
+          FX.explosion(x.x,x.y);
           terminar();
           darLogro('jefe');
           sumaStat('jefes');
@@ -196,7 +202,9 @@ function nvJefe(dia,ptsBase){
       if(fin)return;
       if(inv<=0&&o.y>H-30&&o.y<H-4&&Math.abs(o.x-(p.x+8))<14){
         o.y=999;
-        if(escudo>0){escudo--;inv=60;SFX.pop();return}
+        const q=FX.deCanvas(cv,p.x+8,H-14,W,H);
+        if(escudo>0){escudo--;inv=60;SFX.pop();FX.onda(q.x,q.y,'#6fd2f0',50);return}
+        FX.marca(q.x,q.y);FX.onda(q.x,q.y,'#ff5468',58);
         golpes++;inv=55;SFX.mal();sacudir();
         if(golpes>=3){terminar();fallo(dia,()=>nvJefe(dia,ptsBase));return}
         $('#j-gol').textContent=3-golpes;

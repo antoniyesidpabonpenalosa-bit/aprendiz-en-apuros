@@ -14,8 +14,15 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v40';
+const VERSION='v41';
 const NOVEDADES=[
+  {v:'v41', fecha:'2026-11-06',
+   es:['Más vida en cada toque: los aciertos sueltan chispas y una onda verde, los fallos un destello rojo y sacudida, y los botones chispean al pulsarlos.',
+       'Runner: cada café sube sus puntos ("+75") con chispas, y el golpe sale del aprendiz con una onda roja. En la pelea del jefe cada disparo que da salta en chispas y, al vencerlo, explota con sacudida fuerte.',
+       'Confeti nuevo: dos cañones lanzan papelitos que revolotean y estrellas. Con "reducir movimiento" activado en el sistema no se muestra nada de esto.'],
+   en:['More life in every tap: right answers burst into sparks and a green shockwave, mistakes flash red and shake, and buttons spark when pressed.',
+       'Runner: every coffee floats its points up ("+75") with sparks, and a hit comes out of the apprentice with a red shockwave. In the boss fight every shot that lands bursts into sparks and, when it falls, it explodes with a heavy shake.',
+       'New confetti: two cannons fire fluttering paper and stars. With "reduce motion" on in the system none of this is shown.']},
   {v:'v40', fecha:'2026-10-05',
    es:['Salas EN VIVO, estilo Kahoot: el instructor lanza cada pregunta, todos responden a la vez en su celular (4 botones con forma y letra) y el proyector muestra el podio al instante. Más rápido = más puntos.',
        'Panel del instructor: al jugar una sala, el proyector enseña qué temas falló más la clase ("5 de 6 fallaron…"). Solo conteos, nunca nombres.'],

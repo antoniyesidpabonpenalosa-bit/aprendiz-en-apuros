@@ -61,23 +61,6 @@ function encajeDe(aw,ah){
    segundo); el zoom solo suma en pantallas que ya tienen máquina. */
 const densidad=()=>Math.min(3,Math.min(2,window.devicePixelRatio||1)*escPantalla);
 
-/* ── CONFETI ── */
-function confeti(){
-  const cont=document.createElement('div');
-  cont.style.cssText='position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40';
-  const em=['★','✦','●','▲','■'],cols=['#ffcf3f','#54c41a','#a86bff','#6fd2f0','#ff5468'];
-  for(let k=0;k<26;k++){
-    const s=document.createElement('span');
-    s.className='confeti';s.textContent=em[k%5];
-    s.style.left=Math.random()*100+'%';s.style.color=cols[(k+1)%5];
-    s.style.fontSize=(10+Math.random()*10)+'px';
-    s.style.animationDelay=(Math.random()*.8)+'s';
-    cont.appendChild(s);
-  }
-  $('#app').appendChild(cont);
-  setTimeout(()=>cont.remove(),3800);
-}
-
 /* ── HUD ── */
 function hud(){
   /* Tres cabeceras distintas según dónde estés. Cada rama rellena las cuatro
@@ -140,9 +123,10 @@ function hud(){
 }
 
 /* ── SACUDIDA DE PANTALLA (al recibir daño) ── */
-function sacudir(){
+function sacudir(fuerza=1){
   const s=$('#screen');if(!s)return;
-  s.classList.remove('sacudida');void s.offsetWidth;s.classList.add('sacudida');
+  s.classList.remove('sacudida','sacudida2');void s.offsetWidth;
+  s.classList.add(fuerza>1?'sacudida2':'sacudida');
 }
 
 /* ── RETRATOS PIXEL ── */
