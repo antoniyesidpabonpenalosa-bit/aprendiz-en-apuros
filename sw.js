@@ -41,6 +41,9 @@ self.addEventListener('fetch', e => {
      el marcador se quedaba CONGELADO para siempre. Sin red, ranking.js ya
      muestra "sin conexión"; no hace falta caché aquí. */
   if (new URL(e.request.url).origin !== location.origin) return;
+  /* La analítica de Vercel va siempre a la red: guardarla en caché no sirve
+     de nada y sin conexión simplemente no se mide. */
+  if (new URL(e.request.url).pathname.startsWith('/_vercel/')) return;
   e.respondWith((async () => {
     const red = fetch(e.request).then(r => {
       if (r.ok) {
