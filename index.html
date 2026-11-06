@@ -31,6 +31,18 @@
      no se aprovecha y se descargan dos veces. -->
 <link rel="preload" href="fuentes/press-start-2p.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fuentes/vt323.woff2" as="font" type="font/woff2" crossorigin>
+<!-- Vercel Web Analytics (lo mismo que <Analytics/> de @vercel/analytics, en
+     versión para HTML sin npm). Sin cookies ni datos personales: solo visitas
+     y páginas. Solo en Vercel: en GitHub Pages ese archivo no existe (sería un
+     404 en cada visita) y en local (http) no hay nada que medir. -->
+<script>
+  if (location.protocol === 'https:' && !location.hostname.endsWith('github.io')) {
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    const s = document.createElement('script');
+    s.defer = true; s.src = '/_vercel/insights/script.js';
+    document.head.appendChild(s);
+  }
+</script>
 </head>
 <body>
 <div class="crt"></div>
