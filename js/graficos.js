@@ -311,7 +311,7 @@ function quienCara(nom){
    canvas pixelado de siempre, que queda debajo solo como respaldo: si el
    personaje no tiene dibujo (tú y los jugadores de una sala siguen en pixel)
    o si la imagen no llegara a cargar. Los dibujos van en la caché del service
-   worker, así que sin conexión también se ven. Desde v44 no hay opción de
+   worker, así que sin conexión también se ven. Desde v21.2 no hay opción de
    pixel para estos personajes: el dibujo es su único estilo.
    El canvas tiene que ir dentro de un envoltorio propio (.retrato-wrap,
    .jur): ahí se coloca el dibujo. */

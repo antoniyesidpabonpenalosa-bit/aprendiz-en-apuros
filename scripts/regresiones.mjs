@@ -440,7 +440,7 @@ for (const [dia, final, etiqueta] of [[9, /CONTRATO DE APRENDIZAJE/, 'día 10 �
   await caso(`jefe · se le gana de punta a punta y la victoria lleva a: ${etiqueta}`, null, async pg => {
     /* Hasta 3 intentos: el robot esquiva bien pero no perfecto, y alguna
        partida la pierde (el CI fallaba así ~1 de cada 6 días, con y sin los
-       efectos de v41). Lo que se prueba es que ganar lleva a donde debe, no
+       efectos de v20). Lo que se prueba es que ganar lleva a donde debe, no
        la puntería del robot; si pierde las tres, sí es que algo se rompió. */
     let gano, intento = 1;
     for (; intento <= 3; intento++) {

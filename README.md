@@ -320,8 +320,12 @@ El juego sabe en qué versión está y se lo cuenta a quien lo abre.
 
 Son dos archivos y el validador no deja publicar si se separan:
 
-1. `js/datos.js`: sube `VERSION` (`'v27'` → `'v28'`) y añade su entrada **al
-   principio** de `NOVEDADES`, en español e inglés.
+1. `js/datos.js`: sube `VERSION` y añade su entrada **al principio** de
+   `NOVEDADES`, en español e inglés. El número grande sube con las novedades
+   (`'v21.2'` → `'v22'`) y el pequeño con los arreglos y cambios pequeños
+   (`'v21.2'` → `'v21.3'`). Las versiones antiguas se renumeraron con esta
+   regla: la equivalencia con los números viejos (los de los commits, hasta
+   v44) está en [VERSIONES.md](VERSIONES.md).
 2. `sw.js`: deja `CACHE` en `'pa4-' + VERSION`.
 
 `node scripts/validar.mjs` falla si las dos versiones no cuadran, si la versión
