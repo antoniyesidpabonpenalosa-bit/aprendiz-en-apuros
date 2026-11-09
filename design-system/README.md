@@ -1,4 +1,4 @@
-# UI Kit · Practicante en Apuros 4
+# UI Kit · Aprendiz en apuros
 
 Sistema de diseño extraído directamente del juego: los mismos tokens de
 color, tipografías y componentes que ves en pantalla, catalogados y listos

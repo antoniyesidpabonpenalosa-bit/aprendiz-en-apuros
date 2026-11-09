@@ -31,7 +31,7 @@ function rTitulo(){
     <div class="col">
     <div class="tit-logo">
       <span class="guion" aria-hidden="true"><i></i><i></i><i></i></span>
-      <h1 class="tit-h1"><span class="l1">PRACTICANTE</span><br><span class="l2">EN APUROS</span><span class="n4">4</span></h1>
+      <h1 class="tit-h1"><span class="l1">APRENDIZ</span><br><span class="l2">EN APUROS</span></h1>
       <span class="guion der" aria-hidden="true"><i></i><i></i><i></i></span>
     </div>
     <p class="sub">${t('sub')}</p>

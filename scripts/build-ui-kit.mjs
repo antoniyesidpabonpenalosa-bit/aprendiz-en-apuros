@@ -213,7 +213,7 @@ const galeriaBody = `<div class="gal">
 ${specs}
 ${specTemas}
   </section>
-  <p class="gal-foot">Generado desde css/estilos.css · node scripts/build-ui-kit.mjs · Practicante en Apuros 4 · SENA</p>
+  <p class="gal-foot">Generado desde css/estilos.css · node scripts/build-ui-kit.mjs · Aprendiz en apuros · SENA</p>
 </div>`;
 
 const galeriaCss = `${BASE_CSS}

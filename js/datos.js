@@ -1,6 +1,6 @@
 'use strict';
 /* ══════════════════════════════════════════
-   PRACTICANTE EN APUROS 3 · SENA 32-BIT
+   APRENDIZ EN APUROS · SENA 32-BIT
    10 días de etapa lectiva + 5 de etapa productiva
    ══════════════════════════════════════════ */
 /* ── VERSIÓN Y NOVEDADES ──
@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v21.2';
+const VERSION='v21.3';
 const NOVEDADES=[
+  {v:'v21.3', fecha:'2026-11-09',
+   es:['El juego se llama ahora "Aprendiz en apuros", sin número: el "4" del título era un número de versión antiguo, no una cuarta parte. Cambian la portada (también se quita el «Capítulo 4» del subtítulo), el nombre del icono al instalarlo, el texto de compartir y la imagen que sale al pegar el enlace.'],
+   en:['The game is now called "Aprendiz en apuros", with no number: the "4" in the title was an old version number, not a fourth part. The title screen (the «Chapter 4» is also removed from the subtitle), the installed icon name, the share text and the link preview image all change.']},
   {v:'v21.2', fecha:'2026-11-09',
    es:['Los personajes de la historia (Instructor, Compañera y Líder técnico) ahora salen siempre dibujados: ese es su estilo. Tu aprendiz sigue en pixel.',
        'Los retratos dibujados se guardan para jugar sin conexión.',
@@ -782,7 +785,7 @@ const TXT={
   glob_sinred:'Sin conexión con el marcador. Abajo siguen tus marcas locales.',
   glob_vacio:'Nadie ha publicado todavía. ¡Sé el primero!',
   glob_locvacio:'Termina el día 5 para registrar tu primera marca.',
-  sub:'LA AVENTURA DEL APRENDIZ · CAPÍTULO 4',mapa:'RUTA DE FORMACIÓN',volver:'← VOLVER',continuar:'CONTINUAR',
+  sub:'LA AVENTURA DEL APRENDIZ',mapa:'RUTA DE FORMACIÓN',volver:'← VOLVER',continuar:'CONTINUAR',
   pausa:'PAUSA',salirmapa:'SALIR AL MAPA',empezar:'¡EMPEZAR!',listo:'¿LISTO?',aqui:'AQUÍ',
   aprobado:'¡DÍA SUPERADO!',fallado:'¡DÍA FALLIDO!',reintentar:'REINTENTAR',siguiente:'SIGUIENTE DÍA ▶',
   gameover:'GAME OVER',gameovertxt:'Te quedaste sin vidas. El instructor te manda a tomar aire y volver mañana.',
@@ -865,7 +868,7 @@ const TXT={
   st_jefes:'JEFES VENCIDOS',st_perfectos:'DÍAS PERFECTOS',st_racha:'MEJOR RACHA',
   st_partidas:'PARTIDAS TERMINADAS',st_sinreg:'Aún no hay datos. ¡A jugar!',
   compartir:'📤 COMPARTIR',copiado:'¡COPIADO AL PORTAPAPELES!',
-  compartexto:'Terminé Practicante en Apuros 4 con {p} pts como {r} 🎓 ¡Juégalo!',
+  compartexto:'Terminé Aprendiz en apuros con {p} pts como {r} 🎓 ¡Juégalo!',
   jefefase:'FASE',avisolaser:'¡LÁSER!',
   guardado:'💾 CÓDIGO DE GUARDADO',exportar:'📤 EXPORTAR PARTIDA',importar:'📥 IMPORTAR',
   pegacodigo:'Pega aquí tu código PA4...',impok:'¡PARTIDA IMPORTADA!',impmal:'CÓDIGO INVÁLIDO',
@@ -909,7 +912,7 @@ const TXT={
   glob_sinred:'No connection to the leaderboard. Your local scores are still below.',
   glob_vacio:'Nobody has posted a score yet. Be the first!',
   glob_locvacio:'Finish day 5 to record your first score.',
-  sub:'THE APPRENTICE ADVENTURE · CHAPTER 4',mapa:'TRAINING PATH',volver:'← BACK',continuar:'CONTINUE',
+  sub:'THE APPRENTICE ADVENTURE',mapa:'TRAINING PATH',volver:'← BACK',continuar:'CONTINUE',
   pausa:'PAUSED',salirmapa:'EXIT TO MAP',empezar:'START!',listo:'READY?',aqui:'HERE',
   aprobado:'DAY CLEARED!',fallado:'DAY FAILED!',reintentar:'RETRY',siguiente:'NEXT DAY ▶',
   gameover:'GAME OVER',gameovertxt:'You ran out of lives. The instructor sends you home to try again tomorrow.',
@@ -991,7 +994,7 @@ const TXT={
   st_jefes:'BOSSES BEATEN',st_perfectos:'PERFECT DAYS',st_racha:'BEST STREAK',
   st_partidas:'GAMES FINISHED',st_sinreg:'No data yet. Go play!',
   compartir:'📤 SHARE',copiado:'COPIED TO CLIPBOARD!',
-  compartexto:'I finished Intern in Trouble 4 with {p} pts as {r} 🎓 Play it!',
+  compartexto:'I finished Aprendiz en apuros with {p} pts as {r} 🎓 Play it!',
   jefefase:'PHASE',avisolaser:'LASER!',
   guardado:'💾 SAVE CODE',exportar:'📤 EXPORT SAVE',importar:'📥 IMPORT',
   pegacodigo:'Paste your PA4 code here...',impok:'SAVE IMPORTED!',impmal:'INVALID CODE',
