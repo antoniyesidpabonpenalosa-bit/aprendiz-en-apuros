@@ -251,10 +251,13 @@ function aprendizMapa(cv){
   if(!cv)return;
   const c=cv.getContext('2d');
   const escala=cv.width/APRENDIZ.FW;               // el sprite llena el ancho
-  let dir=APRENDIZ.idx.south,bob=0;
+  let dir=APRENDIZ.idx.south,bob=0,anda=0;
+  /* Al girarse da unos pasos en el sitio (la caminata del sprite); el resto
+     del tiempo, quieto con su rebote. */
   const pinta=()=>{
     c.clearRect(0,0,cv.width,cv.height);
-    APRENDIZ.dibujar(c,cv.width/2,cv.height-2-bob,APRENDIZ.FH*escala,dir);
+    const andando=performance.now()<anda;
+    APRENDIZ.dibujar(c,cv.width/2,cv.height-2-(andando?0:bob),APRENDIZ.FH*escala,dir,APRENDIZ.pasoDe(andando));
   };
   pinta();
   if(quieto()){                                    // sin animación: unos reintentos por si carga tarde
@@ -262,9 +265,10 @@ function aprendizMapa(cv){
     return;
   }
   const pasos=[0,1,2,3,2,1];let i=0;
-  tcada(()=>{bob=pasos[i=(i+1)%pasos.length];pinta()},140);
+  tcada(()=>{bob=pasos[i=(i+1)%pasos.length];pinta()},135);   // al ritmo de la caminata
   const mirar=()=>{
     dir=Math.floor(Math.random()*APRENDIZ.DIRS.length);
+    anda=performance.now()+1080;                   // dos vueltas de la caminata
     pinta();
     tvez(mirar,1400+Math.random()*2600);
   };

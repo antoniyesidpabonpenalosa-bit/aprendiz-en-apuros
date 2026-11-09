@@ -50,3 +50,29 @@ test('el jefe solo se mueve a los lados: izquierda/derecha bien orientadas', () 
   assert.equal(A.dirDe(3.4, 0), A.idx.east);
   assert.equal(A.dirDe(-3.4, 0), A.idx.west);
 });
+
+/* ── La caminata: 4 columnas por dirección ── */
+test('quieto se usa el cuadro 0; andando, los 4 pasos en orden cada 135 ms', () => {
+  assert.equal(A.PASOS, 4);
+  assert.equal(A.pasoDe(false, 999999), 0);
+  assert.deepEqual([0, 135, 270, 405, 540].map(ms => A.pasoDe(true, ms)), [0, 1, 2, 3, 0]);
+});
+
+test('dibujar toma la columna del paso y la fila de la dirección', async () => {
+  let cargar;
+  const c2 = createContext({
+    Image: class { set src(_) { cargar = () => this.onload(); } },
+    document: { createElement: () => ({ getContext: () => ({ drawImage() {}, getImageData() { throw new Error('sin píxeles'); } }) }) },
+    SKINS: ['#f4c898'], CAMISAS: ['#39a900'], S: { skin: 0, camisa: 0 },
+  });
+  runInContext(readFileSync(join(RAIZ, 'js/sprite.js'), 'utf8'), c2, { filename: 'js/sprite.js' });
+  const B = runInContext('APRENDIZ', c2);
+  const pintado = [];
+  const ctx2 = { imageSmoothingEnabled: true, drawImage: (...a) => pintado.push(a.slice(1, 5)) };
+  assert.equal(B.dibujar(ctx2, 50, 100, 74, B.idx.east, 2), false, 'sin cargar todavía: false (respaldo)');
+  cargar();
+  assert.equal(B.dibujar(ctx2, 50, 100, 74, B.idx.east, 2), true);
+  assert.deepEqual(pintado[0], [2 * 44, B.idx.east * 74, 44, 74]);
+  B.dibujar(ctx2, 50, 100, 74, B.idx.south);
+  assert.deepEqual(pintado[1], [0, 0, 44, 74], 'sin paso: reposo de frente');
+});

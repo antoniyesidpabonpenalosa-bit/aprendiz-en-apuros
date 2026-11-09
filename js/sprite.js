@@ -1,13 +1,15 @@
 'use strict';
 /* ── SPRITE DEL APRENDIZ (cuerpo entero) ──
-   El único recurso de imagen del juego: un atlas (img/aprendiz.png) con las 8
-   direcciones del aprendiz en pixel art. El resto del juego se sigue dibujando
-   con código, así que si el PNG no carga (sin conexión la primera vez, o
-   bloqueado) todo lo que usa el sprite cae a su dibujo de respaldo y el juego
-   funciona igual.
+   Un atlas (img/aprendiz-caminar.png) con el aprendiz en pixel art: una FILA
+   por dirección (las 8 de DIRS, en ese orden) y 4 COLUMNAS de caminata
+   (0 reposo, 1 paso izquierdo, 2 transición, 3 paso derecho). Si el PNG no
+   carga (sin conexión la primera vez, o bloqueado) todo lo que usa el sprite
+   cae a su dibujo de respaldo y el juego funciona igual.
 
-   El atlas lo genera scripts/build-sprite.py desde arte/aprendiz/. FW/FH y el
-   orden de DIRS tienen que coincidir con ese script.
+   La columna 0 es, píxel a píxel, el atlas de reposo que genera
+   scripts/build-sprite.py desde arte/aprendiz/idle/; la caminata (fuente en
+   arte/aprendiz/caminar/) se hizo encima, con la misma paleta de 23 colores,
+   así que el recoloreo de piel y camisa sirve para todos los cuadros.
 
    Recoloreado: el sprite viene con una piel y una camisa fijas; aquí se
    remapean a las que eligió el jugador (SKINS[S.skin]/CAMISAS[S.camisa]), para
@@ -32,7 +34,8 @@ const APRENDIZ = (() => {
   let listo = false;
   const img = new Image();
   img.onload = () => { listo = true; };
-  img.src = 'img/aprendiz.png';
+  img.src = 'img/aprendiz-caminar.png';
+  const PASOS = 4;                               // columnas de la caminata
 
   /* Atlas recoloreado a (skin,camisa). Multiplica el color destino por el brillo
      relativo de cada píxel, así conserva el sombreado del sprite. */
@@ -77,18 +80,23 @@ const APRENDIZ = (() => {
     return [idx.east, idx['south-east'], idx.south, idx['south-west'], idx.west, idx['north-west'], idx.north, idx['north-east']][oct];
   }
 
-  /* Pinta el cuadro `dir` centrado en x, con el PIE en yPie y ese alto lógico.
-     Devuelve false si el atlas aún no cargó (quien llama pinta su respaldo). */
-  function dibujar(ctx, x, yPie, alto, dir, s = S.skin, c = S.camisa) {
+  /* Cuadro de la caminata para quien se está moviendo: avanza cada `cada` ms
+     (135 ms ≈ 7 pasos por segundo, lo que pide el arte). Quieto, el 0. */
+  const pasoDe = (mueve, ms = performance.now(), cada = 135) => mueve ? Math.floor(ms / cada) % PASOS : 0;
+
+  /* Pinta el cuadro (dir, paso) centrado en x, con el PIE en yPie y ese alto
+     lógico. Devuelve false si el atlas aún no cargó (quien llama pinta su
+     respaldo). */
+  function dibujar(ctx, x, yPie, alto, dir, paso = 0, s = S.skin, c = S.camisa) {
     if (!listo) return false;
     const cv = atlasDe(s, c);
     const w = Math.round(alto * FW / FH);
     const antes = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(cv, dir * FW, 0, FW, FH, Math.round(x - w / 2), Math.round(yPie - alto), w, alto);
+    ctx.drawImage(cv, (paso % PASOS) * FW, dir * FH, FW, FH, Math.round(x - w / 2), Math.round(yPie - alto), w, alto);
     ctx.imageSmoothingEnabled = antes;
     return true;
   }
 
-  return { DIRS, idx, FW, FH, dirDe, dibujar, atlasDe, get listo() { return listo; } };
+  return { DIRS, idx, FW, FH, PASOS, dirDe, pasoDe, dibujar, atlasDe, get listo() { return listo; } };
 })();

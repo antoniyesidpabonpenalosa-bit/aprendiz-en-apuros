@@ -278,7 +278,7 @@ function nvJefe(dia,ptsBase){
     if(inv%12<8){
       c.save();
       if(alto>0)c.filter='brightness(0) invert(1)';   /* blanco en el instante del golpe */
-      if(!APRENDIZ.dibujar(c,p.x+8,H-4,30,p.dir??APRENDIZ.idx.south)){
+      if(!APRENDIZ.dibujar(c,p.x+8,H-4,30,p.dir??APRENDIZ.idx.south,quieto()?0:APRENDIZ.pasoDe(Math.abs(mov)>.1))){
         const dy=H-180;
         c.fillStyle=CAMISAS[S.camisa];c.fillRect(p.x,158+dy,16,16);
         c.fillStyle=SKINS[S.skin];c.fillRect(p.x+2,148+dy,12,12);

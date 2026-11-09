@@ -12,7 +12,7 @@ const CACHE = 'pa4-v41';
 const TOPE_RED = 3500;
 const BASE = [
   './', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png',
-  './css/estilos.css', './img/aprendiz.png',
+  './css/estilos.css', './img/aprendiz-caminar.png',
   './fuentes/press-start-2p.woff2', './fuentes/vt323.woff2',
   './js/datos.js', './js/estado.js', './js/consola.js', './js/reto.js', './js/ranking.js', './js/audio.js', './js/graficos.js', './js/efectos.js',
   './js/entrada.js', './js/nucleo.js', './js/menus.js', './js/certificados.js', './js/tienda.js', './js/records.js', './js/retoui.js',
