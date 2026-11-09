@@ -178,8 +178,15 @@ function nvRunner(dia){
     c.fillStyle=noche?'#7a3bd0':'#39a900';c.fillRect(0,SUELO+2,320,3);
     c.shadowBlur=0;
     c.fillStyle=noche?'#0a0518':(HD?'#0a0d1c':'#11152a');c.fillRect(0,SUELO+5,320,40);
-    /* jugador · antes era un bloque quieto que solo subía y bajaba. Ahora
-       corre con el paso clásico de dos cuadros, que cambia cada 8 fotogramas:
+    /* jugador · es el sprite del aprendiz (js/sprite.js) mirando a la derecha:
+       en el suelo recorre los 4 cuadros de la caminata, uno cada 8 fotogramas
+       (el mismo ritmo de 135 ms del arte, pero contado en fotogramas para que
+       se pare con la pausa y con el congelado del golpe); en el aire se queda
+       con las piernas abiertas, y agachado se dibuja a dos tercios de alto,
+       sobre el suelo. Es solo dibujo: la caja de choque sigue siendo la de
+       p.x/p.y.
+       Si el sprite no cargó, queda el dibujo por código de antes: corre con
+       el paso clásico de dos cuadros, que cambia cada 8 fotogramas:
        piernas abiertas (la de atrás apenas levantada) y piernas juntas con
        el cuerpo 1 px arriba, estiradas para que el pie siga en el suelo. En el
        aire las recoge, y agachado va en cuclillas sobre el suelo: antes se
@@ -205,6 +212,12 @@ function nvRunner(dia){
       c.translate(p.x+7,p.y);c.scale(sx,sy);c.translate(-(p.x+7),-p.y);
       if(alto>0)c.filter='brightness(0) invert(1)';   /* blanco en el instante del golpe */
       const enSuelo=p.y>=SUELO,agachado=p.duck>0,paso=(frame>>3)&1;
+      let conSprite=false;
+      if(APRENDIZ.listo){
+        if(agachado){c.translate(p.x+7,p.y);c.scale(1,2/3);c.translate(-(p.x+7),-p.y)}
+        conSprite=APRENDIZ.dibujar(c,p.x+7,p.y,30,APRENDIZ.idx.east,enSuelo?(frame>>3)&3:1);
+      }
+      if(!conSprite){
       const fy=agachado?p.y-20:p.y-30-(enSuelo&&paso?1:0);
       c.fillStyle=CAMISAS[S.camisa];
       if(agachado){
@@ -223,6 +236,7 @@ function nvRunner(dia){
       }
       c.fillStyle=SKINS[S.skin];c.fillRect(p.x+1,fy,12,12);
       c.fillStyle='#101018';c.fillRect(p.x+8,fy+4,2,2);
+      }
       c.restore();
     }
     /* obstáculos */

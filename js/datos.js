@@ -20,8 +20,15 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v21.3';
+const VERSION='v21.4';
 const NOVEDADES=[
+  {v:'v21.4', fecha:'2026-11-09',
+   es:['En el runner corre el mismo aprendiz del mapa y del jefe, con su caminata: corre, salta y se agacha con tu piel y tu camisa.',
+       'El rótulo "¡PERFECTO!" ya no tapa el título del resultado: sale encima.',
+       'Los minijuegos dicen "aprendiz" en vez de "practicante" (la terminal, la rama de Git y la consulta SQL).'],
+   en:['The runner now uses the same apprentice as the map and the boss fight, with the walk cycle: it runs, jumps and ducks with your skin and shirt.',
+       'The "PERFECT!" banner no longer covers the result title: it shows above it.',
+       'Minigames now say "aprendiz" instead of "practicante" (the terminal, the Git branch and the SQL query).']},
   {v:'v21.3', fecha:'2026-11-09',
    es:['El juego se llama ahora "Aprendiz en apuros", sin número: el "4" del título era un número de versión antiguo, no una cuarta parte. Cambian la portada (también se quita el «Capítulo 4» del subtítulo), el nombre del icono al instalarlo, el texto de compartir y la imagen que sale al pegar el enlace.'],
    en:['The game is now called "Aprendiz en apuros", with no number: the "4" in the title was an old version number, not a fourth part. The title screen (the «Chapter 4» is also removed from the subtitle), the installed icon name, the share text and the link preview image all change.']},
@@ -223,7 +230,7 @@ const SQLS=[
  ['SELECT *','FROM cursos','WHERE activo = 1'],
  ['SELECT email','FROM usuarios','WHERE rol = "admin"','LIMIT 10'],
  ['INSERT INTO logros','(nombre, fecha)','VALUES ("titulado", NOW())'],
- ['UPDATE practicantes','SET contrato = 1','WHERE dias = 10'],
+ ['UPDATE aprendices','SET contrato = 1','WHERE dias = 10'],
  ['SELECT curso, COUNT(*)','FROM inscritos','GROUP BY curso','HAVING COUNT(*) > 5'],
  ['DELETE FROM bugs','WHERE estado = "resuelto"'],
  ['SELECT titulo','FROM proyectos','WHERE entregado = 0'],
@@ -466,7 +473,7 @@ const QUIZ={
   {q:'¿Qué es un bug?',o:['Un insecto de oficina','Una función secreta','Un error en el código'],r:2},
   {q:'¿Qué lenguaje da estilos a la web?',o:['CSS','SQL','BIOS'],r:0},
   {q:'¿Qué es una API?',o:['Un tipo de café','Interfaz para comunicar sistemas','Una carpeta oculta'],r:1},
-  {q:'¿Qué hace "git push"?',o:['Borra el proyecto','Empuja al practicante','Sube commits al remoto'],r:2},
+  {q:'¿Qué hace "git push"?',o:['Borra el proyecto','Empuja al aprendiz','Sube commits al remoto'],r:2},
   {q:'¿Qué es el frontend?',o:['La parte visible de la web','El servidor','El cable de red'],r:0},
   {q:'¿Qué base de datos usa tablas?',o:['MongoDB','MySQL','Excel 97'],r:1},
   {q:'¿Qué es un "commit"?',o:['Una reunión','Un error grave','Una foto de tus cambios'],r:2},
@@ -516,7 +523,7 @@ const QUIZ={
   {q:'What is a bug?',o:['An office insect','A secret feature','An error in the code'],r:2},
   {q:'Which language styles the web?',o:['CSS','SQL','BIOS'],r:0},
   {q:'What is an API?',o:['A type of coffee','An interface between systems','A hidden folder'],r:1},
-  {q:'What does "git push" do?',o:['Deletes the project','Pushes the intern','Uploads commits to the remote'],r:2},
+  {q:'What does "git push" do?',o:['Deletes the project','Pushes the apprentice','Uploads commits to the remote'],r:2},
   {q:'What is the frontend?',o:['The visible part of the web','The server','The network cable'],r:0},
   {q:'Which database uses tables?',o:['MongoDB','MySQL','Excel 97'],r:1},
   {q:'What is a "commit"?',o:['A meeting','A serious error','A snapshot of your changes'],r:2},

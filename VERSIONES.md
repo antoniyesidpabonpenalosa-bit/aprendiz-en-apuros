@@ -66,7 +66,10 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v21** | v42 | 2026-11-09 | Retratos dibujados y caminata del aprendiz |
 | v21.1 | v43 | 2026-11-09 | Arreglo: tras publicar, carga la versión nueva al primer intento |
 | v21.2 | v44 | 2026-11-09 | Los personajes de la historia siempre dibujados |
+| v21.3 | — | 2026-11-09 | El juego pasa a llamarse "Aprendiz en apuros", sin número |
+| v21.4 | — | 2026-11-09 | El runner usa el sprite del aprendiz; "¡PERFECTO!" no tapa el título; "aprendiz" en los minijuegos |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 
-Total: 21 versiones grandes y 22 de arreglos.
+Hasta la v44 vieja (v21.2): 21 versiones grandes y 22 de arreglos. De la v21.3
+en adelante ya solo existe el número nuevo (— en la columna del viejo).
