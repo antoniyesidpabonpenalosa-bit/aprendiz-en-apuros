@@ -4,7 +4,7 @@
 /* Va a la par con VERSION de js/datos.js: scripts/validar.mjs falla si se
    separan, porque entonces el juego enseñaría unas novedades y la caché
    serviría otra versión. */
-const CACHE = 'pa4-v42';
+const CACHE = 'pa4-v43';
 /* Cuánto se espera a la red antes de servir la copia guardada. Con "red
    primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
    archivo colgado hasta que el navegador se rindiera, aunque estuviera en
@@ -21,7 +21,11 @@ const BASE = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(BASE)));
+  /* cache:'reload' = directo del servidor. Sin esto, la copia de la versión
+     nueva se llenaba con lo que el navegador tuviera en su caché HTTP, y
+     GitHub Pages deja reutilizar cada archivo 10 minutos (max-age=600): justo
+     después de publicar, la "v42" guardada podía ser la v41 por dentro. */
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(BASE.map(u => new Request(u, { cache: 'reload' })))));
   self.skipWaiting();
 });
 
@@ -45,7 +49,12 @@ self.addEventListener('fetch', e => {
      de nada y sin conexión simplemente no se mide. */
   if (new URL(e.request.url).pathname.startsWith('/_vercel/')) return;
   e.respondWith((async () => {
-    const red = fetch(e.request).then(r => {
+    /* cache:'no-cache': pregunta siempre al servidor si el archivo cambió
+       (si no, contesta un 304 de unos bytes). Sin esto, durante 10 minutos
+       tras publicar, el aviso de "versión nueva" recargaba... la vieja (en
+       GitHub Pages; Vercel ya obliga a revalidar). Se pide por URL porque una
+       navegación no deja cambiar sus opciones. */
+    const red = fetch(e.request.url, { cache: 'no-cache', credentials: 'same-origin' }).then(r => {
       if (r.ok) {
         const copia = r.clone();
         caches.open(CACHE).then(c => c.put(e.request, copia));
