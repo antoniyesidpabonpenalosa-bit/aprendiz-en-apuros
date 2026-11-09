@@ -129,6 +129,11 @@ function rPerso(){
           <button class="rec-chip ${!S.av32?'act':''}" id="pe-d16" type="button">${t('pe_detalle16')}</button>
           <button class="rec-chip ${S.av32?'act':''}" id="pe-d32" type="button">${t('pe_detalle32')}</button>
         </div>
+        <p class="pe-cap">${t('pe_dibujos')}</p>
+        <div class="pe-detalle" role="group" aria-label="${t('pe_dibujos')}">
+          <button class="rec-chip ${!S.dibujos?'act':''}" id="pe-dpix" type="button" aria-pressed="${!S.dibujos}">${t('pe_dib_pixel')}</button>
+          <button class="rec-chip ${S.dibujos?'act':''}" id="pe-ddib" type="button" aria-pressed="${S.dibujos}">${t('pe_dib_dibujo')}</button>
+        </div>
         <p class="pe-nombre">${esc(S.nombre||t('tu'))}</p>
         <p class="pe-rango">${rangoNom()}</p>
         <dl class="pe-stats">
@@ -186,6 +191,16 @@ function rPerso(){
     $('#pe-d16').classList.add('act');$('#pe-d32').classList.remove('act');
     pinta();latido();
   };
+  /* Cómo se ven los personajes de la historia (diálogos y jurado del quiz):
+     pixel como tu avatar o con su retrato dibujado. */
+  const dibujos=v=>{
+    if(S.dibujos===v)return;
+    S.dibujos=v;guardar();SFX.click();
+    $('#pe-dpix').classList.toggle('act',!v);$('#pe-ddib').classList.toggle('act',v);
+    $('#pe-dpix').setAttribute('aria-pressed',String(!v));$('#pe-ddib').setAttribute('aria-pressed',String(v));
+  };
+  $('#pe-dpix').onclick=()=>dibujos(false);
+  $('#pe-ddib').onclick=()=>dibujos(true);
   $('#pe-d32').onclick=()=>{
     if(S.av32)return;
     S.av32=true;guardar();aplicarModo();SFX.click();

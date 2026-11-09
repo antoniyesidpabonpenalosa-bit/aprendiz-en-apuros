@@ -14,7 +14,12 @@ misma línea. Por eso, al añadir una animación nueva hay que regenerar todo y
 copiar el frameW/frameH que imprime este script a js/sprite.js.
 
 Los originales viven en arte/aprendiz/<conjunto>/ (fuente, para regenerar); los
-atlas resultantes se commitean."""
+atlas resultantes se commitean.
+
+OJO: el juego ya no carga img/aprendiz.png sino img/aprendiz-caminar.png (fuente
+en arte/aprendiz/caminar/): 4 cuadros de caminata por dirección, hecha encima de
+este atlas de reposo, que es su columna 0 píxel a píxel. Si se regenera el
+reposo, hay que rehacer también la caminata."""
 from PIL import Image
 import os, json, glob
 

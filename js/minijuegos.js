@@ -337,9 +337,9 @@ function nvQuiz(dia){
   <div class="quiz">
     <div class="tope" style="width:100%"><span>${t('dia')} ${dia+1}</span><span id="q-prog">1/${nPreg}</span></div>
     <div class="jurado">
-      <canvas id="j1" width="48" height="48"></canvas>
-      <canvas id="j2" width="48" height="48"></canvas>
-      <canvas id="j3" width="48" height="48"></canvas>
+      <span class="jur"><canvas id="j1" width="48" height="48"></canvas></span>
+      <span class="jur"><canvas id="j2" width="48" height="48"></canvas></span>
+      <span class="jur"><canvas id="j3" width="48" height="48"></canvas></span>
     </div>
     <p class="pregunta" id="q-preg"></p>
     <div class="opciones" id="q-ops"></div>
@@ -348,6 +348,10 @@ function nvQuiz(dia){
   retratoVivo($('#j1'),CARAS.instructor());
   retratoVivo($('#j2'),CARAS.lider());
   retratoVivo($('#j3'),CARAS.compa());
+  /* El jurado dibujado reacciona: sonríe si aciertas, se preocupa (o se
+     enoja, el líder) si fallas, y vuelve a su cara normal en la siguiente. */
+  const jurado=(g1,g2,g3)=>{retratoDibujo($('#j1'),'INSTRUCTOR',g1);retratoDibujo($('#j2'),'LÍDER',g2);retratoDibujo($('#j3'),'COMPAÑERA',g3)};
+  jurado('normal','normal','normal');
   function pinta(){
     const Q=QUIZ[S.lang][pregs[i]];
     $('#q-prog').textContent=(i+1)+'/'+nPreg;
@@ -358,9 +362,9 @@ function nvQuiz(dia){
       const k=+b.dataset.k;
       $$('#q-ops .op').forEach(x=>x.onclick=null);
       RETO.marcar('quiz',pregs[i],k===Q.r);
-      if(k===Q.r){b.classList.add('bien');buenas++;pts+=120;SFX.ok()}
+      if(k===Q.r){b.classList.add('bien');buenas++;pts+=120;SFX.ok();jurado('feliz','feliz','feliz')}
       else{
-        b.classList.add('mal');malas++;SFX.mal();
+        b.classList.add('mal');malas++;SFX.mal();jurado('preocupado','enojado','preocupado');
         $$('#q-ops .op')[Q.r].classList.add('bien');
       }
       tvez(()=>{
@@ -368,7 +372,7 @@ function nvQuiz(dia){
         if(i>=nPreg){
           if(buenas>=necesarias)resultado(dia,buenas===nPreg?3:buenas>=nPreg-1?2:1,pts+100);
           else fallo(dia);
-        }else pinta();
+        }else{jurado('normal','normal','normal');pinta()}
       },900);
     });
   }

@@ -303,3 +303,36 @@ function quienCara(nom){
   if(/COMPA|COWORK/.test(nom))return CARAS.compa();
   return CARAS.yo(true);
 }
+
+/* ── RETRATOS DIBUJADOS ──
+   Los tres personajes de la historia tienen también una versión ilustrada
+   (img/retratos/, 5 gestos cada uno; las fuentes están en arte/retratos/ y
+   las convierte scripts/build-retratos.mjs). Se pone un <img> encima del
+   canvas pixelado de siempre, que queda debajo como respaldo: si el jugador
+   prefiere pixel (S.dibujos), si el personaje no tiene dibujo (tú, en una
+   sala, los personajes de las cutscenes) o si la imagen no carga (sin
+   conexión la primera vez), se sigue viendo el pixel sin hacer nada más.
+   El canvas tiene que ir dentro de un envoltorio propio (.retrato-wrap,
+   .jur): ahí se coloca el dibujo. */
+const GESTOS=['normal','feliz','enojado','sorprendido','preocupado'];
+function dibujoDe(nom){
+  if(/INSTRUCTOR/.test(nom))return 'instructor';
+  if(/LÍDER|LEAD/.test(nom))return 'lider';
+  if(/COMPA|COWORK/.test(nom))return 'companera';
+  return '';
+}
+/** @param {HTMLCanvasElement|null} cv  @param {string} quien  @param {string} [gesto] */
+function retratoDibujo(cv,quien,gesto='normal'){
+  const wrap=cv&&cv.parentElement;if(!wrap)return;
+  const id=dibujoDe(quien);
+  let img=/** @type {HTMLImageElement|null} */(wrap.querySelector('img.dibujo'));
+  if(!S.dibujos||!id){if(img)img.remove();wrap.classList.remove('con-dibujo');return}
+  if(!img){
+    img=document.createElement('img');img.className='dibujo';img.alt='';img.decoding='async';
+    img.onerror=()=>{if(img)img.remove();wrap.classList.remove('con-dibujo')};
+    wrap.appendChild(img);
+  }
+  wrap.classList.add('con-dibujo');
+  img.dataset.p=id;
+  img.src='img/retratos/'+id+'-'+(GESTOS.includes(gesto)?gesto:'normal')+'.webp';
+}

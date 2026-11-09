@@ -161,7 +161,7 @@ function rBorrar(){
        sin borrar en disco (guardar() no escribe en ensayo) y la copia volvía
        al salir. Primero se termina el ensayo. */
     if(typeof LAB!=='undefined'&&LAB.ensayo())LAB.volverANormal();
-    const prefs={lang:S.lang,snd:S.snd,hd:S.hd,av32:S.av32};
+    const prefs={lang:S.lang,snd:S.snd,hd:S.hd,av32:S.av32,dibujos:S.dibujos};
     S=Object.assign({},DEF,{dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],mejoras:[],records:[],vistos:[],pesos:{},reto:{},mejores:{},mejorSinFin:0,stats:Object.assign({},STATS0)},prefs);
     sanear();guardar();
     vidas=maxVidas();
@@ -251,10 +251,13 @@ function aprendizMapa(cv){
   if(!cv)return;
   const c=cv.getContext('2d');
   const escala=cv.width/APRENDIZ.FW;               // el sprite llena el ancho
-  let dir=APRENDIZ.idx.south,bob=0;
+  let dir=APRENDIZ.idx.south,bob=0,anda=0;
+  /* Al girarse da unos pasos en el sitio (la caminata del sprite); el resto
+     del tiempo, quieto con su rebote. */
   const pinta=()=>{
     c.clearRect(0,0,cv.width,cv.height);
-    APRENDIZ.dibujar(c,cv.width/2,cv.height-2-bob,APRENDIZ.FH*escala,dir);
+    const andando=performance.now()<anda;
+    APRENDIZ.dibujar(c,cv.width/2,cv.height-2-(andando?0:bob),APRENDIZ.FH*escala,dir,APRENDIZ.pasoDe(andando));
   };
   pinta();
   if(quieto()){                                    // sin animación: unos reintentos por si carga tarde
@@ -262,9 +265,10 @@ function aprendizMapa(cv){
     return;
   }
   const pasos=[0,1,2,3,2,1];let i=0;
-  tcada(()=>{bob=pasos[i=(i+1)%pasos.length];pinta()},140);
+  tcada(()=>{bob=pasos[i=(i+1)%pasos.length];pinta()},135);   // al ritmo de la caminata
   const mirar=()=>{
     dir=Math.floor(Math.random()*APRENDIZ.DIRS.length);
+    anda=performance.now()+1080;                   // dos vueltas de la caminata
     pinta();
     tvez(mirar,1400+Math.random()*2600);
   };
@@ -381,6 +385,7 @@ function rDialogo(i){
     <button class="btn" id="d-go" type="button">${t('empezar')}</button>
   </div>`,()=>rDialogo(i));
   retratoVivo($('#d-cara'),quienCara(quien));
+  retratoDibujo($('#d-cara'),quien,GESTO_DIA[i]);
   /* máquina de escribir */
   let j=0;const el=$('#d-linea');
   tcada(()=>{if(pausado)return;if(j<linea.length){el.textContent=linea.slice(0,++j);if(j%3===0)beep(700+Math.random()*200,.02,'triangle',.05)}},28);

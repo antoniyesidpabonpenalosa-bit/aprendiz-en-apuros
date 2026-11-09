@@ -1,0 +1,27 @@
+{
+  "name": "Aprendiz en apuros - caminata",
+  "source": "aprendiz.png (original aportado por el usuario)",
+  "frame_width": 44,
+  "frame_height": 74,
+  "columns": 4,
+  "rows": 8,
+  "frame_count": 32,
+  "frame_duration_ms": 135,
+  "direction_order": [
+    "abajo",
+    "abajo_derecha",
+    "derecha",
+    "arriba_derecha",
+    "arriba",
+    "arriba_izquierda",
+    "izquierda",
+    "abajo_izquierda"
+  ],
+  "frame_order": [
+    "reposo",
+    "paso_izquierdo",
+    "transicion",
+    "paso_derecho"
+  ],
+  "transparent": true
+}
