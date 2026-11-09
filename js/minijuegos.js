@@ -22,7 +22,7 @@ function nvEscribir(dia){
     <div class="tope"><span>${t('dia')} ${dia+1}</span><span id="e-prog">1/${nPal}</span></div>
     <div class="term">
       <div class="term-bar"><i style="background:#ff5468"></i><i style="background:#ffcf3f"></i><i style="background:#54c41a"></i>
-        <span class="term-line" style="margin-left:6px">practicante@sena:~$</span></div>
+        <span class="term-line" style="margin-left:6px">aprendiz@sena:~$</span></div>
       <div class="term-cuerpo">
         <p class="term-line">&gt; ${S.lang==='es'?'escribe el comando:':'type the command:'}</p>
         <p class="palabra" id="e-palabra"></p>

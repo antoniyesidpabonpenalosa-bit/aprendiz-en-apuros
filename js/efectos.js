@@ -221,15 +221,21 @@ const FX=(()=>{
   }
   function saltito(el){el.classList.remove('salto');void el.offsetWidth;el.classList.add('salto')}
   /** Rótulo grande ("¡RACHA x3!") que entra, rebota y se va. Devuelve false si
-      no se mostró (reducir movimiento), para que quien llama ponga su texto de siempre. */
-  function rotulo(txt,col){
+      no se mostró (reducir movimiento), para que quien llama ponga su texto de siempre.
+      Sale centrado un poco por encima de la mitad de la pantalla; si se da
+      `sobre` (un elemento), sale justo ENCIMA de él para no tapar lo que hay
+      debajo (en el resultado tapaba el título "¡APROBADO!"). */
+  function rotulo(txt,col,sobre){
     const s=document.getElementById('screen');
     if(quieto()||!s)return false;
     const r=s.getBoundingClientRect();
+    const tam=Math.round(Math.max(14,Math.min(30,r.width/13)));
+    /* cy: a qué altura queda el centro del texto */
+    const cy=sobre?Math.max(r.top+tam,sobre.getBoundingClientRect().top-tam*1.2):r.top+r.height*.35;
     const d=document.createElement('div');
     d.className='rotulo-fx';d.setAttribute('aria-hidden','true');d.textContent=txt;
-    d.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height*.7}px;`+
-      `font-size:${Math.round(Math.max(14,Math.min(30,r.width/13)))}px;color:${col||'#ffcf3f'}`;
+    d.style.cssText=`left:${r.left}px;top:${cy-tam*2}px;width:${r.width}px;height:${tam*4}px;`+
+      `font-size:${tam}px;color:${col||'#ffcf3f'}`;
     document.body.appendChild(d);
     if(!d.animate){setTimeout(()=>d.remove(),900);return true}
     d.animate([
@@ -240,7 +246,7 @@ const FX=(()=>{
       {opacity:1,transform:'translateX(-2px)',offset:.4},{opacity:1,transform:'translateX(2px)',offset:.45},
       {opacity:1,transform:'translate(0,0)',offset:.75},
       {opacity:0,transform:'translateY(-40px) scale(.9)'}],{duration:1300,easing:'ease-out'}).onfinish=()=>d.remove();
-    setTimeout(()=>chispas(r.left+r.width/2,r.top+r.height*.35,{n:22,vel:220,col:ORO}),230);
+    setTimeout(()=>chispas(r.left+r.width/2,cy,{n:22,vel:220,col:ORO}),230);
     return true;
   }
   /** Interferencia de tele vieja sobre lo que haya en pantalla. */

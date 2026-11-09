@@ -82,7 +82,7 @@ function nvMerge(dia){
         <button class="op" id="g-a" type="button"></button>
         <p class="conflicto-marca">=======</p>
         <button class="op" id="g-b" type="button"></button>
-        <p class="conflicto-marca">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/practicante</p>
+        <p class="conflicto-marca">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/aprendiz</p>
       </div>
     </div>
   </div>`);

@@ -123,7 +123,7 @@ function resultado(i,stars,pts){
   pintar();
   tvez(SFX.star,300);
   confeti();
-  if(stars===3)tvez(()=>FX.rotulo(t('perfecto_fx')),450);
+  if(stars===3)tvez(()=>FX.rotulo(t('perfecto_fx'),'',$('#screen .ico')),450);
 }
 function fallo(i,reintento){
   if(retoActivo)return retoRonda(0,0);   /* en el reto se sigue, sin perder vidas */

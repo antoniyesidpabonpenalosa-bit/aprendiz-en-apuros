@@ -68,7 +68,7 @@ function juegoOrden(dia,cfg){
 }
 
 function nvSQL(dia){
-  return juegoOrden(dia,{pool:'sql',banco:SQLS,cab:'mysql> practicante',
+  return juegoOrden(dia,{pool:'sql',banco:SQLS,cab:'mysql> aprendiz',
     pista:t('sqlmsg'),logro:'sql',rondas:5,seg:75});
 }
 
@@ -164,7 +164,7 @@ function nvTerminal(dia){
     <div class="tope"><span>${t('tarea')}: <b id="tm-prog">1</b>/${nTar}</span><span>${t('errores')}: <b id="tm-err">0</b>/${topeErr}</span></div>
     <div class="term">
       <div class="term-bar"><i style="background:#ff5468"></i><i style="background:#ffcf3f"></i><i style="background:#54c41a"></i>
-        <span class="term-line" style="margin-left:6px">practicante@sena:~$</span></div>
+        <span class="term-line" style="margin-left:6px">aprendiz@sena:~$</span></div>
       <div class="term-cuerpo">
         <p class="term-line">&gt; ${t('term_tarea')}</p>
         <p class="tm-tarea" id="tm-tarea"></p>
