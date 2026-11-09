@@ -4,7 +4,7 @@
 /* Va a la par con VERSION de js/datos.js: scripts/validar.mjs falla si se
    separan, porque entonces el juego enseñaría unas novedades y la caché
    serviría otra versión. */
-const CACHE = 'pa4-v44';
+const CACHE = 'pa4-v21.2';
 /* Cuánto se espera a la red antes de servir la copia guardada. Con "red
    primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
    archivo colgado hasta que el navegador se rindiera, aunque estuviera en
@@ -29,7 +29,7 @@ self.addEventListener('install', e => {
   /* cache:'reload' = directo del servidor. Sin esto, la copia de la versión
      nueva se llenaba con lo que el navegador tuviera en su caché HTTP, y
      GitHub Pages deja reutilizar cada archivo 10 minutos (max-age=600): justo
-     después de publicar, la "v42" guardada podía ser la v41 por dentro. */
+     después de publicar, la "v21" guardada podía ser la v20 por dentro. */
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(BASE.map(u => new Request(u, { cache: 'reload' })))));
   self.skipWaiting();
 });

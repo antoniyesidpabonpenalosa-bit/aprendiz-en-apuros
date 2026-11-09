@@ -3,7 +3,7 @@
 --
 -- SOLO AÑADE. No modifica ni borra ninguna tabla, columna ni dato existente, y
 -- no cambia la firma de ninguna función ya publicada: los clientes que no
--- conocen esto (la v39 y anteriores) siguen funcionando igual.
+-- conocen esto (la v18 —antes llamada v39— y anteriores) siguen funcionando igual.
 --
 -- RONDA EN VIVO (estilo Kahoot): el instructor lanza una pregunta, todos
 -- responden a la vez en su celular y el proyector muestra el podio al instante.

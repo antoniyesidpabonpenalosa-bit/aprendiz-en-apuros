@@ -88,7 +88,7 @@ roja, pelo largo) y el **Líder técnico** (camisa morada, corbata).
 | 3    | ✅ Retratos dibujados en los diálogos, el jurado del quiz y opción en Personalización | Hecho (15 imágenes en `arte/retratos/`) |
 | 4    | ✅ Caminata de 4 cuadros en 8 direcciones (`img/aprendiz-caminar.png`, ya se usa en el jefe y el mapa). Falta: sonido de pasos, puertas que se abren | Opcional |
 
-Las fases 1 y 2 juntas serían una actualización (v42). La 3 va cuando estén las
+Las fases 1 y 2 juntas serían una actualización (v22). La 3 va cuando estén las
 imágenes.
 
 ## Decisiones de diseño pendientes
