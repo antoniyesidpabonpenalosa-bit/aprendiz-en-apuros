@@ -7,10 +7,7 @@ const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',ski
   /* av32: el detalle del RETRATO (16×16 de siempre / 32×32 más fino), independiente
      de hd, que es la piel de la interfaz (retro CRT / OLED). Los dos se pueden
      combinar: no son un selector de tres, son dos interruptores. */
-  av32:false,
-  /* dibujos: los personajes de la historia con su retrato ilustrado (true) o
-     en pixel como siempre (false). Ver retratoDibujo() en graficos.js. */
-  dibujos:true,version:'',stats:Object.assign({},STATS0)};
+  av32:false,version:'',stats:Object.assign({},STATS0)};
 /** La partida guardada. Con los campos escritos uno por uno, la comprobación
     de tipos (jsconfig.json) avisa si en cualquier archivo se escribe mal uno:
     S.dificultad en vez de S.dif, S.pst en vez de S.pts. (Un "typeof DEF" no
@@ -38,7 +35,6 @@ const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',ski
     @property {string} grupo       código de aula ('' = sin grupo)
     @property {number} dif         0, 1 o 2
     @property {boolean} av32
-    @property {boolean} dibujos    retratos ilustrados de los personajes
     @property {string} version     la última versión del juego que vio este aparato
     @property {Object<string,number>} stats
     @property {string[]} vistos    ayudas ya enseñadas (abajo, en sanear)
@@ -89,7 +85,6 @@ function sanear(){
   if(typeof S.t2!=='boolean')S.t2=false;
   if(typeof S.legible!=='boolean')S.legible=false;
   if(typeof S.av32!=='boolean')S.av32=false;
-  if(typeof S.dibujos!=='boolean')S.dibujos=true;
   if(typeof S.version!=='string')S.version='';
   /* Marcas locales: solo entran las que traen nombre y números. Un código de
      guardado escrito a mano con basura dentro pintaba "null undefined" en la

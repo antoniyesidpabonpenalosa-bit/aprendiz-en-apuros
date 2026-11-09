@@ -4,7 +4,7 @@
 /* Va a la par con VERSION de js/datos.js: scripts/validar.mjs falla si se
    separan, porque entonces el juego enseñaría unas novedades y la caché
    serviría otra versión. */
-const CACHE = 'pa4-v43';
+const CACHE = 'pa4-v44';
 /* Cuánto se espera a la red antes de servir la copia guardada. Con "red
    primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
    archivo colgado hasta que el navegador se rindiera, aunque estuviera en
@@ -13,6 +13,11 @@ const TOPE_RED = 3500;
 const BASE = [
   './', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png',
   './css/estilos.css', './img/aprendiz-caminar.png',
+  /* los 15 retratos dibujados (3 personajes × 5 gestos): son su único estilo,
+     así que tienen que estar también sin conexión */
+  './img/retratos/instructor-normal.webp', './img/retratos/instructor-feliz.webp', './img/retratos/instructor-enojado.webp', './img/retratos/instructor-sorprendido.webp', './img/retratos/instructor-preocupado.webp',
+  './img/retratos/companera-normal.webp', './img/retratos/companera-feliz.webp', './img/retratos/companera-enojado.webp', './img/retratos/companera-sorprendido.webp', './img/retratos/companera-preocupado.webp',
+  './img/retratos/lider-normal.webp', './img/retratos/lider-feliz.webp', './img/retratos/lider-enojado.webp', './img/retratos/lider-sorprendido.webp', './img/retratos/lider-preocupado.webp',
   './fuentes/press-start-2p.woff2', './fuentes/vt323.woff2',
   './js/datos.js', './js/estado.js', './js/consola.js', './js/reto.js', './js/ranking.js', './js/audio.js', './js/graficos.js', './js/efectos.js',
   './js/entrada.js', './js/nucleo.js', './js/menus.js', './js/certificados.js', './js/tienda.js', './js/records.js', './js/retoui.js',
