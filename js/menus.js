@@ -161,7 +161,7 @@ function rBorrar(){
        sin borrar en disco (guardar() no escribe en ensayo) y la copia volvía
        al salir. Primero se termina el ensayo. */
     if(typeof LAB!=='undefined'&&LAB.ensayo())LAB.volverANormal();
-    const prefs={lang:S.lang,snd:S.snd,hd:S.hd,av32:S.av32,dibujos:S.dibujos};
+    const prefs={lang:S.lang,snd:S.snd,hd:S.hd,av32:S.av32};
     S=Object.assign({},DEF,{dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],mejoras:[],records:[],vistos:[],pesos:{},reto:{},mejores:{},mejorSinFin:0,stats:Object.assign({},STATS0)},prefs);
     sanear();guardar();
     vidas=maxVidas();

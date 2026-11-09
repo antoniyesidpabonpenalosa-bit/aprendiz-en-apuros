@@ -14,8 +14,13 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v43';
+const VERSION='v44';
 const NOVEDADES=[
+  {v:'v44', fecha:'2026-11-09',
+   es:['Los personajes de la historia (Instructor, Compañera y Líder técnico) ahora salen siempre dibujados: ese es su estilo. Tu aprendiz sigue en pixel.',
+       'Los retratos dibujados se guardan para jugar sin conexión.'],
+   en:['Story characters (Instructor, Coworker and Tech Lead) are now always drawn: that is their style. Your apprentice stays in pixel art.',
+       'Drawn portraits are saved so they also work offline.']},
   {v:'v43', fecha:'2026-11-09',
    es:['Arreglo: después de una actualización, el juego podía seguir mostrando la versión anterior durante unos minutos aunque recargaras (por ejemplo, los retratos de la v42 salían en pixel). Ahora carga la nueva al primer intento.'],
    en:['Fix: right after an update the game could keep showing the previous version for a few minutes even after reloading (for example, the v42 portraits showed up as pixel art). Now it loads the new one on the first try.']},
@@ -808,7 +813,6 @@ const TXT={
  personaje:'PERSONAJE',pe_guardado:'CAMBIOS GUARDADOS',pe_comprado:'COMPRADO',
  pe_bloqueado:'BLOQUEADO',pe_ninguno:'SIN ACCESORIO',pe_comprar:'COMPRAR',
  pe_confirma:'¿Comprar {n} por ⛁{p}?',pe_faltan:'Te faltan ⛁{p}',
- pe_dibujos:'PERSONAJES DE LA HISTORIA',pe_dib_pixel:'🕹 PIXEL',pe_dib_dibujo:'🎨 DIBUJO',
   pe_detalle:'DETALLE DEL RETRATO',pe_detalle16:'🕹 16×16',pe_detalle32:'🔍 32×32',
  tarea:'TAREA',term_tarea:'haz esto:',term_enviar:'ENVIAR',term_era:'era',
  ordenmsg:'Toca los pasos en el orden en que se hacen.',
@@ -935,7 +939,6 @@ const TXT={
   personaje:'CHARACTER',pe_guardado:'CHANGES SAVED',pe_comprado:'OWNED',
   pe_bloqueado:'LOCKED',pe_ninguno:'NO ACCESSORY',pe_comprar:'BUY',
   pe_confirma:'Buy {n} for ⛁{p}?',pe_faltan:'You need ⛁{p} more',
-  pe_dibujos:'STORY CHARACTERS',pe_dib_pixel:'🕹 PIXEL',pe_dib_dibujo:'🎨 DRAWN',
   pe_detalle:'PORTRAIT DETAIL',pe_detalle16:'🕹 16×16',pe_detalle32:'🔍 32×32',
   tarea:'TASK',term_tarea:'do this:',term_enviar:'SEND',term_era:'it was',
   ordenmsg:'Tap the steps in the order they happen.',
