@@ -14,8 +14,15 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v41';
+const VERSION='v42';
 const NOVEDADES=[
+  {v:'v42', fecha:'2026-11-09',
+   es:['Los personajes de la historia ahora tienen retrato DIBUJADO: el Instructor, la Compañera y el Líder técnico aparecen ilustrados en el diálogo de cada día, con un gesto distinto según lo que dicen.',
+       'El jurado del quiz reacciona: sonríen si aciertas y se preocupan (el líder se enoja) si fallas. Si prefieres el estilo pixel de siempre, cámbialo en Personalización → "Personajes de la historia".',
+       'El aprendiz ahora CAMINA: tiene paso animado en las 8 direcciones. Se ve al moverte en la pelea del jefe y cuando mira alrededor en el mapa.'],
+   en:['Story characters now have a DRAWN portrait: the Instructor, the Coworker and the Tech Lead appear illustrated in each day\'s dialogue, with a different expression depending on what they say.',
+       'The quiz panel reacts: they smile when you get it right and worry (the lead gets angry) when you miss. If you prefer the classic pixel style, switch it in Customize → "Story characters".',
+       'The apprentice now WALKS: animated steps in all 8 directions. You can see it when moving in the boss fight and when looking around on the map.']},
   {v:'v41', fecha:'2026-11-06',
    es:['Más vida en cada toque: los aciertos sueltan chispas y una onda verde, los fallos un destello rojo y sacudida, y los botones chispean al pulsarlos.',
        'Runner: cada café sube sus puntos ("+75") con chispas, y el golpe sale del aprendiz con una onda roja. En la pelea del jefe cada disparo que da salta en chispas y, al vencerlo, explota con sacudida fuerte.',
