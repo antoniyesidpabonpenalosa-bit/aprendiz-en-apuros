@@ -14,8 +14,11 @@
      1) subir VERSION aquí y el CACHE de sw.js,
      2) poner su entrada ARRIBA de esta lista, en los dos idiomas.
    El validador comprueba las dos cosas, así que no se puede olvidar. */
-const VERSION='v42';
+const VERSION='v43';
 const NOVEDADES=[
+  {v:'v43', fecha:'2026-11-09',
+   es:['Arreglo: después de una actualización, el juego podía seguir mostrando la versión anterior durante unos minutos aunque recargaras (por ejemplo, los retratos de la v42 salían en pixel). Ahora carga la nueva al primer intento.'],
+   en:['Fix: right after an update the game could keep showing the previous version for a few minutes even after reloading (for example, the v42 portraits showed up as pixel art). Now it loads the new one on the first try.']},
   {v:'v42', fecha:'2026-11-09',
    es:['Los personajes de la historia ahora tienen retrato DIBUJADO: el Instructor, la Compañera y el Líder técnico aparecen ilustrados en el diálogo de cada día, con un gesto distinto según lo que dicen.',
        'El jurado del quiz reacciona: sonríen si aciertas y se preocupan (el líder se enoja) si fallas. Si prefieres el estilo pixel de siempre, cámbialo en Personalización → "Personajes de la historia".',
