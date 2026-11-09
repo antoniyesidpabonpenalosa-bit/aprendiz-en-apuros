@@ -1,6 +1,6 @@
 {
-  "name": "Practicante en Apuros 4",
-  "short_name": "Practicante4",
+  "name": "Aprendiz en apuros",
+  "short_name": "Aprendiz",
   "id": "/aprendiz-en-apuros/",
   "description": "La aventura retro del aprendiz de programación del SENA",
   "start_url": ".",

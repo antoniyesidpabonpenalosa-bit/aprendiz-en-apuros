@@ -1,4 +1,4 @@
-# Practicante en Apuros 4 · SENA
+# Aprendiz en apuros · SENA
 
 Juego hecho con IA que representa lo que vive un aprendiz de programación
 del SENA: su **etapa lectiva**, donde aprende, y su **etapa productiva**, donde
