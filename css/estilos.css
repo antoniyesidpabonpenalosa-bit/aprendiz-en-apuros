@@ -237,6 +237,20 @@ h3::before,h3::after{content:'';flex:1;height:2px;background:var(--bl);min-width
 canvas.retrato{width:68px;height:68px;image-rendering:pixelated;
   border:2px solid var(--bd);background:#0b0e22}
 .hablante{font-size:9px;color:var(--g3);letter-spacing:1px;margin-bottom:8px}
+/* Retrato dibujado (retratoDibujo): más grande que el pixel, para que se lea
+   la cara, y recortado al busto con un poco de zoom desde arriba. El canvas
+   sigue debajo como respaldo. */
+.retrato-wrap.con-dibujo{width:112px;height:112px;flex-basis:112px;
+  border:2px solid var(--bd);background:radial-gradient(circle at 50% 40%,#2a3166,#0b0e22 75%)}
+.con-dibujo>canvas{visibility:hidden}
+img.dibujo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transform:scale(1.22);transform-origin:50% 4%}
+.jur{position:relative;display:block;width:52px;height:52px;overflow:hidden}
+.jur.con-dibujo{border:2px solid var(--bd);background:radial-gradient(circle at 50% 40%,#2a3166,#0b0e22 75%)}
+.jur img.dibujo{transform:scale(2.1);transform-origin:50% 6%}
+/* la compañera tiene la cara más a la derecha en su dibujo: el zoom se
+   centra ahí para que no quede cortada */
+.jur img.dibujo[data-p="companera"]{transform-origin:60% 6%}
 .linea{font-family:'VT323',monospace;font-size:21px;line-height:1.35;color:var(--tx4)}
 .cert{border:3px dashed var(--g2);padding:18px 14px;
   display:flex;width:min(440px,100%);flex-direction:column;gap:12px;
@@ -1144,7 +1158,7 @@ html.apaisado .cv-wrap>.fila-cv{grid-area:ctrl;flex-direction:column;width:auto}
   html.apaisado #hud{padding-bottom:6px}
   html.apaisado .centro{gap:8px;padding:4px 6px}
   /* el jurado y la pregunta ceden alto para que quepan las cuatro opciones */
-  html.apaisado .jurado canvas{width:38px;height:38px}
+  html.apaisado .jurado canvas,html.apaisado .jur{width:38px;height:38px}
   html.apaisado .pregunta{min-height:0;font-size:21px}
   html.apaisado .quiz{gap:8px}
   html.apaisado .quiz .op{padding:8px 12px;font-size:19px}

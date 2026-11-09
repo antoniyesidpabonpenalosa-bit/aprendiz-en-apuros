@@ -161,7 +161,7 @@ function rBorrar(){
        sin borrar en disco (guardar() no escribe en ensayo) y la copia volvía
        al salir. Primero se termina el ensayo. */
     if(typeof LAB!=='undefined'&&LAB.ensayo())LAB.volverANormal();
-    const prefs={lang:S.lang,snd:S.snd,hd:S.hd,av32:S.av32};
+    const prefs={lang:S.lang,snd:S.snd,hd:S.hd,av32:S.av32,dibujos:S.dibujos};
     S=Object.assign({},DEF,{dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],mejoras:[],records:[],vistos:[],pesos:{},reto:{},mejores:{},mejorSinFin:0,stats:Object.assign({},STATS0)},prefs);
     sanear();guardar();
     vidas=maxVidas();
@@ -381,6 +381,7 @@ function rDialogo(i){
     <button class="btn" id="d-go" type="button">${t('empezar')}</button>
   </div>`,()=>rDialogo(i));
   retratoVivo($('#d-cara'),quienCara(quien));
+  retratoDibujo($('#d-cara'),quien,GESTO_DIA[i]);
   /* máquina de escribir */
   let j=0;const el=$('#d-linea');
   tcada(()=>{if(pausado)return;if(j<linea.length){el.textContent=linea.slice(0,++j);if(j%3===0)beep(700+Math.random()*200,.02,'triangle',.05)}},28);

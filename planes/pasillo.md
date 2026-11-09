@@ -85,7 +85,7 @@ roja, pelo largo) y el **Líder técnico** (camisa morada, corbata).
 |------|---------------------------------------------------------------------|----------------------------|
 | 1    | Pasillo jugable: puertas, caminar, entrar, los 2 pasillos y la lista de respaldo | No              |
 | 2    | Personajes en el pasillo con consejos (también los personalizados)   | Revisar los textos         |
-| 3    | Retratos dibujados en los diálogos y opción en Ajustes               | Generar las imágenes       |
+| 3    | ✅ Retratos dibujados en los diálogos, el jurado del quiz y opción en Personalización | Hecho (15 imágenes en `arte/retratos/`) |
 | 4    | Animación de caminar de verdad (2–4 cuadros), sonido de pasos, puertas que se abren | Opcional    |
 
 Las fases 1 y 2 juntas serían una actualización (v42). La 3 va cuando estén las

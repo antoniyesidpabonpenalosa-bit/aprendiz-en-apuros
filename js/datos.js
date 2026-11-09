@@ -579,6 +579,12 @@ const DIALOGOS={
   ['TECH LEAD','End-of-month night deploy. Survive the night and your workplace stage is signed off.'],
  ]
 };
+/* El gesto del retrato dibujado en el diálogo de cada día (los dos idiomas
+   dicen lo mismo, así que va aparte). Uno de GESTOS (graficos.js). */
+const GESTO_DIA=[
+  'feliz','sorprendido','sorprendido','enojado','feliz',          // 1-5
+  'normal','preocupado','preocupado','normal','normal',           // 6-10
+  'feliz','normal','enojado','feliz','preocupado'];               // 11-15
 const INTRO={
  es:[
   {ico:'🎒',t:'AÑO 2026. Primer día en el centro de formación: arranca tu ETAPA LECTIVA.'},
@@ -792,7 +798,8 @@ const TXT={
  personaje:'PERSONAJE',pe_guardado:'CAMBIOS GUARDADOS',pe_comprado:'COMPRADO',
  pe_bloqueado:'BLOQUEADO',pe_ninguno:'SIN ACCESORIO',pe_comprar:'COMPRAR',
  pe_confirma:'¿Comprar {n} por ⛁{p}?',pe_faltan:'Te faltan ⛁{p}',
- pe_detalle:'DETALLE DEL RETRATO',pe_detalle16:'🕹 16×16',pe_detalle32:'🔍 32×32',
+ pe_dibujos:'PERSONAJES DE LA HISTORIA',pe_dib_pixel:'🕹 PIXEL',pe_dib_dibujo:'🎨 DIBUJO',
+  pe_detalle:'DETALLE DEL RETRATO',pe_detalle16:'🕹 16×16',pe_detalle32:'🔍 32×32',
  tarea:'TAREA',term_tarea:'haz esto:',term_enviar:'ENVIAR',term_era:'era',
  ordenmsg:'Toca los pasos en el orden en que se hacen.',
  libre_tit:'MODO LIBRE',libre_expl:'Juega el minijuego que quieras, las veces que quieras. No da XP: deja marca.',
@@ -918,6 +925,7 @@ const TXT={
   personaje:'CHARACTER',pe_guardado:'CHANGES SAVED',pe_comprado:'OWNED',
   pe_bloqueado:'LOCKED',pe_ninguno:'NO ACCESSORY',pe_comprar:'BUY',
   pe_confirma:'Buy {n} for ⛁{p}?',pe_faltan:'You need ⛁{p} more',
+  pe_dibujos:'STORY CHARACTERS',pe_dib_pixel:'🕹 PIXEL',pe_dib_dibujo:'🎨 DRAWN',
   pe_detalle:'PORTRAIT DETAIL',pe_detalle16:'🕹 16×16',pe_detalle32:'🔍 32×32',
   tarea:'TASK',term_tarea:'do this:',term_enviar:'SEND',term_era:'it was',
   ordenmsg:'Tap the steps in the order they happen.',

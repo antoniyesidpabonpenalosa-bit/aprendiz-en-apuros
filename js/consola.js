@@ -62,7 +62,7 @@ const LAB = (() => {
 
   /* ── ESTADO DEL LABORATORIO (todo en memoria) ── */
   /* Ajustes del jugador: sobreviven a volver a lo normal. */
-  const PREFS = ['lang', 'snd', 'mus', 'hd', 'legible', 'av32', 'dif', 'nombre'];
+  const PREFS = ['lang', 'snd', 'mus', 'hd', 'legible', 'av32', 'dibujos', 'dif', 'nombre'];
   let puesto = Object.create(null);   /* id -> valor puesto por la consola */
   let ensayoOn = false;     /* ¿esta sesión ya dejó de contar? */
   let avanzadoOn = false;   /* ¿se desbloquearon las órdenes de desarrollo? */
