@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v22';
+const VERSION='v22.1';
 const NOVEDADES=[
+  {v:'v22.1', fecha:'2026-11-10',
+   es:['Arreglo: el cartel "Hay una versión nueva" ya no sale la primera vez que abres el juego, cuando no había ninguna versión anterior. Sigue saliendo cuando se publica una versión nueva y ya tenías el juego instalado.'],
+   en:['Fix: the "New version available" banner no longer shows up the first time you open the game, when there was no previous version. It still shows when a new version is published and you already had the game installed.']},
   {v:'v22', fecha:'2026-11-10',
    es:['Nuevo pasillo jugable con 3 zonas y 15 puertas; camina hacia un día, revisa las estrellas y entra al nivel. La lista de días sigue disponible.'],
    en:['New playable hallway with 3 areas and 15 doors; walk to a day, check your stars and enter the level. The day list remains available.']},
