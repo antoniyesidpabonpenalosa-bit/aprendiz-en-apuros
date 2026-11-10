@@ -96,15 +96,25 @@ function mostrarAvisoVersion(){
 $('#aviso-ver .av-btn').onclick=()=>{location.reload()};
 $('#aviso-ver .av-x').onclick=()=>{$('#aviso-ver').hidden=true;versionNuevaLista=false};
 
-if('serviceWorker' in navigator&&location.protocol==='https:'){
-  navigator.serviceWorker.register('./sw.js').then(reg=>{
+/* Registro del service worker. Va en una función (y no suelta) para que
+   scripts/regresiones.mjs pueda llamarla en local, donde el protocolo no es
+   https pero el navegador sí deja registrar. */
+function registrarSW(){
+  return navigator.serviceWorker.register('./sw.js').then(reg=>{
     reg.addEventListener('updatefound',()=>{
       const nuevo=reg.installing;
       if(!nuevo)return;
+      /* Solo si YA había una versión instalada: en la primera visita también
+         se instala una, y ahí no hay nada que avisar. Se mira AHORA, al
+         empezar a instalarse, y no al activarse: el sw.js nuevo llama a
+         skipWaiting() y clients.claim(), así que al activarse ya sería el
+         controlador de la página aunque sea el primero que se instala.
+         reg.active sigue siendo el viejo hasta entonces (y, a diferencia de
+         navigator.serviceWorker.controller, no depende de que la página se
+         haya cargado saltándose el service worker con Mayús+recargar). */
+      const habiaVersion=!!reg.active;
       nuevo.addEventListener('statechange',()=>{
-        /* Solo si YA había uno mandando: en la primera visita también se
-           instala uno, y ahí no hay nada que avisar. */
-        if(nuevo.state==='activated'&&navigator.serviceWorker.controller)avisarVersionNueva();
+        if(nuevo.state==='activated'&&habiaVersion)avisarVersionNueva();
       });
     });
     /* El navegador solo busca versiones nuevas al navegar, y un proyector no
@@ -112,6 +122,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
     setInterval(()=>{reg.update().catch(()=>{})},30*60*1000);
   }).catch(()=>{});
 }
+if('serviceWorker' in navigator&&location.protocol==='https:')registrarSW();
 
 /* Antes de la portada: si salió algo nuevo desde la última vez, se cuenta. */
 rNovedades(rTitulo);

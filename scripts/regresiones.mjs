@@ -533,6 +533,47 @@ await caso('sala en vivo · crear: el modo EN VIVO esconde los minijuegos y guar
   return [oculto && cfg && cfg[0] === 'K7M2Q' && cfg[1].n === 10 && cfg[1].limite === 30, JSON.stringify(cfg)];
 });
 
+/* El cartel «Hay una versión nueva» salía en la PRIMERA visita: el sw.js nuevo
+   llama a skipWaiting() y clients.claim(), así que al activarse ya era el
+   controlador de la página y la condición «ya había uno mandando» se cumplía.
+   Aquí se registra a mano (en local el protocolo no es https, y el registro
+   automático lo exige). Para simular una publicación hace falta que sw.js
+   cambie de bytes entre dos comprobaciones, y Playwright no intercepta la
+   descarga del service worker: por eso este caso levanta su propio servidor
+   mínimo, que añade un comentario distinto al sw.js cada vez que se cambia
+   `publicacion`. */
+await caso('versión nueva · el cartel NO sale en la primera visita y SÍ al publicar otra versión', { intro: true, nombre: 'R', version: 'v0' }, async pg => {
+  const { createServer } = await import('node:http');
+  const { readFile } = await import('node:fs/promises');
+  const tipos = { html: 'text/html', js: 'text/javascript', css: 'text/css', webmanifest: 'application/manifest+json', svg: 'image/svg+xml', png: 'image/png', webp: 'image/webp', woff2: 'font/woff2' };
+  let publicacion = 0;
+  const mini = createServer(async (q, r) => {
+    try {
+      let ruta = decodeURIComponent(new URL(q.url, 'http://x').pathname);
+      if (ruta.endsWith('/')) ruta += 'index.html';
+      let cuerpo = await readFile(join(RAIZ, ruta));
+      if (ruta === '/sw.js') cuerpo = Buffer.concat([cuerpo, Buffer.from(`\n// publicación ${publicacion}\n`)]);
+      r.writeHead(200, { 'content-type': tipos[ruta.split('.').pop()] || 'application/octet-stream', 'cache-control': 'no-store' });
+      r.end(cuerpo);
+    } catch (e) { r.writeHead(404); r.end(); }
+  });
+  await new Promise(ok => mini.listen(0, '127.0.0.1', ok));
+  try {
+    await pg.goto(`http://127.0.0.1:${mini.address().port}/index.html`, { waitUntil: 'load' });
+    await pg.waitForFunction(() => typeof pantallaId !== 'undefined');
+    await pg.evaluate(() => registrarSW());
+    await pg.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 8000 });
+    await pausa(800);
+    const foto = () => pg.evaluate(() => ({ lista: versionNuevaLista, visible: !$('#aviso-ver').hidden }));
+    const primera = await foto();
+    publicacion = 1;
+    await pg.evaluate(async () => { await (await navigator.serviceWorker.getRegistration()).update(); });
+    await pg.waitForFunction(() => versionNuevaLista, null, { timeout: 8000 }).catch(() => {});
+    const segunda = await foto();
+    return [!primera.lista && !primera.visible && segunda.lista && segunda.visible, `primera=${JSON.stringify(primera)} segunda=${JSON.stringify(segunda)}`];
+  } finally { mini.close(); }
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

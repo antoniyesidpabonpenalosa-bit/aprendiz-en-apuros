@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v21.5';
+const VERSION='v21.6';
 const NOVEDADES=[
+  {v:'v21.6', fecha:'2026-11-10',
+   es:['Arreglo: el cartel "Hay una versión nueva" ya no sale la primera vez que abres el juego, cuando no había ninguna versión anterior. Sigue saliendo cuando se publica una versión nueva y ya tenías el juego instalado.'],
+   en:['Fix: the "New version available" banner no longer shows up the first time you open the game, when there was no previous version. It still shows when a new version is published and you already had the game installed.']},
   {v:'v21.5', fecha:'2026-11-10',
    es:['Arreglo: los rangos subían demasiado rápido y se llegaba a DEV SENIOR en el día 4. Ahora acompañan la historia: PRACTICANTE hacia el día 5, DEV JUNIOR al terminar la etapa lectiva, TITULADO SENA al acabar la campaña y DEV SENIOR solo si sigues jugando después (repetir días, modo libre, sin fin y reto diario). Tu experiencia no se pierde: solo cambia el rango que te corresponde.'],
    en:['Fix: ranks went up too fast and you reached SENIOR DEV on day 4. Now they follow the story: INTERN around day 5, JUNIOR DEV when the training stage ends, SENA GRADUATE when the campaign ends and SENIOR DEV only by playing on (replaying days, free mode, endless and the daily challenge). Your XP is kept: only the rank it gives you changes.']},
