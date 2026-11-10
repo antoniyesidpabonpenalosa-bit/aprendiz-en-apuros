@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v21.4';
+const VERSION='v21.5';
 const NOVEDADES=[
+  {v:'v21.5', fecha:'2026-11-10',
+   es:['Arreglo: los rangos subían demasiado rápido y se llegaba a DEV SENIOR en el día 4. Ahora acompañan la historia: PRACTICANTE hacia el día 5, DEV JUNIOR al terminar la etapa lectiva, TITULADO SENA al acabar la campaña y DEV SENIOR solo si sigues jugando después (repetir días, modo libre, sin fin y reto diario). Tu experiencia no se pierde: solo cambia el rango que te corresponde.'],
+   en:['Fix: ranks went up too fast and you reached SENIOR DEV on day 4. Now they follow the story: INTERN around day 5, JUNIOR DEV when the training stage ends, SENA GRADUATE when the campaign ends and SENIOR DEV only by playing on (replaying days, free mode, endless and the daily challenge). Your XP is kept: only the rank it gives you changes.']},
   {v:'v21.4', fecha:'2026-11-09',
    es:['En el runner corre el mismo aprendiz del mapa y del jefe, con su caminata: corre, salta y se agacha con tu piel y tu camisa.',
        'El rótulo "¡PERFECTO!" ya no tapa el título del resultado: sale encima.',
@@ -191,13 +194,23 @@ const DIFS=[
   {id:1, ico:'⚔️', es:'NORMAL',    en:'NORMAL',    vida:0,  tiempo:1,   jefe:1,    cant:1,    ritmo:1,    err:3, ojeada:3, pista:false},
   {id:2, ico:'💀', es:'PESADILLA', en:'NIGHTMARE', vida:-1, tiempo:0.8, jefe:1.35, cant:1.3,  ritmo:0.75, err:2, ojeada:2, pista:false},
 ];
+/* Rangos por experiencia (XP = todos los puntos ganados, aunque luego se
+   gasten en la tienda). Calibrados con lo que da de verdad la campaña en
+   NORMAL, medido con el robot de scripts/barrido.mjs (nov. 2026): entre 600
+   y 2.400 XP por día, unas 21.000 al acabar el día 15. Antes el máximo
+   estaba en 4.500 y se llegaba a DEV SENIOR en el día 4.
+     APRENDIZ      tras el día 1
+     PRACTICANTE   hacia la mitad de la etapa lectiva (día 5)
+     DEV JUNIOR    al terminar la lectiva (día 10, el contrato)
+     TITULADO SENA al acabar la campaña (día 15, el título)
+     DEV SENIOR    después: repetir días, modo libre, sin fin, reto diario */
 const RANGOS=[
-  {xp:0,   es:'ASPIRANTE',   en:'APPLICANT'},
-  {xp:400, es:'APRENDIZ',    en:'APPRENTICE'},
-  {xp:1000,es:'PRACTICANTE', en:'INTERN'},
-  {xp:1800,es:'DEV JUNIOR',  en:'JUNIOR DEV'},
-  {xp:2800,es:'TITULADO SENA',en:'SENA GRADUATE'},
-  {xp:4500,es:'DEV SENIOR',  en:'SENIOR DEV'},
+  {xp:0,    es:'ASPIRANTE',   en:'APPLICANT'},
+  {xp:1500, es:'APRENDIZ',    en:'APPRENTICE'},
+  {xp:5500, es:'PRACTICANTE', en:'INTERN'},
+  {xp:11000,es:'DEV JUNIOR',  en:'JUNIOR DEV'},
+  {xp:18000,es:'TITULADO SENA',en:'SENA GRADUATE'},
+  {xp:30000,es:'DEV SENIOR',  en:'SENIOR DEV'},
 ];
 const NIVELES=[
   {ico:'☕', tipo:'escribir', es:'PRIMER DÍA',        en:'FIRST DAY',        ses:'Configura tu terminal',      sen:'Set up your terminal'},
