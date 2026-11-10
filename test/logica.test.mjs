@@ -3,6 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { cargarJuego } from './ayuda.mjs';
+import { readFileSync } from 'node:fs';
 
 /* Los arreglos del juego nacen en otro contexto de vm, así que su prototipo no
    es el mismo Array de aquí y deepEqual estricto los rechazaría aunque el
@@ -497,4 +498,22 @@ test('los rangos acompañan la campaña y DEV SENIOR no llega a mitad de camino'
   assert.notEqual(rango(tras(15)), 'DEV SENIOR', 'DEV SENIOR pide seguir jugando después');
   const xs = arr(v.RANGOS.map(r => r.xp));
   assert.deepEqual(xs, [...xs].sort((a, b) => a - b), 'los umbrales van en orden');
+});
+
+/* El pasillo (v22) saca todos sus textos de TXT con claves pas_*. t() devuelve
+   la clave tal cual si falta, así que una clave olvidada en un idioma saldría
+   en pantalla como "pas_entrar" sin que nada fallara. */
+test('pasillo · sus textos están en los dos idiomas', () => {
+  const v = cargarJuego();
+  const es = Object.keys(v.TXT.es).filter(k => k.startsWith('pas_')).sort();
+  const en = Object.keys(v.TXT.en).filter(k => k.startsWith('pas_')).sort();
+  assert.ok(es.length >= 19, 'faltan claves del pasillo');
+  assert.deepEqual(es, en);
+  for (const k of es) for (const l of ['es', 'en']) assert.ok(v.TXT[l][k].trim(), `${l}.${k} vacío`);
+  /* y las que usa js/pasillo.js y js/menus.js existen de verdad */
+  const usadas = new Set();
+  for (const f of ['js/pasillo.js', 'js/menus.js'])
+    for (const m of readFileSync(new URL('../' + f, import.meta.url), 'utf8').matchAll(/'(pas_[a-z0-9_]+)'/g)) usadas.add(m[1]);
+  assert.ok(usadas.size >= 19);
+  for (const k of usadas) assert.ok(k in v.TXT.es, `js usa ${k} y no está en TXT`);
 });

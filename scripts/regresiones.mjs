@@ -383,7 +383,7 @@ await caso('foco · las pantallas "puerta" ponen el foco en su acción principal
 
 await caso('movimiento · con "reducir movimiento" la casilla del jefe no pulsa', { intro: true, nombre: 'R', pts: 5, xp: 5, version: 'v36', dias: Array(15).fill(3) }, async pg => {
   await pg.emulateMedia({ reducedMotion: 'reduce' });
-  await pg.evaluate(() => rMapa()); await pausa(200);
+  await pg.evaluate(() => rMapaLista()); await pausa(200);
   const a = await pg.evaluate(() => getComputedStyle(document.querySelector('#m-jefe')).animationName);
   return [a === 'none', `animación: ${a}`];
 });
@@ -531,6 +531,125 @@ await caso('sala en vivo · crear: el modo EN VIVO esconde los minijuegos y guar
   await pg.click('#sc-vn [data-n="10"]'); await pg.click('#sc-vl [data-l="30"]'); await pg.click('#sc-crear'); await pausa(200);
   const cfg = await pg.evaluate(() => window.__cfg);
   return [oculto && cfg && cfg[0] === 'K7M2Q' && cfg[1].n === 10 && cfg[1].limite === 30, JSON.stringify(cfg)];
+});
+
+/* ── EL PASILLO (v22) ──
+   El mapa de la campaña pasó a ser un pasillo de puertas. Lo que no puede
+   romperse: que solo ELIJA el día (nada de progreso propio), que una puerta
+   cerrada no deje entrar, y que la lista de siempre siga ahí. */
+const MEDIO = { intro: true, nombre: 'R', pts: 50, xp: 6065, version: 'v22', dias: [3, 3, 2, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+
+await caso('pasillo · 15 puertas en 3 zonas, con el estado que dice el progreso', MEDIO, async pg => {
+  await prep(pg, { t2: false });
+  const r = await pg.evaluate(() => {
+    const z = [];
+    for (let n = 0; n < 3; n++) { rPasillo(n); z.push($$('.pasillo-puerta').map(b => b.dataset.dia + ':' + ['superada', 'disponible', 'bloqueada'].find(c => b.classList.contains(c))).join(' ')); }
+    rMapa();
+    return { z, pantalla: pantallaId, zonaAuto: $('.pasillo-bloque.actual').dataset.zona };
+  });
+  const ok = r.z[0] === '0:superada 1:superada 2:superada 3:superada 4:superada'
+    && r.z[1] === '5:disponible 6:bloqueada 7:bloqueada 8:bloqueada 9:bloqueada'
+    && r.z[2] === '10:bloqueada 11:bloqueada 12:bloqueada 13:bloqueada 14:bloqueada'
+    && r.pantalla === 'pasillo' && r.zonaAuto === '1';
+  return [ok, JSON.stringify(r)];
+});
+
+await caso('pasillo · tocar la puerta, caminar y entrar lleva al diálogo de ESE día', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rMapa()); await pausa(200);
+  await pg.click('.pasillo-puerta[data-dia="5"]');
+  const andando = await pg.$eval('#pasillo-entrar', b => b.disabled);
+  await pg.waitForFunction(() => !$('#pasillo-entrar').disabled, null, { timeout: 4000 });
+  /* el aprendiz quedó delante de la puerta, no a un lado */
+  const desvio = await pg.evaluate(() => {
+    const a = $('#pasillo-actor').getBoundingClientRect(), d = $('.pasillo-puerta.seleccionada .pasillo-marco').getBoundingClientRect();
+    return Math.abs((a.left + a.width / 2) - (d.left + d.width / 2));
+  });
+  await pg.click('#pasillo-entrar'); await pausa(700);
+  const r = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
+  return [andando && desvio < 4 && r.pantalla === 'dialogo' && r.dia === 5, JSON.stringify({ andando, desvio: Math.round(desvio), ...r })];
+});
+
+await caso('pasillo · una puerta cerrada enseña su ficha pero no deja entrar', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rMapa()); await pausa(200);
+  await pg.click('.pasillo-puerta[data-dia="8"]'); await pausa(300);
+  const r = await pg.evaluate(() => {
+    const b = $('#pasillo-entrar'), dis = b.disabled;
+    /* a la fuerza: ni quitándole el disabled entra */
+    b.disabled = false; b.click();
+    return { dis, ficha: $('#pasillo-ficha').innerText.includes('9'), pantalla: pantallaId };
+  });
+  await pausa(600);
+  const despues = await pg.evaluate(() => pantallaId);
+  return [r.dis && r.ficha && despues === 'pasillo', JSON.stringify({ ...r, despues })];
+});
+
+await caso('pasillo · pasear por él no cambia la partida guardada', MEDIO, async pg => {
+  await prep(pg);
+  const r = await pg.evaluate(async () => {
+    const antes = localStorage.getItem('pa3'), mem = JSON.stringify(S);
+    rMapa();
+    for (const n of [0, 1, 2]) { rPasillo(n); $$('.pasillo-puerta').forEach(b => b.click()); }
+    $('#pasillo-lista').click(); $('#m-pasillo').click();
+    await new Promise(r => setTimeout(r, 400));
+    return { igualDisco: localStorage.getItem('pa3') === antes, igualMem: JSON.stringify(S) === mem, pantalla: pantallaId };
+  });
+  return [r.igualDisco && r.igualMem && r.pantalla === 'pasillo', JSON.stringify(r)];
+});
+
+await caso('pasillo · teclado: ← → eligen puerta y Enter entra', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rPasillo(0)); await pausa(200);
+  /* la primera flecha elige el día que toca en esta zona (el 5), no el de al lado */
+  await pg.keyboard.press('ArrowRight'); await pausa(100);
+  const primera = await pg.evaluate(() => $('.pasillo-puerta.seleccionada').dataset.dia);
+  await pg.keyboard.press('ArrowLeft'); await pg.keyboard.press('ArrowLeft'); await pausa(100);
+  const r = await pg.evaluate(() => ({ sel: $('.pasillo-puerta.seleccionada').dataset.dia, foco: document.activeElement.dataset.dia }));
+  await pg.waitForFunction(() => !$('#pasillo-entrar').disabled, null, { timeout: 4000 });
+  await pg.keyboard.press('Enter'); await pausa(700);
+  const fin = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
+  return [primera === '4' && r.sel === '2' && r.foco === '2' && fin.pantalla === 'dialogo' && fin.dia === 2, JSON.stringify({ primera, ...r, ...fin })];
+});
+
+await caso('pasillo · con "reducir movimiento" llega a la puerta sin caminar', MEDIO, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await prep(pg); await pg.evaluate(() => rPasillo(0)); await pausa(200);
+  const r = await pg.evaluate(() => { $('.pasillo-puerta[data-dia="0"]').click(); return $('#pasillo-entrar').disabled; });
+  return [r === false, r ? 'el botón seguía esperando a la caminata' : 'entra enseguida'];
+});
+
+await caso('pasillo · la lista de días sigue ahí, con el jefe, y cambiar de idioma no cambia de zona', { ...MEDIO, t2: true, dias: Array(15).fill(2) }, async pg => {
+  await prep(pg); await pg.evaluate(() => rPasillo(1)); await pausa(150);
+  await pg.click('#b-lang'); await pausa(200);
+  const en = await pg.evaluate(() => ({ zona: $('.pasillo-bloque.actual').dataset.zona, cartel: $('.pasillo-cartel').textContent, jefe: !!$('#pasillo-jefe') }));
+  await pg.click('#b-lang'); await pausa(150);
+  await pg.click('#pasillo-lista'); await pausa(200);
+  const lista = await pg.evaluate(() => ({ pantalla: pantallaId, cartas: $$('.etapa-card[data-i]').length, jefe: !!$('#m-jefe') }));
+  await pg.click('.etapa-card[data-i="13"]'); await pausa(300);
+  const fin = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
+  const ok = en.zona === '1' && en.cartel.startsWith('DAY') && en.jefe && lista.pantalla === 'mapa' && lista.cartas === 15 && lista.jefe && fin.pantalla === 'dialogo' && fin.dia === 13;
+  return [ok, JSON.stringify({ en, lista, fin })];
+});
+
+await caso('pasillo · el día 11 abre primero la escena de la empresa, como en la lista', { ...MEDIO, dias: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0] }, async pg => {
+  await prep(pg, { t2: false }); await pg.evaluate(() => rMapa()); await pausa(200);
+  const zona = await pg.evaluate(() => $('.pasillo-bloque.actual').dataset.zona);
+  await pg.click('.pasillo-puerta[data-dia="10"]');
+  await pg.waitForFunction(() => !$('#pasillo-entrar').disabled, null, { timeout: 4000 });
+  await pg.click('#pasillo-entrar'); await pausa(700);
+  const p = await pg.evaluate(() => pantallaId);
+  return [zona === '2' && p === 'cut', `zona ${zona}, pantalla ${p}`];
+});
+
+await caso('pasillo · en un celular de 320 px nada se sale: el botón de entrar queda dentro de su ficha', MEDIO, async pg => {
+  await pg.setViewportSize({ width: 320, height: 568 }); await pausa(200);
+  await prep(pg); await pg.evaluate(() => rPasillo(0)); await pausa(200);
+  await pg.click('.pasillo-puerta[data-dia="2"]');
+  await pg.waitForFunction(() => !$('#pasillo-entrar').disabled, null, { timeout: 4000 });
+  const r = await pg.evaluate(() => {
+    const c = s => $(s).getBoundingClientRect();
+    const f = c('#pasillo-ficha'), b = c('#pasillo-entrar'), n = c('.pasillo-navega'), sc = c('#screen');
+    return { dentro: b.bottom <= f.bottom + 1, sinPisar: f.bottom <= n.top + 1, visible: b.bottom <= sc.bottom + 1, ancho: $('#screen').scrollWidth <= $('#screen').clientWidth };
+  });
+  return [r.dentro && r.sinPisar && r.visible && r.ancho, JSON.stringify(r)];
 });
 
 await nav.close();
