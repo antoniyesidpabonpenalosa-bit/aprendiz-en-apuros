@@ -69,7 +69,8 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | v21.3 | — | 2026-11-09 | El juego pasa a llamarse "Aprendiz en apuros", sin número |
 | v21.4 | — | 2026-11-09 | El runner usa el sprite del aprendiz; "¡PERFECTO!" no tapa el título; "aprendiz" en los minijuegos |
 | v21.5 | — | 2026-11-10 | Rangos recalibrados: DEV SENIOR ya no se alcanza en el día 4 |
-| v21.6 | — | 2026-11-10 | Arreglo: el cartel de versión nueva ya no sale en la primera visita |
+| **v22** | — | 2026-11-10 | El pasillo: el mapa de la campaña con 3 zonas y 15 puertas (la lista de días sigue disponible) |
+| v22.1 | — | 2026-11-10 | Arreglo: el cartel de versión nueva ya no sale en la primera visita |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

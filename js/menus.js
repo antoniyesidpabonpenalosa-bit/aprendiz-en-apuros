@@ -275,8 +275,8 @@ function aprendizMapa(cv){
   tvez(mirar,1200+Math.random()*2000);
 }
 
-/* ── MAPA ── */
-function rMapa(){
+/* ── MAPA CLÁSICO / LISTA DE DÍAS (respaldo accesible) ── */
+function rMapaLista(){
   const p=progreso();
   let cards=`<p class="mapa-sec">${t('t1sec')}</p>`;
   NIVELES.forEach((N,i)=>{
@@ -315,6 +315,7 @@ function rMapa(){
   pantalla('mapa',`
   <div class="centro mapa">
     <h2>${t('mapa')}</h2>
+    <button class="btn btn2" id="m-pasillo" type="button">${t('pas_volver')}</button>
     <div class="tit-id">
       <span>🎓 ${rangoNom()}</span>
       <span class="sep">${difActual().ico} ${tj(difActual())}</span>
@@ -323,13 +324,19 @@ function rMapa(){
     <canvas class="mapa-aprendiz" id="m-aprendiz" width="96" height="164" aria-hidden="true"></canvas>
     <div class="etapas">${cards}</div>
     <button class="btn btn2" id="m-volver" type="button">${t('volver')}</button>
-  </div>`,rMapa);
+  </div>`,rMapaLista);
   aprendizMapa($('#m-aprendiz'));
   $$('.etapa-card:not([disabled])').forEach(b=>b.onclick=()=>{SFX.click();empezarDia(+b.dataset.i)});
   const btnJefe=$('#m-jefe');
   if(btnJefe)btnJefe.onclick=()=>{SFX.click();rCutscene(JEFE_INTRO,()=>nvJefe(9,0))};
   $('#m-volver').onclick=()=>{SFX.click();rTitulo()};
+  $('#m-pasillo').onclick=()=>{SFX.click();rMapa()};
 }
+
+/* El mapa de la campaña es el pasillo (js/pasillo.js). Todo lo que volvía "al
+   mapa" (el resultado, la pausa, el game over, la portada) sigue llamando a
+   rMapa() y llega aquí; la lista de arriba queda como la otra forma de verlo. */
+function rMapa(){rPasillo();}
 
 /* ── NOVEDADES ──
    Lo que cambió desde la última vez que se abrió el juego en este aparato. Sale
