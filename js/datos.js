@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v21.5';
+const VERSION='v22';
 const NOVEDADES=[
+  {v:'v22', fecha:'2026-11-10',
+   es:['Nuevo pasillo jugable con 3 zonas y 15 puertas; camina hacia un día, revisa las estrellas y entra al nivel. La lista de días sigue disponible.'],
+   en:['New playable hallway with 3 areas and 15 doors; walk to a day, check your stars and enter the level. The day list remains available.']},
   {v:'v21.5', fecha:'2026-11-10',
    es:['Arreglo: los rangos subían demasiado rápido y se llegaba a DEV SENIOR en el día 4. Ahora acompañan la historia: PRACTICANTE hacia el día 5, DEV JUNIOR al terminar la etapa lectiva, TITULADO SENA al acabar la campaña y DEV SENIOR solo si sigues jugando después (repetir días, modo libre, sin fin y reto diario). Tu experiencia no se pierde: solo cambia el rango que te corresponde.'],
    en:['Fix: ranks went up too fast and you reached SENIOR DEV on day 4. Now they follow the story: INTERN around day 5, JUNIOR DEV when the training stage ends, SENA GRADUATE when the campaign ends and SENIOR DEV only by playing on (replaying days, free mode, endless and the daily challenge). Your XP is kept: only the rank it gives you changes.']},
@@ -894,6 +897,14 @@ const TXT={
   pegacodigo:'Pega aquí tu código PA4...',impok:'¡PARTIDA IMPORTADA!',impmal:'CÓDIGO INVÁLIDO',
   guardatxt:'Exporta tu partida y pégala en otro dispositivo para continuar allí.',
   t1sec:'📚 ETAPA LECTIVA',t2sec:'💼 ETAPA PRODUCTIVA',
+  /* el pasillo (js/pasillo.js) */
+  pas_tit:'PASILLO',pas_ayuda:'Toca una puerta o usa ← → y Enter',pas_dia:'DÍA',
+  pas_z1:'Formación · Aulas',pas_z2:'Formación · Laboratorios',pas_z3:'Empresa · Oficinas',
+  pas_sec:'Secciones del pasillo',pas_elige:'Elige una puerta para conocer el nivel.',
+  pas_ant:'Anterior',pas_sig:'Siguiente',pas_lista:'Ver como lista',pas_volver:'← Volver al pasillo',
+  pas_jefe:'Repetir Bug final',pas_menu:'Menú principal',
+  pas_ok:'Completado',pas_libre:'Disponible',pas_lock:'Bloqueado',
+  pas_entrar:'ENTRAR AL NIVEL',pas_repetir:'REPETIR NIVEL',pas_cerrada:'PUERTA BLOQUEADA',
   sqlmsg:'Toca las piezas en ORDEN para armar la consulta',objetivo:'OBJETIVO',
   regexmsg:'Toca TODO lo que cumpla el patrón',patron:'PATRÓN',
   acc_capa:'CAPA DE HÉROE',acc_gato:'GATO DE OFICINA',acc_corona:'CORONA DEV',
@@ -1020,6 +1031,14 @@ const TXT={
   pegacodigo:'Paste your PA4 code here...',impok:'SAVE IMPORTED!',impmal:'INVALID CODE',
   guardatxt:'Export your save and paste it on another device to continue there.',
   t1sec:'📚 TRAINING STAGE',t2sec:'💼 WORKPLACE STAGE',
+  /* the hallway (js/pasillo.js) */
+  pas_tit:'HALLWAY',pas_ayuda:'Tap a door or use ← → and Enter',pas_dia:'DAY',
+  pas_z1:'Training · Classrooms',pas_z2:'Training · Labs',pas_z3:'Company · Offices',
+  pas_sec:'Hallway sections',pas_elige:'Choose a door to learn about the level.',
+  pas_ant:'Previous',pas_sig:'Next',pas_lista:'View as list',pas_volver:'← Back to hallway',
+  pas_jefe:'Replay final bug',pas_menu:'Main menu',
+  pas_ok:'Completed',pas_libre:'Available',pas_lock:'Locked',
+  pas_entrar:'ENTER LEVEL',pas_repetir:'REPLAY LEVEL',pas_cerrada:'LOCKED DOOR',
   sqlmsg:'Tap the pieces IN ORDER to build the query',objetivo:'GOAL',
   regexmsg:'Tap EVERYTHING that matches the pattern',patron:'PATTERN',
   acc_capa:'HERO CAPE',acc_gato:'OFFICE CAT',acc_corona:'DEV CROWN',

@@ -1,7 +1,32 @@
 # Plan: el pasillo del centro de formación
 
-> Estado: **idea aprobada, diseño por definir**. Nada de esto está programado
-> todavía. Falta cerrar las decisiones del final y empezar por la fase 1.
+> Estado: **fase 1 hecha (v22)**. El pasillo ya es el mapa de la campaña
+> (`js/pasillo.js`). Falta la fase 2: los personajes y sus consejos.
+
+## Lo que quedó en la v22 (fase 1)
+
+Llegó como paquete del autor (*Pasillo interactivo v44-rc1*, hecho sobre la v43
+vieja) y se integró sobre la v21.5. Se hizo así, que no es exactamente lo que
+decía el plan de abajo:
+
+- **Tres zonas de cinco puertas**, no dos pasillos con desplazamiento:
+  Formación · Aulas (días 1–5), Formación · Laboratorios (6–10) y
+  Empresa · Oficinas (11–15, con otra paleta). Se cambia de zona con
+  Anterior / Siguiente o con las tres pestañas.
+- Tocas una puerta, el aprendiz **camina** hasta ella y sale su **ficha**
+  (nombre, estado, estrellas) con el botón de entrar. La puerta se abre y se
+  entra con `empezarDia(i)`: cutscenes, diálogos y minijuegos son los de siempre.
+- Las puertas cerradas enseñan su ficha pero no dejan entrar.
+- El pasillo **no guarda nada**: el estado sale de `S.dias` y `progreso()`.
+- **Ver como lista** abre la lista de días de antes (`rMapaLista()`), con la
+  casilla para repetir al jefe.
+- Teclado: ← → eligen puerta, Enter entra. Respeta "reducir movimiento".
+- El fondo es CSS, sin imagen: los letreros se traducen y todo crece con el
+  zoom del marco.
+
+Lo que NO entró y sigue pendiente de este plan: el icono del minijuego en el
+letrero, escaleras o ascensor entre etapas, la puerta propia del Bug final (hoy
+es un botón debajo), el mando, el sonido de pasos y toda la fase 2.
 
 ## La idea en una frase
 
@@ -83,13 +108,13 @@ roja, pelo largo) y el **Líder técnico** (camisa morada, corbata).
 
 | Fase | Qué                                                                 | Depende del autor          |
 |------|---------------------------------------------------------------------|----------------------------|
-| 1    | Pasillo jugable: puertas, caminar, entrar, los 2 pasillos y la lista de respaldo | No              |
+| 1    | ✅ Pasillo jugable: puertas, caminar, entrar, las 3 zonas y la lista de respaldo | Hecho (v22)     |
 | 2    | Personajes en el pasillo con consejos (también los personalizados)   | Revisar los textos         |
 | 3    | ✅ Retratos dibujados en los diálogos, el jurado del quiz y opción en Personalización | Hecho (15 imágenes en `arte/retratos/`) |
 | 4    | ✅ Caminata de 4 cuadros en 8 direcciones (`img/aprendiz-caminar.png`, ya se usa en el jefe y el mapa). Falta: sonido de pasos, puertas que se abren | Opcional |
 
-Las fases 1 y 2 juntas serían una actualización (v22). La 3 va cuando estén las
-imágenes.
+La fase 1 salió como v22. La fase 2 (personajes y consejos) sería la siguiente
+versión grande.
 
 ## Decisiones de diseño pendientes
 
