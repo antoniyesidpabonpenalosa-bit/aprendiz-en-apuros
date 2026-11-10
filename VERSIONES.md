@@ -68,6 +68,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | v21.2 | v44 | 2026-11-09 | Los personajes de la historia siempre dibujados |
 | v21.3 | — | 2026-11-09 | El juego pasa a llamarse "Aprendiz en apuros", sin número |
 | v21.4 | — | 2026-11-09 | El runner usa el sprite del aprendiz; "¡PERFECTO!" no tapa el título; "aprendiz" en los minijuegos |
+| v21.5 | — | 2026-11-10 | Rangos recalibrados: DEV SENIOR ya no se alcanza en el día 4 |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

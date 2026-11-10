@@ -479,3 +479,22 @@ test('"__proto__" en el código de guardado no entra a la partida', () => {
   assert.equal(v.S.polluted, undefined);
   assert.equal(({}).polluted, undefined);
 });
+
+/* ══════════ RANGOS ══════════
+   La experiencia de cada día se midió con scripts/barrido.mjs en NORMAL
+   (nov. 2026). Antes DEV SENIOR estaba en 4.500 XP y se alcanzaba en el día
+   4; estos casos fijan que el rango acompañe a la historia. */
+test('los rangos acompañan la campaña y DEV SENIOR no llega a mitad de camino', () => {
+  const v = cargarJuego();
+  const rango = xp => v.rangoDe(xp).es;
+  const NORMAL = [1742, 1295, 1120, 575, 820, 1318, 1920, 924, 900, 2300, 1190, 1350, 2435, 1100, 2300];
+  const tras = d => NORMAL.slice(0, d).reduce((a, b) => a + b, 0);
+  assert.equal(rango(0), 'ASPIRANTE');
+  assert.equal(rango(tras(1)), 'APRENDIZ', 'tras el día 1');
+  assert.equal(rango(6065), 'PRACTICANTE', 'el caso real: 5 días jugados con 6.065 XP');
+  assert.equal(rango(tras(10)), 'DEV JUNIOR', 'al acabar la etapa lectiva');
+  assert.equal(rango(tras(15)), 'TITULADO SENA', 'al acabar la campaña');
+  assert.notEqual(rango(tras(15)), 'DEV SENIOR', 'DEV SENIOR pide seguir jugando después');
+  const xs = arr(v.RANGOS.map(r => r.xp));
+  assert.deepEqual(xs, [...xs].sort((a, b) => a - b), 'los umbrales van en orden');
+});
