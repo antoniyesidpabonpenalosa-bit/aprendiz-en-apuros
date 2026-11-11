@@ -31,7 +31,7 @@ function rPasillo(zona=pasilloZonaAuto()){
     return `<button class="pasillo-puerta ${estado}" type="button" data-dia="${i}"
        aria-label="${t('pas_dia')} ${i+1}: ${esc(tj({es:N.es,en:N.en}))} · ${t(NOM_ESTADO[estado])}"
        aria-pressed="false">
-      <span class="pasillo-cartel">${t('pas_dia')} ${i+1}</span>
+      <span class="pasillo-cartel"><span class="pasillo-ico" aria-hidden="true">${N.ico}</span><span>${t('pas_dia')} ${i+1}</span></span>
       <span class="pasillo-marco"><span class="pasillo-cristal" aria-hidden="true"></span><span class="pasillo-manija" aria-hidden="true"></span></span>
       <span class="pasillo-insignia" aria-hidden="true">${pista}</span>
     </button>`;
@@ -96,8 +96,19 @@ function rPasillo(zona=pasilloZonaAuto()){
   };
   const moveX=()=>{actor.style.left=pos+'%'};
   const ficha=$('#pasillo-ficha');
-  /* lista: el aprendiz ya llegó a la puerta (mientras camina, el botón espera) */
-  const nuevaFicha=(i,lista=false)=>{
+  /* Abre la puerta y entra al día. Se comprueba todo otra vez: entre pintar el
+     botón y pulsarlo puede haber cambiado la puerta elegida. */
+  const entrar=i=>{
+    if(entrando||andando||seleccion!==i||i>progreso())return;
+    entrando=true;
+    puertas[i-bloque.inicio].classList.add('abriendo');
+    SFX.click();
+    tvez(()=>{if(pantallaId==='pasillo'&&i<=progreso())empezarDia(i)},quieto()?0:350);
+  };
+  /* lista: el aprendiz ya llegó a la puerta (mientras camina, el botón espera).
+     mostrar: llevar la ficha a la vista (no al abrir el pasillo, que movería la
+     pantalla sola antes de que el jugador toque nada). */
+  const nuevaFicha=(i,lista=false,mostrar=true)=>{
     const N=NIVELES[i];
     const disponible=i<=progreso(),stars=S.dias[i];
     ficha.innerHTML=`<div class="pasillo-ficha-datos">
@@ -107,28 +118,23 @@ function rPasillo(zona=pasilloZonaAuto()){
     </div>
     <button class="btn" id="pasillo-entrar" type="button" ${!disponible||!lista?'disabled':''}>${disponible?t(stars>=1?'pas_repetir':'pas_entrar'):t('pas_cerrada')}</button>`;
     /* en una pantalla baja la ficha puede quedar a medias: que se vea entera */
-    if(lista&&ficha.scrollIntoView)ficha.scrollIntoView({block:'nearest'});
+    if(lista&&mostrar&&ficha.scrollIntoView)ficha.scrollIntoView({block:'nearest'});
     const b=$('#pasillo-entrar');
-    if(b&&!b.disabled)b.onclick=()=>{
-      /* Se comprueba otra vez: entre pintar el botón y pulsarlo puede haber
-         cambiado la puerta elegida. */
-      if(entrando||seleccion!==i||i>progreso()||andando)return;
-      entrando=true;
-      puertas[i-bloque.inicio].classList.add('abriendo');
-      SFX.click();
-      tvez(()=>{if(pantallaId==='pasillo'&&i<=progreso())empezarDia(i)},quieto()?0:350);
-    };
+    if(b&&!b.disabled)b.onclick=()=>entrar(i);
   };
-  const llegada=i=>{
+  const marcar=i=>{
+    seleccion=i;
+    puertas.forEach(b=>b.classList.toggle('seleccionada',+b.dataset.dia===i));
+  };
+  const llegada=(i,mostrar=true)=>{
     andando=false;orientacion=APRENDIZ.idx.north;paint();
     puertas.forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.dia===i)));
-    nuevaFicha(i,true);
+    nuevaFicha(i,true,mostrar);
   };
   const elegir=i=>{
     if(entrando||i<bloque.inicio||i>=bloque.fin)return;
     if(anim){cancelAnimationFrame(anim);anim=0;}
-    seleccion=i;
-    puertas.forEach(b=>b.classList.toggle('seleccionada',+b.dataset.dia===i));
+    marcar(i);
     SFX.click();
     /* A una puerta cerrada no se camina: solo se enseña su ficha. */
     if(i>progreso()){andando=false;paint();nuevaFicha(i,true);return;}
@@ -145,7 +151,13 @@ function rPasillo(zona=pasilloZonaAuto()){
     };
     anim=requestAnimationFrame(tick);
   };
-  puertas.forEach(b=>{b.onclick=()=>{elegir(+b.dataset.dia)}});
+  /* Tocar la puerta en la que ya estás parado es entrar (lo mismo que el botón
+     de la ficha). Mientras camina no cuenta: un doble toque por descuido solo
+     vuelve a elegirla. */
+  puertas.forEach(b=>{b.onclick=()=>{
+    const i=+b.dataset.dia;
+    if(seleccion===i&&!andando)entrar(i);else elegir(i);
+  }});
   /* Teclado: ← → cambian de puerta (y el foco va con ella); Enter en la puerta
      ya elegida, o con el foco en la escena, entra. Enter en OTRA puerta la
      elige: eso lo hace el clic normal del botón. */
@@ -176,7 +188,11 @@ function rPasillo(zona=pasilloZonaAuto()){
   /* El juego limpia sus temporizadores al cambiar de pantalla; este cuadro de
      animación es propio y se corta aquí. */
   alLimpiar.push(()=>{cancelado=true;if(anim)cancelAnimationFrame(anim)});
-  moveX();paint();
+  /* Si el día que toca está en esta zona, el aprendiz ya espera delante de su
+     puerta con la ficha lista: seguir la campaña es un toque, como en la lista.
+     En las otras zonas (y con la campaña terminada) no hay nada elegido. */
+  if(p>=bloque.inicio&&p<bloque.fin){marcar(p);pos=xDia(p);moveX();llegada(p,false);}
+  else{moveX();paint();}
   /* Por si el dibujo del aprendiz todavía se está descargando. */
   [200,800].forEach(ms=>tvez(()=>{if(!andando)paint()},ms));
   escena.focus({preventScroll:true});

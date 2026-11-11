@@ -1568,7 +1568,10 @@ html.hd button.rp-fila,html.hd .repaso-entrada{border-radius:10px}
   border:none;background:transparent;padding:0;cursor:pointer;color:#f0f3ff;position:relative}
 .pasillo-cartel{flex:none;font:clamp(7px,1.35vw,10px)/1.2 'Press Start 2P',monospace;color:#f6edca;
   background:#202942;border:2px solid #8a94ac;box-shadow:0 2px #161e33;padding:4px 6px;margin-bottom:5px;
-  white-space:nowrap;max-width:100%;min-height:21px;display:flex;align-items:center;justify-content:center}
+  white-space:nowrap;max-width:100%;min-height:21px;display:flex;align-items:center;justify-content:center;gap:5px}
+/* el icono del minijuego: en color aunque la letra del letrero sea de pixeles */
+.pasillo-ico{font:12px/1 system-ui,'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif;letter-spacing:0}
+.pasillo-puerta.bloqueada .pasillo-ico{filter:grayscale(1);opacity:.7}
 .pasillo-marco{flex:1 1 0;min-height:0;aspect-ratio:9/16;max-width:92%;background:var(--puerta);border:4px solid var(--marco);
   border-bottom-width:0;
   box-shadow:0 0 0 2px #8c96b0,inset 5px 0 rgba(13,23,43,.35),inset 0 -6px rgba(14,23,40,.28);
@@ -1612,7 +1615,9 @@ html.hd button.rp-fila,html.hd .repaso-entrada{border-radius:10px}
 @media(min-height:700px){html.apaisado .pasillo-escena{height:250px}}
 @media(max-width:550px){
   .pasillo-escena{height:200px}
-  .pasillo-cartel{font-size:7px;letter-spacing:-.4px;border-width:1px;padding:4px 3px}
+  /* en el celular no caben en una fila: el icono va encima del número */
+  .pasillo-cartel{font-size:7px;letter-spacing:-.4px;border-width:1px;padding:3px 3px;flex-direction:column;gap:2px;margin-bottom:4px}
+  .pasillo-ico{font-size:10px}
   .pasillo-marco{border-width:3px;border-bottom-width:0}
   .pasillo-insignia{bottom:-15px;font-size:8px}
   .pasillo-actor{width:32px;height:54px}

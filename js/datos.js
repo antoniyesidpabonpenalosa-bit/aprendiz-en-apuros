@@ -20,8 +20,15 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v22.1';
+const VERSION='v22.2';
 const NOVEDADES=[
+  {v:'v22.2', fecha:'2026-11-11',
+   es:['Pasillo: al entrar, el aprendiz ya te espera delante de la puerta del día que toca, con el botón de entrar listo. Seguir la campaña vuelve a ser un solo toque.',
+       'Pasillo: tocar otra vez la puerta en la que ya estás parado también entra al nivel.',
+       'Pasillo: cada letrero muestra el icono de su minijuego.'],
+   en:['Hallway: when you come in, the apprentice is already waiting in front of the door of your next day, with the enter button ready. Continuing the campaign is one tap again.',
+       'Hallway: tapping the door you are already standing at also enters the level.',
+       'Hallway: each sign shows the icon of its minigame.']},
   {v:'v22.1', fecha:'2026-11-10',
    es:['Arreglo: el cartel "Hay una versión nueva" ya no sale la primera vez que abres el juego, cuando no había ninguna versión anterior. Sigue saliendo cuando se publica una versión nueva y ya tenías el juego instalado.'],
    en:['Fix: the "New version available" banner no longer shows up the first time you open the game, when there was no previous version. It still shows when a new version is published and you already had the game installed.']},

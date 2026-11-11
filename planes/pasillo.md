@@ -21,12 +21,16 @@ decía el plan de abajo:
 - **Ver como lista** abre la lista de días de antes (`rMapaLista()`), con la
   casilla para repetir al jefe.
 - Teclado: ← → eligen puerta, Enter entra. Respeta "reducir movimiento".
+- Desde la v22.2: al abrir, el aprendiz ya espera delante de la puerta del
+  día que toca con la ficha lista (seguir la campaña es un toque); tocar otra
+  vez la puerta en la que estás también entra; y cada letrero lleva el icono
+  de su minijuego.
 - El fondo es CSS, sin imagen: los letreros se traducen y todo crece con el
   zoom del marco.
 
-Lo que NO entró y sigue pendiente de este plan: el icono del minijuego en el
-letrero, escaleras o ascensor entre etapas, la puerta propia del Bug final (hoy
-es un botón debajo), el mando, el sonido de pasos y toda la fase 2.
+Lo que NO entró y sigue pendiente de este plan: escaleras o ascensor entre
+etapas, la puerta propia del Bug final (hoy es un botón debajo), el mando, el
+sonido de pasos y toda la fase 2.
 
 ## La idea en una frase
 
