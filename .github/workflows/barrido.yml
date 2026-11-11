@@ -40,7 +40,12 @@ on:
 
 jobs:
   barrido:
-    runs-on: ubuntu-latest
+    # Versión fija y no ubuntu-latest: el 2026-11-11 GitHub empezó a dar
+    # Ubuntu 26.04 bajo esa etiqueta y Playwright 1.56.1 no sabe instalar ahí el
+    # navegador ("does not support chromium on ubuntu26.04"), así que el barrido
+    # fallaba antes de jugar una sola partida. Para subir de Ubuntu hay que
+    # subir a la vez la versión de Playwright de más abajo.
+    runs-on: ubuntu-24.04
     # De sobra para las 90 partidas; si se pasa de aquí es que algo se colgó
     # de verdad y más vale cortar que quemar una hora de runner.
     timeout-minutes: 45
