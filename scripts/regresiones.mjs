@@ -756,6 +756,86 @@ await caso('pasillo · en un celular de 320 px nada se sale: el botón de entrar
   return [r.dentro && r.sinPisar && r.visible && r.ancho, JSON.stringify(r)];
 });
 
+/* ── EFECTOS DE PIXEL ART · pixelfx (v23) ──
+   js/pxefectos.js pone tres efectos en el juego. Lo que no puede romperse: que
+   cada uno salga en su momento y no en otro, que se vea de verdad (pixeles en
+   el lienzo, no solo "un efecto vivo"), que "reducir movimiento" no suelte
+   nada y que ninguno toque la partida. */
+const pixelesPintados = (pg, caja) => pg.evaluate(c => {
+  const cv = document.getElementById('px-fx');
+  if (!cv) return -1;
+  const k = cv.width / innerWidth, d = cv.getContext('2d').getImageData(Math.max(0, Math.floor(c.x * k)), Math.max(0, Math.floor(c.y * k)), Math.max(1, Math.floor(c.w * k)), Math.max(1, Math.floor(c.h * k))).data;
+  let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++;
+  return n;
+}, caja);
+
+await caso('pixelfx · perder una vida rompe el corazón sobre la cabecera, y solo resta UNA vida', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => { diaAct = 5; vidas = 3; jugarNivel(5); }); await pausa(300);
+  const r = await pg.evaluate(() => {
+    const h = $('#h-vidas').getBoundingClientRect();
+    fallo(5);
+    return { vivos: PX._vivas(), vidas, pantalla: pantallaId, h: { x: h.left, y: h.top, w: h.width, h: h.height } };
+  });
+  await pausa(450);
+  /* el corazón cae dentro de la zona de la cabecera: pixeles pintados ahí */
+  const n = await pixelesPintados(pg, { x: r.h.x - 20, y: r.h.y - 30, w: r.h.w + 40, h: r.h.h + 70 });
+  return [r.vivos === 1 && r.vidas === 2 && r.pantalla === 'fallo' && n > 40, JSON.stringify({ ...r, pixeles: n })];
+});
+
+await caso('pixelfx · «NUEVO RANGO!» solo sale al CRUZAR un rango, no en cualquier resultado', MEDIO, async pg => {
+  await prep(pg);
+  const sin = await pg.evaluate(async () => {
+    /* 6065 XP + 100: sigue en PRACTICANTE, no hay rango nuevo */
+    S.xp = 6065; PX._vaciar(); resultado(2, 2, 100);
+    await new Promise(r => setTimeout(r, 1000));
+    return PX._vivas();
+  });
+  const con = await pg.evaluate(async () => {
+    /* 10.950 XP + 400 cruza los 11.000 de DEV JUNIOR */
+    S.xp = 10950; PX._vaciar(); resultado(2, 2, 400);
+    await new Promise(r => setTimeout(r, 1000));
+    return { vivos: PX._vivas(), rango: rangoNom() };
+  });
+  await pausa(300);
+  const n = await pixelesPintados(pg, { x: 0, y: 60, w: 400, h: 400 });
+  return [sin === 0 && con.vivos === 1 && con.rango === 'DEV JUNIOR' && n > 100, JSON.stringify({ sinCruzar: sin, ...con, pixeles: n })];
+});
+
+await caso('pixelfx · «xN RACHA» sale del runner y se ve dentro de su pantalla', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => { diaAct = 7; vidas = 3; nvRunner(7); }); await pausa(900);
+  const r = await pg.evaluate(() => {
+    const c = $('#r-cv').getBoundingClientRect();
+    return { ok: PX.racha(5, t('combo'), $('#r-cv')), c: { x: c.left, y: c.top, w: c.width, h: c.height } };
+  });
+  await pausa(500);
+  const n = await pixelesPintados(pg, r.c);
+  return [r.ok === true && n > 150, JSON.stringify({ lanzado: r.ok, pixeles: n })];
+});
+
+await caso('pixelfx · con "reducir movimiento" no suelta ni crea nada', MEDIO, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await prep(pg); await pg.evaluate(() => { diaAct = 5; vidas = 3; jugarNivel(5); }); await pausa(300);
+  const r = await pg.evaluate(async () => {
+    fallo(5);
+    const a = [PX.corazon(2), PX.nivel('X', null), PX.racha(3, 'RACHA', document.body)];
+    resultado(2, 3, 5000);
+    await new Promise(r => setTimeout(r, 2200));
+    return { a, lienzo: !!document.getElementById('px-fx'), vidas };
+  });
+  return [r.a.every(x => x === false) && !r.lienzo && r.vidas === 2, JSON.stringify(r)];
+});
+
+await caso('pixelfx · los efectos no tocan la partida guardada y se apagan solos', MEDIO, async pg => {
+  await prep(pg);
+  const r = await pg.evaluate(async () => {
+    const antes = JSON.stringify(S);
+    PX.corazon(3); PX.racha(5, 'RACHA', document.body);
+    await new Promise(r => setTimeout(r, 3000));
+    return { igual: JSON.stringify(S) === antes, vivos: PX._vivas() };
+  });
+  return [r.igual && r.vivos === 0, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);
