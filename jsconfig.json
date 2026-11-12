@@ -22,5 +22,5 @@
     "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["js/*.js"]
+  "include": ["js/*.js", "js/*.d.ts"]
 }

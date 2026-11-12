@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v22.2';
+const VERSION='v23';
 const NOVEDADES=[
+  {v:'v23', fecha:'2026-11-12',
+   es:['Tres efectos nuevos de pixel art, de la biblioteca pixelfx: el corazón que se rompe cuando pierdes una vida, una columna de luz con "NUEVO RANGO!" cuando subes de rango, y "xN RACHA" al encadenar cafés en el runner.'],
+   en:['Three new pixel art effects, from the pixelfx library: the heart that breaks when you lose a life, a pillar of light with "NEW RANK!" when you rank up, and "xN STREAK" when you chain coffees in the runner.']},
   {v:'v22.2', fecha:'2026-11-11',
    es:['Pasillo: al entrar, el aprendiz ya te espera delante de la puerta del día que toca, con el botón de entrar listo. Seguir la campaña vuelve a ser un solo toque.',
        'Pasillo: tocar otra vez la puerta en la que ya estás parado también entra al nivel.',
@@ -879,7 +882,7 @@ const TXT={
   vidas_txt:'VIDAS',
   nombreq:'¿CÓMO TE LLAMAS?',tunombre:'TU NOMBRE',ok:'¡LISTO!',
   nombre_falta:'Escribe tu nombre para seguir (letras o números)',
-  combo:'RACHA',perfecto_fx:'¡PERFECTO!',
+  combo:'RACHA',perfecto_fx:'¡PERFECTO!',rango_fx:'NUEVO RANGO!',
   aprobar:'✔ APROBAR',rechazar:'✘ RECHAZAR',lineasrev:'LÍNEAS',
   eligebuena:'Toca la línea que SÍ compila',
   modo_hd:'✨ MODO 4K HD OLED',modo_retro:'🕹 MODO RETRO 32-BIT',
@@ -1013,7 +1016,7 @@ const TXT={
   vidas_txt:'LIVES',
   nombreq:'WHAT IS YOUR NAME?',tunombre:'YOUR NAME',ok:'DONE!',
   nombre_falta:'Type your name to continue (letters or digits)',
-  combo:'STREAK',perfecto_fx:'PERFECT!',
+  combo:'STREAK',perfecto_fx:'PERFECT!',rango_fx:'NEW RANK!',
   aprobar:'✔ APPROVE',rechazar:'✘ REJECT',lineasrev:'LINES',
   eligebuena:'Tap the line that DOES compile',
   modo_hd:'✨ 4K HD OLED MODE',modo_retro:'🕹 RETRO 32-BIT MODE',

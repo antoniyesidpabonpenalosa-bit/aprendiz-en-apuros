@@ -119,8 +119,9 @@ function nvRunner(dia){
           if(combo>=3)FX.onda(q.x,q.y,'#ff9d2e',44);
           $('#r-caf').textContent=cafes;o.x=-99;
           FX.monedas(q.x,q.y,$('#r-caf'),combo>=3?6:4);
-          /* la racha grande al llegar a 3 y cada 5; entre medias, la de siempre */
-          if(combo>=3&&!((combo===3||combo%5===0)&&FX.rotulo('🔥 '+t('combo')+' x'+combo)))comboFly(combo);
+          /* la racha grande al llegar a 3 y cada 5 (pixelfx); entre medias, o con
+             "reducir movimiento", la de siempre */
+          if(combo>=3&&!((combo===3||combo%5===0)&&PX.racha(combo,t('combo'),cv)))comboFly(combo);
           if(combo>=5)darLogro('combo');
         }
         else if(inv<=0){

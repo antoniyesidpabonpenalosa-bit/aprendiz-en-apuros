@@ -123,6 +123,9 @@ aprendiz-en-apuros/
     ├── estado.js         → partida guardada, temporizadores y utilidades
     ├── audio.js          → efectos de sonido y música chiptune (WebAudio)
     ├── graficos.js       → retratos pixel-art, HUD y confeti
+    ├── efectos.js        → chispas, ondas, confeti, fuegos y la cortina de pixeles (lienzo propio)
+    ├── pixelfx.js        → GENERADO: motor y 3 efectos de la biblioteca pixelfx (ver LICENCIAS.md)
+    ├── pxefectos.js      → pone esos efectos en el juego: el corazón roto, «NUEVO RANGO!» y «xN RACHA»
     ├── reto.js           → reto diario: semilla, racha y sesgo por fallos
     ├── ranking.js        → marcador global (Supabase vía fetch, sin SDK)
     ├── entrada.js        → soporte de mando (Gamepad API) y giroscopio

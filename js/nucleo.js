@@ -84,6 +84,7 @@ function resultado(i,stars,pts){
   if(sinFinActivo)return sinFinRonda(stars,pts);
   if(salaActiva)return salaRonda(stars,pts);
   const gan=Math.round(pts*facPts());
+  const rangoAntes=rangoDe(S.xp);
   S.pts+=gan;S.xp+=gan;
   if(stars>S.dias[i])S.dias[i]=stars;
   if(i===0)darLogro('primer');
@@ -124,12 +125,16 @@ function resultado(i,stars,pts){
   tvez(SFX.star,300);
   confeti();
   if(stars===3)tvez(()=>FX.rotulo(t('perfecto_fx'),'',$('#screen .ico')),450);
+  /* subir de rango: la columna de luz de js/pxefectos.js. Después del "¡PERFECTO!"
+     (dura 1,3 s) si lo hay, para que no se pisen. */
+  if(rangoDe(S.xp)!==rangoAntes)tvez(()=>PX.nivel(t('rango_fx'),$('#screen .ico')),stars===3?1750:600);
 }
 function fallo(i,reintento){
   if(retoActivo)return retoRonda(0,0);   /* en el reto se sigue, sin perder vidas */
   if(libreActivo)return libreFin(0,0);   /* en el modo libre solo cuenta la marca */
   if(sinFinActivo)return sinFinFin();    /* una sola vida: fallar acaba la racha */
   if(salaActiva)return salaRonda(0,0);   /* en la sala, como en el reto: cero y se sigue */
+  PX.corazon(vidas);     /* el corazón que cae sale donde está en la cabecera: antes de quitarlo */
   vidas--;hud();SFX.lose();
   if(vidas<=0){
     const pintarGO=()=>{
