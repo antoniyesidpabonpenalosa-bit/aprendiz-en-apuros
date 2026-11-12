@@ -40,7 +40,12 @@ on:
 
 jobs:
   barrido:
-    runs-on: ubuntu-latest
+    # Versión fija y no ubuntu-latest: el 2026-11-11 GitHub empezó a dar
+    # Ubuntu 26.04 bajo esa etiqueta y Playwright 1.56.1 no sabe instalar ahí el
+    # navegador ("does not support chromium on ubuntu26.04"), así que el barrido
+    # fallaba antes de jugar una sola partida. Para subir de Ubuntu hay que
+    # subir a la vez la versión de Playwright de más abajo.
+    runs-on: ubuntu-24.04
     # De sobra para las 90 partidas; si se pasa de aquí es que algo se colgó
     # de verdad y más vale cortar que quemar una hora de runner.
     timeout-minutes: 45
@@ -54,10 +59,21 @@ jobs:
       # Playwright NO entra al repositorio: el juego presume de no tener ni una
       # dependencia y eso se mantiene. Se instala aquí, en la máquina de turno,
       # y --no-save evita que aparezca un package.json que nadie pidió.
+      #
+      # El navegador y sus paquetes de sistema van por separado. Los paquetes
+      # (tipos de letra, sobre todo) se bajan del espejo de Ubuntu de la máquina
+      # de GitHub, y el 2026-11-11 ese espejo dejó de responder: con
+      # `install --with-deps` el paso se quedaba diez minutos reintentando y
+      # tumbaba el barrido sin jugar nada. La imagen ya trae lo que Chromium
+      # necesita para arrancar, así que los paquetes se intentan con un tope de
+      # tres minutos y, si no bajan, se sigue con aviso. Si de verdad faltara
+      # algo, el navegador no abre y las regresiones de abajo fallan a la vista.
       - name: Instalar el navegador de pruebas
         run: |
           npm install --no-save playwright@1.56.1
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
+          timeout 180 npx playwright install-deps chromium \
+            || echo "::warning::No se pudieron instalar los paquetes de sistema de Playwright (espejo de Ubuntu sin respuesta); se sigue con los de la imagen."
 
       # Las regresiones van siempre y primero: son un minuto y vigilan cada
       # fallo de interacción ya arreglado (teclas mantenidas, dobles toques,

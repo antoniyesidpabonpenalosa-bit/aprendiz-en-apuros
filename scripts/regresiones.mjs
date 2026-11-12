@@ -596,8 +596,10 @@ await caso('pasillo · 15 puertas en 3 zonas, con el estado que dice el progreso
 });
 
 await caso('pasillo · tocar la puerta, caminar y entrar lleva al diálogo de ESE día', MEDIO, async pg => {
-  await prep(pg); await pg.evaluate(() => rMapa()); await pausa(200);
-  await pg.click('.pasillo-puerta[data-dia="5"]');
+  /* en la zona 1 no está el día que toca: no hay nada elegido y hay que caminar */
+  await prep(pg); await pg.evaluate(() => rPasillo(0)); await pausa(200);
+  const alAbrir = await pg.evaluate(() => $$('.pasillo-puerta.seleccionada').length);
+  await pg.click('.pasillo-puerta[data-dia="3"]');
   const andando = await pg.$eval('#pasillo-entrar', b => b.disabled);
   await pg.waitForFunction(() => !$('#pasillo-entrar').disabled, null, { timeout: 4000 });
   /* el aprendiz quedó delante de la puerta, no a un lado */
@@ -607,7 +609,68 @@ await caso('pasillo · tocar la puerta, caminar y entrar lleva al diálogo de ES
   });
   await pg.click('#pasillo-entrar'); await pausa(700);
   const r = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
-  return [andando && desvio < 4 && r.pantalla === 'dialogo' && r.dia === 5, JSON.stringify({ andando, desvio: Math.round(desvio), ...r })];
+  return [alAbrir === 0 && andando && desvio < 4 && r.pantalla === 'dialogo' && r.dia === 3, JSON.stringify({ alAbrir, andando, desvio: Math.round(desvio), ...r })];
+});
+
+/* v22.2: seguir la campaña vuelve a ser UN toque, como en la lista. */
+await caso('pasillo · al abrir, el aprendiz ya espera en la puerta del día que toca y un toque entra', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rMapa()); await pausa(300);
+  const r = await pg.evaluate(() => {
+    const a = $('#pasillo-actor').getBoundingClientRect(), s = $('.pasillo-puerta.seleccionada'), d = s && s.querySelector('.pasillo-marco').getBoundingClientRect();
+    const b = $('#pasillo-entrar'), sc = $('#screen');
+    return { sel: s && s.dataset.dia, desvio: d ? Math.round(Math.abs((a.left + a.width / 2) - (d.left + d.width / 2))) : -1,
+      listo: !!b && !b.disabled, sinMoverLaPantalla: sc.scrollTop === 0, pulsada: s && s.getAttribute('aria-pressed') };
+  });
+  await pg.click('#pasillo-entrar'); await pausa(700);
+  const fin = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
+  const ok = r.sel === '5' && r.desvio < 4 && r.listo && r.sinMoverLaPantalla && r.pulsada === 'true' && fin.pantalla === 'dialogo' && fin.dia === 5;
+  return [ok, JSON.stringify({ ...r, ...fin })];
+});
+
+await caso('pasillo · tocar otra vez la puerta en la que ya estás entra; mientras camina, no', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rPasillo(0)); await pausa(200);
+  /* dos toques seguidos: el segundo llega caminando y NO debe entrar */
+  const r = await pg.evaluate(async () => {
+    const b = $('.pasillo-puerta[data-dia="1"]'); b.click(); b.click();
+    await new Promise(r => setTimeout(r, 500));
+    return pantallaId;
+  });
+  await pg.waitForFunction(() => !$('#pasillo-entrar').disabled, null, { timeout: 4000 });
+  const abierta0 = await pg.evaluate(() => $$('.pasillo-puerta.abriendo').length);
+  /* ya parado delante: ahora sí */
+  await pg.click('.pasillo-puerta[data-dia="1"]');
+  const abierta1 = await pg.evaluate(() => $('.pasillo-puerta[data-dia="1"]').classList.contains('abriendo'));
+  await pausa(700);
+  const fin = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
+  return [r === 'pasillo' && abierta0 === 0 && abierta1 && fin.pantalla === 'dialogo' && fin.dia === 1, JSON.stringify({ caminando: r, abierta0, abierta1, ...fin })];
+});
+
+await caso('pasillo · una puerta cerrada no entra ni tocándola dos veces, y la campaña terminada no elige nada', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rMapa()); await pausa(200);
+  await pg.click('.pasillo-puerta[data-dia="7"]'); await pausa(150);
+  await pg.click('.pasillo-puerta[data-dia="7"]'); await pausa(600);
+  const cerrada = await pg.evaluate(() => ({ pantalla: pantallaId, abriendo: $$('.pasillo-puerta.abriendo').length }));
+  const fin = await pg.evaluate(() => { S.dias = Array(15).fill(3); rMapa(); return { sel: $$('.pasillo-puerta.seleccionada').length, ayuda: !!$('.pasillo-ficha-ayuda'), zona: $('.pasillo-bloque.actual').dataset.zona }; });
+  return [cerrada.pantalla === 'pasillo' && cerrada.abriendo === 0 && fin.sel === 0 && fin.ayuda && fin.zona === '2', JSON.stringify({ cerrada, fin })];
+});
+
+await caso('pasillo · cada letrero lleva el icono de su minijuego y cabe en su puerta (celular de 320 px)', MEDIO, async pg => {
+  await pg.setViewportSize({ width: 320, height: 568 }); await pausa(200);
+  await prep(pg);
+  const r = await pg.evaluate(() => {
+    const mal = [];
+    for (const n of [0, 1, 2]) {
+      rPasillo(n);
+      for (const b of $$('.pasillo-puerta')) {
+        const i = +b.dataset.dia, ico = b.querySelector('.pasillo-ico'), c = b.querySelector('.pasillo-cartel').getBoundingClientRect(), p = b.getBoundingClientRect();
+        if (!ico || ico.textContent !== NIVELES[i].ico) mal.push('icono día ' + (i + 1));
+        if (c.width > p.width + 1) mal.push('letrero ancho día ' + (i + 1));
+        if (!b.querySelector('.pasillo-cartel').textContent.includes(String(i + 1))) mal.push('número día ' + (i + 1));
+      }
+    }
+    return mal;
+  });
+  return [r.length === 0, r.length ? r.join(', ') : '15 letreros con icono y número'];
 });
 
 await caso('pasillo · una puerta cerrada enseña su ficha pero no deja entrar', MEDIO, async pg => {
@@ -666,7 +729,7 @@ await caso('pasillo · la lista de días sigue ahí, con el jefe, y cambiar de i
   const lista = await pg.evaluate(() => ({ pantalla: pantallaId, cartas: $$('.etapa-card[data-i]').length, jefe: !!$('#m-jefe') }));
   await pg.click('.etapa-card[data-i="13"]'); await pausa(300);
   const fin = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
-  const ok = en.zona === '1' && en.cartel.startsWith('DAY') && en.jefe && lista.pantalla === 'mapa' && lista.cartas === 15 && lista.jefe && fin.pantalla === 'dialogo' && fin.dia === 13;
+  const ok = en.zona === '1' && en.cartel.includes('DAY') && en.jefe && lista.pantalla === 'mapa' && lista.cartas === 15 && lista.jefe && fin.pantalla === 'dialogo' && fin.dia === 13;
   return [ok, JSON.stringify({ en, lista, fin })];
 });
 

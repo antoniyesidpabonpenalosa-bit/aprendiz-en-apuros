@@ -71,6 +71,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | v21.5 | — | 2026-11-10 | Rangos recalibrados: DEV SENIOR ya no se alcanza en el día 4 |
 | **v22** | — | 2026-11-10 | El pasillo: el mapa de la campaña con 3 zonas y 15 puertas (la lista de días sigue disponible) |
 | v22.1 | — | 2026-11-10 | Arreglo: el cartel de versión nueva ya no sale en la primera visita |
+| v22.2 | — | 2026-11-11 | Pasillo: el aprendiz espera en la puerta del día que toca, tocar otra vez la puerta entra, y el icono del minijuego en el letrero |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 
