@@ -891,16 +891,16 @@ await caso('personajes · un tema flojo lo nota quien lo sabe y ofrece REPASAR e
 
 await caso('personajes · Don Jairo no habla de puertas: cuenta lo que hay en el juego y rota', MEDIO, async pg => {
   await prep(pg); await pg.evaluate(() => rPasillo(0)); await pausa(300);
-  const dichos = [];
+  const dichos = []; let dibujo = null;
   for (let n = 0; n < 3; n++) {
     await pg.click('.pasillo-gente[data-p="vigilante"]');
     await pg.waitForFunction(() => !!document.querySelector('#pg-cara'), null, { timeout: 4000 });
     await pausa(200);
     dichos.push(await pg.$eval('.pasillo-consejo', e => e.textContent));
+    /* y se ve su retrato DIBUJADO (el de Don Jairo, no el pixel de respaldo) */
+    if (n === 0) dibujo = await pg.evaluate(() => { const i = $('#pasillo-ficha img.dibujo'); return i ? i.dataset.p + ' ' + i.getAttribute('src') : null; });
     await pg.evaluate(() => $('#pasillo-ficha').innerHTML = ''); /* que el siguiente toque vuelva a esperar el retrato */
   }
-  /* y se ve su retrato DIBUJADO (el de Don Jairo, no el pixel de respaldo) */
-  const dibujo = await pg.evaluate(() => { const i = $('#pasillo-ficha img.dibujo'); return i ? i.dataset.p + ' ' + i.getAttribute('src') : null; });
   const ok = new Set(dichos).size === 3 && dichos[0].includes('tienda') && dichos[1].includes('reto') && dichos[2].includes('libre')
     && dibujo === 'vigilante img/retratos/vigilante-feliz.webp';
   return [ok, JSON.stringify({ dibujo, dichos: dichos.map(x => x.slice(0, 40)) })];
