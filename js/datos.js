@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v24.1';
+const VERSION='v24.2';
 const NOVEDADES=[
+  {v:'v24.2', fecha:'2026-11-13',
+   es:['Jefe, fase 3: se quitó el abanico de ❌, que junto con la lluvia y el rayo eran demasiadas cosas a la vez. A cambio el rayo sale un poco más seguido, y el jefe se mueve algo más despacio.'],
+   en:['Boss, phase 3: the fan of ❌ is gone; with the rain and the laser it was too much at once. In exchange the laser fires a bit more often, and the boss moves a little slower.']},
   {v:'v24.1', fecha:'2026-11-13',
    es:['Repetir un día que ya habías superado ahora paga la cuarta parte de los puntos y del XP. Los días nuevos pagan completo, y puedes seguir repitiendo para practicar o mejorar tus estrellas.'],
    en:['Replaying a day you already cleared now pays a quarter of the points and XP. New days pay in full, and you can still replay to practice or improve your stars.']},

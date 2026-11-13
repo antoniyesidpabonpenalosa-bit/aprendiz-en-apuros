@@ -50,6 +50,10 @@ function nvJefe(dia,ptsBase){
   modoJefe=true; /* activa el tema musical tenso */
   /* factor de agresividad: dificultad × revancha nocturna (día 15) */
   const fj=facJefe()*(dia===14?1.25:1);
+  /* Fase 3: los dos números para mover si se siente fácil o difícil.
+     LASER_F3 = fotogramas entre rayos (antes 150; menos = más seguido).
+     VEL_F3 = velocidad del jefe de lado a lado (antes 2,45). */
+  const LASER_F3=120, VEL_F3=2;
   let escudo=mejora('escudo')?1:0;
   const p={x:W/2-8,ancho:16};
   const jefe={x:W/2,y:36,hp:100,dir:1};
@@ -138,7 +142,7 @@ function nvJefe(dia,ptsBase){
     balas.forEach(b=>b.y-=4.5);
     balas=balas.filter(b=>b.y>0);
     /* ── jefe se mueve y ataca ── */
-    jefe.x+=jefe.dir*(0.8+fase*0.55);
+    jefe.x+=jefe.dir*(fase===3?VEL_F3:0.8+fase*0.55);
     if(jefe.x<50||jefe.x>W-50)jefe.dir*=-1;
     /* lluvia base de errores (más frecuente en dificultades altas) */
     const cadencia=Math.max(12,Math.round((52-fase*12)/fj));
@@ -146,17 +150,14 @@ function nvJefe(dia,ptsBase){
       errores.push({x:jefe.x+(Math.random()*40-20),y:56,v:(1.4+fase*.5+Math.random())*fj,vx:0});
       if(fase===3&&Math.random()<.5)errores.push({x:jefe.x+(Math.random()*60-30),y:56,v:(1.6+Math.random())*fj,vx:0});
     }
-    /* fase 3: ráfaga en abanico que se abre. Antes salía también en la fase 2,
-       pero con el rayo encima la fase 2 era demasiado; ahora el abanico se
-       reserva para el tramo final. Es más LENTO que antes (cada 125 fotogramas
-       en vez de 95, y las ❌ caen a tres cuartos de la velocidad): era lo que
-       más golpes daba. */
-    if(fase===3&&frame%Math.round(125/fj)===0){
-      for(let a=-2;a<=2;a++)errores.push({x:jefe.x+a*16,y:58,v:(1.2+fase*.35)*.75*fj,vx:a*0.34});
-      beep(180,.08,'sawtooth',.06);
-    }
+    /* (v24.2) La ráfaga en abanico de la fase 3 se quitó: junto con la lluvia
+       doble y el rayo eran cuatro cosas a la vez, y el abanico (5 ❌ pegadas que
+       se abren al caer) era la más difícil de leer. La dificultad se queda en
+       lo que sí se ve venir: la lluvia doble y un rayo más frecuente (LASER_F3). */
     /* fase 2+: láser telegrafiado (avisa antes de disparar en la columna del jugador) */
-    if(fase>=2&&laserEstado===0&&frame%Math.round((fase===3?150:230)/fj)===0){
+    /* el mínimo de 84 fotogramas es para que el rayo (42 de aviso + 34 disparando)
+       no ocupe todo el ciclo en las dificultades altas */
+    if(fase>=2&&laserEstado===0&&frame%Math.max(84,Math.round((fase===3?LASER_F3:230)/fj))===0){
       laserEstado=1;laserT=42;laserX=Math.max(14,Math.min(W-14,p.x+8));beep(1200,.12,'square',.05);
     }
     if(laserEstado===1){if(--laserT<=0){laserEstado=2;laserT=fase===3?34:26;beep(300,.25,'sawtooth',.12)}}
