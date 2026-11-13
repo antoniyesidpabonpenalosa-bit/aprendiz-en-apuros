@@ -20,8 +20,17 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v23';
+const VERSION='v24';
 const NOVEDADES=[
+  {v:'v24', fecha:'2026-11-13',
+   es:['Los personajes están en el pasillo: Gustavo (el instructor), Valentina (tu compañera), Andrés (el líder técnico) y Don Jairo, el vigilante de la entrada. Toca a uno y el aprendiz camina hasta él para darte un consejo.',
+       'Te aconsejan sobre la puerta del día que toca, y si fallas mucho un tema, quien lo sabe te ofrece repasarlo. Un "!" marca a quien tiene algo nuevo que decir.',
+       'Don Jairo te cuenta qué más hay en el juego: la tienda, el reto diario, el modo libre, el repaso, el sin fin y las salas.',
+       'En los diálogos de cada día, los personajes ahora salen con su nombre.'],
+   en:['The characters are in the hallway: Gustavo (the instructor), Valentina (your coworker), Andrés (the tech lead) and Don Jairo, the guard at the entrance. Tap one and the apprentice walks over to give you some advice.',
+       'They advise you about the door of the day you are on, and if you keep missing a topic, whoever knows it offers to review it with you. A "!" marks whoever has something new to say.',
+       'Don Jairo tells you what else is in the game: the shop, the daily challenge, free play, review, endless mode and rooms.',
+       'In each day\'s dialogue, the characters now show their names.']},
   {v:'v23', fecha:'2026-11-12',
    es:['Tres efectos nuevos de pixel art, de la biblioteca pixelfx: el corazón que se rompe cuando pierdes una vida, una columna de luz con "NUEVO RANGO!" cuando subes de rango, y "xN RACHA" al encadenar cafés en el runner.'],
    en:['Three new pixel art effects, from the pixelfx library: the heart that breaks when you lose a life, a pillar of light with "NEW RANK!" when you rank up, and "xN STREAK" when you chain coffees in the runner.']},
@@ -602,43 +611,43 @@ const DIALOGOS={
   /* ── ETAPA LECTIVA · días 1-10 · el centro de formación ──
      Aquí se APRENDE: manda el instructor, los compañeros son de la ficha y lo
      que se rompe es el proyecto formativo, no la producción de una empresa. */
-  ['INSTRUCTOR','¡Bienvenido a la etapa lectiva! Lo primero de lo primero: configura tu terminal. Escribe rápido y sin errores.'],
-  ['INSTRUCTOR','El taller de hoy trae bugs a propósito, y son MUCHOS. ¡Aplástalos antes de que se reproduzcan!'],
-  ['COMPAÑERA','Quiz sorpresa del instructor: ¿te acuerdas de qué tecnologías van en pareja?'],
-  ['INSTRUCTOR','Al tablero: este es el flujo de Git que van a usar toda la vida. Repítelo EXACTAMENTE igual.'],
-  ['INSTRUCTOR','Hoy sustentas ante el jurado. Respira. No digas "eeeh". Tú puedes.'],
-  ['COMPAÑERA','Nos toca revisar el código de la ficha de al lado. Aprueba lo bueno, rechaza lo malo. RÁPIDO.'],
-  ['COMPAÑERA','¡El proyecto formativo se entrega MAÑANA y no compila! ¡Bugs por todas partes! ¡CORRE!'],
-  ['COMPAÑERA','Dos de la ficha tocamos el mismo archivo... resuelve los conflictos eligiendo la línea que sí compila.'],
-  ['INSTRUCTOR','Último taller: despliegue paso a paso. Un comando fuera de orden y se cae TODO. Sin presión.'],
-  ['INSTRUCTOR','Evaluación final de la lectiva. Apruébala y sales para tu etapa productiva.'],
+  ['GUSTAVO · INSTRUCTOR','¡Bienvenido a la etapa lectiva! Lo primero de lo primero: configura tu terminal. Escribe rápido y sin errores.'],
+  ['GUSTAVO · INSTRUCTOR','El taller de hoy trae bugs a propósito, y son MUCHOS. ¡Aplástalos antes de que se reproduzcan!'],
+  ['VALENTINA · COMPAÑERA','Quiz sorpresa del instructor: ¿te acuerdas de qué tecnologías van en pareja?'],
+  ['GUSTAVO · INSTRUCTOR','Al tablero: este es el flujo de Git que van a usar toda la vida. Repítelo EXACTAMENTE igual.'],
+  ['GUSTAVO · INSTRUCTOR','Hoy sustentas ante el jurado. Respira. No digas "eeeh". Tú puedes.'],
+  ['VALENTINA · COMPAÑERA','Nos toca revisar el código de la ficha de al lado. Aprueba lo bueno, rechaza lo malo. RÁPIDO.'],
+  ['VALENTINA · COMPAÑERA','¡El proyecto formativo se entrega MAÑANA y no compila! ¡Bugs por todas partes! ¡CORRE!'],
+  ['VALENTINA · COMPAÑERA','Dos de la ficha tocamos el mismo archivo... resuelve los conflictos eligiendo la línea que sí compila.'],
+  ['GUSTAVO · INSTRUCTOR','Último taller: despliegue paso a paso. Un comando fuera de orden y se cae TODO. Sin presión.'],
+  ['GUSTAVO · INSTRUCTOR','Evaluación final de la lectiva. Apruébala y sales para tu etapa productiva.'],
   /* ── ETAPA PRODUCTIVA · días 11-15 · la empresa ──
      Aquí se TRABAJA: manda el líder técnico y el instructor solo aparece a
      hacer seguimiento, como en la vida real. */
-  ['LÍDER TÉCNICO','Bienvenido a TechNova. Primera tarea de verdad: el reporte necesita una consulta SQL. Ármala en orden.'],
-  ['COMPAÑERA','Hay que filtrar mil logs. Con expresiones regulares es un momento... si sabes leerlas.'],
-  ['LÍDER TÉCNICO','Volvieron los bugs... y trajeron BOMBAS de imitación. ¡No las toques!'],
-  ['INSTRUCTOR','Vengo a tu seguimiento de la productiva. Veamos si ya dominas el Git avanzado: rebase y stash incluidos.'],
-  ['LÍDER TÉCNICO','Deploy nocturno de fin de mes. Sobrevive la noche y tu etapa productiva queda aprobada.'],
+  ['ANDRÉS · LÍDER TÉCNICO','Bienvenido a TechNova. Primera tarea de verdad: el reporte necesita una consulta SQL. Ármala en orden.'],
+  ['VALENTINA · COMPAÑERA','Hay que filtrar mil logs. Con expresiones regulares es un momento... si sabes leerlas.'],
+  ['ANDRÉS · LÍDER TÉCNICO','Volvieron los bugs... y trajeron BOMBAS de imitación. ¡No las toques!'],
+  ['GUSTAVO · INSTRUCTOR','Vengo a tu seguimiento de la productiva. Veamos si ya dominas el Git avanzado: rebase y stash incluidos.'],
+  ['ANDRÉS · LÍDER TÉCNICO','Deploy nocturno de fin de mes. Sobrevive la noche y tu etapa productiva queda aprobada.'],
  ],
  en:[
   /* ── TRAINING STAGE · days 1-10 · the training centre ── */
-  ['INSTRUCTOR','Welcome to the training stage! First things first: set up your terminal. Type fast and clean.'],
-  ['INSTRUCTOR',"Today's workshop ships with bugs on purpose, and there are MANY. Squash them before they multiply!"],
-  ['COWORKER','Pop quiz from the instructor: do you remember which technologies pair up?'],
-  ['INSTRUCTOR','To the board: this is the Git flow you will use for the rest of your life. Repeat it EXACTLY.'],
-  ['INSTRUCTOR',"Today you present to the panel. Breathe. Don't say 'uhh'. You got this."],
-  ['COWORKER',"We have to review the other group's code. Approve the good, reject the bad. FAST."],
-  ['COWORKER','The class project is due TOMORROW and it does not compile! Bugs everywhere! RUN!'],
-  ['COWORKER','Two of us touched the same file... resolve the conflicts by picking the line that compiles.'],
-  ['INSTRUCTOR','Last workshop: deployment step by step. One command out of order and EVERYTHING falls. No pressure.'],
-  ['INSTRUCTOR','Final exam of the training stage. Pass it and you head out to your workplace stage.'],
+  ['GUSTAVO · INSTRUCTOR','Welcome to the training stage! First things first: set up your terminal. Type fast and clean.'],
+  ['GUSTAVO · INSTRUCTOR',"Today's workshop ships with bugs on purpose, and there are MANY. Squash them before they multiply!"],
+  ['VALENTINA · COWORKER','Pop quiz from the instructor: do you remember which technologies pair up?'],
+  ['GUSTAVO · INSTRUCTOR','To the board: this is the Git flow you will use for the rest of your life. Repeat it EXACTLY.'],
+  ['GUSTAVO · INSTRUCTOR',"Today you present to the panel. Breathe. Don't say 'uhh'. You got this."],
+  ['VALENTINA · COWORKER',"We have to review the other group's code. Approve the good, reject the bad. FAST."],
+  ['VALENTINA · COWORKER','The class project is due TOMORROW and it does not compile! Bugs everywhere! RUN!'],
+  ['VALENTINA · COWORKER','Two of us touched the same file... resolve the conflicts by picking the line that compiles.'],
+  ['GUSTAVO · INSTRUCTOR','Last workshop: deployment step by step. One command out of order and EVERYTHING falls. No pressure.'],
+  ['GUSTAVO · INSTRUCTOR','Final exam of the training stage. Pass it and you head out to your workplace stage.'],
   /* ── WORKPLACE STAGE · days 11-15 · the company ── */
-  ['TECH LEAD','Welcome to TechNova. First real task: the report needs an SQL query. Build it in order.'],
-  ['COWORKER','We must filter a thousand logs. With regular expressions it takes a second... if you can read them.'],
-  ['TECH LEAD','The bugs are back... and they brought fake BOMBS. Do NOT touch those!'],
-  ['INSTRUCTOR','I am here for your workplace follow-up. Let\'s see if you master advanced Git now: rebase and stash included.'],
-  ['TECH LEAD','End-of-month night deploy. Survive the night and your workplace stage is signed off.'],
+  ['ANDRÉS · TECH LEAD','Welcome to TechNova. First real task: the report needs an SQL query. Build it in order.'],
+  ['VALENTINA · COWORKER','We must filter a thousand logs. With regular expressions it takes a second... if you can read them.'],
+  ['ANDRÉS · TECH LEAD','The bugs are back... and they brought fake BOMBS. Do NOT touch those!'],
+  ['GUSTAVO · INSTRUCTOR','I am here for your workplace follow-up. Let\'s see if you master advanced Git now: rebase and stash included.'],
+  ['ANDRÉS · TECH LEAD','End-of-month night deploy. Survive the night and your workplace stage is signed off.'],
  ]
 };
 /* El gesto del retrato dibujado en el diálogo de cada día (los dos idiomas
@@ -911,7 +920,7 @@ const TXT={
   guardatxt:'Exporta tu partida y pégala en otro dispositivo para continuar allí.',
   t1sec:'📚 ETAPA LECTIVA',t2sec:'💼 ETAPA PRODUCTIVA',
   /* el pasillo (js/pasillo.js) */
-  pas_tit:'PASILLO',pas_ayuda:'Toca una puerta o usa ← → y Enter',pas_dia:'DÍA',
+  pas_tit:'PASILLO',pas_ayuda:'Toca una puerta o a un personaje · ← → y Enter',pas_hablar:'hablar',pas_dia:'DÍA',
   pas_z1:'Formación · Aulas',pas_z2:'Formación · Laboratorios',pas_z3:'Empresa · Oficinas',
   pas_sec:'Secciones del pasillo',pas_elige:'Elige una puerta para conocer el nivel.',
   pas_ant:'Anterior',pas_sig:'Siguiente',pas_lista:'Ver como lista',pas_volver:'← Volver al pasillo',
@@ -1045,7 +1054,7 @@ const TXT={
   guardatxt:'Export your save and paste it on another device to continue there.',
   t1sec:'📚 TRAINING STAGE',t2sec:'💼 WORKPLACE STAGE',
   /* the hallway (js/pasillo.js) */
-  pas_tit:'HALLWAY',pas_ayuda:'Tap a door or use ← → and Enter',pas_dia:'DAY',
+  pas_tit:'HALLWAY',pas_ayuda:'Tap a door or a character · ← → and Enter',pas_hablar:'talk',pas_dia:'DAY',
   pas_z1:'Training · Classrooms',pas_z2:'Training · Labs',pas_z3:'Company · Offices',
   pas_sec:'Hallway sections',pas_elige:'Choose a door to learn about the level.',
   pas_ant:'Previous',pas_sig:'Next',pas_lista:'View as list',pas_volver:'← Back to hallway',

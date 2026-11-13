@@ -690,8 +690,9 @@ await caso('pasillo · una puerta cerrada enseña su ficha pero no deja entrar',
 await caso('pasillo · pasear por él no cambia la partida guardada', MEDIO, async pg => {
   await prep(pg);
   const r = await pg.evaluate(async () => {
-    const antes = localStorage.getItem('pa3'), mem = JSON.stringify(S);
+    /* una primera vez para que el Repaso normalice un guardado viejo sin `pesos` (js/reto.js crea el objeto vacío) */
     rMapa();
+    const antes = localStorage.getItem('pa3'), mem = JSON.stringify(S);
     for (const n of [0, 1, 2]) { rPasillo(n); $$('.pasillo-puerta').forEach(b => b.click()); }
     $('#pasillo-lista').click(); $('#m-pasillo').click();
     await new Promise(r => setTimeout(r, 400));
@@ -834,6 +835,145 @@ await caso('pixelfx · los efectos no tocan la partida guardada y se apagan solo
     return { igual: JSON.stringify(S) === antes, vivos: PX._vivas() };
   });
   return [r.igual && r.vivos === 0, JSON.stringify(r)];
+});
+
+/* ── LOS PERSONAJES DEL PASILLO (v24) ──
+   Tocas a uno, el aprendiz camina hasta él y te aconseja. Lo que no puede
+   romperse: que cada zona tenga a los suyos, que el consejo sea el que toca
+   (tema flojo, puerta, general), que tocar a un personaje no cambie la partida
+   ni deje entrar a un día, y que las puertas sigan funcionando igual. */
+
+await caso('personajes · cada zona trae a los suyos, pintados, y el "!" lo tiene quien habla el día que toca', MEDIO, async pg => {
+  await prep(pg);
+  const r = await pg.evaluate(() => {
+    const z = [];
+    for (let n = 0; n < 3; n++) {
+      rPasillo(n);
+      z.push($$('.pasillo-gente').map(g => {
+        const d = g.querySelector('canvas').getContext('2d').getImageData(0, 0, 44, 74).data;
+        let px = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) px++;
+        return g.dataset.p + (px > 300 ? '' : '(vacío)') + (g.querySelector('.pasillo-aviso').hidden ? '' : '!');
+      }).join(' '));
+    }
+    return z;
+  });
+  /* el día que toca es el 6 (zona 2): lo dice la compañera */
+  const ok = r[0] === 'instructor vigilante companera' && r[1] === 'companera! instructor' && r[2] === 'lider companera instructor';
+  return [ok, JSON.stringify(r)];
+});
+
+await caso('personajes · tocar a uno: camina hasta su lado, se ve su retrato y su consejo, y el "!" se apaga', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rPasillo(1)); await pausa(300);
+  await pg.click('.pasillo-gente[data-p="companera"]');
+  await pg.waitForFunction(() => !!document.querySelector('#pg-cara'), null, { timeout: 4000 });
+  const r = await pg.evaluate(() => {
+    const a = $('#pasillo-actor').getBoundingClientRect(), g = $('.pasillo-gente[data-p="companera"]').getBoundingClientRect();
+    return { texto: $('#pasillo-ficha').innerText.replace(/\n+/g, ' | '), cerca: Math.abs((a.left + a.width / 2) - (g.left + g.width / 2)),
+      dibujo: !!$('#pasillo-ficha img.dibujo'), aviso: !$('.pasillo-gente[data-p="companera"] .pasillo-aviso').hidden, pantalla: pantallaId };
+  });
+  const ok = r.texto.startsWith('VALENTINA · COMPAÑERA') && r.texto.includes('=') && r.cerca > 3 && r.cerca < 120 && r.dibujo && !r.aviso && r.pantalla === 'pasillo';
+  return [ok, JSON.stringify(r)];
+});
+
+await caso('personajes · un tema flojo lo nota quien lo sabe y ofrece REPASAR ese tema', { ...MEDIO, pesos: {} }, async pg => {
+  await prep(pg);
+  /* fallar preguntas de SQL: el juego guarda un peso por ítem (js/reto.js) */
+  const flojos = await pg.evaluate(() => { for (let i = 0; i < 6; i++) RETO.marcar('sql', i, false); return temasRepaso().filter(r => r.pendientes > 0).map(r => r.pool).join(); });
+  await pg.evaluate(() => rPasillo(2)); await pausa(300);
+  const aviso = await pg.evaluate(() => !$('.pasillo-gente[data-p="lider"] .pasillo-aviso').hidden);
+  await pg.click('.pasillo-gente[data-p="lider"]');
+  await pg.waitForFunction(() => !!document.querySelector('#pasillo-repasar'), null, { timeout: 4000 });
+  const texto = await pg.$eval('#pasillo-ficha', e => e.innerText);
+  await pg.click('#pasillo-repasar'); await pausa(500);
+  const r = await pg.evaluate(() => ({ pantalla: pantallaId, repaso: !!(libreActivo && libreActivo.repaso), tipo: libreActivo && libreActivo.tipo }));
+  return [flojos.includes('sql') && aviso && /SQL/.test(texto) && r.repaso && r.tipo === 'sql', JSON.stringify({ flojos, aviso, texto: texto.slice(0, 60), ...r })];
+});
+
+await caso('personajes · Don Jairo no habla de puertas: cuenta lo que hay en el juego y rota', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rPasillo(0)); await pausa(300);
+  const dichos = []; let dibujo = null;
+  for (let n = 0; n < 3; n++) {
+    await pg.click('.pasillo-gente[data-p="vigilante"]');
+    await pg.waitForFunction(() => !!document.querySelector('#pg-cara'), null, { timeout: 4000 });
+    await pausa(200);
+    dichos.push(await pg.$eval('.pasillo-consejo', e => e.textContent));
+    /* y se ve su retrato DIBUJADO (el de Don Jairo, no el pixel de respaldo) */
+    if (n === 0) dibujo = await pg.evaluate(() => { const i = $('#pasillo-ficha img.dibujo'); return i ? i.dataset.p + ' ' + i.getAttribute('src') : null; });
+    await pg.evaluate(() => $('#pasillo-ficha').innerHTML = ''); /* que el siguiente toque vuelva a esperar el retrato */
+  }
+  const ok = new Set(dichos).size === 3 && dichos[0].includes('tienda') && dichos[1].includes('reto') && dichos[2].includes('libre')
+    && dibujo === 'vigilante img/retratos/vigilante-feliz.webp';
+  return [ok, JSON.stringify({ dibujo, dichos: dichos.map(x => x.slice(0, 40)) })];
+});
+
+await caso('personajes · tocar a un personaje no deja entrar a un día ni toca la partida; la puerta pide volver a ella', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rPasillo(1)); await pausa(300);
+  const antes = await pg.evaluate(() => localStorage.getItem('pa3') + '|' + JSON.stringify(S));
+  /* el aprendiz está en la puerta 6: se va a hablar con la compañera y, estando allí, tocar la puerta no entra de golpe */
+  await pg.click('.pasillo-gente[data-p="instructor"]');
+  await pg.waitForFunction(() => !!document.querySelector('#pg-cara'), null, { timeout: 4000 });
+  await pg.click('.pasillo-puerta[data-dia="5"]'); await pausa(500);
+  const lejos = await pg.evaluate(() => pantallaId);
+  await pg.waitForFunction(() => { const b = $('#pasillo-entrar'); return b && !b.disabled; }, null, { timeout: 4000 });
+  const despues = await pg.evaluate(() => localStorage.getItem('pa3') + '|' + JSON.stringify(S));
+  await pg.click('#pasillo-entrar'); await pausa(700);
+  const fin = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
+  return [lejos === 'pasillo' && antes === despues && fin.pantalla === 'dialogo' && fin.dia === 5, JSON.stringify({ lejos, igual: antes === despues, ...fin })];
+});
+
+await caso('personajes · con la puerta elegida, quien la dice da SU consejo de esa puerta (aunque no sea la que toca)', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rPasillo(0)); await pausa(300);
+  await pg.click('.pasillo-puerta[data-dia="2"]');                          /* día 3: lo dice la compañera */
+  await pg.waitForFunction(() => { const b = $('#pasillo-entrar'); return b && !b.disabled; }, null, { timeout: 4000 });
+  await pg.click('.pasillo-gente[data-p="companera"]');
+  await pg.waitForFunction(() => !!document.querySelector('#pg-cara'), null, { timeout: 4000 });
+  const r = await pg.$eval('.pasillo-consejo', e => e.textContent);
+  return [r.includes('giros') && r.includes('estrellas'), r.slice(0, 70)];
+});
+
+await caso('personajes · en inglés hablan en inglés y con su nombre; en el diálogo del día sale "NOMBRE · ROL"', { ...MEDIO, lang: 'en' }, async pg => {
+  await prep(pg, { lang: 'en' }); await pg.evaluate(() => { aplicarIdioma(); rPasillo(1); }); await pausa(300);
+  await pg.click('.pasillo-gente[data-p="instructor"]');
+  await pg.waitForFunction(() => !!document.querySelector('#pg-cara'), null, { timeout: 4000 });
+  const ficha = await pg.$eval('#pasillo-ficha', e => e.innerText.replace(/\n+/g, ' | '));
+  const aria = await pg.$eval('.pasillo-gente[data-p="companera"]', e => e.getAttribute('aria-label'));
+  await pg.evaluate(() => rDialogo(10)); await pausa(200);
+  const hablante = await pg.$eval('.hablante', e => e.textContent);
+  return [/^GUSTAVO · INSTRUCTOR \| /.test(ficha) && !/[ñáéí]/.test(ficha.slice(0, 80)) && aria.startsWith('VALENTINA · COWORKER') && hablante === 'ANDRÉS · TECH LEAD',
+    JSON.stringify({ ficha: ficha.slice(0, 80), aria, hablante })];
+});
+
+await caso('personajes · con "reducir movimiento" llega al instante, sin animar el "!"', MEDIO, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await prep(pg); await pg.evaluate(() => rPasillo(1)); await pausa(300);
+  const anim = await pg.evaluate(() => getComputedStyle($('.pasillo-aviso:not([hidden])')).animationName);
+  const r = await pg.evaluate(() => { $('.pasillo-gente[data-p="instructor"]').click(); return !!$('#pg-cara'); });
+  return [anim === 'none' && r === true, `animación ${anim}, consejo al instante: ${r}`];
+});
+
+await caso('personajes · teclado: se llega a ellos con Tab y Enter les habla (no entra a una puerta)', MEDIO, async pg => {
+  await prep(pg); await pg.evaluate(() => rPasillo(1)); await pausa(300);
+  await pg.focus('.pasillo-gente[data-p="instructor"]');
+  await pg.keyboard.press('Enter'); await pausa(300);
+  await pg.waitForFunction(() => !!document.querySelector('#pg-cara'), null, { timeout: 4000 });
+  const r = await pg.evaluate(() => ({ pantalla: pantallaId, habla: !!$('#pg-cara'), foco: document.activeElement.dataset.p }));
+  return [r.pantalla === 'pasillo' && r.habla && r.foco === 'instructor', JSON.stringify(r)];
+});
+
+await caso('personajes · en un celular de 320 px caben, no tapan el texto y el retrato queda junto al consejo', MEDIO, async pg => {
+  await pg.setViewportSize({ width: 320, height: 568 }); await pausa(200);
+  await prep(pg); await pg.evaluate(() => rPasillo(0)); await pausa(300);
+  await pg.click('.pasillo-gente[data-p="vigilante"]');
+  await pg.waitForFunction(() => !!document.querySelector('#pg-cara'), null, { timeout: 4000 });
+  await pausa(200);
+  const r = await pg.evaluate(() => {
+    const c = s => $(s).getBoundingClientRect();
+    const e = c('#pasillo-escena'), f = c('#pasillo-ficha'), n = c('.pasillo-navega'), ret = c('.pasillo-retrato'), txt = c('.pasillo-consejo');
+    const fuera = $$('.pasillo-gente').filter(g => { const b = g.getBoundingClientRect(); return b.left < e.left - 1 || b.right > e.right + 1; }).length;
+    const a = c('#pasillo-actor'), g = c('.pasillo-gente');
+    return { fuera, mismoTamano: Math.abs(a.height - g.height) < 1, retratoAlLado: txt.left >= ret.right - 2, sinPisar: f.bottom <= n.top + 1, ancho: $('#screen').scrollWidth <= $('#screen').clientWidth };
+  });
+  return [r.fuera === 0 && r.mismoTamano && r.retratoAlLado && r.sinPisar && r.ancho, JSON.stringify(r)];
 });
 
 await nav.close();

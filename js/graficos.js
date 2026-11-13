@@ -296,12 +296,21 @@ const CARAS={
   instructor:()=>({skin:'#e0b088',camisa:'#2c3460',pelo:'#9aa0aa',gafas:true}),
   lider:()=>({skin:'#d99b66',camisa:'#5a1bb0',pelo:'#241810',corbata:true}),
   compa:()=>({skin:'#f4c898',camisa:'#c22e44',pelo:'#a05224',largo:true,feliz:true}),
+  vigilante:()=>({skin:'#a86a3c',camisa:'#9aa0aa',pelo:'#8a8a90',gorra:true}),
 };
+/* Quién habla según su etiqueta ("GUSTAVO · INSTRUCTOR"): se reconoce por el
+   ROL, no por el nombre, así que cambiar un nombre no rompe nada. '' = tú. */
+function idDe(nom){
+  if(/INSTRUCTOR/.test(nom))return 'instructor';
+  if(/LÍDER|LEAD/.test(nom))return 'lider';
+  if(/COMPA|COWORK/.test(nom))return 'companera';
+  if(/VIGILANTE|GUARD/.test(nom))return 'vigilante';
+  return '';
+}
 function quienCara(nom){
-  if(/INSTRUCTOR/.test(nom))return CARAS.instructor();
-  if(/LÍDER|LEAD/.test(nom))return CARAS.lider();
-  if(/COMPA|COWORK/.test(nom))return CARAS.compa();
-  return CARAS.yo(true);
+  const id=idDe(nom);
+  if(id==='companera')return CARAS.compa();
+  return id?CARAS[id]():CARAS.yo(true);
 }
 
 /* ── RETRATOS DIBUJADOS ──
@@ -316,11 +325,14 @@ function quienCara(nom){
    El canvas tiene que ir dentro de un envoltorio propio (.retrato-wrap,
    .jur): ahí se coloca el dibujo. */
 const GESTOS=['normal','feliz','enojado','sorprendido','preocupado'];
+/* Los que tienen retratos en img/retratos/ (5 gestos cada uno). Quien se sume
+   aquí tiene que tener sus 5 archivos Y estar en la lista de sw.js: una prueba
+   (test/retratos.test.mjs) lo vigila, porque un archivo que sw.js pide y no
+   existe rompe la instalación del service worker. */
+const DIBUJADOS=['instructor','lider','companera','vigilante'];
 function dibujoDe(nom){
-  if(/INSTRUCTOR/.test(nom))return 'instructor';
-  if(/LÍDER|LEAD/.test(nom))return 'lider';
-  if(/COMPA|COWORK/.test(nom))return 'companera';
-  return '';
+  const id=idDe(nom);
+  return DIBUJADOS.includes(id)?id:'';
 }
 /** @param {HTMLCanvasElement|null} cv  @param {string} quien  @param {string} [gesto] */
 function retratoDibujo(cv,quien,gesto='normal'){
