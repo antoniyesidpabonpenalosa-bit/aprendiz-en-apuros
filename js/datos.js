@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v24';
+const VERSION='v24.1';
 const NOVEDADES=[
+  {v:'v24.1', fecha:'2026-11-13',
+   es:['Repetir un día que ya habías superado ahora paga la cuarta parte de los puntos y del XP. Los días nuevos pagan completo, y puedes seguir repitiendo para practicar o mejorar tus estrellas.'],
+   en:['Replaying a day you already cleared now pays a quarter of the points and XP. New days pay in full, and you can still replay to practice or improve your stars.']},
   {v:'v24', fecha:'2026-11-13',
    es:['Los personajes están en el pasillo: Gustavo (el instructor), Valentina (tu compañera), Andrés (el líder técnico) y Don Jairo, el vigilante de la entrada. Toca a uno y el aprendiz camina hasta él para darte un consejo.',
        'Te aconsejan sobre la puerta del día que toca, y si fallas mucho un tema, quien lo sabe te ofrece repasarlo. Un "!" marca a quien tiene algo nuevo que decir.',
@@ -834,7 +837,7 @@ const TXT={
   pausa:'PAUSA',salirmapa:'SALIR AL MAPA',empezar:'¡EMPEZAR!',listo:'¿LISTO?',aqui:'AQUÍ',
   aprobado:'¡DÍA SUPERADO!',fallado:'¡DÍA FALLIDO!',reintentar:'REINTENTAR',siguiente:'SIGUIENTE DÍA ▶',
   gameover:'GAME OVER',gameovertxt:'Te quedaste sin vidas. El instructor te manda a tomar aire y volver mañana.',
-  ptsgan:'PTS GANADOS',mejor:'MEJOR',bloqueado:'Completa el día anterior',
+  ptsgan:'PTS GANADOS',repite_aviso:'Este día ya lo habías superado, así que paga la cuarta parte. Los días nuevos pagan completo.',mejor:'MEJOR',bloqueado:'Completa el día anterior',
   tiempo:'TIEMPO',meta:'META',errores:'ERRORES',ronda:'RONDA',pares:'PARES',golpes:'GOLPES',cafes:'CAFÉS',
   casilla:'Casilla',bugs_teclas:'⌨ También con las teclas 1-9',
   escribeaqui:'ESCRIBE AQUÍ',observa:'OBSERVA...',turno:'¡TU TURNO!',
@@ -969,7 +972,7 @@ const TXT={
   pausa:'PAUSED',salirmapa:'EXIT TO MAP',empezar:'START!',listo:'READY?',aqui:'HERE',
   aprobado:'DAY CLEARED!',fallado:'DAY FAILED!',reintentar:'RETRY',siguiente:'NEXT DAY ▶',
   gameover:'GAME OVER',gameovertxt:'You ran out of lives. The instructor sends you home to try again tomorrow.',
-  ptsgan:'PTS EARNED',mejor:'BEST',bloqueado:'Clear the previous day',
+  ptsgan:'PTS EARNED',repite_aviso:'You already cleared this day, so it pays a quarter. New days pay in full.',mejor:'BEST',bloqueado:'Clear the previous day',
   tiempo:'TIME',meta:'GOAL',errores:'ERRORS',ronda:'ROUND',pares:'PAIRS',golpes:'HITS',cafes:'COFFEES',
   casilla:'Cell',bugs_teclas:'⌨ Keys 1-9 work too',
   escribeaqui:'TYPE HERE',observa:'WATCH...',turno:'YOUR TURN!',

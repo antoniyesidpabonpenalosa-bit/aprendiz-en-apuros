@@ -517,3 +517,13 @@ test('pasillo · sus textos están en los dos idiomas', () => {
   assert.ok(usadas.size >= 19);
   for (const k of usadas) assert.ok(k in v.TXT.es, `js usa ${k} y no está en TXT`);
 });
+
+/* ══════════ REPETIR UN DÍA ══════════
+   La primera vez paga completo; repetir uno ya superado, la cuarta parte. */
+test('repetir un día ya superado paga la cuarta parte', () => {
+  const { facRepite } = cargarJuego();
+  assert.equal(facRepite(0), 1, 'día nuevo: completo');
+  assert.equal(facRepite(1), 0.25);
+  assert.equal(facRepite(3), 0.25, 'aunque ya tuviera las 3 estrellas');
+  assert.equal(Math.round(1700 * facRepite(2)), 425);
+});

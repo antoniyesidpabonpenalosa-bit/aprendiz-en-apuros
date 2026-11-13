@@ -31,7 +31,7 @@ pasillo** (fase 2) y la **lista de días de respaldo**.
 
 - [ ] **README.md está desactualizado.** Dice "sin librerías" y "el único recurso de imagen es `img/aprendiz.png`", pero ese archivo ya no existe (hay `img/aprendiz-caminar.png`, 15 retratos y `portada.png`) y `js/pixelfx.js` es una biblioteca incluida (MIT) · de: `README.md` línea 7 contra `img/` y `LICENCIAS.md`
 - [ ] **`planes/pasillo.md` sigue diciendo pendiente lo ya resuelto o recortado:** las decisiones 1 (pasillo con lista de respaldo, hecho en la v22) y 4 (estilo de retratos, hecho en la fase 3), y los tres recortes de arriba · de: `planes/pasillo.md` contra `VERSIONES.md`
-- [ ] **Decidir qué pasa con el XP al repetir un día.** Hoy suma completo, y repetir el día 1 (~1.700 XP) un par de veces sube de rango sin avanzar en la historia · de: `js/nucleo.js` (`resultado()`) y `/balance` *(decisión del autor, sin tomar)*
+- [x] **XP al repetir un día:** decidido y hecho en la v24.1. Repetir un día ya superado paga la cuarta parte de puntos y XP; los días nuevos pagan completo · de: `js/nucleo.js` (`resultado()`) y `js/estado.js` (`facRepite`) *(decisión del autor, 2026-11-13)*
 - [ ] **El XP de los días 10 y 15 no está medido**: el robot no gana al jefe ni al runner, y `/balance` los deja en "—" · de: `scripts/barrido.mjs` ("Qué NO cubre")
 - [ ] **Anotar la primera sesión de juego con `/playtest`**: no hay ninguna registrada, así que no hay datos de dónde se confunde o se aburre alguien · de: `playtests/` no existe
 - [ ] **Puerta propia para el Bug final**: hoy es un botón "Repetir Bug final" debajo de la escena. Funciona; es solo presentación y se puede dejar · de: `planes/pasillo.md`
@@ -47,6 +47,5 @@ Solo el autor puede hacer esto; no se hizo ni se hará sin él.
 
 ## Siguiente paso
 
-Pulir de a una cosa por versión, empezando por lo que más afecta a quien juega. Lo único que
-puede cambiar la experiencia de tus amigos es el XP al repetir un día; todo lo demás es limpieza.
+Pulir de a una cosa por versión, empezando por lo que más afecta a quien juega. Lo del XP al repetir ya está hecho (v24.1); todo lo demás es limpieza.
 Y para dar el juego por terminado falta el dato del celular real.

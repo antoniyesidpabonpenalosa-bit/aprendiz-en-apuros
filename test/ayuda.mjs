@@ -59,7 +59,7 @@ export function cargarJuego({ guardado = null } = {}) {
     novedadesPendientes, marcarVersionVista,
     cuantos, facCant,
     exportarCodigo, importarCodigo, sumaCod,
-    rangoDe, rangoNom, maxVidas, facTiempo, facPts, facJefe,
+    rangoDe, rangoNom, maxVidas, facTiempo, facPts, facRepite, facJefe,
     facCant, facRitmo, maxErr, ojeada, difActual,
     get vidas(){ return vidas },
     /* El Math.random del juego. La consola lo sustituye al fijar una semilla,

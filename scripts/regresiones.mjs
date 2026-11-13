@@ -162,6 +162,19 @@ await caso('idioma · redibujar el resultado no vuelve a sumar puntos', null, as
   return [a > 0 && a === b, `${a} → ${b}`];
 });
 
+await caso('puntos · repetir un día ya superado paga la cuarta parte y lo avisa; un día nuevo, completo', null, async pg => {
+  await prep(pg, { pts: 0, xp: 0, dias: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] });
+  const r = await pg.evaluate(() => {
+    const dif = facPts();
+    resultado(0, 2, 400); const nuevo = { pts: S.pts, aviso: !!$('.desc')?.textContent.match(/cuarta parte/) };
+    resultado(0, 3, 400); const repe = { pts: S.pts - nuevo.pts, xp: S.xp, aviso: /cuarta parte/.test($('#screen').innerText), mejor: S.dias[0] };
+    return { dif, nuevo, repe };
+  });
+  const ok = r.nuevo.pts === Math.round(400 * r.dif) && !r.nuevo.aviso
+    && r.repe.pts === Math.round(400 * r.dif * 0.25) && r.repe.xp === r.nuevo.pts + r.repe.pts && r.repe.aviso && r.repe.mejor === 3;
+  return [ok, JSON.stringify(r)];
+});
+
 await caso('idioma · redibujar el fallo no quita otra vida', null, async pg => {
   await prep(pg); await pg.evaluate(() => { vidas = 3; fallo(0); });
   for (let i = 0; i < 2; i++) { await pg.locator('#b-lang').click(); await pausa(150); }
