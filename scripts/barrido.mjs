@@ -249,7 +249,7 @@ async function partida(nav, { dia, dif, lang, tipo }) {
     consola.push(t);
   });
   const t0 = Date.now();
-  let estado = 'sin-arrancar', pantallaFinal = null, robot = null;
+  let estado = 'sin-arrancar', pantallaFinal = null, robot = null, xp = null;
   try {
     await pg.goto(`http://127.0.0.1:${PUERTO}/index.html`, { waitUntil: 'load' });
     await pg.waitForFunction(() => typeof pantallaId !== 'undefined', null, { timeout: 15000 });
@@ -270,6 +270,9 @@ async function partida(nav, { dia, dif, lang, tipo }) {
       null, { timeout: TOPE_MS },
     );
     pantallaFinal = await pg.evaluate(() => pantallaId);
+    /* lo que dio el día: cada partida empieza con 0 XP, así que es lo que ganó.
+       Sirve para calibrar rangos y precios (ver "Cuánto da cada día" abajo). */
+    xp = await pg.evaluate(() => S.xp);
     estado = 'terminó';
   } catch (e) {
     pantallaFinal = await pg.evaluate(() => (typeof pantallaId === 'undefined' ? null : pantallaId)).catch(() => null);
@@ -279,7 +282,7 @@ async function partida(nav, { dia, dif, lang, tipo }) {
   robot = await pg.evaluate(() => (window.__bot ? { errs: window.__bot.errs.slice(0, 3), acciones: window.__bot.acciones } : null)).catch(() => null);
   const ms = Date.now() - t0;
   await ctx.close();
-  return { dia, dif, lang, tipo, estado, pantallaFinal, ms, errores, consola, robot };
+  return { dia, dif, lang, tipo, estado, pantallaFinal, ms, errores, consola, robot, xp };
 }
 
 /* ── barrido ── */
@@ -337,6 +340,33 @@ md += `## Resultado de cada partida\n\n`;
 md += `| Día | Nivel | Dificultad | Idioma | Terminó en | Segundos |\n|---|---|---|---|---|---|\n`;
 for (const r of filas)
   md += `| ${r.tipo ? '—' : r.dia + 1} | ${r.tipo ? 'LIBRE · ' + r.tipo.toUpperCase() : NIVEL[r.dia]} | ${NOMBRE_DIF[r.dif]} | ${r.lang} | ${r.pantallaFinal || '—'} | ${(r.ms / 1000).toFixed(1)} |\n`;
+
+/* XP que dio cada día de la campaña, por dificultad. Solo cuenta si el robot
+   GANÓ el día (acabó en "resultado"): en el jefe y el runner no gana, y ahí
+   queda "—" en vez de un cero que parecería un dato. */
+{
+  const dias = [...new Set(filas.filter(r => !r.tipo).map(r => r.dia))].sort((a, b) => a - b);
+  const dif = [...new Set(filas.filter(r => !r.tipo).map(r => r.dif))].sort();
+  const xpDe = (d, f) => {
+    const r = filas.find(x => !x.tipo && x.dia === d && x.dif === f && x.pantallaFinal === 'resultado' && x.xp != null);
+    return r ? r.xp : null;
+  };
+  if (dias.length) {
+    md += `\n## Cuánto da cada día (XP, para calibrar rangos y precios)\n\n`;
+    md += `Lo que ganó el robot al superar cada día, con 3 estrellas. "—": el robot no lo ganó\n`;
+    md += `(el jefe y el runner), así que no hay dato. La columna ACUMULADO suma NORMAL.\n`;
+    md += `Es una muestra: el robot es rápido y los puntos llevan bonus de tiempo, así que un\n`;
+    md += `jugador real suele sacar algo menos, y cada vuelta varía un poco.\n\n`;
+    md += `| Día | ${dif.map(f => NOMBRE_DIF[f]).join(' | ')} | ACUMULADO (NORMAL) |\n|---|${dif.map(() => '---').join('|')}|---|\n`;
+    let acum = 0, completo = true;
+    for (const d of dias) {
+      const n = xpDe(d, 1);
+      if (n == null) completo = false; else acum += n;
+      md += `| ${d + 1} · ${NIVEL[d]} | ${dif.map(f => xpDe(d, f) ?? '—').join(' | ')} | ${n == null ? '—' : acum}${completo ? '' : ' (sin los días que faltan)'} |\n`;
+    }
+    md += `\nLos rangos están en \`RANGOS\` (js/datos.js).\n`;
+  }
+}
 
 md += `\n## Qué NO cubre este barrido\n\n`;
 md += `- **Ganarle al jefe** (días 10 y 15). El robot se mueve pero no apunta, así\n`;

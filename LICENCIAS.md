@@ -50,3 +50,11 @@ SOFTWARE.
   aunque el juego no usa sus personajes.
 - **Patch Pixel.** La tipografía de la galería de pixelfx es de Patch y NO está
   cubierta por la licencia MIT. No se incluye en este juego.
+
+## Claude Code Game Studios — ideas, sin código copiado
+
+Las tres skills de `.claude/skills/` (`balance`, `playtest` y `terminar`) parten de las ideas
+de `/balance-check`, `/playtest-report` y `/cut` de
+https://github.com/Donchitos/Claude-Code-Game-Studios (licencia MIT, Copyright (c) 2026
+Donchitos). Están escritas de nuevo para este juego y no copian su texto ni sus scripts; se
+cita por cortesía y para que se sepa de dónde salió la idea.
