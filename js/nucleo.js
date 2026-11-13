@@ -83,7 +83,8 @@ function resultado(i,stars,pts){
   if(libreActivo)return libreFin(stars,pts);
   if(sinFinActivo)return sinFinRonda(stars,pts);
   if(salaActiva)return salaRonda(stars,pts);
-  const gan=Math.round(pts*facPts());
+  const repite=S.dias[i]>=1;
+  const gan=Math.round(pts*facPts()*facRepite(S.dias[i]));
   const rangoAntes=rangoDe(S.xp);
   S.pts+=gan;S.xp+=gan;
   if(stars>S.dias[i])S.dias[i]=stars;
@@ -108,6 +109,7 @@ function resultado(i,stars,pts){
     <h2 class="verde">${t('aprobado')}</h2>
     ${starsHtml(stars)}
     <p class="pts-final">+${gan} ${t('ptsgan')}</p>
+    ${repite?`<p class="desc">${t('repite_aviso')}</p>`:''}
     <div class="xp-bar"><div class="xp-fill" style="width:${pc}%"></div></div>
     <p class="xp-txt">${S.xp} XP · ${rangoNom()}${sig?' → '+tj(sig)+' ('+sig.xp+' XP)':''}</p>
     ${esFinal

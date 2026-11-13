@@ -178,6 +178,11 @@ const maxVidas=()=>lab('vidas',Math.max(1,3+(mejora('vida')?1:0)+difActual().vid
 const facTiempo=()=>lab('tiempo',(mejora('tiempo')?1.2:1)*difActual().tiempo);
 const facPts=()=>lab('puntos',S.mejoras.includes('doble')?2:1);
 const facJefe=()=>lab('jefe',difActual().jefe);
+/* Repetir un día ya superado paga la CUARTA parte de los puntos (y por tanto del
+   XP, que van juntos). La primera vez paga completo. Sin esto, repetir el día 1
+   un par de veces subía de rango sin avanzar en la historia, y los puntos de
+   la tienda se podían "cultivar". Se mira la mejor marca guardada del día. */
+const facRepite=estrellasPrevias=>estrellasPrevias>=1?0.25:1;
 /* Palancas de dificultad dentro de los minijuegos.
    cuantos() redondea y nunca baja del mínimo: con cant 0.75 una tanda de
    5 rondas se queda en 4, no en 3,75 ni en 0. */
