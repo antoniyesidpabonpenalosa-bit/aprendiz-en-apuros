@@ -899,8 +899,11 @@ await caso('personajes · Don Jairo no habla de puertas: cuenta lo que hay en el
     dichos.push(await pg.$eval('.pasillo-consejo', e => e.textContent));
     await pg.evaluate(() => $('#pasillo-ficha').innerHTML = ''); /* que el siguiente toque vuelva a esperar el retrato */
   }
-  const ok = new Set(dichos).size === 3 && dichos[0].includes('tienda') && dichos[1].includes('reto') && dichos[2].includes('libre');
-  return [ok, JSON.stringify(dichos.map(x => x.slice(0, 40)))];
+  /* y se ve su retrato DIBUJADO (el de Don Jairo, no el pixel de respaldo) */
+  const dibujo = await pg.evaluate(() => { const i = $('#pasillo-ficha img.dibujo'); return i ? i.dataset.p + ' ' + i.getAttribute('src') : null; });
+  const ok = new Set(dichos).size === 3 && dichos[0].includes('tienda') && dichos[1].includes('reto') && dichos[2].includes('libre')
+    && dibujo === 'vigilante img/retratos/vigilante-feliz.webp';
+  return [ok, JSON.stringify({ dibujo, dichos: dichos.map(x => x.slice(0, 40)) })];
 });
 
 await caso('personajes · tocar a un personaje no deja entrar a un día ni toca la partida; la puerta pide volver a ella', MEDIO, async pg => {

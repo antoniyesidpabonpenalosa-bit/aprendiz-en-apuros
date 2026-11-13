@@ -4,7 +4,8 @@
 > respuestas del autor: nombres propios (Gustavo, Valentina, Andrés y Don Jairo) y el
 > vigilante incluido; los personajes se ven con el cuerpo del aprendiz recoloreado (opción A).
 > Los textos viven ahora en `js/consejos.js`; este archivo queda como la propuesta original.
-> Pendiente: los retratos dibujados de Don Jairo (hoy sale en pixel).
+> Don Jairo ya tiene sus 5 retratos dibujados (`arte/retratos/vigilante-*.png`), hechos
+> con el prompt de abajo.
 
 ## Cómo lo vería el jugador
 

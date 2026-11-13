@@ -325,10 +325,11 @@ function quienCara(nom){
    El canvas tiene que ir dentro de un envoltorio propio (.retrato-wrap,
    .jur): ahí se coloca el dibujo. */
 const GESTOS=['normal','feliz','enojado','sorprendido','preocupado'];
-/* Los que tienen retratos en img/retratos/ (5 gestos cada uno). Don Jairo, el
-   vigilante, sale en pixel hasta que estén los suyos: al llegar las 5 imágenes se
-   suma 'vigilante' aquí y a la lista de sw.js. */
-const DIBUJADOS=['instructor','lider','companera'];
+/* Los que tienen retratos en img/retratos/ (5 gestos cada uno). Quien se sume
+   aquí tiene que tener sus 5 archivos Y estar en la lista de sw.js: una prueba
+   (test/retratos.test.mjs) lo vigila, porque un archivo que sw.js pide y no
+   existe rompe la instalación del service worker. */
+const DIBUJADOS=['instructor','lider','companera','vigilante'];
 function dibujoDe(nom){
   const id=idDe(nom);
   return DIBUJADOS.includes(id)?id:'';

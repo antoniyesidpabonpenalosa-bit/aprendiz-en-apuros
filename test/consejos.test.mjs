@@ -49,9 +49,9 @@ test('consejos · las etiquetas de los diálogos son "NOMBRE · ROL" y las recon
     }
   assert.equal(E.etiquetaDe('instructor', 'es'), 'GUSTAVO · INSTRUCTOR');
   assert.equal(E.etiquetaDe('lider', 'en'), 'ANDRÉS · TECH LEAD');
-  /* los tres con dibujo lo siguen teniendo con su nombre nuevo; el vigilante aún no */
-  assert.deepEqual(arr(E.DIBUJADOS), ['instructor', 'lider', 'companera']);
-  for (const [id, dib] of [['instructor', 'instructor'], ['companera', 'companera'], ['lider', 'lider'], ['vigilante', '']])
+  /* los cuatro tienen dibujo y lo siguen teniendo con su nombre */
+  assert.deepEqual(arr(E.DIBUJADOS).sort(), ['companera', 'instructor', 'lider', 'vigilante']);
+  for (const [id, dib] of [['instructor', 'instructor'], ['companera', 'companera'], ['lider', 'lider'], ['vigilante', 'vigilante']])
     for (const lang of ['es', 'en']) assert.equal(E.dibujoDe(E.etiquetaDe(id, lang)), dib, `${id} ${lang}`);
   assert.equal(E.idDe('VALENTINA · COWORKER'), 'companera');
   assert.equal(E.idDe('DON JAIRO · GUARD'), 'vigilante');

@@ -54,7 +54,7 @@ const dibujoDe = runInContext('dibujoDe', ctx), GESTOS = runInContext('GESTOS', 
 
 test('cada hablante de los diálogos tiene su dibujo, en los dos idiomas', () => {
   for (const [nom, id] of [['INSTRUCTOR', 'instructor'], ['LÍDER TÉCNICO', 'lider'], ['TECH LEAD', 'lider'],
-    ['COMPAÑERA', 'companera'], ['COWORKER', 'companera']]) assert.equal(dibujoDe(nom), id, nom);
+    ['COMPAÑERA', 'companera'], ['COWORKER', 'companera'], ['DON JAIRO · VIGILANTE', 'vigilante'], ['GUARD', 'vigilante']]) assert.equal(dibujoDe(nom), id, nom);
   assert.equal(dibujoDe('README'), '', 'quien no tiene dibujo se queda en pixel');
 });
 
@@ -64,6 +64,13 @@ test('los 15 días tienen un gesto que existe, y cada dibujo tiene su archivo', 
   assert.equal(dctx.G.length, dctx.N);
   for (const g of dctx.G) assert.ok(GESTOS.includes(g), g);
   const { existsSync } = await import('node:fs');
-  for (const p of ['instructor', 'lider', 'companera']) for (const g of GESTOS)
+  /* y que sw.js los precargue: uno que falte aquí rompe la instalación sin conexión */
+  const sw = readFileSync(join(RAIZ, 'sw.js'), 'utf8');
+  const quienes = [...runInContext('DIBUJADOS', ctx)];
+  assert.deepEqual(quienes.sort(), ['companera', 'instructor', 'lider', 'vigilante']);
+  for (const p of quienes) for (const g of GESTOS) {
     assert.ok(existsSync(join(RAIZ, `img/retratos/${p}-${g}.webp`)), `${p}-${g}.webp`);
+    assert.ok(existsSync(join(RAIZ, `arte/retratos/${p}-${g}.png`)), `arte ${p}-${g}.png`);
+    assert.ok(sw.includes(`./img/retratos/${p}-${g}.webp`), `sw.js no precarga ${p}-${g}.webp`);
+  }
 });
