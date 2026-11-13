@@ -70,7 +70,7 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
   oculto — y 💼 **Etapa Productiva** (días 11-15), ya en la empresa, donde se
   TRABAJA: **consultas SQL**, **regex**, bugs con bombas, Git avanzado (rebase y
   stash) y un **deploy nocturno** con la revancha del jefe
-- **Jefe final con 3 fases reales**: lluvia de errores, ráfagas en abanico y un
+- **Jefe final con 3 fases reales**: lluvia de errores (doble en la última fase) y un
   **láser telegrafiado** que avisa antes de disparar · música chiptune tensa
   propia · casilla oculta **"???"** en el mapa para repetir la pelea
 - **Racha/combo** en el runner: encadena cafés sin recibir golpes para multiplicar

@@ -407,7 +407,7 @@ await caso('movimiento · con "reducir movimiento" la casilla del jefe no pulsa'
    fotogramas y el jefe se mueve 35-60 px en ese rato— y esquiva lo que cae y el
    aviso del láser. La agresividad va al mínimo desde la consola: lo que se prueba
    es el CAMINO de victoria y lo que viene después, no la dificultad. Sin escudo
-   ni ayudas: en el día 15 (arena grande, abanico lento) tiene que poder ganar. */
+   ni ayudas: en el día 15 (arena grande, lluvia y rayo) tiene que poder ganar. */
 const robotJefe = d => {
   Object.assign(S, { nombre: 'ROBOT', intro: true, t2: true, version: VERSION, vistos: ['jefe'] });
   LAB.ejecutar('jefe 0.2', {});
@@ -424,8 +424,8 @@ const robotJefe = d => {
   const o = APRENDIZ.dirDe;
   APRENDIZ.dirDe = (dx, dy) => { X.p = Math.max(8, Math.min(W - 24, X.p + dx * 3.4)); return o(dx, dy); };
   const tecla = (code, on) => document.dispatchEvent(new KeyboardEvent(on ? 'keydown' : 'keyup', { code, bubbles: true }));
-  /* Dónde caerá cada ❌: el abanico las abre de lado, y en la arena alta del
-     día 15 derivan mucho antes de llegar abajo. Se empareja cada una con la
+  /* Dónde caerá cada ❌: si alguna deriva de lado (en la arena alta del
+     día 15 ya no hay abanico, pero se deja por si vuelve), se calcula dónde llega. Se empareja cada una con la
      más cercana del fotograma anterior para sacar su velocidad. */
   let antes = [];
   const caida = () => {

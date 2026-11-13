@@ -75,6 +75,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v23** | — | 2026-11-12 | Tres efectos de pixel art de pixelfx: el corazón que se rompe, «NUEVO RANGO!» y «xN RACHA» |
 | **v24** | — | 2026-11-13 | Personajes con nombre en el pasillo (Gustavo, Valentina, Andrés y Don Jairo, el vigilante): consejos de puerta, de tema flojo y generales |
 | v24.1 | — | 2026-11-13 | Repetir un día ya superado paga la cuarta parte de puntos y XP (antes, completo) |
+| v24.2 | — | 2026-11-13 | Jefe, fase 3: sin el abanico de ❌, rayo más seguido (cada 2 s) y jefe más lento (2,45 → 2,0) |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 
