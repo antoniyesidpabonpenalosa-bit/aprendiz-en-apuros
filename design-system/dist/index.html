@@ -1627,7 +1627,10 @@ html.hd button.rp-fila,html.hd .repaso-entrada{border-radius:10px}
   .pasillo-ico{font-size:10px}
   .pasillo-marco{border-width:3px;border-bottom-width:0}
   .pasillo-insignia{bottom:-15px;font-size:8px}
-  .pasillo-actor{width:32px;height:54px}
+  .pasillo-actor,.pasillo-gente{width:32px;height:54px}
+  .pasillo-aviso{font-size:9px;top:-10px;padding:2px 4px}
+  /* con retrato al lado, el texto no se baja a otra línea */
+  .pasillo-ficha:has(.pasillo-retrato) .pasillo-ficha-datos{flex:1 1 0}
   .pasillo-ficha{flex-wrap:wrap;gap:8px}
   .pasillo-ficha-datos{flex-basis:100%}
   .pasillo-ficha .btn{width:100%}
@@ -1639,7 +1642,25 @@ html.hd button.rp-fila,html.hd .repaso-entrada{border-radius:10px}
   .pasillo-ficha-datos{gap:3px}
 }
 @media(max-width:550px) and (max-height:600px){.pasillo-escena{height:176px}}
-@media(prefers-reduced-motion:reduce){.pasillo-marco{transition:none}}
+/* Los personajes entre las puertas (js/consejos.js). Van por debajo del aprendiz
+   (z-index 5) para que pase por delante al caminar. */
+.pasillo-gente{position:absolute;z-index:4;bottom:3%;left:50%;width:44px;height:74px;transform:translateX(-50%);
+  background:none;border:0;padding:0;cursor:pointer;filter:drop-shadow(0 3px 1px rgba(7,12,24,.45))}
+.pasillo-gente canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+.pasillo-gente:focus-visible{outline:3px solid #fff;outline-offset:2px}
+/* el "!" de quien tiene algo nuevo que decir */
+.pasillo-aviso{position:absolute;left:50%;top:-16px;transform:translateX(-50%);font:11px/1 'Press Start 2P',monospace;
+  color:#1a1100;background:#ffcf3f;border:2px solid #1a1100;padding:3px 5px;box-shadow:0 2px #7a5c00;
+  animation:pasillo-bota .9s steps(2) infinite}
+.pasillo-aviso[hidden]{display:none}
+@keyframes pasillo-bota{50%{transform:translate(-50%,-3px)}}
+/* la ficha cuando habla un personaje: su retrato y lo que dice */
+.pasillo-ficha .pasillo-retrato{flex:0 0 auto}
+.pasillo-ficha .retrato-wrap.con-dibujo{width:84px;height:84px;flex-basis:84px}
+.pasillo-ficha-datos .pasillo-consejo{font-size:19px;line-height:1.25;color:#dfe9ff}
+@media(prefers-reduced-motion:reduce){.pasillo-marco{transition:none}.pasillo-aviso{animation:none}}
+/* va DESPUÉS de la regla base de arriba, si no esa le gana y en el celular salen más grandes que el aprendiz */
+@media(max-width:550px){.pasillo-gente{width:32px;height:54px}}
 
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
@@ -2408,7 +2429,10 @@ button.rp-fila:active{transform:translateY(3px);box-shadow:none}
   .pasillo-ico{font-size:10px}
   .pasillo-marco{border-width:3px;border-bottom-width:0}
   .pasillo-insignia{bottom:-15px;font-size:8px}
-  .pasillo-actor{width:32px;height:54px}
+  .pasillo-actor,.pasillo-gente{width:32px;height:54px}
+  .pasillo-aviso{font-size:9px;top:-10px;padding:2px 4px}
+  /* con retrato al lado, el texto no se baja a otra línea */
+  .pasillo-ficha:has(.pasillo-retrato) .pasillo-ficha-datos{flex:1 1 0}
   .pasillo-ficha{flex-wrap:wrap;gap:8px}
   .pasillo-ficha-datos{flex-basis:100%}
   .pasillo-ficha .btn{width:100%}
@@ -2420,7 +2444,25 @@ button.rp-fila:active{transform:translateY(3px);box-shadow:none}
   .pasillo-ficha-datos{gap:3px}
 }
 @media(max-width:550px) and (max-height:600px){.pasillo-escena{height:176px}}
-@media(prefers-reduced-motion:reduce){.pasillo-marco{transition:none}}
+/* Los personajes entre las puertas (js/consejos.js). Van por debajo del aprendiz
+   (z-index 5) para que pase por delante al caminar. */
+.pasillo-gente{position:absolute;z-index:4;bottom:3%;left:50%;width:44px;height:74px;transform:translateX(-50%);
+  background:none;border:0;padding:0;cursor:pointer;filter:drop-shadow(0 3px 1px rgba(7,12,24,.45))}
+.pasillo-gente canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+.pasillo-gente:focus-visible{outline:3px solid #fff;outline-offset:2px}
+/* el "!" de quien tiene algo nuevo que decir */
+.pasillo-aviso{position:absolute;left:50%;top:-16px;transform:translateX(-50%);font:11px/1 'Press Start 2P',monospace;
+  color:#1a1100;background:#ffcf3f;border:2px solid #1a1100;padding:3px 5px;box-shadow:0 2px #7a5c00;
+  animation:pasillo-bota .9s steps(2) infinite}
+.pasillo-aviso[hidden]{display:none}
+@keyframes pasillo-bota{50%{transform:translate(-50%,-3px)}}
+/* la ficha cuando habla un personaje: su retrato y lo que dice */
+.pasillo-ficha .pasillo-retrato{flex:0 0 auto}
+.pasillo-ficha .retrato-wrap.con-dibujo{width:84px;height:84px;flex-basis:84px}
+.pasillo-ficha-datos .pasillo-consejo{font-size:19px;line-height:1.25;color:#dfe9ff}
+@media(prefers-reduced-motion:reduce){.pasillo-marco{transition:none}.pasillo-aviso{animation:none}}
+/* va DESPUÉS de la regla base de arriba, si no esa le gana y en el celular salen más grandes que el aprendiz */
+@media(max-width:550px){.pasillo-gente{width:32px;height:54px}}
 
 </style>
 </head>

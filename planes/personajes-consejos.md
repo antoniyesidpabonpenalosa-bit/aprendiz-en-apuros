@@ -1,8 +1,10 @@
 # Personajes y consejos del pasillo · borrador para revisar
 
-> Estado: **borrador de textos y reparto, nada programado.** Es la fase 2 de
-> `planes/pasillo.md`. Todo lo de abajo es una propuesta: se cambia lo que
-> quieras antes de programar. Al aprobarlo, sería la **v24** (una novedad grande).
+> Estado: **hecho en la v24.** Es la fase 2 de `planes/pasillo.md`. Se programó con las
+> respuestas del autor: nombres propios (Gustavo, Valentina, Andrés y Don Jairo) y el
+> vigilante incluido; los personajes se ven con el cuerpo del aprendiz recoloreado (opción A).
+> Los textos viven ahora en `js/consejos.js`; este archivo queda como la propuesta original.
+> Pendiente: los retratos dibujados de Don Jairo (hoy sale en pixel).
 
 ## Cómo lo vería el jugador
 

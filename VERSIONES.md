@@ -73,6 +73,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | v22.1 | — | 2026-11-10 | Arreglo: el cartel de versión nueva ya no sale en la primera visita |
 | v22.2 | — | 2026-11-11 | Pasillo: el aprendiz espera en la puerta del día que toca, tocar otra vez la puerta entra, y el icono del minijuego en el letrero |
 | **v23** | — | 2026-11-12 | Tres efectos de pixel art de pixelfx: el corazón que se rompe, «NUEVO RANGO!» y «xN RACHA» |
+| **v24** | — | 2026-11-13 | Personajes con nombre en el pasillo (Gustavo, Valentina, Andrés y Don Jairo, el vigilante): consejos de puerta, de tema flojo y generales |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

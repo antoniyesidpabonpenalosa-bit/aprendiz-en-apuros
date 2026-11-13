@@ -51,6 +51,8 @@ function rPasillo(zona=pasilloZonaAuto()){
         <div class="pasillo-ventana izq" aria-hidden="true"></div>
         <div class="pasillo-ventana der" aria-hidden="true"></div>
         <div class="pasillo-puertas">${locales}</div>
+        ${PASILLO_GENTE[zona].map(g=>`<button class="pasillo-gente" type="button" data-p="${g.p}" data-hueco="${g.hueco}"
+           aria-label="${esc(etiquetaDe(g.p,S.lang))}: ${t('pas_hablar')}"><canvas width="44" height="74" aria-hidden="true"></canvas><span class="pasillo-aviso" aria-hidden="true" hidden>!</span></button>`).join('')}
         <div class="pasillo-suelo" aria-hidden="true"></div>
         <div class="pasillo-actor" id="pasillo-actor" aria-hidden="true"><canvas id="pasillo-canvas" width="44" height="74"></canvas></div>
       </div>
@@ -73,8 +75,11 @@ function rPasillo(zona=pasilloZonaAuto()){
   const escena=$('#pasillo-escena'),actor=$('#pasillo-actor');
   const cv=$('#pasillo-canvas'),cx=cv.getContext('2d');
   const puertas=[...escena.querySelectorAll('.pasillo-puerta')];
+  const gente=/** @type {HTMLElement[]} */([...escena.querySelectorAll('.pasillo-gente')]);
   /* pos: dónde está el aprendiz, en % del ancho de la escena */
   let pos=50,seleccion=null,andando=false,entrando=false,orientacion=APRENDIZ.idx.south;
+  /* parado: la puerta delante de la que está el aprendiz, o null si no está en ninguna */
+  let parado=null;
   let anim=0,cancelado=false;
   /* El centro de cada puerta en % del ancho de la escena. Se mide en la página
      (así sigue al CSS si cambian los márgenes) y, si aún no hay medidas, se
@@ -99,7 +104,7 @@ function rPasillo(zona=pasilloZonaAuto()){
   /* Abre la puerta y entra al día. Se comprueba todo otra vez: entre pintar el
      botón y pulsarlo puede haber cambiado la puerta elegida. */
   const entrar=i=>{
-    if(entrando||andando||seleccion!==i||i>progreso())return;
+    if(entrando||andando||seleccion!==i||parado!==i||i>progreso())return;
     entrando=true;
     puertas[i-bloque.inicio].classList.add('abriendo');
     SFX.click();
@@ -127,42 +132,110 @@ function rPasillo(zona=pasilloZonaAuto()){
     puertas.forEach(b=>b.classList.toggle('seleccionada',+b.dataset.dia===i));
   };
   const llegada=(i,mostrar=true)=>{
-    andando=false;orientacion=APRENDIZ.idx.north;paint();
+    andando=false;parado=i;orientacion=APRENDIZ.idx.north;paint();
     puertas.forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.dia===i)));
     nuevaFicha(i,true,mostrar);
   };
-  const elegir=i=>{
-    if(entrando||i<bloque.inicio||i>=bloque.fin)return;
+  /* Camina hasta `hasta` (% del ancho) y llama a alLlegar(). Con "reducir
+     movimiento", o si ya está ahí, llega al instante. */
+  const caminar=(hasta,alLlegar)=>{
     if(anim){cancelAnimationFrame(anim);anim=0;}
-    marcar(i);
-    SFX.click();
-    /* A una puerta cerrada no se camina: solo se enseña su ficha. */
-    if(i>progreso()){andando=false;paint();nuevaFicha(i,true);return;}
-    if(quieto()||Math.abs(pos-xDia(i))<.5){pos=xDia(i);moveX();llegada(i);return;}
-    andando=true;nuevaFicha(i,false);
-    const desde=pos,hasta=xDia(i),delta=hasta-desde,duracion=280+Math.abs(delta)*7;
+    if(quieto()||Math.abs(pos-hasta)<.5){pos=hasta;moveX();alLlegar();return;}
+    andando=true;
+    const desde=pos,delta=hasta-desde,duracion=280+Math.abs(delta)*7;
     orientacion=delta>0?APRENDIZ.idx.east:APRENDIZ.idx.west;
     const inicio=performance.now();
     const tick=now=>{
       if(cancelado||pantallaId!=='pasillo')return;
       const k=Math.min(1,(now-inicio)/duracion);
       pos=desde+delta*(k*k*(3-2*k));moveX();paint(k<1,now);
-      if(k<1)anim=requestAnimationFrame(tick);else{anim=0;llegada(i);}
+      if(k<1)anim=requestAnimationFrame(tick);else{anim=0;alLlegar();}
     };
     anim=requestAnimationFrame(tick);
   };
+  const elegir=i=>{
+    if(entrando||i<bloque.inicio||i>=bloque.fin)return;
+    marcar(i);parado=null;
+    SFX.click();
+    /* A una puerta cerrada no se camina: solo se enseña su ficha. */
+    if(i>progreso()){if(anim){cancelAnimationFrame(anim);anim=0;}andando=false;paint();nuevaFicha(i,true);return;}
+    const hasta=xDia(i);
+    if(!(quieto()||Math.abs(pos-hasta)<.5))nuevaFicha(i,false);
+    caminar(hasta,()=>llegada(i));
+  };
+
+  /* ── los personajes ── */
+  /* El punto medio entre dos puertas, en % del ancho de la escena. */
+  const xHueco=h=>{
+    const re=escena.getBoundingClientRect(),a=puertas[h].getBoundingClientRect(),b=puertas[h+1].getBoundingClientRect();
+    return re.width?((a.left+a.width/2+b.left+b.width/2)/2-re.left)/re.width*100:22.2+18.55*h;
+  };
+  /* Cada uno es el cuerpo del aprendiz con SU piel y SU camisa (js/consejos.js). */
+  const pintaGente=()=>gente.forEach(g=>{
+    const P=PERSONAJES[/** @type {string} */(g.dataset.p)],c=g.querySelector('canvas'),k=c.getContext('2d');
+    k.clearRect(0,0,c.width,c.height);
+    if(!APRENDIZ.dibujar(k,22,73,71,APRENDIZ.idx.south,0,P.piel,P.camisa)){
+      k.fillStyle='#302019';k.fillRect(13,6,18,13);
+      k.fillStyle=P.piel;k.fillRect(14,17,16,12);
+      k.fillStyle=P.camisa;k.fillRect(10,30,24,19);
+      k.fillStyle='#30395d';k.fillRect(13,49,8,17);k.fillRect(23,49,8,17);
+      k.fillStyle='#80513f';k.fillRect(11,66,11,6);k.fillRect(23,66,11,6);
+    }
+  });
+  /* De qué puerta habla un personaje: la elegida, o el día que toca si su puerta
+     está en esta zona (en otra zona no tiene sentido hablar de una puerta que no se ve). */
+  const diaDeConsejo=()=>seleccion!==null?seleccion:(p>=bloque.inicio&&p<bloque.fin?p:null);
+  const contextoDe=pid=>({dia:diaDeConsejo(),pendientes:temasRepaso(),vuelta:charla.vueltas[pid]||0});
+  /* El "!" de encima de quien tiene algo nuevo que decir. */
+  const avisos=()=>gente.forEach(g=>{
+    /** @type {HTMLElement} */(g.querySelector('.pasillo-aviso')).hidden=!tieneNovedad(/** @type {string} */(g.dataset.p),contextoDe(/** @type {string} */(g.dataset.p)));
+  });
+  const mostrarConsejo=pid=>{
+    const c=consejoDe(pid,contextoDe(pid));
+    charla.vueltas[pid]=(charla.vueltas[pid]||0)+1;
+    charla.vistos.add(c.clave);
+    const et=etiquetaDe(pid,S.lang);
+    ficha.innerHTML=`<div class="retrato-wrap pasillo-retrato"><canvas class="retrato" id="pg-cara" width="64" height="64"></canvas></div>
+      <div class="pasillo-ficha-datos">
+        <strong>${esc(et)}</strong>
+        <span class="pasillo-consejo">${esc(tj(c.txt))}</span>
+      </div>
+      ${c.tipo==='tema'?`<button class="btn" id="pasillo-repasar" type="button">🎯 ${t('repaso_btn')}</button>`:''}`;
+    retratoVivo($('#pg-cara'),quienCara(et));
+    retratoDibujo($('#pg-cara'),et,GESTO_CONSEJO[c.tipo]);
+    if(c.tipo==='tema')$('#pasillo-repasar').onclick=()=>{SFX.click();empezarRepaso(c.juego)};
+    if(ficha.scrollIntoView)ficha.scrollIntoView({block:'nearest'});
+    avisos();
+  };
+  /* Tocar a un personaje: el aprendiz camina hasta quedar a su lado y le habla. */
+  const hablar=pid=>{
+    if(entrando)return;
+    const g=gente.find(x=>x.dataset.p===pid);
+    if(!g)return;
+    const xg=xHueco(+g.dataset.hueco),izq=pos<xg;
+    const hasta=Math.max(6,Math.min(94,izq?xg-7:xg+7));
+    SFX.click();parado=null;
+    puertas.forEach(b=>b.setAttribute('aria-pressed','false'));
+    caminar(hasta,()=>{
+      andando=false;orientacion=izq?APRENDIZ.idx.east:APRENDIZ.idx.west;paint();
+      mostrarConsejo(pid);
+    });
+  };
+  gente.forEach(g=>{g.onclick=()=>hablar(/** @type {string} */(g.dataset.p))});
   /* Tocar la puerta en la que ya estás parado es entrar (lo mismo que el botón
      de la ficha). Mientras camina no cuenta: un doble toque por descuido solo
      vuelve a elegirla. */
   puertas.forEach(b=>{b.onclick=()=>{
     const i=+b.dataset.dia;
-    if(seleccion===i&&!andando)entrar(i);else elegir(i);
+    if(parado===i&&!andando)entrar(i);else elegir(i);
   }});
   /* Teclado: ← → cambian de puerta (y el foco va con ella); Enter en la puerta
      ya elegida, o con el foco en la escena, entra. Enter en OTRA puerta la
      elige: eso lo hace el clic normal del botón. */
   escena.addEventListener('keydown',e=>{
     if(!['ArrowLeft','ArrowRight','Enter'].includes(e.key))return;
+    /* sobre un personaje, el botón hace lo suyo (hablar) */
+    if(/** @type {HTMLElement} */(e.target).closest('.pasillo-gente'))return;
     const en=/** @type {HTMLElement} */(e.target).closest('.pasillo-puerta');
     if(e.key==='Enter'){
       if(en&&+(/** @type {HTMLElement} */(en)).dataset.dia!==seleccion)return;
@@ -191,9 +264,12 @@ function rPasillo(zona=pasilloZonaAuto()){
   /* Si el día que toca está en esta zona, el aprendiz ya espera delante de su
      puerta con la ficha lista: seguir la campaña es un toque, como en la lista.
      En las otras zonas (y con la campaña terminada) no hay nada elegido. */
+  gente.forEach(g=>{g.style.left=xHueco(+g.dataset.hueco)+'%'});
+  pintaGente();
   if(p>=bloque.inicio&&p<bloque.fin){marcar(p);pos=xDia(p);moveX();llegada(p,false);}
   else{moveX();paint();}
+  avisos();
   /* Por si el dibujo del aprendiz todavía se está descargando. */
-  [200,800].forEach(ms=>tvez(()=>{if(!andando)paint()},ms));
+  [200,800].forEach(ms=>tvez(()=>{pintaGente();if(!andando)paint()},ms));
   escena.focus({preventScroll:true});
 }

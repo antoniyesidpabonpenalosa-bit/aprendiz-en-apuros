@@ -53,8 +53,10 @@ const APRENDIZ = (() => {
        deja el sprite con sus colores originales, sin romper nada. Sobre http/
        https (que es como se juega de verdad) sí recolorea. */
     try {
-      const camisa = hexRGB(CAMISAS[c] || CAMISAS[0]);
-      const piel = hexRGB(SKINS[s] || SKINS[0]);
+      /* c y s son el número de la camisa/piel del jugador, o un color "#rrggbb"
+         suelto (los personajes del pasillo, js/consejos.js, usan el suyo) */
+      const camisa = hexRGB(typeof c === 'string' ? c : (CAMISAS[c] || CAMISAS[0]));
+      const piel = hexRGB(typeof s === 'string' ? s : (SKINS[s] || SKINS[0]));
       const d = cx.getImageData(0, 0, cv.width, cv.height), px = d.data;
       for (let i = 0; i < px.length; i += 4) {
         if (px[i + 3] === 0) continue;

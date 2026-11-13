@@ -1,7 +1,9 @@
 # Plan: el pasillo del centro de formación
 
-> Estado: **fase 1 hecha (v22)**. El pasillo ya es el mapa de la campaña
-> (`js/pasillo.js`). Falta la fase 2: los personajes y sus consejos.
+> Estado: **fases 1 y 2 hechas (v22 y v24)**. El pasillo ya es el mapa de la campaña
+> (`js/pasillo.js`) y los personajes están en él con sus consejos (`js/consejos.js`;
+> los textos, en `planes/personajes-consejos.md`). Falta que Don Jairo, el vigilante,
+> tenga sus retratos dibujados: mientras tanto sale en pixel.
 
 ## Lo que quedó en la v22 (fase 1)
 
@@ -113,12 +115,11 @@ roja, pelo largo) y el **Líder técnico** (camisa morada, corbata).
 | Fase | Qué                                                                 | Depende del autor          |
 |------|---------------------------------------------------------------------|----------------------------|
 | 1    | ✅ Pasillo jugable: puertas, caminar, entrar, las 3 zonas y la lista de respaldo | Hecho (v22)     |
-| 2    | Personajes en el pasillo con consejos (también los personalizados)   | Revisar los textos         |
+| 2    | ✅ Personajes en el pasillo con consejos (también los personalizados) | Hecho (v24); falta los retratos del vigilante |
 | 3    | ✅ Retratos dibujados en los diálogos, el jurado del quiz y opción en Personalización | Hecho (15 imágenes en `arte/retratos/`) |
 | 4    | ✅ Caminata de 4 cuadros en 8 direcciones (`img/aprendiz-caminar.png`, ya se usa en el jefe y el mapa). Falta: sonido de pasos, puertas que se abren | Opcional |
 
-La fase 1 salió como v22. La fase 2 (personajes y consejos) sería la siguiente
-versión grande.
+La fase 1 salió como v22 y la fase 2 como v24.
 
 ## Decisiones de diseño pendientes
 

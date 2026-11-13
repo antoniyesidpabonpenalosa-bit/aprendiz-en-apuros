@@ -131,7 +131,8 @@ aprendiz-en-apuros/
     ├── entrada.js        → soporte de mando (Gamepad API) y giroscopio
     ├── nucleo.js         → router de pantallas, logros, resultado/fallo
     ├── menus.js          → portada, lista de días, cutscenes, novedades, flujo del día y ayuda
-    ├── pasillo.js        → el pasillo: el mapa de la campaña, 3 zonas de 5 puertas
+    ├── consejos.js       → los personajes del pasillo (Gustavo, Valentina, Andrés, Don Jairo), qué dicen y la regla que lo elige
+    ├── pasillo.js        → el pasillo: el mapa de la campaña, 3 zonas de 5 puertas, con sus personajes
     ├── certificados.js   → contrato (día 10), título (día 15), marcas y compartir
     ├── tienda.js         → tienda y personalizar el avatar
     ├── records.js        → logros, récords, código de aula y estadísticas
