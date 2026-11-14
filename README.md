@@ -177,7 +177,8 @@ test/
 ├── avatar.test.mjs       → pruebas de la ficha de jugador de la portada: datos reales, un solo botón y CSS acotado
 ├── transiciones.test.mjs → pruebas de las transiciones de la portada: un solo motor de efectos, sin retrasar la navegación y movimiento reducido
 ├── aprendiz-hd.test.mjs  → pruebas del arte nuevo del aprendiz: atlas HD del jugador, clásico de respaldo y para los NPC, poses de la portada
-└── iconos-portada.test.mjs → pruebas de los iconos de 32×32 de la portada: 15 PNG válidos, respaldo clásico y uso solo en rTitulo()
+├── iconos-portada.test.mjs → pruebas de los iconos de 32×32 de la portada: 15 PNG válidos, respaldo clásico y uso solo en rTitulo()
+└── barras-rpg.test.mjs   → pruebas de las barras RPG: límites reales, campaña de 15 casillas sin roles anidados y animación solo con ganancia real
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 ├── barrido.mjs           → juega los 15 días × 3 dificultades × 2 idiomas y hace informe

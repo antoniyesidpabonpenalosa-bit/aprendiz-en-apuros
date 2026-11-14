@@ -109,9 +109,10 @@ function rTitulo(){
       <span>${pxiPortada('🎓')} ${rangoNom()}</span>
       <span class="sep">★ ${S.pts} ${t('rec_pts')}</span>
     </div>
-    <div class="tit-bloque">
-      <div class="xp-bar"><div class="xp-fill" style="width:${pc}%"></div></div>
-      <p class="xp-txt">${sig?`${S.xp} / ${sig.xp} XP · ${pc}%`:`${S.xp} XP · ${t('rango_max')}`}</p>
+    <div class="tit-bloque rpg-xp-bloque">
+      <div class="rpg-xp-cab"><b>XP · ${sig?"→ "+tj(sig):t('rango_max')}</b><strong>${pc}%</strong></div>
+      ${barraRpg('xp',pc)}
+      <p class="xp-txt">${sig?`${S.xp} / ${sig.xp} XP`:`${S.xp} XP`}</p>
     </div>
 
     <div class="tit-jugar-fila">
@@ -175,7 +176,7 @@ function rTitulo(){
       <span class="tit-prog-fila">
         <span class="p-lbl">${t('progreso_lbl')}</span>
         <span class="av-dias">${diasCampana}/${TOT_DIAS}</span>
-        <span class="barra" aria-hidden="true"><span class="barra-fill" style="width:${pcCampana}%"></span></span>
+        ${barraRpg('campana',diasCampana,TOT_DIAS,null,true)}
         <span class="p-pc">${pcCampana}%</span>
       </span>
     </button>

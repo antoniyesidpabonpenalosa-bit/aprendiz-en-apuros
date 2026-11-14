@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v34';
+const VERSION='v35';
 const NOVEDADES=[
+  {v:'v35', fecha:'2026-11-14',
+   es:['Barras de progreso al estilo RPG: la XP en violeta con 10 casillas y el rango al que vas, la campaña en verde con una casilla por día y un borde dorado al completarla, y una barra compacta en la cabecera. Al superar un día, la barra de XP se llena desde donde estaba (o desde cero si subes de rango).'],
+   en:['RPG-style progress bars: XP in purple with 10 cells and the rank you are heading for, the campaign in green with one cell per day and a gold border when complete, and a compact bar in the header. When you clear a day, the XP bar fills from where it was (or from zero if you rank up).']},
   {v:'v34', fecha:'2026-11-14',
    es:['La pantalla principal estrena iconos más detallados: mando, infinito, escuela, planta, espadas, calavera, carrito, trofeo, gráficas, destellos, letras, birrete, calendario y joystick, dibujados en pixel art con sombras. El resto del juego conserva sus iconos de siempre.'],
    en:['The main screen has new, more detailed icons: gamepad, infinity, school, plant, swords, skull, cart, trophy, charts, sparkles, letters, graduation cap, calendar and joystick, drawn in pixel art with shading. The rest of the game keeps its usual icons.']},

@@ -1915,6 +1915,43 @@ html.legible .portada .tit-prog-fila .p-lbl,html.legible .portada .tit-prog-fila
   .portada .dif-ico .pxi-portada,.portada .tit-id .pxi-portada,.portada .tit-reto .pxi-portada,.portada .av-rango .pxi-portada{image-rendering:auto}
 }
 
+/* Barras RPG · solo portada, HUD de título y resultado de campaña.
+   Las divisiones están en la pista, no en el relleno: nunca cambian de tamaño. */
+.rpg-medidor{--rpg-luz:#e4b2ff;--rpg-color:#a86bff;--rpg-sombra:#6331b9;--rpg-borde:#8171bf;--rpg-celda:10%;
+  position:relative;display:block;isolation:isolate;box-sizing:border-box;padding:2px;overflow:hidden;
+  border:2px solid var(--rpg-borde);background:#080c1b;
+  box-shadow:0 2px 0 #050713,inset 0 1px 0 #e0d5ff28,0 0 0 1px #080c1b;
+  height:17px;min-width:0;flex-shrink:1}
+.rpg-medidor .rpg-pista{position:relative;display:block;width:100%;height:100%;overflow:hidden;background:linear-gradient(#121a30 0 30%,#0d1327 30% 80%,#090d1b 80%);box-shadow:inset 0 1px 0 #000}
+.rpg-medidor .rpg-relleno{display:block;height:100%;width:var(--rpg-hasta);max-width:100%;background:linear-gradient(to bottom,var(--rpg-luz) 0 22%,var(--rpg-color) 22% 73%,var(--rpg-sombra) 73%);box-shadow:inset 0 1px 0 #ffffff55;position:relative}
+.rpg-medidor .rpg-pista::after{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to right,transparent 0 calc(var(--rpg-celda) - 2px),#080c1b  calc(var(--rpg-celda) - 2px) var(--rpg-celda));opacity:.9}
+.rpg-medidor .rpg-relleno::after{content:'';position:absolute;right:0;top:0;bottom:0;width:2px;background:var(--rpg-luz);opacity:.9}
+.rpg-medidor[data-tipo="campana"],.rpg-medidor[data-tipo="hud"]{--rpg-luz:#b9fc82;--rpg-color:#54c41a;--rpg-sombra:#267b12;--rpg-borde:#51784a}
+.rpg-medidor[data-tipo="campana"]{--rpg-celda:6.6666667%}
+.rpg-medidor[data-tipo="hud"]{--rpg-celda:16.6666667%}
+.rpg-medidor[data-completo="true"]{--rpg-borde:#e5bd50;box-shadow:0 2px 0 #050713,0 0 0 1px #080c1b,0 0 7px #ffcf3f22}
+.portada .tit-bloque.rpg-xp-bloque{width:min(340px,100%);gap:5px}
+/* v35: placa oscura detrás del bloque de XP. Las cifras quedaban sobre ventanas encendidas de la
+   ciudad (fondo animado, v27) y bajaban a 2,6:1 de contraste; con la placa se leen siempre. */
+.portada .tit-bloque.rpg-xp-bloque{padding:5px 8px 6px;background:#080c1bc4;box-shadow:0 0 0 1px #080c1b80}
+html.hd .portada .tit-bloque.rpg-xp-bloque{border-radius:6px}
+.rpg-xp-cab{width:100%;display:flex;align-items:baseline;justify-content:space-between;gap:6px;color:#bcb4e6;font-family:'VT323',monospace;font-size:17px;line-height:1.1}
+.rpg-xp-cab b{color:#d8b8ff;font-weight:400;letter-spacing:1px}
+.rpg-xp-cab strong{color:#ffcf3f;font-weight:400;white-space:nowrap}
+.portada .rpg-xp-bloque .rpg-medidor{width:100%;margin:0;height:19px}
+.portada .rpg-xp-bloque .xp-txt{font-size:16px;letter-spacing:.25px;color:#c1c9e6;line-height:1.1;margin:0;text-align:center}
+.portada .tit-prog-fila .rpg-medidor{flex:1 1 0;min-width:16px;height:15px;display:block}
+.hud-titulo .rpg-medidor{width:78px;height:12px;vertical-align:middle;display:inline-block;padding:1px;border-width:1px}
+.rpg-resultado{display:flex;flex-direction:column;align-items:center;width:min(340px,100%);gap:6px}
+.rpg-resultado .rpg-medidor{width:100%;height:20px}
+.rpg-resultado .xp-txt{text-align:center;line-height:1.3}
+.rpg-medidor[data-animar="true"] .rpg-relleno{animation:rpg-ganancia 780ms cubic-bezier(.2,.7,.3,1) both}
+@keyframes rpg-ganancia{from{width:var(--rpg-desde)}to{width:var(--rpg-hasta)}}
+html.hd .rpg-medidor{border-radius:4px}
+html.legible .rpg-xp-cab,html.legible .portada .rpg-xp-bloque .xp-txt{font-family:inherit;font-size:15px;letter-spacing:0}
+@media(max-width:470px){.hud-titulo .rpg-medidor{width:48px;height:10px}.portada .tit-prog-fila .rpg-medidor{height:13px}.portada .rpg-xp-bloque .rpg-medidor{height:17px}}
+@media(prefers-reduced-motion:reduce){.rpg-medidor[data-animar="true"] .rpg-relleno{animation:none;transition:none}}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}
