@@ -16,7 +16,9 @@ const fx = leer('js/efectos.js');
 const js = leer('js/menus.js');
 const css = leer('css/estilos.css');
 const marca = '/* Paso 6 · microinteracciones de portada.';
-const bloque = css.slice(css.indexOf(marca));
+/* hasta el bloque siguiente (iconos de la portada, v34), no hasta el final del archivo */
+const fin = css.indexOf('/* Iconos premium de la portada', css.indexOf(marca));
+const bloque = css.slice(css.indexOf(marca), fin < 0 ? undefined : fin);
 
 test('un solo lienzo de efectos y un solo bucle: no se añadió otro', () => {
   assert.equal((fx.match(/createElement\('canvas'\)/g) || []).length, 1);

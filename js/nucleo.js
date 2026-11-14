@@ -88,6 +88,7 @@ function resultado(i,stars,pts){
   const repite=S.dias[i]>=1;
   const gan=Math.round(pts*facPts()*facRepite(S.dias[i]));
   const rangoAntes=rangoDe(S.xp);
+  const xpAntes=progresoXp().pc;
   S.pts+=gan;S.xp+=gan;
   if(stars>S.dias[i])S.dias[i]=stars;
   if(i===0)darLogro('primer');
@@ -104,7 +105,10 @@ function resultado(i,stars,pts){
   const esFinal=i===9||i===14;
   /* pintar() solo dibuja y cablea los botones: todo lo que suma puntos, da
      logros o publica marcas quedó ARRIBA y no se repite al cambiar de idioma. */
+  let animarXp=true;
   const pintar=()=>{
+  const desde=animarXp?(rangoDe(S.xp)===rangoAntes?xpAntes:0):null;
+  animarXp=false;
   pantalla('resultado',`
   <div class="centro">
     <span class="ico">${pxi(NIVELES[i].ico)}</span>
@@ -112,8 +116,11 @@ function resultado(i,stars,pts){
     ${starsHtml(stars)}
     <p class="pts-final">+${gan} ${t('ptsgan')}</p>
     ${repite?`<p class="desc">${t('repite_aviso')}</p>`:''}
-    <div class="xp-bar"><div class="xp-fill" style="width:${pc}%"></div></div>
-    <p class="xp-txt">${S.xp} XP · ${rangoNom()}${sig?' → '+tj(sig)+' ('+sig.xp+' XP)':''}</p>
+    <div class="rpg-resultado">
+      <div class="rpg-xp-cab"><b>XP · ${sig?"→ "+tj(sig):t('rango_max')}</b><strong>${pc}%</strong></div>
+      ${barraRpg('xp',pc,100,desde)}
+      <p class="xp-txt">${S.xp} XP · ${rangoNom()}${sig?' → '+tj(sig)+' ('+sig.xp+' XP)':''}</p>
+    </div>
     ${esFinal
       ?`<button class="btn" id="r-fin" type="button">${i===9?'🎓':'🚀'} ${t('continuar')}</button>`
       :`<button class="btn" id="r-sig" type="button">${t('siguiente')}</button>`}

@@ -1271,7 +1271,7 @@ await caso('fondo del menú · el texto suelto sobre el fondo sigue leyéndose (
   for (const [w, h] of [[390, 760], [320, 568], [1280, 800]]) {
     await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(500);
     /* se mide el fondo SIN el texto (transparente) justo detrás de cada línea: el 95 % más claro de sus píxeles manda */
-    for (const sel of ['.sub', '.xp-txt', '.tit-h1 .l1', '.tit-h1 .l2', '.dif-cap']) {
+    for (const sel of ['.sub', '.xp-txt', '.tit-h1 .l1', '.tit-h1 .l2', '.dif-cap', '.rpg-xp-cab b', '.rpg-xp-cab strong']) {
       const el = await pg.$(sel); if (!el) continue;
       /* desde la v28 el título lo pinta el dibujo y el h1 queda solo para lectores de pantalla (1 px, recortado): no hay texto que leer */
       if (await el.evaluate(e => { const h = e.closest('.tit-h1'); return !!h && h.getBoundingClientRect().width <= 2; })) continue;
@@ -1575,13 +1575,13 @@ await caso('aprendiz de la portada · las demás pantallas no cambian: ninguna l
    pierda el foco al elegir dificultad; y que nada de esto salga de la portada. */
 const BOTONES_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v30', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
 
-await caso('botones de la portada · las 9 tarjetas llevan su icono de pixel art (no emoji) a 36 px, y 24 px en móvil', BOTONES_J, async pg => {
+await caso('botones de la portada · las 9 tarjetas llevan su icono de pixel art (no emoji) a 36 px, y 32 px en móvil (v34)', BOTONES_J, async pg => {
   const mide = async (w, h) => { await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(400);
     return pg.evaluate(() => { const f = [...document.querySelectorAll('.portada .menu-fila')]; const ico = f.map(b => b.querySelector('.m-ico img.pxi')?.getBoundingClientRect().width || 0);
       const d = [...document.querySelectorAll('.portada .dif-op .dif-ico img.pxi')].length;
       return { filas: f.length, conPxi: ico.filter(x => x > 0).length, min: Math.min(...ico), dif: d }; }); };
   const m = await mide(390, 760), g = await mide(1280, 800);
-  return [m.filas === 9 && m.conPxi === 9 && m.dif === 3 && m.min >= 23 && m.min <= 26 && g.conPxi === 9 && g.min >= 35, `móvil ${JSON.stringify(m)} · escritorio ${JSON.stringify(g)}`];
+  return [m.filas === 9 && m.conPxi === 9 && m.dif === 3 && m.min >= 31 && m.min <= 33 && g.conPxi === 9 && g.min >= 35, `móvil ${JSON.stringify(m)} · escritorio ${JSON.stringify(g)}`];
 });
 
 await caso('botones de la portada · cada acceso sigue llevando a su pantalla', BOTONES_J, async pg => {
@@ -1701,7 +1701,8 @@ const FICHA_J = { intro: true, nombre: 'ANTONI', pts: 900, xp: 1700, version: 'v
 const leeFicha = pg => pg.evaluate(() => { const b = document.querySelector('#t-perso');
   return { nombre: b.querySelector('.av-nombre').textContent.trim(), rango: b.querySelector('.av-rango').textContent.trim(), xp: b.querySelector('.av-xp').textContent.replace(/\s+/g, ' ').trim(),
     est: b.querySelector('.av-estrellas').textContent.replace(/\s+/g, ' ').trim(), dias: b.querySelector('.av-dias').textContent.trim(), pc: b.querySelector('.p-pc').textContent.trim(),
-    barra: b.querySelector('.barra-fill').style.width,
+    /* v35: la barra de campaña es un medidor RPG (barraRpg); su relleno exacto va en --rpg-hasta */
+    barra: Math.round(parseFloat(b.querySelector('.rpg-medidor').style.getPropertyValue('--rpg-hasta'))) + '%',
     esperado: { nombre: S.nombre, rango: rangoNom(), xp: `XP ${S.xp}${progresoXp().sig ? ' / ' + progresoXp().sig.xp : ''}`, est: `★ ${totalStars()} / ${TOT_DIAS * 3}`, dias: `${progreso()}/${TOT_DIAS}`, pc: Math.round(progreso() / TOT_DIAS * 100) + '%' } }; });
 const cuadra = f => f.nombre === f.esperado.nombre && f.rango === f.esperado.rango && f.xp === f.esperado.xp && f.est === f.esperado.est && f.dias === f.esperado.dias && f.pc === f.esperado.pc && f.barra === f.pc;
 const huellaAv = pg => pg.evaluate(() => { const cv = document.querySelector('#t-av'); const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let s = 0; for (let i = 0; i < d.length; i++) s = (s * 31 + d[i]) >>> 0; return cv.width + ':' + s; });
@@ -1773,7 +1774,7 @@ await caso('ficha de la portada · se reparte bien en 7 tamaños, con HD y texto
         const fuera = [...b.querySelectorAll('span,b,canvas')].filter(e => { const q = e.getBoundingClientRect(); return q.width && (q.right > bb.right + 1 || q.left < bb.left - 1 || q.bottom > bb.bottom + 1); }).map(e => e.className || e.tagName);
         const corta = [...b.querySelectorAll('.av-xp,.av-estrellas,.av-dias,.p-pc,.p-lbl,.tit-av-txt b')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.className || e.tagName);
         const cv = document.querySelector('#t-av').getBoundingClientRect();
-        return { sinScrollX: sc.scrollWidth <= sc.clientWidth && document.documentElement.scrollWidth <= innerWidth, fuera, corta, retrato: Math.round(cv.width), barra: Math.round(b.querySelector('.barra').getBoundingClientRect().width) }; });
+        return { sinScrollX: sc.scrollWidth <= sc.clientWidth && document.documentElement.scrollWidth <= innerWidth, fuera, corta, retrato: Math.round(cv.width), barra: Math.round(b.querySelector('.rpg-medidor').getBoundingClientRect().width) }; });
       if (!(r.sinScrollX && !r.fuera.length && !r.corta.length && r.retrato >= 40 && r.barra >= 40)) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
     }
   }
@@ -2004,6 +2005,132 @@ await caso('aprendiz nuevo · la camisa y la piel elegidas se aplican (el azul y
     return { verdeOscura: cuenta(3, 0), rojaMedia: cuenta(2, 3) };
   });
   return [r.verdeOscura.azul === 0 && r.verdeOscura.piel === 0 && r.rojaMedia.azul === 0 && r.rojaMedia.piel === 0, JSON.stringify(r)];
+});
+
+/* ── LOS ICONOS DE 32×32 DE LA PORTADA (v34) ──
+   Lo que no puede romperse: que la portada enseñe los 15 dibujos nuevos (incrustados: ninguna
+   petición de red), que el resto del juego siga con los de siempre, que se vean a un tamaño
+   legible en móvil y escritorio y que nada desborde. */
+const ICONOS_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v34', t2: true, dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+const clavesPortada = () => pg => pg.evaluate(() => [...document.querySelectorAll('#screen .pxi-portada')].map(i => Object.keys(PXI_PORTADA).find(k => PXI_PORTADA[k] === i.getAttribute('src'))));
+
+await caso('iconos de la portada · salen los 15 dibujos de 32×32 (el joystick, al activar HD o texto pixel), cargados y sin pedir nada a la red', ICONOS_J, async pg => {
+  const pedidos = []; pg.on('request', q => { if (/iconos|recursos|\.png/.test(q.url()) && !/aprendiz|titulo|fondo|jefe|retratos|icon-180/.test(q.url())) pedidos.push(q.url()); });
+  const vistas = new Set();
+  for (const modo of [{}, { hd: true, legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); rTitulo(); }, modo); await pausa(400);
+    (await clavesPortada()(pg)).forEach(k => vistas.add(k));
+  }
+  const cargados = await pg.evaluate(() => [...document.querySelectorAll('.pxi-portada')].every(i => i.complete && i.naturalWidth === 32 && i.naturalHeight === 32));
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  const faltan = await pg.evaluate(v => Object.keys(PXI_PORTADA).filter(k => !v.includes(k)), [...vistas]);
+  return [faltan.length === 0 && cargados && pedidos.length === 0, `vistos ${vistas.size}/15${faltan.length ? ' · faltan ' + faltan.join(' ') : ''} · cargados a 32×32: ${cargados} · peticiones: ${pedidos.length}`];
+});
+
+await caso('iconos de la portada · la llama de la racha y el resto del juego siguen con los iconos de siempre', ICONOS_J, async pg => {
+  await pg.evaluate(() => { const d = new Date(); S.reto = { fecha: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`, racha: 3 }; rTitulo(); }); await pausa(200);
+  const llama = await pg.evaluate(() => { const l = document.querySelector('.r-llama img'); return l ? l.classList.contains('pxi-portada') : null; });
+  const otras = await pg.evaluate(() => { const o = {}; for (const [n, f] of [['libre', () => rLibre()], ['tienda', () => rTienda()], ['logros', () => rLogros()], ['pasillo', () => rPasillo()], ['mapa', () => rMapaLista()], ['perso', () => rPerso()], ['stats', () => rStats()]]) { f(); o[n] = { premium: document.querySelectorAll('#screen .pxi-portada').length, clasicos: document.querySelectorAll('#screen img.pxi').length }; } return o; });
+  const ok = llama === false && Object.values(otras).every(v => v.premium === 0) && Object.values(otras).some(v => v.clasicos > 0);
+  return [ok, JSON.stringify({ llamaPremium: llama, otras })];
+});
+
+await caso('iconos de la portada · tamaño legible: tarjetas 32 px en móvil y ≥ 36 en escritorio, dificultad y reto 24, sin desbordar', ICONOS_J, async pg => {
+  const mal = [], vistos = {};
+  for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+    await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(300);
+    const r = await pg.evaluate(() => { const t = s => [...new Set([...document.querySelectorAll(s)].map(i => Math.round(i.getBoundingClientRect().width)))];
+      const sc = document.querySelector('#screen');
+      const fuera = [...document.querySelectorAll('.portada .pxi-portada')].filter(i => { const c = i.closest('button,.tit-id').getBoundingClientRect(), q = i.getBoundingClientRect(); return q.left < c.left - 1 || q.right > c.right + 1 || q.top < c.top - 1 || q.bottom > c.bottom + 1; }).length;
+      return { tarjeta: t('.m-ico .pxi-portada'), dif: t('.dif-ico .pxi-portada'), reto: t('.tit-reto>span>.pxi-portada'), ficha: t('.av-rango .pxi-portada'), fuera, scroll: sc.scrollWidth > sc.clientWidth }; });
+    vistos[`${w}`] = r.tarjeta.join('/');
+    const movil = w <= 560;
+    const ok = r.tarjeta.length === 1 && (movil ? r.tarjeta[0] === 32 : r.tarjeta[0] >= 36) && r.dif.every(x => x >= 24) && r.reto.every(x => x >= 24) && r.ficha.every(x => x >= 16) && !r.fuera && !r.scroll;
+    if (!ok) mal.push(`${w}×${h}: ${JSON.stringify(r)}`);
+  }
+  return [mal.length === 0, mal.length ? mal.join(' · ') : 'tarjetas por ancho: ' + JSON.stringify(vistos)];
+});
+
+/* ── LAS BARRAS RPG (v35) ──
+   Lo que no puede romperse: que las barras digan lo mismo que progresoXp() y progreso() (y el
+   HUD lo mismo que la portada), que la XP ganada sea la de siempre, que la animación del
+   resultado salga solo una vez (no al cambiar de idioma) y sin retrasar los botones, y que
+   con "reducir movimiento" no se anime. */
+const BARRAS_J = { intro: true, nombre: 'R', pts: 900, xp: 6200, version: 'v35', t2: true, dias: [3, 3, 3, 2, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+  vistos: ['escribir', 'bugs', 'memoria', 'simon', 'quiz', 'review', 'merge', 'runner', 'sql', 'regex', 'terminal', 'orden', 'jefe'] };
+const medidor = (pg, sel) => pg.evaluate(s => { const m = document.querySelector(s); if (!m) return null; const cs = getComputedStyle(m);
+  return { tipo: m.dataset.tipo, hasta: parseFloat(m.style.getPropertyValue('--rpg-hasta')), desde: parseFloat(m.style.getPropertyValue('--rpg-desde')), animar: m.dataset.animar, completo: m.dataset.completo,
+    rol: m.getAttribute('role'), valor: m.getAttribute('aria-valuenow'), oculto: m.getAttribute('aria-hidden'), celda: cs.getPropertyValue('--rpg-celda').trim(), borde: cs.borderTopColor,
+    anim: getComputedStyle(m.querySelector('.rpg-relleno')).animationName }; }, sel);
+
+await caso('barras RPG · portada, HUD y ficha dicen lo mismo que progresoXp() y progreso() (10, 6 y 15 divisiones)', BARRAS_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const xp = await medidor(pg, '.rpg-xp-bloque .rpg-medidor'), hud = await medidor(pg, '#h-vidas .rpg-medidor'), cam = await medidor(pg, '#t-perso .rpg-medidor');
+  const real = await pg.evaluate(() => ({ pc: progresoXp().pc, sig: progresoXp().sig ? tj(progresoXp().sig) : null, dias: progreso(), tot: TOT_DIAS, cab: document.querySelector('.rpg-xp-cab').textContent.replace(/\s+/g, ' ').trim(), botonesDentro: document.querySelectorAll('#t-perso [role]').length }));
+  const ok = xp.hasta === real.pc && xp.rol === 'progressbar' && +xp.valor === real.pc && xp.celda === '10%' && hud.hasta === real.pc && hud.celda.startsWith('16.66')
+    && Math.abs(cam.hasta - real.dias / real.tot * 100) < 1e-9 && cam.celda.startsWith('6.66') && cam.oculto === 'true' && !cam.rol && real.botonesDentro === 0
+    && real.cab.includes(real.pc + '%') && real.cab.includes(real.sig) && xp.animar === 'false';
+  return [ok, JSON.stringify({ xp: [xp.hasta, xp.celda], hud: [hud.hasta, hud.celda], campaña: [cam.hasta, cam.celda, cam.oculto], real })];
+});
+
+await caso('barras RPG · al completar la campaña y en el rango máximo, borde dorado y "rango máximo"', BARRAS_J, async pg => {
+  await pg.evaluate(() => { S.dias = Array(TOT_DIAS).fill(3); S.xp = 999999; rTitulo(); }); await pausa(200);
+  const xp = await medidor(pg, '.rpg-xp-bloque .rpg-medidor'), cam = await medidor(pg, '#t-perso .rpg-medidor');
+  const cab = await pg.evaluate(() => ({ cab: document.querySelector('.rpg-xp-cab').textContent, max: t('rango_max') }));
+  await pg.evaluate(() => { S.dias[14] = 0; rTitulo(); }); await pausa(100);
+  const cam14 = await medidor(pg, '#t-perso .rpg-medidor');
+  const dorado = c => /rgb\(229, 189, 80\)/.test(c);
+  return [xp.completo === 'true' && cam.completo === 'true' && dorado(cam.borde) && dorado(xp.borde) && cab.cab.includes(cab.max) && cam14.completo === 'false' && !dorado(cam14.borde), JSON.stringify({ xp: [xp.completo, xp.borde], cam: [cam.completo, cam.borde], cam14: [cam14.hasta, cam14.borde] })];
+});
+
+await caso('barras RPG · el resultado gana la XP de siempre y la barra crece desde donde estaba (o desde 0 al subir de rango)', BARRAS_J, async pg => {
+  const juega = (xp, pts) => pg.evaluate(([x, a]) => { S.xp = x; S.dias[7] = 0; const antes = progresoXp().pc, rAntes = rangoDe(S.xp); const esperada = Math.round(a * facPts() * facRepite(S.dias[7]));
+    diaAct = 7; vidas = 3; resultado(7, 3, a); const m = document.querySelector('.rpg-resultado .rpg-medidor');
+    return { gano: S.xp - x, esperada, antes, desde: parseFloat(m.style.getPropertyValue('--rpg-desde')), hasta: parseFloat(m.style.getPropertyValue('--rpg-hasta')), pc: progresoXp().pc, animar: m.dataset.animar, sube: rangoDe(S.xp) !== rAntes }; }, [xp, pts]);
+  const mismo = await juega(6200, 600); await pausa(300);
+  const sube = await juega(10800, 600);
+  const ok = mismo.gano === mismo.esperada && mismo.desde === mismo.antes && mismo.hasta === mismo.pc && mismo.animar === 'true' && !mismo.sube
+    && sube.gano === sube.esperada && sube.sube && sube.desde === 0 && sube.hasta === sube.pc && sube.animar === 'true';
+  return [ok, JSON.stringify({ mismo, sube })];
+});
+
+await caso('barras RPG · al cambiar de idioma en el resultado no se repite la animación ni el premio; los botones no esperan', BARRAS_J, async pg => {
+  const r = await pg.evaluate(() => { diaAct = 7; vidas = 3; resultado(7, 3, 600); const t0 = performance.now(); const foco = document.activeElement?.id; const xp = S.xp, pts = S.pts;
+    const m1 = document.querySelector('.rpg-resultado .rpg-medidor').dataset.animar;
+    S.lang = 'en'; rehacerPantalla();
+    const m2 = document.querySelector('.rpg-resultado .rpg-medidor').dataset.animar;
+    return { foco, m1, m2, xpIgual: S.xp === xp, ptsIgual: S.pts === pts, cab: document.querySelector('.rpg-xp-cab b').textContent, ms: performance.now() - t0 }; });
+  await pg.evaluate(() => { S.lang = 'es'; });
+  await pg.click('#r-sig'); await pausa(150);
+  const pant = await pg.evaluate(() => pantallaId);
+  return [r.foco === 'r-sig' && r.m1 === 'true' && r.m2 === 'false' && r.xpIgual && r.ptsIgual && pant !== 'resultado', JSON.stringify({ ...r, trasClic: pant })];
+});
+
+await caso('barras RPG · con "reducir movimiento" la barra del resultado no se anima', BARRAS_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await pg.evaluate(() => { diaAct = 7; vidas = 3; resultado(7, 3, 600); }); await pausa(50);
+  const m = await medidor(pg, '.rpg-resultado .rpg-medidor');
+  await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  await pg.evaluate(() => { diaAct = 7; vidas = 3; resultado(7, 3, 600); }); await pausa(50);
+  const n = await medidor(pg, '.rpg-resultado .rpg-medidor');
+  return [m.anim === 'none' && n.anim === 'rpg-ganancia', `reducido: ${m.anim} · normal: ${n.anim}`];
+});
+
+await caso('barras RPG · caben en 6 tamaños y con HD y texto legible, sin desbordar', BARRAS_J, async pg => {
+  const mal = [];
+  for (const modo of [{}, { hd: true, legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); }, modo);
+    for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+      await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(250);
+      const r = await pg.evaluate(() => { const sc = document.querySelector('#screen'); const cab = document.querySelector('.rpg-xp-cab');
+        const ms = [...document.querySelectorAll('.rpg-medidor')].map(m => Math.round(m.getBoundingClientRect().width));
+        const hud = document.querySelector('#hud').getBoundingClientRect(), hb = document.querySelector('#h-vidas .rpg-medidor').getBoundingClientRect();
+        return { scroll: sc.scrollWidth > sc.clientWidth || document.documentElement.scrollWidth > innerWidth, cabCorta: cab.scrollWidth > cab.clientWidth + 1, anchos: ms, hudFuera: hb.right > hud.right + 1 || hb.left < hud.left - 1 }; });
+      if (r.scroll || r.cabCorta || r.hudFuera || r.anchos.some(a => a < 40)) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
+    }
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '2 modos × 6 tamaños: barras dentro, cabecera sin cortar'];
 });
 
 await nav.close();

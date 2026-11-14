@@ -61,6 +61,19 @@ function encajeDe(aw,ah){
    segundo); el zoom solo suma en pantallas que ya tienen máquina. */
 const densidad=()=>Math.min(3,Math.min(2,window.devicePixelRatio||1)*escPantalla);
 
+/* Medidor RPG: los datos vienen de progresoXp()/progreso(), no del dibujo.
+   Las celdas son decorativas; el porcentaje conserva su precisión original. */
+function barraRpg(tipo,valor,max=100,desde=null,decorativa=false){
+  const limite=Number.isFinite(max)&&max>0?max:100;
+  const n=Number.isFinite(valor)?Math.max(0,Math.min(limite,valor)):0;
+  const pc=n/limite*100;
+  const inicio=Number.isFinite(desde)?Math.max(0,Math.min(pc,desde/limite*100)):pc;
+  const animar=inicio<pc;
+  const nombre=tipo==='campana'?t('progreso_lbl'):'XP';
+  const aria=decorativa?'aria-hidden="true"':`role="progressbar" aria-label="${nombre}" aria-valuemin="0" aria-valuemax="${limite}" aria-valuenow="${n}"`;
+  return `<span class="rpg-medidor" data-tipo="${tipo}" data-completo="${n===limite}" data-animar="${animar}" ${aria} style="--rpg-desde:${inicio}%;--rpg-hasta:${pc}%"><span class="rpg-pista"><span class="rpg-relleno"></span></span></span>`;
+}
+
 /* ── HUD ── */
 function hud(){
   /* Tres cabeceras distintas según dónde estés. Cada rama rellena las cuatro
@@ -76,7 +89,7 @@ function hud(){
     $('#h-nivel').textContent='SENA';
     $('#h-estrellas').innerHTML=`★ ${S.pts}`;
     $('#h-pts').textContent='LVL '+(RANGOS.indexOf(rangoDe(S.xp))+1);
-    $('#h-vidas').innerHTML=`<span class="hud-xp"><i style="width:${pc}%"></i></span>`;
+    $('#h-vidas').innerHTML=barraRpg('hud',pc);
   }else if(retoActivo){
     /* Reto diario: ronda y racha. No hay vidas que perder. */
     $('#h-nivel').textContent='⚡ '+(retoActivo.ronda+1)+'/'+retoActivo.tipos.length;
