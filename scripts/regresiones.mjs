@@ -1937,7 +1937,8 @@ const HD_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v33', t2:
 const espiaAtlas = () => {
   const d = CanvasRenderingContext2D.prototype.drawImage;
   CanvasRenderingContext2D.prototype.drawImage = function (src, ...a) {
-    if (src && src.src) { const o = /portada-hd/.test(src.src) ? 'portada' : /caminar-hd/.test(src.src) ? 'hd' : /aprendiz-caminar\.png/.test(src.src) ? 'clasico' : null; if (o && this.canvas) this.canvas.__origen = o; }
+    if (src && src.src && /npc\/pasillo\.png/.test(src.src) && a.length >= 8) (window.__atlas = window.__atlas || []).push({ o: 'npc', sx: a[0] });
+    else if (src && src.src) { const o = /portada-hd/.test(src.src) ? 'portada' : /caminar-hd/.test(src.src) ? 'hd' : /aprendiz-caminar\.png/.test(src.src) ? 'clasico' : null; if (o && this.canvas) this.canvas.__origen = o; }
     else if (src && src.__origen && a.length >= 8) (window.__atlas = window.__atlas || []).push({ o: src.__origen, sx: a[0] });
     return d.call(this, src, ...a);
   };
@@ -1961,11 +1962,16 @@ await caso('aprendiz nuevo · el jugador sale con el atlas nuevo en portada, pas
   return [ok, JSON.stringify({ ...r, 'NPC,jugador': npc })];
 });
 
-await caso('aprendiz nuevo · los NPC del pasillo se pintan con el atlas clásico dentro del pasillo', HD_J, async pg => {
-  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listoPortada);
-  const r = await atlasEn(pg, () => rPasillo(), 1200);
+/* v38: los personajes del pasillo tienen su propio atlas (img/npc/pasillo.png, js/npc-sprites.js);
+   el cuerpo del aprendiz recoloreado (atlas clásico) queda solo de respaldo si ese no carga. */
+await caso('aprendiz nuevo · en el pasillo, el jugador con su atlas y los personajes con el suyo (el clásico solo si el de ellos no carga)', HD_J, async pg => {
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listoPortada && NPC_PASILLO.listo);
+  const normal = await atlasEn(pg, () => rPasillo(), 1200);
   const npcs = await pg.evaluate(() => document.querySelectorAll('.pasillo-gente').length);
-  return [npcs > 0 && r.includes('clasico') && r.includes('hd'), `en el pasillo: ${r} · personajes: ${npcs}`];
+  await pg.route(/img\/npc\/pasillo\.png/, r => r.abort());
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listo); await pausa(400);
+  const sinNpc = await atlasEn(pg, () => rPasillo(), 1200);
+  return [npcs > 0 && normal === 'hd,npc' && sinNpc.includes('clasico') && sinNpc.includes('hd') && !sinNpc.includes('npc'), `con su atlas: ${normal} · sin él: ${sinNpc} · personajes: ${npcs}`];
 });
 
 await caso('aprendiz nuevo · si el atlas nuevo no carga, el jugador sale con el clásico (y la portada con su reposo)', HD_J, async pg => {
@@ -2271,6 +2277,68 @@ await caso('pasillo HD · sin conexión: el service worker guarda los 8 recursos
     await pg.context().setOffline(false);
     return [guardadas.every(Boolean) && cargo, `en la caché: ${guardadas.filter(Boolean).length}/8 · empresa sin red: ${cargo} (recursos pedidos: ${vistas})`];
   } finally { mini.close(); }
+});
+
+/* ── LOS PERSONAJES DEL PASILLO CON SPRITE PROPIO (v38) ──
+   Gustavo, Valentina, Andrés y Don Jairo con su dibujo de cuerpo entero (img/npc/pasillo.png,
+   js/npc-sprites.js) en vez del cuerpo del aprendiz recoloreado, que queda de respaldo. Lo que no
+   puede romperse: cada uno con SU celda, los pies a la altura de los del aprendiz, sus fichas con
+   el retrato y el nombre de siempre, y los mismos sitios en cada zona. */
+const NPC_J = { intro: true, nombre: 'R', pts: 900, xp: 6200, version: 'v38', t2: true, dias: [3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 1, 0, 0, 0] };
+
+await caso('personajes con sprite propio · cada uno con su celda del atlas, en los sitios de siempre de cada zona', NPC_J, async pg => {
+  await pg.waitForFunction(() => NPC_PASILLO.listo);
+  const r = [];
+  for (const z of [0, 1, 2]) {
+    await pg.evaluate(z => rPasillo(z), z); await pausa(300);
+    r.push(await pg.evaluate(() => $$('.pasillo-gente').map(g => {
+      /* compara el lienzo con la celda del atlas pintada aparte, píxel a píxel */
+      const cv = g.querySelector('canvas'), ref = document.createElement('canvas'); ref.width = 44; ref.height = 74;
+      NPC_PASILLO.dibujar(ref.getContext('2d'), g.dataset.p, 22, 74, 74);
+      const a = cv.getContext('2d').getImageData(0, 0, 44, 74).data, b = ref.getContext('2d').getImageData(0, 0, 44, 74).data;
+      let dif = 0, llenos = 0; for (let i = 0; i < a.length; i += 4) { if (a[i + 3]) llenos++; if (a[i] !== b[i] || a[i + 3] !== b[i + 3]) dif++; }
+      return { p: g.dataset.p, hueco: g.dataset.hueco, igual: dif === 0, llenos };
+    })));
+  }
+  const esperado = [['instructor', 'vigilante', 'companera'], ['companera', 'instructor'], ['lider', 'companera', 'instructor']];
+  const ok = r.every((z, i) => z.map(g => g.p).join() === esperado[i].join() && z.every(g => g.igual && g.llenos > 500));
+  return [ok, JSON.stringify(r.map(z => z.map(g => `${g.p}@${g.hueco}:${g.igual ? 'ok' : 'DISTINTO'}`)))];
+});
+
+await caso('personajes con sprite propio · los pies a la altura de los del aprendiz (escritorio y móvil)', NPC_J, async pg => {
+  await pg.waitForFunction(() => NPC_PASILLO.listo && APRENDIZ.listo);
+  const mal = [];
+  for (const [w, h] of [[1280, 800], [390, 760], [320, 568]]) {
+    await pg.setViewportSize({ width: w, height: h });
+    for (const z of [0, 2]) {
+      await pg.evaluate(z => rPasillo(z), z); await pausa(500);
+      const r = await pg.evaluate(() => {
+        /* el píxel opaco más bajo de un lienzo, en coordenadas de la página */
+        const pie = cv => { const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let fila = -1;
+          for (let y = cv.height - 1; y >= 0 && fila < 0; y--) for (let x = 0; x < cv.width; x++) if (d[(y * cv.width + x) * 4 + 3] > 0) { fila = y; break; }
+          const q = cv.getBoundingClientRect(); return fila < 0 ? null : q.top + (fila + 1) * q.height / cv.height; };
+        return { jugador: pie($('#pasillo-canvas')), gente: $$('.pasillo-gente canvas').map(pie) };
+      });
+      const desvio = Math.max(...r.gente.map(y => Math.abs(y - r.jugador)));
+      if (!(desvio <= 3)) mal.push(`${w}×${h} z${z + 1}: ${JSON.stringify(r)}`);
+    }
+  }
+  return [mal.length === 0, mal.length ? mal.join(' · ') : '3 tamaños × 2 zonas: pies a ±3 px de los del aprendiz'];
+});
+
+await caso('personajes con sprite propio · tocar a cada uno abre su ficha con su retrato dibujado y su nombre', NPC_J, async pg => {
+  await pg.waitForFunction(() => NPC_PASILLO.listo);
+  const vistos = {};
+  for (const z of [0, 2]) {
+    await pg.evaluate(z => rPasillo(z), z); await pausa(300);
+    for (const id of await pg.evaluate(() => $$('.pasillo-gente').map(g => g.dataset.p))) {
+      if (vistos[id]) continue;
+      await pg.click(`.pasillo-gente[data-p="${id}"]`); await pausa(1100);
+      vistos[id] = await pg.evaluate(id => ({ retrato: ($('#pasillo-ficha img.dibujo')?.getAttribute('src') || '').includes('retratos/' + id), nombre: $('#pasillo-ficha').textContent.includes(PERSONAJES[id].nom), pantalla: pantallaId }), id);
+    }
+  }
+  const ok = ['instructor', 'companera', 'lider', 'vigilante'].every(id => vistos[id]?.retrato && vistos[id].nombre && vistos[id].pantalla === 'pasillo');
+  return [ok, JSON.stringify(vistos)];
 });
 
 await nav.close();

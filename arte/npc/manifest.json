@@ -1,0 +1,33 @@
+{
+  "atlas": "img/npc/pasillo.png",
+  "width": 176,
+  "height": 74,
+  "frameWidth": 44,
+  "frameHeight": 74,
+  "anchor": {
+    "x": 22,
+    "y": 73
+  },
+  "poses": {
+    "instructor": {
+      "column": 0,
+      "direction": "south",
+      "state": "idle"
+    },
+    "companera": {
+      "column": 1,
+      "direction": "south",
+      "state": "idle"
+    },
+    "lider": {
+      "column": 2,
+      "direction": "south",
+      "state": "idle"
+    },
+    "vigilante": {
+      "column": 3,
+      "direction": "south",
+      "state": "idle"
+    }
+  }
+}
