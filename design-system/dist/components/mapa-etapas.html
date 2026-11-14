@@ -1832,6 +1832,51 @@ html.legible .portada .dif-op{font-size:15px}
   .portada .menu-fila:active,.portada .dif-op:active,.portada .btn-jugar:active,.portada .tit-reto:active{transform:none}
 }
 
+/* Paso 5 · ficha RPG del avatar. Solo afecta a la portada. */
+.portada .tit-avatar{
+  width:min(460px,100%);position:relative;isolation:isolate;min-width:0;
+  gap:9px;padding:11px 12px 10px;
+  border:2px solid #7760ba;
+  background:linear-gradient(155deg,#25294a 0%,#161b36 48%,#10152b 100%);
+  box-shadow:inset 0 2px 0 #c8a3ff55,inset 0 -2px 0 #070a1a,0 0 0 2px var(--bd),0 4px 0 #080a17;
+}
+.portada .tit-avatar::before{content:'';position:absolute;inset:4px;pointer-events:none;
+  background:linear-gradient(var(--y2),var(--y2)) left top/11px 2px no-repeat,
+    linear-gradient(var(--y2),var(--y2)) left top/2px 11px no-repeat,
+    linear-gradient(var(--y2),var(--y2)) right bottom/11px 2px no-repeat,
+    linear-gradient(var(--y2),var(--y2)) right bottom/2px 11px no-repeat;opacity:.9}
+.portada .tit-av-fila{display:flex;align-items:center;gap:11px;min-width:0;width:100%}
+.portada .tit-av-portrait{display:grid;place-items:center;flex:0 0 64px;height:64px;
+  background:linear-gradient(145deg,#243452,#10152a);border:2px solid var(--g3);
+  box-shadow:inset 0 0 0 2px #080c1b,0 2px 0 #080c1b;position:relative}
+.portada .tit-av-portrait canvas{width:56px;height:56px;border:0;background:transparent;image-rendering:pixelated;display:block}
+.portada .tit-av-txt{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.portada .tit-av-txt b{color:var(--y2);font-size:11px;line-height:1.3;letter-spacing:.5px}
+.portada .tit-av-txt .av-nombre{color:var(--tx4);font-family:'VT323',monospace;font-size:21px;line-height:1;overflow-wrap:anywhere}
+.portada .tit-av-txt .av-rango{display:flex;align-items:center;gap:5px;color:var(--v4);font-family:inherit;font-size:8px;line-height:1.4;overflow-wrap:anywhere}
+.portada .av-rango .pxi{width:16px;height:16px;flex:none;image-rendering:pixelated}
+.portada .tit-avatar .m-chev{color:var(--y3);font-size:15px;flex:none}
+.portada .av-metricas{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;width:100%;padding:6px 0 5px;border-top:1px solid #6d72a34d;border-bottom:1px solid #6d72a34d}
+.portada .av-xp,.portada .av-estrellas{display:flex;align-items:center;gap:6px;color:var(--tx3);font-family:'VT323',monospace;font-size:17px;line-height:1.1;min-width:0}
+.portada .av-xp b{color:var(--v4);font-family:inherit;font-size:inherit;font-weight:400}
+.portada .av-estrellas{color:var(--y3);white-space:nowrap}
+.portada .tit-prog-fila{width:100%;gap:7px;min-width:0}
+.portada .tit-prog-fila .p-lbl{color:var(--g4);font-size:7px;letter-spacing:0;line-height:1.5}
+.portada .tit-prog-fila .barra{display:block;min-width:12px;height:11px;box-shadow:inset 0 1px 0 #0009;overflow:hidden}
+.portada .tit-prog-fila .barra-fill{display:block;height:100%;background:linear-gradient(180deg,#a7f96a 0 25%,#55c41a 25% 72%,#2e7a10 72%);box-shadow:inset 0 0 0 1px #80ef4a55}
+.portada .tit-prog-fila .p-pc{color:var(--y3);font-size:9px;white-space:nowrap}
+.portada .tit-prog-fila .av-dias{font-family:'VT323',monospace;font-size:16px;color:var(--tx2);white-space:nowrap}
+@media(hover:hover){.portada .tit-avatar:hover{border-color:var(--y2);box-shadow:inset 0 2px 0 #c8a3ff55,0 0 0 2px var(--bd),0 4px 0 #080a17,0 0 12px #a86bff33}}
+.portada .tit-avatar:focus-visible{outline:3px solid var(--y2);outline-offset:3px}
+.portada .tit-avatar:active{transform:translateY(2px);box-shadow:0 0 0 2px var(--bd),0 2px 0 #080a17}
+html.hd .portada .tit-avatar{border-radius:12px}
+html.hd .portada .tit-av-portrait{border-radius:6px}
+html.legible .portada .tit-av-txt b{font-size:17px}
+html.legible .portada .tit-av-txt .av-rango{font-size:14px}
+html.legible .portada .tit-prog-fila .p-lbl,html.legible .portada .tit-prog-fila .p-pc{font-size:13px}
+@media(max-width:560px){.portada .tit-avatar{padding:10px;gap:8px}.portada .tit-av-portrait{flex-basis:56px;height:56px}.portada .tit-av-portrait canvas{width:48px;height:48px}}
+@media(prefers-reduced-motion:reduce){.portada .tit-avatar:active{transform:none}}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}

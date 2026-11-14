@@ -1692,6 +1692,116 @@ await caso('botones de la portada · fondo, título y aprendiz siguen ahí y las
   return [p.fondo && p.titulo && p.aprendiz && p.portada && sinCambios, JSON.stringify({ p, otras })];
 });
 
+/* ── LA FICHA DE JUGADOR DE LA PORTADA (v31) ──
+   Lo que no puede romperse: que los números sean los de la partida (y cambien con ella), que
+   siga siendo un solo botón que abre la personalización, que el retrato lleve lo que elegiste
+   allí (piel, camisa, accesorio, detalle 16/32), que quepa en todos los tamaños y modos, y que
+   las demás pantallas no cambien. */
+const FICHA_J = { intro: true, nombre: 'ANTONI', pts: 900, xp: 1700, version: 'v31', accs: ['gafas', 'gorra'], dias: [3, 2, 3, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+const leeFicha = pg => pg.evaluate(() => { const b = document.querySelector('#t-perso');
+  return { nombre: b.querySelector('.av-nombre').textContent.trim(), rango: b.querySelector('.av-rango').textContent.trim(), xp: b.querySelector('.av-xp').textContent.replace(/\s+/g, ' ').trim(),
+    est: b.querySelector('.av-estrellas').textContent.replace(/\s+/g, ' ').trim(), dias: b.querySelector('.av-dias').textContent.trim(), pc: b.querySelector('.p-pc').textContent.trim(),
+    barra: b.querySelector('.barra-fill').style.width,
+    esperado: { nombre: S.nombre, rango: rangoNom(), xp: `XP ${S.xp}${progresoXp().sig ? ' / ' + progresoXp().sig.xp : ''}`, est: `★ ${totalStars()} / ${TOT_DIAS * 3}`, dias: `${progreso()}/${TOT_DIAS}`, pc: Math.round(progreso() / TOT_DIAS * 100) + '%' } }; });
+const cuadra = f => f.nombre === f.esperado.nombre && f.rango === f.esperado.rango && f.xp === f.esperado.xp && f.est === f.esperado.est && f.dias === f.esperado.dias && f.pc === f.esperado.pc && f.barra === f.pc;
+const huellaAv = pg => pg.evaluate(() => { const cv = document.querySelector('#t-av'); const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let s = 0; for (let i = 0; i < d.length; i++) s = (s * 31 + d[i]) >>> 0; return cv.width + ':' + s; });
+
+await caso('ficha de la portada · enseña los datos reales: nombre, rango, XP, estrellas y días de campaña', FICHA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const f = await leeFicha(pg);
+  return [cuadra(f) && f.dias === '6/15' && f.est === '★ 14 / 45' && f.pc === '40%', JSON.stringify(f)];
+});
+
+await caso('ficha de la portada · al superar un día cambian estrellas, días, porcentaje, XP y rango (también tras recargar)', FICHA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const antes = await leeFicha(pg);
+  await pg.evaluate(() => { S.dias[6] = 3; S.xp = 6000; guardar(); rTitulo(); }); await pausa(200);
+  const despues = await leeFicha(pg);
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pg.evaluate(() => rTitulo()); await pausa(300);
+  const recargado = await leeFicha(pg);
+  const ok = cuadra(despues) && cuadra(recargado) && despues.dias === '7/15' && despues.est === '★ 17 / 45' && despues.pc === '47%' && despues.rango !== antes.rango && recargado.xp === despues.xp;
+  return [ok, JSON.stringify({ antes: [antes.rango, antes.xp, antes.est, antes.dias], despues: [despues.rango, despues.xp, despues.est, despues.dias, despues.pc], recargado: [recargado.xp, recargado.dias] })];
+});
+
+await caso('ficha de la portada · en el rango máximo solo sale la XP, y sin nombre sale TÚ / YOU (el nombre va escapado)', FICHA_J, async pg => {
+  await pg.evaluate(() => { S.xp = 999999; rTitulo(); }); await pausa(150);
+  const max = await leeFicha(pg);
+  await pg.evaluate(() => { S.nombre = ''; rTitulo(); }); await pausa(150);
+  const es = await pg.evaluate(() => document.querySelector('.av-nombre').textContent.trim());
+  await pg.evaluate(() => { S.lang = 'en'; rTitulo(); }); await pausa(150);
+  const en = await pg.evaluate(() => document.querySelector('.av-nombre').textContent.trim());
+  await pg.evaluate(() => { S.lang = 'es'; S.nombre = 'A<b>B'; rTitulo(); }); await pausa(150);
+  const raro = await pg.evaluate(() => ({ txt: document.querySelector('.av-nombre').textContent, etiquetas: document.querySelectorAll('.av-nombre *').length }));
+  return [max.xp === max.esperado.xp && !max.xp.includes('/') && es === 'TÚ' && en === 'YOU' && raro.etiquetas === 0, JSON.stringify({ xp: max.xp, es, en, raro })];
+});
+
+await caso('ficha de la portada · es un solo botón: con clic, Enter y Espacio abre Mi Avatar', FICHA_J, async pg => {
+  const r = {};
+  for (const modo of ['clic', 'Enter', 'Space']) {
+    await pg.evaluate(() => rTitulo()); await pausa(150);
+    if (modo === 'clic') await pg.click('#t-perso'); else { await pg.focus('#t-perso'); await pg.keyboard.press(modo); }
+    await pausa(250); r[modo] = await pg.evaluate(() => pantallaId);
+  }
+  const unico = await pg.evaluate(() => { rTitulo(); const b = document.querySelector('#t-perso'); return { botones: b.querySelectorAll('button,a,input').length, divs: b.querySelectorAll('div').length }; });
+  return [Object.values(r).every(p => p === 'perso') && unico.botones === 0 && unico.divs === 0, JSON.stringify({ r, unico })];
+});
+
+await caso('ficha de la portada · el retrato lleva lo que eliges en Mi Avatar: piel, camisa, accesorio y detalle 16/32', FICHA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const h0 = await huellaAv(pg); const pasos = [];
+  const vuelta = async (accion, nombre) => {
+    await pg.click('#t-perso'); await pausa(200); await pg.evaluate(accion); await pausa(150);
+    await pg.evaluate(() => document.getElementById('pe-volver').click()); await pausa(250);
+    const p = await pg.evaluate(() => pantallaId); const h = await huellaAv(pg); pasos.push({ nombre, p, h }); return h;
+  };
+  const h1 = await vuelta(() => document.querySelector('.skin-op[data-s="2"]').click(), 'piel');
+  const h2 = await vuelta(() => document.querySelector('.camisa-op[data-c="3"]').click(), 'camisa');
+  const h3 = await vuelta(() => document.querySelector('.acc-op[data-a="gafas"]').click(), 'gafas');
+  const h4 = await vuelta(() => document.getElementById('pe-d32').click(), 'detalle 32');
+  const s = await pg.evaluate(() => ({ skin: S.skin, camisa: S.camisa, acc: S.acc, av32: S.av32, ancho: document.querySelector('#t-av').width }));
+  const distintas = new Set([h0, h1, h2, h3, h4]).size === 5;
+  return [distintas && pasos.every(p => p.p === 'titulo') && s.skin === 2 && s.camisa === 3 && s.acc === 'gafas' && s.av32 && s.ancho === 32 && h0.startsWith('16:'), JSON.stringify({ s, pasos: pasos.map(p => p.nombre + '→' + p.p + ' ' + p.h.split(':')[0]) })];
+});
+
+await caso('ficha de la portada · se reparte bien en 7 tamaños, con HD y texto legible, en ES y EN: sin desbordar ni salirse', FICHA_J, async pg => {
+  const mal = [];
+  for (const modo of [{}, { hd: true }, { legible: true }, { hd: true, legible: true }, { lang: 'en', av32: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false, lang: 'es', av32: false }, m); aplicarModo(); }, modo);
+    for (const [w, h] of [[320, 568], [360, 640], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+      await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(300);
+      const r = await pg.evaluate(() => { const sc = document.querySelector('#screen'), b = document.querySelector('#t-perso'), bb = b.getBoundingClientRect();
+        const fuera = [...b.querySelectorAll('span,b,canvas')].filter(e => { const q = e.getBoundingClientRect(); return q.width && (q.right > bb.right + 1 || q.left < bb.left - 1 || q.bottom > bb.bottom + 1); }).map(e => e.className || e.tagName);
+        const corta = [...b.querySelectorAll('.av-xp,.av-estrellas,.av-dias,.p-pc,.p-lbl,.tit-av-txt b')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.className || e.tagName);
+        const cv = document.querySelector('#t-av').getBoundingClientRect();
+        return { sinScrollX: sc.scrollWidth <= sc.clientWidth && document.documentElement.scrollWidth <= innerWidth, fuera, corta, retrato: Math.round(cv.width), barra: Math.round(b.querySelector('.barra').getBoundingClientRect().width) }; });
+      if (!(r.sinScrollX && !r.fuera.length && !r.corta.length && r.retrato >= 40 && r.barra >= 40)) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
+    }
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es', av32: false }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.slice(0, 4).join(' · ') : '5 modos × 7 tamaños: todo dentro de la ficha, sin scroll horizontal'];
+});
+
+await caso('ficha de la portada · con "reducir movimiento" el retrato no parpadea y la ficha no se hunde al pulsar', FICHA_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const hs = new Set(); for (let i = 0; i < 12; i++) { hs.add(await huellaAv(pg)); await pausa(500); }
+  await pg.evaluate(() => document.querySelector('#t-perso').scrollIntoView({ block: 'center' }));
+  const c = await pg.evaluate(() => { const r = document.querySelector('#t-perso').getBoundingClientRect(); return [r.left + 20, r.top + 20]; });
+  await pg.mouse.move(c[0], c[1]); await pg.mouse.down(); await pausa(120);
+  const tr = await pg.evaluate(() => getComputedStyle(document.querySelector('#t-perso')).transform);
+  await pg.mouse.move(1, 1); await pg.mouse.up(); await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  return [hs.size === 1 && tr === 'none', `dibujos distintos en 6 s: ${hs.size} · al pulsar: ${tr}`];
+});
+
+await caso('ficha de la portada · la pantalla de Mi Avatar y las demás no cambian (sin reglas de la ficha fuera de la portada)', FICHA_J, async pg => {
+  const r = await pg.evaluate(() => { const o = {};
+    for (const [n, f] of [['perso', () => rPerso()], ['tienda', () => rTienda()], ['logros', () => rLogros()], ['stats', () => rStats()], ['libre', () => rLibre()]]) { f();
+      o[n] = { portada: !!document.querySelector('.portada'), ficha: document.querySelectorAll('.tit-avatar,.av-metricas,.tit-av-portrait').length }; }
+    rPerso(); const cv = document.querySelector('#pe-cara'); o.peCara = cv ? [cv.width, cv.height] : null;
+    return o; });
+  return [['perso', 'tienda', 'logros', 'stats', 'libre'].every(n => !r[n].portada && r[n].ficha === 0) && r.peCara && r.peCara[0] === 64, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

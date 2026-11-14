@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v30';
+const VERSION='v31';
 const NOVEDADES=[
+  {v:'v31', fecha:'2026-11-14',
+   es:['La tarjeta Mi Avatar de la pantalla principal es ahora una ficha de jugador al estilo RPG: tu retrato en su marco, tu nombre y tu rango, la XP, las estrellas ganadas y los días de campaña superados.'],
+   en:['The My Avatar card on the main screen is now an RPG-style player sheet: your portrait in its frame, your name and rank, XP, stars earned and campaign days cleared.']},
   {v:'v30', fecha:'2026-11-14',
    es:['Los botones de la pantalla principal estrenan diseño: tarjetas con relieve y bisel, los modos en violeta, los demás accesos en azul, iconos de pixel art en su placa, la dificultad elegida en dorado, JUGAR en verde y el reto diario en morado.'],
    en:['The main screen buttons have a new design: cards with depth and bevel, the modes in violet, the other shortcuts in blue, pixel art icons on their plate, the chosen difficulty in gold, PLAY in green and the daily challenge in purple.']},

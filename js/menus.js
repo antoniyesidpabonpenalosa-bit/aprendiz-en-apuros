@@ -94,7 +94,8 @@ function aprendizPortada(cv,boton){
 function rTitulo(){
   const {sig,pc}=progresoXp();
   const racha=RETO.rachaViva();
-  const pcCampana=Math.round(progreso()/TOT_DIAS*100);
+  const diasCampana=progreso();
+  const pcCampana=Math.round(diasCampana/TOT_DIAS*100);
   const nuevoReto=!RETO.jugadoHoy();
   /* Icono + etiqueta + flecha, el patrón de fila de menú de la portada.
      La fila SIEMPRE recibe su icono por separado, así que si la etiqueta ya
@@ -174,19 +175,25 @@ function rTitulo(){
     </div>
 
     <button class="tit-avatar" id="t-perso" type="button">
-      <div class="tit-av-fila">
-        <canvas id="t-av" width="24" height="24"></canvas>
-        <div class="tit-av-txt">
+      <span class="tit-av-fila">
+        <span class="tit-av-portrait" aria-hidden="true"><canvas id="t-av" width="${S.av32?32:16}" height="${S.av32?32:16}"></canvas></span>
+        <span class="tit-av-txt">
           <b>${t('perso')}</b>
-          <span>${t('perso_sub')}</span>
-        </div>
-        <span class="m-chev">❯</span>
-      </div>
-      <div class="tit-prog-fila">
-        <span class="p-lbl">★ ${t('progreso_lbl')}</span>
-        <div class="barra"><div class="barra-fill" style="width:${pcCampana}%"></div></div>
+          <span class="av-nombre">${esc(tieneNombre()?S.nombre:t('tu'))}</span>
+          <span class="av-rango">${pxi('🎓')} ${rangoNom()}</span>
+        </span>
+        <span class="m-chev" aria-hidden="true">❯</span>
+      </span>
+      <span class="av-metricas">
+        <span class="av-xp"><b>XP</b> ${S.xp}${sig?` / ${sig.xp}`:''}</span>
+        <span class="av-estrellas">★ ${totalStars()} / ${TOT_DIAS*3}</span>
+      </span>
+      <span class="tit-prog-fila">
+        <span class="p-lbl">${t('progreso_lbl')}</span>
+        <span class="av-dias">${diasCampana}/${TOT_DIAS}</span>
+        <span class="barra" aria-hidden="true"><span class="barra-fill" style="width:${pcCampana}%"></span></span>
         <span class="p-pc">${pcCampana}%</span>
-      </div>
+      </span>
     </button>
     </div>
    </div>
