@@ -18,7 +18,7 @@ function nvJefe(dia,ptsBase){
       <span>⛁ <b id="j-pts">0</b></span>
     </div>
     <canvas class="juego" id="j-cv" width="320" height="180"></canvas>
-    <p class="cv-msg">${t('jefemsg')}</p>
+    <p class="cv-msg">${pxiTexto(t('jefemsg'))}</p>
     <div class="fila-cv">
       <div class="dpad">
         <button class="dp dp-izq" id="j-izq" type="button">◀</button>
@@ -248,9 +248,9 @@ function nvJefe(dia,ptsBase){
     if(blanco||frame-prevGolpe>4||frame%4<2){
       c.save();
       if(blanco)c.filter='brightness(0) invert(1)';
-      c.font=fase===3?'44px serif':'38px serif';
-      c.textAlign='center';c.textBaseline='middle';
-      c.fillText(fase===1?'👾':fase===2?'😡':'🤬',jefe.x,jefe.y+4-(blanco?2:0));
+      /* el jefe es un dibujo pixel de 16×16 a 3× (48 px, el ancho de su zona
+         de golpe); el filtro blanco de arriba también vale para drawImage */
+      pxiDibujar(c,'jefe'+fase,jefe.x-24,jefe.y-20-(blanco?2:0),3);
       c.restore();
     }
     /* balas (commits) */
@@ -260,7 +260,7 @@ function nvJefe(dia,ptsBase){
     c.shadowBlur=0;
     /* errores que caen */
     c.font='13px serif';
-    errores.forEach(o=>c.fillText('❌',o.x-6,o.y));
+    errores.forEach(o=>pxiDibujar(c,'❌',o.x-6,o.y-11));
     /* láser del jefe: aviso parpadeante y luego rayo */
     if(laserEstado===1){
       if(frame%6<3){c.fillStyle='rgba(255,84,104,.5)';c.fillRect(laserX-2,jefe.y+8,4,H-12-jefe.y)}

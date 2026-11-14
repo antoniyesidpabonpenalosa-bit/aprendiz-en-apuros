@@ -20,7 +20,7 @@ function rTitulo(){
      cada llamada para que no vuelva a pasar con la siguiente etiqueta. */
   const sinIco=t=>t.replace(/^[^\p{L}\p{N}]+\s*/u,'');
   const fila=(id,ico,txt,cls)=>`<button class="btn ${cls||'btn2'} menu-fila" id="${id}" type="button">`+
-    `<span class="m-ico">${ico}</span><span class="m-txt">${sinIco(txt)}</span></button>`;
+    `<span class="m-ico">${pxi(ico)}</span><span class="m-txt">${sinIco(txt)}</span></button>`;
 
   /* .col2/.col: en vertical no existen (display:contents) y el orden es el
      de siempre; en pantalla apaisada son dos columnas, identidad y JUGAR a
@@ -37,7 +37,7 @@ function rTitulo(){
     <p class="sub">${t('sub')}</p>
 
     <div class="tit-id">
-      <span>🎓 ${rangoNom()}</span>
+      <span>${pxi('🎓')} ${rangoNom()}</span>
       <span class="sep">★ ${S.pts} ${t('rec_pts')}</span>
     </div>
     <div class="tit-bloque">
@@ -51,9 +51,9 @@ function rTitulo(){
     </div>
 
     <button class="tit-reto" id="t-reto" type="button">
-      <span>🗓</span><span>${t('reto_tit')}</span>
+      <span>${pxi('🗓')}</span><span>${t('reto_tit')}</span>
       ${nuevoReto?'<span class="punto-nuevo">●</span>':''}
-      ${racha?`<span class="r-racha"><span class="r-llama">🔥</span>${racha}</span>`:''}
+      ${racha?`<span class="r-racha"><span class="r-llama">${pxi('🔥')}</span>${racha}</span>`:''}
     </button>
     </div>
 
@@ -68,7 +68,7 @@ function rTitulo(){
       <span class="dif-cap">${t('dificultad')}</span>
       <div class="dif-sel">
         ${DIFS.map(d=>`<button class="dif-op ${S.dif===d.id?'sel':''}" data-dif="${d.id}" type="button">
-          <span class="dif-ico">${d.ico}</span>${tj(d)}
+          <span class="dif-ico">${pxi(d.ico)}</span>${tj(d)}
           <span class="dif-puntos">${[0,1,2].map(n=>`<i class="${n<=d.id?'on':''}"></i>`).join('')}</span>
         </button>`).join('')}
       </div>
@@ -278,17 +278,17 @@ function aprendizMapa(cv){
 /* ── MAPA CLÁSICO / LISTA DE DÍAS (respaldo accesible) ── */
 function rMapaLista(){
   const p=progreso();
-  let cards=`<p class="mapa-sec">${t('t1sec')}</p>`;
+  let cards=`<p class="mapa-sec">${pxiTexto(t('t1sec'))}</p>`;
   NIVELES.forEach((N,i)=>{
     const st=S.dias[i];
     const estado=st>=1?'ok':(i<=p?'open':'lock');
-    const badge=st>=1?'★'.repeat(st):(estado==='lock'?'🔒':'▶');
+    const badge=st>=1?'★'.repeat(st):(estado==='lock'?pxi('🔒'):'▶');
     /* separador: aquí empieza la etapa productiva */
-    if(i===10)cards+=`<p class="mapa-sec">${t('t2sec')}</p>`;
+    if(i===10)cards+=`<p class="mapa-sec">${pxiTexto(t('t2sec'))}</p>`;
     cards+=`
     <button class="etapa-card ${estado} ${i>=10?'t2':''}" data-i="${i}" ${estado==='lock'?'disabled':''} type="button">
       <span class="etapa-num">${i+1}</span>
-      <span class="etapa-ico">${N.ico}</span>
+      <span class="etapa-ico">${pxi(N.ico)}</span>
       <span class="etapa-body">
         <span class="etapa-nom">${tj({es:N.es,en:N.en})}</span>
         <span class="etapa-sub" style="display:block">${tj({es:N.ses,en:N.sen})}</span>
@@ -317,8 +317,8 @@ function rMapaLista(){
     <h2>${t('mapa')}</h2>
     <button class="btn btn2" id="m-pasillo" type="button">${t('pas_volver')}</button>
     <div class="tit-id">
-      <span>🎓 ${rangoNom()}</span>
-      <span class="sep">${difActual().ico} ${tj(difActual())}</span>
+      <span>${pxi('🎓')} ${rangoNom()}</span>
+      <span class="sep">${pxi(difActual().ico)} ${tj(difActual())}</span>
       <span class="sep">⛁ ${S.pts}</span>
     </div>
     <canvas class="mapa-aprendiz" id="m-aprendiz" width="96" height="164" aria-hidden="true"></canvas>
@@ -380,7 +380,7 @@ function rDialogo(i){
   pantalla('dialogo',`
   <div class="centro">
     <p class="dia">${t('dia')} ${i+1}/${NIVELES.length}</p>
-    <h2>${N.ico} ${tj({es:N.es,en:N.en})}</h2>
+    <h2>${pxi(N.ico)} ${tj({es:N.es,en:N.en})}</h2>
     <div class="dialogo">
       <div class="retrato-wrap"><canvas class="retrato" id="d-cara" width="64" height="64"></canvas></div>
       <div>

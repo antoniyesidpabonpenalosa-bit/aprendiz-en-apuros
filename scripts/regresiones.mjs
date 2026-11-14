@@ -403,7 +403,8 @@ await caso('movimiento · con "reducir movimiento" la casilla del jefe no pulsa'
 
 /* ── EL JEFE, GANADO DE PUNTA A PUNTA ──
    El barrido no puede ganarle (su robot no apunta). Este sí: espía dónde se
-   dibuja el jefe y las ❌ (por fillText), apunta con ADELANTO —la bala tarda ~25
+   dibuja el jefe y las ❌ (por drawImage: son iconos pixel, js/iconos.js, y
+   cada canvas lleva su nombre en dataset.pxi), apunta con ADELANTO —la bala tarda ~25
    fotogramas y el jefe se mueve 35-60 px en ese rato— y esquiva lo que cae y el
    aviso del láser. La agresividad va al mínimo desde la consola: lo que se prueba
    es el CAMINO de victoria y lo que viene después, no la dificultad. Sin escudo
@@ -416,10 +417,17 @@ const robotJefe = d => {
   const aviso = t('avisolaser');
   const ft = CanvasRenderingContext2D.prototype.fillText;
   CanvasRenderingContext2D.prototype.fillText = function (txt, x, y) {
-    if (txt === '👾' || txt === '😡' || txt === '🤬') { X.vel = X.vel * .6 + (x - X.jefe) * .4; X.jefe = x; X.err = X.errNext; X.errNext = []; }
-    else if (txt === '❌') X.errNext.push([x + 6, y]);
-    else if (txt === aviso) X.laser = { x, hasta: performance.now() + 1500 };
+    if (txt === aviso) X.laser = { x, hasta: performance.now() + 1500 };
     return ft.apply(this, arguments);
+  };
+  /* el jefe (jefe1-3) se dibuja de 48 px con la esquina en jefe.x-24; la ❌ de
+     12 px con la esquina en (o.x-6, o.y-11): se vuelve al centro y a la línea base */
+  const di = CanvasRenderingContext2D.prototype.drawImage;
+  CanvasRenderingContext2D.prototype.drawImage = function (img, x, y) {
+    const k = img && img.dataset && img.dataset.pxi;
+    if (k && k.startsWith('jefe')) { const cx = x + 24; X.vel = X.vel * .6 + (cx - X.jefe) * .4; X.jefe = cx; X.err = X.errNext; X.errNext = []; }
+    else if (k === '❌') X.errNext.push([x + 6, y + 11]);
+    return di.apply(this, arguments);
   };
   const o = APRENDIZ.dirDe;
   APRENDIZ.dirDe = (dx, dy) => { X.p = Math.max(8, Math.min(W - 24, X.p + dx * 3.4)); return o(dx, dy); };
@@ -676,7 +684,8 @@ await caso('pasillo · cada letrero lleva el icono de su minijuego y cabe en su 
       rPasillo(n);
       for (const b of $$('.pasillo-puerta')) {
         const i = +b.dataset.dia, ico = b.querySelector('.pasillo-ico'), c = b.querySelector('.pasillo-cartel').getBoundingClientRect(), p = b.getBoundingClientRect();
-        if (!ico || ico.textContent !== NIVELES[i].ico) mal.push('icono día ' + (i + 1));
+        const im = ico && ico.querySelector('img.pxi');   // el icono es un dibujo pixel (js/iconos.js)
+        if (!im || im.getAttribute('src') !== pxiSvg(NIVELES[i].ico)) mal.push('icono día ' + (i + 1));
         if (c.width > p.width + 1) mal.push('letrero ancho día ' + (i + 1));
         if (!b.querySelector('.pasillo-cartel').textContent.includes(String(i + 1))) mal.push('número día ' + (i + 1));
       }

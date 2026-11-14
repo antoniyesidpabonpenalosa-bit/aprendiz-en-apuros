@@ -282,7 +282,7 @@ function pintarPanel(caja, datos) {
     <div class="panel-flojos">${temas.map(x => {
       const pc = Math.round(x.fallos / x.intentos * 100);
       return `<div class="panel-fila">
-        <span class="pf-tema">${ICO_TIPO[POOL_A_TIPO[x.tema]] || '🎯'} ${esc(nombreTema(x.tema))}</span>
+        <span class="pf-tema">${pxi(ICO_TIPO[POOL_A_TIPO[x.tema]] || '🎯')} ${esc(nombreTema(x.tema))}</span>
         <span class="pf-txt">${esc(String(etiquetaItem(x.tema, x.item)).slice(0, 80))}</span>
         <div class="barra"><div class="barra-fill ${pc > 50 ? 'peligro' : ''}" style="width:${Math.max(6, pc)}%"></div></div>
         <span class="pf-num">${t('panel_fallaron').replace('{a}', x.fallos).replace('{b}', x.intentos)}</span>

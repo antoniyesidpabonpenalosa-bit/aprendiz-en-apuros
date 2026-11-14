@@ -126,6 +126,7 @@ aprendiz-en-apuros/
     ├── audio.js          → efectos de sonido y música chiptune (WebAudio)
     ├── graficos.js       → retratos pixel-art, HUD y confeti
     ├── efectos.js        → chispas, ondas, confeti, fuegos y la cortina de pixeles (lienzo propio)
+    ├── iconos.js         → iconos de pixel art dibujados a mano (rejillas de 12×12, y el jefe de 16×16) con la paleta del juego: pxi() para las plantillas, pxiDibujar() para los canvas
     ├── pixelfx.js        → GENERADO: motor y 3 efectos de la biblioteca pixelfx (ver LICENCIAS.md)
     ├── pxefectos.js      → pone esos efectos en el juego: el corazón roto, «NUEVO RANGO!» y «xN RACHA»
     ├── reto.js           → reto diario: semilla, racha y sesgo por fallos
@@ -161,7 +162,8 @@ test/
 ├── reto.test.mjs         → pruebas de semilla, racha y sesgo del reto diario
 ├── sala.test.mjs         → pruebas de las salas (orden, empates, reintentos, sorteo parejo)
 ├── consola.test.mjs      → pruebas de la consola: palancas, ensayo y que nada se guarde
-└── novedades.test.mjs    → pruebas del aviso de versión: a quién se le cuenta y una sola vez
+├── novedades.test.mjs    → pruebas del aviso de versión: a quién se le cuenta y una sola vez
+└── iconos.test.mjs       → pruebas de los iconos pixel: rejillas, paleta igual a la de la interfaz y que cada emoji de pantalla tenga dibujo
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 ├── barrido.mjs           → juega los 15 días × 3 dificultades × 2 idiomas y hace informe

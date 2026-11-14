@@ -244,7 +244,7 @@ function nvRunner(dia){
     c.font='16px serif';c.textBaseline='top';
     obs.forEach(o=>{
       const oy=o.tipo==='papel'?SUELO-36:SUELO-16;
-      c.fillText(o.tipo==='bug'?'🐛':o.tipo==='papel'?'📄':'☕',o.x,oy);
+      pxiDibujar(c,o.tipo==='bug'?'🐛':o.tipo==='papel'?'📄':'☕',o.x,oy,1.5);
     });
     c.fillStyle='#54c41a';c.font='8px monospace';
   }
