@@ -20,8 +20,13 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v24.2';
+const VERSION='v25';
 const NOVEDADES=[
+  {v:'v25', fecha:'2026-11-14',
+   es:['Iconos de pixel art hechos a mano: los de los 15 días, las dificultades, el candado, el sonido, el menú principal y los tipos de minijuego ya no son emojis del sistema, así que se ven igual en todos los celulares.',
+       'El jefe tiene su propio dibujo en cada una de las tres fases (cada vez más furioso), y las ❌ que caen también son pixel. Los obstáculos del runner igual.'],
+   en:['Hand-made pixel art icons: the ones for the 15 days, the difficulties, the padlock, sound, the main menu and the minigame types are no longer system emojis, so they look the same on every phone.',
+       'The boss has its own drawing in each of the three phases (angrier every time), and the falling ❌ are pixel too. So are the runner obstacles.']},
   {v:'v24.2', fecha:'2026-11-13',
    es:['Jefe, fase 3: se quitó el abanico de ❌, que junto con la lluvia y el rayo eran demasiadas cosas a la vez. A cambio el rayo sale un poco más seguido, y el jefe se mueve algo más despacio.'],
    en:['Boss, phase 3: the fan of ❌ is gone; with the rain and the laser it was too much at once. In exchange the laser fires a bit more often, and the boss moves a little slower.']},

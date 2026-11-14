@@ -50,12 +50,12 @@ function rRecords(){
     <div class="col">
     <h3>${t('glob_tit')}</h3>
     <div class="rec-filtros">
-      <button class="rec-chip" data-tabla="campana" type="button">🎓 ${t('glob_campana')}</button>
+      <button class="rec-chip" data-tabla="campana" type="button">${pxi('🎓')} ${t('glob_campana')}</button>
       <button class="rec-chip" data-tabla="sinfin" type="button">♾️ ${t('glob_sinfin')}</button>
     </div>
     <div class="rec-filtros">
       <button class="rec-chip" data-dif="" type="button">${t('glob_todas')}</button>
-      ${DIFS.map(d=>`<button class="rec-chip" data-dif="${d.id}" type="button">${d.ico} ${tj(d)}</button>`).join('')}
+      ${DIFS.map(d=>`<button class="rec-chip" data-dif="${d.id}" type="button">${pxi(d.ico)} ${tj(d)}</button>`).join('')}
     </div>
     <div class="grupo-barra">
       ${S.grupo

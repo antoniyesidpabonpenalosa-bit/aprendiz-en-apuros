@@ -68,7 +68,7 @@ function rRepaso() {
     ${temas.length ? `<div class="flojo-lista" id="rp-lista">
       ${temas.map(r => `<button class="flojo-fila rp-fila" data-tipo="${r.tipo}" type="button"
           aria-label="${t('repaso_btn')}: ${r.etiqueta}, ${r.pendientes}">
-        <span class="f-nom">${ICO_TIPO[r.tipo] || '🎯'} ${r.etiqueta}</span>
+        <span class="f-nom">${pxi(ICO_TIPO[r.tipo] || '🎯')} ${r.etiqueta}</span>
         <div class="barra"><div class="barra-fill ${r.pc > 40 ? 'peligro' : ''}" style="width:${Math.max(6, r.pc)}%"></div></div>
         <span class="f-num">${r.pendientes}/${r.total}</span>
       </button>`).join('')}
@@ -98,14 +98,14 @@ function rLibre() {
   <div class="centro">
     <h2>🎮 ${t('libre_tit')}</h2>
     <p class="desc" style="text-align:center">${t('libre_expl')}</p>
-    <div class="tit-id"><span>${d.ico} ${tj(d)}</span></div>
+    <div class="tit-id"><span>${pxi(d.ico)} ${tj(d)}</span></div>
     <button class="btn btn3 repaso-entrada" id="lb-repaso" type="button">🎯 ${t('repaso_tit')}
       <span class="repaso-n">${pendientesRepaso() ? pendientesRepaso() + ' ' + t('repaso_pend') : t('repaso_alDia')}</span></button>
     <div class="tit-rejilla c3" id="lb-lista">
       ${TIPOS_LIBRES.map(tipo => {
         const m = marcaDe(tipo);
         return `<button class="btn btn2 menu-fila" data-tipo="${tipo}" type="button">
-          <span class="m-ico">${ICO_TIPO[tipo] || '🎮'}</span>
+          <span class="m-ico">${pxi(ICO_TIPO[tipo] || '🎮')}</span>
           <span class="m-txt">${t('tipo_' + tipo)}</span>
           <span class="m-marca">${m ? '★ ' + m : t('sin_marca')}</span>
         </button>`;
@@ -147,7 +147,7 @@ function libreFin(stars, pts) {
   const pintar = () => {
   pantalla('libre-fin', `
   <div class="centro">
-    <span class="ico">${ICO_TIPO[tipo] || '🎮'}</span>
+    <span class="ico">${pxi(ICO_TIPO[tipo] || '🎮')}</span>
     <h2 class="${stars > 0 ? 'verde' : 'rojo'}">${stars > 0 ? t('aprobado') : t('fallado')}</h2>
     ${starsHtml(Math.max(0, stars))}
     <p class="pts-final">${ganados} ${t('rec_pts')}</p>
@@ -232,7 +232,7 @@ function sinFinRonda(stars, pts) {
     ${starsHtml(Math.max(0, stars))}
     <p class="pts-final">${sinFinActivo.pts} ${t('rec_pts')}</p>
     <p class="mini">×${multSinFin(sinFinActivo.ronda).toFixed(2).replace(/\.?0+$/, '')}</p>
-    ${sube ? `<p class="mini rojo">${t('sinfin_sube').replace('{d}', tj(sigDif))} ${sigDif.ico}</p>` : ''}
+    ${sube ? `<p class="mini rojo">${t('sinfin_sube').replace('{d}', tj(sigDif))} ${pxi(sigDif.ico)}</p>` : ''}
     <button class="btn" id="sp-sig" type="button">${t('siguiente')}</button>
   </div>`, pintar);
   $('#sp-sig').onclick = () => { SFX.click(); siguienteSinFin(); };
