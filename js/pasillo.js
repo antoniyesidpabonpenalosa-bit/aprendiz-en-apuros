@@ -170,11 +170,12 @@ function rPasillo(zona=pasilloZonaAuto()){
     const re=escena.getBoundingClientRect(),a=puertas[h].getBoundingClientRect(),b=puertas[h+1].getBoundingClientRect();
     return re.width?((a.left+a.width/2+b.left+b.width/2)/2-re.left)/re.width*100:22.2+18.55*h;
   };
-  /* Cada uno es el cuerpo del aprendiz con SU piel y SU camisa (js/consejos.js). */
+  /* Cada NPC tiene un sprite propio. Si no carga, conservar el recoloreo clásico. */
   const pintaGente=()=>gente.forEach(g=>{
     const P=PERSONAJES[/** @type {string} */(g.dataset.p)],c=g.querySelector('canvas'),k=c.getContext('2d');
     k.clearRect(0,0,c.width,c.height);
-    if(!APRENDIZ.dibujar(k,22,73,71,APRENDIZ.idx.south,0,P.piel,P.camisa)){
+    if(!NPC_PASILLO.dibujar(k,g.dataset.p,22,74,74) &&
+       !APRENDIZ.dibujar(k,22,73,71,APRENDIZ.idx.south,0,P.piel,P.camisa)){
       k.fillStyle='#302019';k.fillRect(13,6,18,13);
       k.fillStyle=P.piel;k.fillRect(14,17,16,12);
       k.fillStyle=P.camisa;k.fillRect(10,30,24,19);
@@ -266,6 +267,7 @@ function rPasillo(zona=pasilloZonaAuto()){
      En las otras zonas (y con la campaña terminada) no hay nada elegido. */
   gente.forEach(g=>{g.style.left=xHueco(+g.dataset.hueco)+'%'});
   pintaGente();
+  NPC_PASILLO.cargado.then(ok=>{if(ok&&!cancelado&&pantallaId==='pasillo'&&escena.isConnected)pintaGente()});
   if(p>=bloque.inicio&&p<bloque.fin){marcar(p);pos=xDia(p);moveX();llegada(p,false);}
   else{moveX();paint();}
   avisos();

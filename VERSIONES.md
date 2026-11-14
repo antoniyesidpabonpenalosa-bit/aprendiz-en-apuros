@@ -90,6 +90,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v35** | — | 2026-11-14 | Barras RPG (`barraRpg`): XP de 10 casillas con el rango siguiente, campaña de 15 (una por día) con borde dorado al 100 %, barra compacta en el HUD de la portada y animación de ganancia en el resultado; mismos cálculos de XP y progreso |
 | **v36** | — | 2026-11-14 | Campus nocturno HD de fondo en la portada (`img/portada/`: escenario WebP y 5 capas animadas de 1600×900, velo para la legibilidad); sustituye a la ciudad de la v27, que se retira (imágenes, CSS y caché) |
 | **v37** | — | 2026-11-14 | Pasillo HD: techo, muro y suelo por ambiente (formación cálida, empresa fría) y puertas de pixel art cuya hoja gira al entrar (`img/pasillo-hd/`); el pasillo de CSS queda de respaldo |
+| **v38** | — | 2026-11-14 | Sprites propios de cuerpo entero para los 4 personajes del pasillo (`img/npc/pasillo.png`, `js/npc-sprites.js`); el cuerpo del aprendiz recoloreado queda de respaldo |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 
