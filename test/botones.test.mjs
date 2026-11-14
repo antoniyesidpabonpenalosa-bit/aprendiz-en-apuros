@@ -63,8 +63,8 @@ test('rTitulo() marca la dificultad con aria-pressed y devuelve el foco con el t
   assert.match(js, /\.focus\(\{preventScroll:true\}\)/);
 });
 
-test('sigue usando los iconos de js/iconos.js (pxi), sin emojis sueltos en las tarjetas', () => {
+test('sigue usando los iconos de js/iconos.js (pxi, o pxiPortada desde v34), sin emojis sueltos en las tarjetas', () => {
   const js = leer('js/menus.js');
-  assert.match(js, /const fila=\(id,ico,txt,cls\)=>`<button[\s\S]{0,200}pxi\(ico\)/);
-  assert.match(js, /<span class="dif-ico">\$\{pxi\(d\.ico\)\}<\/span>/);
+  assert.match(js, /const fila=\(id,ico,txt,cls\)=>`<button[\s\S]{0,200}pxi(Portada)?\(ico\)/);
+  assert.match(js, /<span class="dif-ico">\$\{pxi(Portada)?\(d\.ico\)\}<\/span>/);
 });

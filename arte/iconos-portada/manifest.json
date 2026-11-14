@@ -1,0 +1,115 @@
+{
+  "cell": [
+    32,
+    32
+  ],
+  "columns": 5,
+  "rows": 3,
+  "icons": [
+    {
+      "key": "🎮",
+      "file": "recursos/modo-libre.png",
+      "label": "Modo libre",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "key": "♾️",
+      "file": "recursos/sin-fin.png",
+      "label": "Sin fin",
+      "x": 32,
+      "y": 0
+    },
+    {
+      "key": "🏫",
+      "file": "recursos/sala-clase.png",
+      "label": "Sala de clase",
+      "x": 64,
+      "y": 0
+    },
+    {
+      "key": "🌱",
+      "file": "recursos/practica.png",
+      "label": "Práctica",
+      "x": 96,
+      "y": 0
+    },
+    {
+      "key": "⚔️",
+      "file": "recursos/normal.png",
+      "label": "Normal",
+      "x": 128,
+      "y": 0
+    },
+    {
+      "key": "💀",
+      "file": "recursos/pesadilla.png",
+      "label": "Pesadilla",
+      "x": 0,
+      "y": 32
+    },
+    {
+      "key": "🛒",
+      "file": "recursos/tienda.png",
+      "label": "Tienda",
+      "x": 32,
+      "y": 32
+    },
+    {
+      "key": "🏆",
+      "file": "recursos/logros.png",
+      "label": "Logros",
+      "x": 64,
+      "y": 32
+    },
+    {
+      "key": "📊",
+      "file": "recursos/records.png",
+      "label": "Récords",
+      "x": 96,
+      "y": 32
+    },
+    {
+      "key": "📈",
+      "file": "recursos/stats.png",
+      "label": "Stats",
+      "x": 128,
+      "y": 32
+    },
+    {
+      "key": "✨",
+      "file": "recursos/modo-hd.png",
+      "label": "Modo HD",
+      "x": 0,
+      "y": 64
+    },
+    {
+      "key": "🔤",
+      "file": "recursos/texto-legible.png",
+      "label": "Texto legible",
+      "x": 32,
+      "y": 64
+    },
+    {
+      "key": "🎓",
+      "file": "recursos/rango.png",
+      "label": "Rango",
+      "x": 64,
+      "y": 64
+    },
+    {
+      "key": "🗓",
+      "file": "recursos/reto-diario.png",
+      "label": "Reto diario",
+      "x": 96,
+      "y": 64
+    },
+    {
+      "key": "🕹",
+      "file": "recursos/modo-retro.png",
+      "label": "Modo retro",
+      "x": 128,
+      "y": 64
+    }
+  ]
+}

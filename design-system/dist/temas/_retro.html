@@ -1901,6 +1901,19 @@ html.legible .portada .tit-prog-fila .p-lbl,html.legible .portada .tit-prog-fila
   .portada .menu-fila .m-ico,.portada .dif-op .dif-ico,.portada .tit-avatar .m-chev{transition:none!important;transform:none!important}
 }
 
+/* Iconos premium de la portada (v34): PNG de 32×32 (pxiPortada, js/iconos.js).
+   En las tarjetas del móvil van a 32 px —escala exacta en pantallas 1×, 2× y 3×— en vez de
+   24, que en 1× se comía una de cada cuatro filas de píxeles. Donde quedan por debajo de
+   32 px en una pantalla 1× (dificultad, rango, reto, ficha) se reducen suavizando: con
+   "pixelated" se perderían filas enteras y el dibujo se rompe. */
+@media(max-width:560px){
+  .portada .menu-fila .m-ico{width:38px;height:36px}
+  .portada .menu-fila .m-ico .pxi-portada{width:32px;height:32px}
+}
+@media(max-resolution:1.5dppx){
+  .portada .dif-ico .pxi-portada,.portada .tit-id .pxi-portada,.portada .tit-reto .pxi-portada,.portada .av-rango .pxi-portada{image-rendering:auto}
+}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}

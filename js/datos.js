@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v33';
+const VERSION='v34';
 const NOVEDADES=[
+  {v:'v34', fecha:'2026-11-14',
+   es:['La pantalla principal estrena iconos más detallados: mando, infinito, escuela, planta, espadas, calavera, carrito, trofeo, gráficas, destellos, letras, birrete, calendario y joystick, dibujados en pixel art con sombras. El resto del juego conserva sus iconos de siempre.'],
+   en:['The main screen has new, more detailed icons: gamepad, infinity, school, plant, swords, skull, cart, trophy, charts, sparkles, letters, graduation cap, calendar and joystick, drawn in pixel art with shading. The rest of the game keeps its usual icons.']},
   {v:'v33', fecha:'2026-11-14',
    es:['El aprendiz estrena dibujo: más detalle en la cara, el pelo y la ropa, con sombras nuevas y una caminata con las piernas articuladas. Sale así en la pantalla principal, el pasillo, el runner y la pelea contra el jefe, con la piel y la camisa que elegiste.',
        'En la pantalla principal ahora parpadea y saluda con poses dibujadas a mano.'],

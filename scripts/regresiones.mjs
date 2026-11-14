@@ -1575,13 +1575,13 @@ await caso('aprendiz de la portada · las demás pantallas no cambian: ninguna l
    pierda el foco al elegir dificultad; y que nada de esto salga de la portada. */
 const BOTONES_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v30', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
 
-await caso('botones de la portada · las 9 tarjetas llevan su icono de pixel art (no emoji) a 36 px, y 24 px en móvil', BOTONES_J, async pg => {
+await caso('botones de la portada · las 9 tarjetas llevan su icono de pixel art (no emoji) a 36 px, y 32 px en móvil (v34)', BOTONES_J, async pg => {
   const mide = async (w, h) => { await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(400);
     return pg.evaluate(() => { const f = [...document.querySelectorAll('.portada .menu-fila')]; const ico = f.map(b => b.querySelector('.m-ico img.pxi')?.getBoundingClientRect().width || 0);
       const d = [...document.querySelectorAll('.portada .dif-op .dif-ico img.pxi')].length;
       return { filas: f.length, conPxi: ico.filter(x => x > 0).length, min: Math.min(...ico), dif: d }; }); };
   const m = await mide(390, 760), g = await mide(1280, 800);
-  return [m.filas === 9 && m.conPxi === 9 && m.dif === 3 && m.min >= 23 && m.min <= 26 && g.conPxi === 9 && g.min >= 35, `móvil ${JSON.stringify(m)} · escritorio ${JSON.stringify(g)}`];
+  return [m.filas === 9 && m.conPxi === 9 && m.dif === 3 && m.min >= 31 && m.min <= 33 && g.conPxi === 9 && g.min >= 35, `móvil ${JSON.stringify(m)} · escritorio ${JSON.stringify(g)}`];
 });
 
 await caso('botones de la portada · cada acceso sigue llevando a su pantalla', BOTONES_J, async pg => {
@@ -2004,6 +2004,50 @@ await caso('aprendiz nuevo · la camisa y la piel elegidas se aplican (el azul y
     return { verdeOscura: cuenta(3, 0), rojaMedia: cuenta(2, 3) };
   });
   return [r.verdeOscura.azul === 0 && r.verdeOscura.piel === 0 && r.rojaMedia.azul === 0 && r.rojaMedia.piel === 0, JSON.stringify(r)];
+});
+
+/* ── LOS ICONOS DE 32×32 DE LA PORTADA (v34) ──
+   Lo que no puede romperse: que la portada enseñe los 15 dibujos nuevos (incrustados: ninguna
+   petición de red), que el resto del juego siga con los de siempre, que se vean a un tamaño
+   legible en móvil y escritorio y que nada desborde. */
+const ICONOS_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v34', t2: true, dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+const clavesPortada = () => pg => pg.evaluate(() => [...document.querySelectorAll('#screen .pxi-portada')].map(i => Object.keys(PXI_PORTADA).find(k => PXI_PORTADA[k] === i.getAttribute('src'))));
+
+await caso('iconos de la portada · salen los 15 dibujos de 32×32 (el joystick, al activar HD o texto pixel), cargados y sin pedir nada a la red', ICONOS_J, async pg => {
+  const pedidos = []; pg.on('request', q => { if (/iconos|recursos|\.png/.test(q.url()) && !/aprendiz|titulo|fondo|jefe|retratos|icon-180/.test(q.url())) pedidos.push(q.url()); });
+  const vistas = new Set();
+  for (const modo of [{}, { hd: true, legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); rTitulo(); }, modo); await pausa(400);
+    (await clavesPortada()(pg)).forEach(k => vistas.add(k));
+  }
+  const cargados = await pg.evaluate(() => [...document.querySelectorAll('.pxi-portada')].every(i => i.complete && i.naturalWidth === 32 && i.naturalHeight === 32));
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  const faltan = await pg.evaluate(v => Object.keys(PXI_PORTADA).filter(k => !v.includes(k)), [...vistas]);
+  return [faltan.length === 0 && cargados && pedidos.length === 0, `vistos ${vistas.size}/15${faltan.length ? ' · faltan ' + faltan.join(' ') : ''} · cargados a 32×32: ${cargados} · peticiones: ${pedidos.length}`];
+});
+
+await caso('iconos de la portada · la llama de la racha y el resto del juego siguen con los iconos de siempre', ICONOS_J, async pg => {
+  await pg.evaluate(() => { const d = new Date(); S.reto = { fecha: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`, racha: 3 }; rTitulo(); }); await pausa(200);
+  const llama = await pg.evaluate(() => { const l = document.querySelector('.r-llama img'); return l ? l.classList.contains('pxi-portada') : null; });
+  const otras = await pg.evaluate(() => { const o = {}; for (const [n, f] of [['libre', () => rLibre()], ['tienda', () => rTienda()], ['logros', () => rLogros()], ['pasillo', () => rPasillo()], ['mapa', () => rMapaLista()], ['perso', () => rPerso()], ['stats', () => rStats()]]) { f(); o[n] = { premium: document.querySelectorAll('#screen .pxi-portada').length, clasicos: document.querySelectorAll('#screen img.pxi').length }; } return o; });
+  const ok = llama === false && Object.values(otras).every(v => v.premium === 0) && Object.values(otras).some(v => v.clasicos > 0);
+  return [ok, JSON.stringify({ llamaPremium: llama, otras })];
+});
+
+await caso('iconos de la portada · tamaño legible: tarjetas 32 px en móvil y ≥ 36 en escritorio, dificultad y reto 24, sin desbordar', ICONOS_J, async pg => {
+  const mal = [], vistos = {};
+  for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+    await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(300);
+    const r = await pg.evaluate(() => { const t = s => [...new Set([...document.querySelectorAll(s)].map(i => Math.round(i.getBoundingClientRect().width)))];
+      const sc = document.querySelector('#screen');
+      const fuera = [...document.querySelectorAll('.portada .pxi-portada')].filter(i => { const c = i.closest('button,.tit-id').getBoundingClientRect(), q = i.getBoundingClientRect(); return q.left < c.left - 1 || q.right > c.right + 1 || q.top < c.top - 1 || q.bottom > c.bottom + 1; }).length;
+      return { tarjeta: t('.m-ico .pxi-portada'), dif: t('.dif-ico .pxi-portada'), reto: t('.tit-reto>span>.pxi-portada'), ficha: t('.av-rango .pxi-portada'), fuera, scroll: sc.scrollWidth > sc.clientWidth }; });
+    vistos[`${w}`] = r.tarjeta.join('/');
+    const movil = w <= 560;
+    const ok = r.tarjeta.length === 1 && (movil ? r.tarjeta[0] === 32 : r.tarjeta[0] >= 36) && r.dif.every(x => x >= 24) && r.reto.every(x => x >= 24) && r.ficha.every(x => x >= 16) && !r.fuera && !r.scroll;
+    if (!ok) mal.push(`${w}×${h}: ${JSON.stringify(r)}`);
+  }
+  return [mal.length === 0, mal.length ? mal.join(' · ') : 'tarjetas por ancho: ' + JSON.stringify(vistos)];
 });
 
 await nav.close();
