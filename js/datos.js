@@ -20,8 +20,13 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v24.2';
+const VERSION='v26';
 const NOVEDADES=[
+  {v:'v26', fecha:'2026-11-14',
+   es:['El jefe final ahora es un solo enemigo que evoluciona: empieza como un Bug morado, se transforma en un demonio naranja con cuernos a mitad de la pelea y termina como un Error Fatal rojo, con armadura y energía digital.',
+       'Cada cambio de fase tiene su transformación animada. Mientras dura (un segundo), el combate se detiene para que nadie reciba un golpe sin poder esquivarlo. Con "reducir movimiento" el cambio es instantáneo.'],
+   en:['The final boss is now a single enemy that evolves: it starts as a purple Bug, turns into a horned orange demon halfway through the fight and ends as a red Fatal Error, with armor and digital energy.',
+       'Each phase change has its own animated transformation. While it plays (one second) the fight stops, so nobody gets hit without a chance to dodge. With "reduce motion" the change is instant.']},
   {v:'v24.2', fecha:'2026-11-13',
    es:['Jefe, fase 3: se quitó el abanico de ❌, que junto con la lluvia y el rayo eran demasiadas cosas a la vez. A cambio el rayo sale un poco más seguido, y el jefe se mueve algo más despacio.'],
    en:['Boss, phase 3: the fan of ❌ is gone; with the rain and the laser it was too much at once. In exchange the laser fires a bit more often, and the boss moves a little slower.']},

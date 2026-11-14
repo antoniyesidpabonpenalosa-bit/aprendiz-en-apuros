@@ -59,6 +59,9 @@ function nvJefe(dia,ptsBase){
   const jefe={x:W/2,y:36,hp:100,dir:1};
   let balas=[],errores=[],frame=0,golpes=0,pts=0,inv=0,fin=false;
   let izq=false,der=false,prevGolpe=-99,faseAnt=1;
+  /* transformación de fase en curso: {de: fase de la que sale, ms: lo que lleva, ult: última lectura del reloj} */
+  let trans=null;
+  const ponFase=n=>{faseAnt=n;const fe=$('#j-fase');if(fe)fe.textContent=n};
   /* alto: fotogramas que todo se queda quieto tras un golpe (js/efectos.js) */
   let alto=0;
   const golpeado=()=>{if(!quieto())alto=6;if(golpes===2)FX.peligro(true)};
@@ -113,6 +116,92 @@ function nvJefe(dia,ptsBase){
     }
     c.textAlign='start';c.textBaseline='alphabetic';
   }
+  /* El dibujo de cada fotograma, aparte de las cuentas: la transformación de
+     fase lo usa con todo congelado. `fase` es la del jefe que se dibuja y `mov`
+     lo que se mueve el aprendiz (para su paso). */
+  function pintar(fase,mov){
+    /* ── dibujo ── */
+    if(FINAL){
+      /* ── última etapa: terminal hacker, lluvia de código tipo Matrix ── */
+      c.fillStyle='#000a03';c.fillRect(0,0,W,H);
+      matrix();
+    }else{
+      if(HD){
+        const g=c.createLinearGradient(0,0,0,H);
+        g.addColorStop(0,'#1a0f2e');g.addColorStop(.7,'#08050f');g.addColorStop(1,'#030208');
+        c.fillStyle=g;
+      }else c.fillStyle='#120a20';
+      c.fillRect(0,0,W,H);
+      /* lluvia digital de fondo */
+      c.fillStyle=HD?'rgba(140,61,240,.16)':'#241048';
+      for(let k=0;k<8;k++){const y=(frame*2+k*47)%200;c.fillRect(20+k*40,y-20,2,12)}
+    }
+    /* barra de vida del jefe (en la última etapa, verde de terminal) */
+    const bx=(W-200)/2;
+    c.fillStyle=FINAL?'#001a07':'#07080f';c.fillRect(bx,6,200,8);
+    c.fillStyle=jefe.hp>33?(FINAL?'#00ff41':'#c22e44'):'#ff5468';
+    if(HD||FINAL){c.shadowColor=jefe.hp>33&&FINAL?'#00ff41':'#ff5468';c.shadowBlur=8}
+    c.fillRect(bx,6,jefe.hp*2,8);
+    c.shadowBlur=0;
+    if(FINAL){c.strokeStyle='#00ff41';c.lineWidth=1;c.strokeRect(bx-.5,5.5,201,9)}
+    /* jefe: al recibir un disparo se pone blanco un instante y retrocede un
+       pixel; donde el canvas no sabe filtros (o con "reducir movimiento"),
+       parpadea como siempre */
+    /* Con la transformación en marcha el reloj `frame` está parado, así que el
+       "acabo de recibir un disparo" del último golpe duraría todo el segundo:
+       sin destello ni parpadeo, el jefe se dibuja siempre entero. */
+    const herido=!trans&&frame-prevGolpe<=3,blanco=herido&&!quieto()&&'filter' in c;
+    if(trans||blanco||frame-prevGolpe>4||frame%4<2){
+      c.save();
+      if(blanco)c.filter='brightness(0) invert(1)';
+      /* El ancla de los dibujos (el suelo del jefe) va siempre en el mismo sitio,
+         41 px bajo su centro de golpe, en las tres fases y en las dos
+         transformaciones: así no brinca al evolucionar. La zona de golpe no cambia. */
+      const suelo=jefe.y+41-(blanco?2:0);
+      const dibujado=trans?jefeDibujarTrans(c,jefe.x,suelo,trans.de,jefeCuadro(trans.ms)):jefeDibujar(c,jefe.x,suelo,fase);
+      if(!dibujado){
+        /* el dibujo no cargó: el emoji de siempre */
+        c.font=fase===3?'44px serif':'38px serif';
+        c.textAlign='center';c.textBaseline='middle';
+        c.fillText(fase===1?'👾':fase===2?'😡':'🤬',jefe.x,jefe.y+4-(blanco?2:0));
+      }
+      c.restore();
+    }
+    /* balas (commits) */
+    if(HD){c.shadowColor='#54c41a';c.shadowBlur=6}
+    c.fillStyle=FINAL?'#7dffa0':'#54c41a';
+    balas.forEach(b=>c.fillRect(b.x,b.y,3,8));
+    c.shadowBlur=0;
+    /* errores que caen */
+    c.font='13px serif';
+    errores.forEach(o=>c.fillText('❌',o.x-6,o.y));
+    /* láser del jefe: aviso parpadeante y luego rayo */
+    if(laserEstado===1){
+      if(frame%6<3){c.fillStyle='rgba(255,84,104,.5)';c.fillRect(laserX-2,jefe.y+8,4,H-12-jefe.y)}
+      c.fillStyle='#ff5468';c.font='bold 9px monospace';c.textAlign='center';
+      c.fillText(t('avisolaser'),laserX,jefe.y+2);
+      c.textAlign='start';
+    }else if(laserEstado===2){
+      const w=10+(laserT%4<2?2:0);
+      if(HD){c.shadowColor='#ff5468';c.shadowBlur=14}
+      c.fillStyle='#ff5468';c.fillRect(laserX-w/2,jefe.y+8,w,H-10-jefe.y);
+      c.fillStyle='#ffd0d6';c.fillRect(laserX-2,jefe.y+8,4,H-10-jefe.y);
+      c.shadowBlur=0;
+    }
+    /* jugador (parpadea si invulnerable). El aprendiz de cuerpo entero mira
+       hacia donde se mueve; si el sprite no cargó, cae al bloque de siempre. */
+    if(trans||inv%12<8){            /* (en la transformación no parpadea: el reloj está parado) */
+      c.save();
+      if(alto>0)c.filter='brightness(0) invert(1)';   /* blanco en el instante del golpe */
+      if(!APRENDIZ.dibujar(c,p.x+8,H-4,30,p.dir??APRENDIZ.idx.south,quieto()?0:APRENDIZ.pasoDe(Math.abs(mov)>.1))){
+        const dy=H-180;
+        c.fillStyle=CAMISAS[S.camisa];c.fillRect(p.x,158+dy,16,16);
+        c.fillStyle=SKINS[S.skin];c.fillRect(p.x+2,148+dy,12,12);
+        c.fillStyle='#101018';c.fillRect(p.x+9,152+dy,2,2);
+      }
+      c.restore();
+    }
+  }
   function terminar(){if(raf){cancelAnimationFrame(raf);raf=0}fin=true}
   function loop(){
     if(fin)return;
@@ -120,9 +209,28 @@ function nvJefe(dia,ptsBase){
     if(!$('#j-cv')){cancelAnimationFrame(raf);raf=0;fin=true;return}
     if(pausado)return;
     if(alto>0){alto--;return}
+    const fase=jefeFaseDe(jefe.hp);
+    /* ── el jefe evoluciona ──
+       Se dispara una sola vez por cambio real de fase: `trans` existe mientras
+       dura y faseAnt solo sube cuando acaba, así que no puede repetirse. Con la
+       transformación en marcha NADA del combate avanza (ni el aprendiz, ni las
+       balas, ni los errores, ni el rayo, ni el reloj `frame`): no hay daño injusto,
+       y como la cuenta va en milisegundos (con tope por fotograma) la pausa y el
+       cambio de pestaña no se la comen. Con "reducir movimiento", o si el atlas
+       no cargó, el cambio es instantáneo. */
+    if(!trans&&fase>faseAnt){
+      if(quieto()||!jefeListo('atlas'))ponFase(faseAnt+1);
+      else trans={de:faseAnt,ms:0,ult:performance.now()};
+    }
+    if(trans){
+      const ahora=performance.now();
+      trans.ms+=Math.min(50,ahora-trans.ult);trans.ult=ahora;
+      /* al acabar, prevGolpe se borra: si no, el último disparo (el que cruzó el
+         umbral) haría destellar en blanco, unos fotogramas, a la forma recién nacida */
+      if(jefeTransFin(trans.ms)){ponFase(trans.de+1);trans=null;prevGolpe=-99}
+      else{pintar(fase,0);return}
+    }
     frame++;
-    const fase=jefe.hp>66?1:jefe.hp>33?2:3;
-    if(fase!==faseAnt){faseAnt=fase;const fe=$('#j-fase');if(fe)fe.textContent=fase}
     /* ── movimiento del jugador: táctil + teclado + mando + giro ── */
     let mov=0;
     if(izq)mov-=1;
@@ -217,76 +325,8 @@ function nvJefe(dia,ptsBase){
       }
     });
     if(fin)return;
-    /* ── dibujo ── */
-    if(FINAL){
-      /* ── última etapa: terminal hacker, lluvia de código tipo Matrix ── */
-      c.fillStyle='#000a03';c.fillRect(0,0,W,H);
-      matrix();
-    }else{
-      if(HD){
-        const g=c.createLinearGradient(0,0,0,H);
-        g.addColorStop(0,'#1a0f2e');g.addColorStop(.7,'#08050f');g.addColorStop(1,'#030208');
-        c.fillStyle=g;
-      }else c.fillStyle='#120a20';
-      c.fillRect(0,0,W,H);
-      /* lluvia digital de fondo */
-      c.fillStyle=HD?'rgba(140,61,240,.16)':'#241048';
-      for(let k=0;k<8;k++){const y=(frame*2+k*47)%200;c.fillRect(20+k*40,y-20,2,12)}
-    }
-    /* barra de vida del jefe (en la última etapa, verde de terminal) */
-    const bx=(W-200)/2;
-    c.fillStyle=FINAL?'#001a07':'#07080f';c.fillRect(bx,6,200,8);
-    c.fillStyle=jefe.hp>33?(FINAL?'#00ff41':'#c22e44'):'#ff5468';
-    if(HD||FINAL){c.shadowColor=jefe.hp>33&&FINAL?'#00ff41':'#ff5468';c.shadowBlur=8}
-    c.fillRect(bx,6,jefe.hp*2,8);
-    c.shadowBlur=0;
-    if(FINAL){c.strokeStyle='#00ff41';c.lineWidth=1;c.strokeRect(bx-.5,5.5,201,9)}
-    /* jefe: al recibir un disparo se pone blanco un instante y retrocede un
-       pixel; donde el canvas no sabe filtros (o con "reducir movimiento"),
-       parpadea como siempre */
-    const herido=frame-prevGolpe<=3,blanco=herido&&!quieto()&&'filter' in c;
-    if(blanco||frame-prevGolpe>4||frame%4<2){
-      c.save();
-      if(blanco)c.filter='brightness(0) invert(1)';
-      c.font=fase===3?'44px serif':'38px serif';
-      c.textAlign='center';c.textBaseline='middle';
-      c.fillText(fase===1?'👾':fase===2?'😡':'🤬',jefe.x,jefe.y+4-(blanco?2:0));
-      c.restore();
-    }
-    /* balas (commits) */
-    if(HD){c.shadowColor='#54c41a';c.shadowBlur=6}
-    c.fillStyle=FINAL?'#7dffa0':'#54c41a';
-    balas.forEach(b=>c.fillRect(b.x,b.y,3,8));
-    c.shadowBlur=0;
-    /* errores que caen */
-    c.font='13px serif';
-    errores.forEach(o=>c.fillText('❌',o.x-6,o.y));
-    /* láser del jefe: aviso parpadeante y luego rayo */
-    if(laserEstado===1){
-      if(frame%6<3){c.fillStyle='rgba(255,84,104,.5)';c.fillRect(laserX-2,jefe.y+8,4,H-12-jefe.y)}
-      c.fillStyle='#ff5468';c.font='bold 9px monospace';c.textAlign='center';
-      c.fillText(t('avisolaser'),laserX,jefe.y+2);
-      c.textAlign='start';
-    }else if(laserEstado===2){
-      const w=10+(laserT%4<2?2:0);
-      if(HD){c.shadowColor='#ff5468';c.shadowBlur=14}
-      c.fillStyle='#ff5468';c.fillRect(laserX-w/2,jefe.y+8,w,H-10-jefe.y);
-      c.fillStyle='#ffd0d6';c.fillRect(laserX-2,jefe.y+8,4,H-10-jefe.y);
-      c.shadowBlur=0;
-    }
-    /* jugador (parpadea si invulnerable). El aprendiz de cuerpo entero mira
-       hacia donde se mueve; si el sprite no cargó, cae al bloque de siempre. */
-    if(inv%12<8){
-      c.save();
-      if(alto>0)c.filter='brightness(0) invert(1)';   /* blanco en el instante del golpe */
-      if(!APRENDIZ.dibujar(c,p.x+8,H-4,30,p.dir??APRENDIZ.idx.south,quieto()?0:APRENDIZ.pasoDe(Math.abs(mov)>.1))){
-        const dy=H-180;
-        c.fillStyle=CAMISAS[S.camisa];c.fillRect(p.x,158+dy,16,16);
-        c.fillStyle=SKINS[S.skin];c.fillRect(p.x+2,148+dy,12,12);
-        c.fillStyle='#101018';c.fillRect(p.x+9,152+dy,2,2);
-      }
-      c.restore();
-    }
+    pintar(fase,mov);
   }
-  loop();
+  /* con los dibujos ya cargados (o con tope de 1,5 s) para que el primer fotograma no salga con emoji */
+  jefeEsperar(loop);
 }

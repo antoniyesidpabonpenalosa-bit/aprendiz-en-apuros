@@ -7,7 +7,8 @@
    cerrar cada sesión: nada impedía que un arreglo se deshiciera sin aviso.
    Cada caso nombra el fallo que vigila.
 
-   Uso:  node scripts/regresiones.mjs   (levanta su propio servidor local) */
+   Uso:  node scripts/regresiones.mjs   (levanta su propio servidor local)
+         SOLO=jefe node scripts/regresiones.mjs   (solo los casos con "jefe" en el nombre) */
 import { spawn } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -39,6 +40,8 @@ let fallos = 0, total = 0;
 /* Cada caso recibe una página con la partida ya preparada y devuelve
    [ok, detalle]. Un error de página sin capturar hace fallar el caso. */
 async function caso(nombre, guardado, fn) {
+  /* SOLO=texto: corre solo los casos cuyo nombre lo contenga (para iterar rápido) */
+  if (process.env.SOLO && !nombre.includes(process.env.SOLO)) return;
   total++;
   const ctx = await nav.newContext({ viewport: { width: 390, height: 760 } });
   if (guardado) await ctx.addInitScript(g => { if (!localStorage.getItem('pa3')) localStorage.setItem('pa3', JSON.stringify(g)); }, guardado);
@@ -403,23 +406,43 @@ await caso('movimiento · con "reducir movimiento" la casilla del jefe no pulsa'
 
 /* ── EL JEFE, GANADO DE PUNTA A PUNTA ──
    El barrido no puede ganarle (su robot no apunta). Este sí: espía dónde se
-   dibuja el jefe y las ❌ (por fillText), apunta con ADELANTO —la bala tarda ~25
+   dibuja el jefe (por drawImage: sus dibujos están en img/jefe/; si no cargan
+   cae al emoji y se le sigue por fillText) y las ❌ (por fillText), apunta con ADELANTO —la bala tarda ~25
    fotogramas y el jefe se mueve 35-60 px en ese rato— y esquiva lo que cae y el
    aviso del láser. La agresividad va al mínimo desde la consola: lo que se prueba
    es el CAMINO de victoria y lo que viene después, no la dificultad. Sin escudo
    ni ayudas: en el día 15 (arena grande, lluvia y rayo) tiene que poder ganar. */
-const robotJefe = d => {
+const robotJefe = a => {
+  const d = typeof a === 'number' ? a : a.d, agr = typeof a === 'number' ? 0.2 : a.agr;
   Object.assign(S, { nombre: 'ROBOT', intro: true, t2: true, version: VERSION, vistos: ['jefe'] });
-  LAB.ejecutar('jefe 0.2', {});
+  if (a.dif != null) S.dif = a.dif;
+  LAB.ejecutar('jefe ' + agr, {});
   const W = d === 14 ? 400 : 320, H = d === 14 ? 270 : 180;   // la arena del día 15 es más grande
   const X = window.__x = { jefe: W / 2, vel: 0, p: W / 2 - 8, err: [], errNext: [] };
   const aviso = t('avisolaser');
   const ft = CanvasRenderingContext2D.prototype.fillText;
+  /* REG: lo que pasó con el jefe, para las pruebas de la transformación. Cada
+     dibujo del jefe apunta qué era (pose 1-3 o atlas fila/cuadro), dónde cayó
+     y cómo estaban el indicador de fase y los golpes recibidos en ese instante. */
+  const REG = window.__reg = { dibujos: [], emoji: 0 };
+  const sigue = cx => { X.vel = X.vel * .6 + (cx - X.jefe) * .4; X.jefe = cx; X.err = X.errNext; X.errNext = []; };
   CanvasRenderingContext2D.prototype.fillText = function (txt, x, y) {
-    if (txt === '👾' || txt === '😡' || txt === '🤬') { X.vel = X.vel * .6 + (x - X.jefe) * .4; X.jefe = x; X.err = X.errNext; X.errNext = []; }
+    if (txt === '👾' || txt === '😡' || txt === '🤬') { REG.emoji++; sigue(x); }
     else if (txt === '❌') X.errNext.push([x + 6, y]);
     else if (txt === aviso) X.laser = { x, hasta: performance.now() + 1500 };
     return ft.apply(this, arguments);
+  };
+  const di = CanvasRenderingContext2D.prototype.drawImage;
+  CanvasRenderingContext2D.prototype.drawImage = function (img, ...a) {
+    const m = img && img.src && /img\/jefe\/(jefe-fase-(\d)|jefe-transformaciones-atlas)\.png/.exec(img.src);
+    if (m) {
+      const atlas = a.length >= 8, [dx, dy, dw, dh] = atlas ? a.slice(4, 8) : a.slice(0, 4);
+      sigue(dx + dw / 2);
+      REG.dibujos.push({ k: atlas ? 'atlas' : 'pose', pose: atlas ? 0 : +m[2], fila: atlas ? a[1] / 128 : -1, cuadro: atlas ? a[0] / 128 : -1,
+        dx, dy, dw, dh, cx: dx + dw / 2, fase: $('#j-fase')?.textContent, golpes: $('#j-gol')?.textContent,
+        suave: this.imageSmoothingEnabled, t: performance.now() });
+    }
+    return di.apply(this, arguments);
   };
   const o = APRENDIZ.dirDe;
   APRENDIZ.dirDe = (dx, dy) => { X.p = Math.max(8, Math.min(W - 24, X.p + dx * 3.4)); return o(dx, dy); };
@@ -449,6 +472,61 @@ const robotJefe = d => {
   })();
   diaAct = d; vidas = 3; nvJefe(d, 0);
 };
+/* ── EL JEFE EVOLUTIVO (v26) ──
+   Lo que queda anotado en window.__reg (ver robotJefe) se revisa aquí: que el
+   jefe se dibuje con sus tres poses y NO con emojis, que cada transformación
+   salga una sola vez, completa (12 cuadros en orden) y con todo detenido
+   (golpes y posición quietos, indicador de fase sin cambiar hasta el final), que
+   el indicador y la pose nueva lleguen después, que los píxeles no se suavicen y
+   que el dibujo quepa en la arena sin tapar la barra de vida (y = 14). */
+const analizaEvolucion = (reg, W, H, { min, max = 2, poses = true } = {}) => {
+  const d = reg.dibujos, mal = [];
+  const corridas = []; let cur = null;
+  for (const x of d) {
+    if (x.k !== 'atlas') { cur = null; continue; }
+    if (!cur || cur.fila !== x.fila) { cur = { fila: x.fila, cuadros: [], xs: new Set(), golpes: new Set(), fases: new Set(), t0: x.t, t1: x.t }; corridas.push(cur); }
+    cur.cuadros.push(x.cuadro); cur.xs.add(Math.round(x.cx * 10)); cur.golpes.add(x.golpes); cur.fases.add(x.fase); cur.t1 = x.t;
+  }
+  if (corridas.length < min || corridas.length > max) mal.push(`transformaciones: ${corridas.length} (esperaba ${min}-${max})`);
+  corridas.forEach((c, i) => {
+    if (c.fila !== i) mal.push(`la corrida ${i + 1} usa la fila ${c.fila}, no la ${i}`);
+    const orden = c.cuadros.every((q, k) => k === 0 || q >= c.cuadros[k - 1]);
+    if (!orden || c.cuadros[0] !== 0 || c.cuadros.at(-1) !== 11 || new Set(c.cuadros).size !== 12) mal.push(`corrida ${i + 1}: cuadros ${[...new Set(c.cuadros)]}`);
+    if (c.xs.size !== 1) mal.push(`corrida ${i + 1}: el jefe se movió (${[...c.xs]})`);
+    if (c.golpes.size !== 1) mal.push(`corrida ${i + 1}: cambiaron los golpes (${[...c.golpes]})`);
+    if (c.fases.size !== 1 || [...c.fases][0] !== String(i + 1)) mal.push(`corrida ${i + 1}: indicador de fase ${[...c.fases]}`);
+    const ms = c.t1 - c.t0;
+    if (ms < 850 || ms > 3000) mal.push(`corrida ${i + 1}: duró ${Math.round(ms)} ms (referencia 1020)`);
+  });
+  /* tras cada corrida, la primera pose es la nueva y el indicador ya la dice */
+  let ultAtlas = null;
+  d.forEach((x, k) => {
+    if (x.k === 'atlas') { ultAtlas = x; return; }
+    if (ultAtlas) { if (x.pose !== ultAtlas.fila + 2 || x.fase !== String(ultAtlas.fila + 2)) mal.push(`tras la fila ${ultAtlas.fila}: pose ${x.pose} indicador ${x.fase}`); ultAtlas = null; }
+  });
+  if (poses) { const vistas = [...new Set(d.filter(x => x.k === 'pose').map(x => x.pose))].sort().join(''); if (vistas !== '123'.slice(0, corridas.length + 1)) mal.push(`poses vistas: ${vistas}`); }
+  if (reg.emoji) mal.push(`${reg.emoji} dibujos de emoji (debería usar los sprites)`);
+  if (d.some(x => x.suave !== false)) mal.push('algún dibujo con imageSmoothingEnabled activo');
+  /* la celda de 128 px tiene margen transparente: lo que cuenta es lo VISIBLE
+     (medido en el arte: de x=8 a 120 en todos los cuadros; arriba, la fase 1 empieza
+     en y=65, la 2 en 49, la 3 en 30 y el cuadro más alto de las transformaciones en 24) */
+  const arriba = x => x.k === 'atlas' ? 24 : [65, 49, 30][x.pose - 1];
+  const fuera = d.filter(x => { const s = x.dw / 128; return x.dx + 8 * s < 0 || x.dx + 121 * s > W || x.dy + arriba(x) * s < 14 || x.dy + 113 * s > H; });
+  if (fuera.length) mal.push(`${fuera.length} dibujos con lo visible fuera de la arena ${W}×${H} o sobre la barra de vida (p. ej. ${JSON.stringify(fuera[0], (k, v) => typeof v === 'number' ? Math.round(v * 10) / 10 : v)})`);
+  return mal;
+};
+/* intenta el combate hasta 3 veces (el robot esquiva bien pero no perfecto) y devuelve el registro del último */
+const luchaRobot = async (pg, arg, { hasta = () => pantallaId !== 'nivel', bueno = r => r.dibujos.some(x => x.k === 'atlas'), ms = 150000 } = {}) => {
+  for (let intento = 1; intento <= 3; intento++) {
+    if (intento > 1) { await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300); }
+    await pg.evaluate(robotJefe, arg);
+    await pg.waitForFunction(hasta, null, { timeout: ms }).catch(() => {});
+    const reg = await pg.evaluate(() => window.__reg);
+    if (bueno(reg) || intento === 3) return { reg, intento };
+  }
+};
+const hayAtlas = () => window.__reg.dibujos.some(x => x.k === 'atlas');
+const poseVista = n => window.__reg.dibujos.some(x => x.k === 'pose' && x.pose === n);
 for (const [dia, final, etiqueta] of [[9, /CONTRATO DE APRENDIZAJE/, 'día 10 → contrato de aprendizaje'], [14, /TÉCNICO EN PROGRAMACIÓN DE SOFTWARE/, 'día 15 → título de técnico']]) {
   await caso(`jefe · se le gana de punta a punta y la victoria lleva a: ${etiqueta}`, null, async pg => {
     /* Hasta 3 intentos: el robot esquiva bien pero no perfecto, y alguna
@@ -467,6 +545,8 @@ for (const [dia, final, etiqueta] of [[9, /CONTRATO DE APRENDIZAJE/, 'día 10 �
       if (gano.p === 'resultado') break;
     }
     if (gano.p !== 'resultado') return [false, `no ganó en 3 intentos: pantalla "${gano.p}"`];
+    const evol = analizaEvolucion(await pg.evaluate(() => window.__reg), dia === 14 ? 400 : 320, dia === 14 ? 270 : 180, { min: 2, max: 2 });
+    if (evol.length) return [false, 'evolución: ' + evol.join(' · ')];
     await pg.locator('#r-fin').click(); await pausa(300);
     for (let i = 0; i < 5 && await pg.evaluate(() => pantallaId) === 'cut'; i++) { await pg.locator('#cut-zona').click(); await pausa(200); }
     const txt = await pg.evaluate(() => $('#screen').innerText);
@@ -475,6 +555,98 @@ for (const [dia, final, etiqueta] of [[9, /CONTRATO DE APRENDIZAJE/, 'día 10 �
             `intento ${intento}, logro jefe ${gano.logro}, victorias ${gano.jefes}, logro de fin ${logroFin}, pantalla: ${txt.slice(0, 28).replace(/\s+/g, ' ')}`];
   });
 }
+
+
+/* ── v26: las transformaciones del jefe, en las situaciones incómodas ── */
+for (const [etiqueta, dif, agr, min] of [['práctica', 0, 0.75, 2], ['pesadilla', 2, 1.35, 1]]) {
+  await caso(`jefe · evoluciona también en dificultad ${etiqueta} (día 10)`, null, async pg => {
+    const { reg, intento } = await luchaRobot(pg, { d: 9, agr, dif });
+    const mal = analizaEvolucion(reg, 320, 180, { min, max: 2, poses: false });
+    return [mal.length === 0, mal.length ? mal.join(' · ') : `intento ${intento}, ${reg.dibujos.filter(x => x.k === 'atlas').length} cuadros dibujados`];
+  });
+}
+
+await caso('jefe · pausar y continuar a mitad de la transformación (escritorio): se detiene y termina completa', null, async pg => {
+  await pg.setViewportSize({ width: 1280, height: 800 }); await pausa(200);
+  await pg.evaluate(robotJefe, 9);
+  await pg.waitForFunction(hayAtlas, null, { timeout: 150000 });
+  await pausa(250);                                          // ~un cuarto de la transformación
+  await pg.click('#b-pause'); await pausa(150);
+  const base = await pg.evaluate(() => window.__reg.dibujos.length);
+  await pausa(900);
+  const parado = await pg.evaluate(() => window.__reg.dibujos.length);
+  await pg.click('#p-cont');
+  await pg.waitForFunction(poseVista, 2, { timeout: 8000 });
+  const reg = await pg.evaluate(() => window.__reg);
+  /* solo la fila 0: la pelea sigue y puede que ya vaya por la 1 */
+  const fila0 = { ...reg, dibujos: reg.dibujos.slice(0, reg.dibujos.findIndex(x => x.k === 'atlas' && x.fila === 1) < 0 ? undefined : reg.dibujos.findIndex(x => x.k === 'atlas' && x.fila === 1)) };
+  const mal = analizaEvolucion(fila0, 320, 180, { min: 1, max: 1, poses: false });
+  return [base === parado && mal.length === 0, `dibujos en pausa: ${base} → ${parado}` + (mal.length ? ' · ' + mal.join(' · ') : '')];
+});
+
+await caso('jefe · salir en plena transformación y volver a entrar empieza limpio, sin repetirla', null, async pg => {
+  await pg.evaluate(robotJefe, 9);
+  await pg.waitForFunction(hayAtlas, null, { timeout: 150000 });
+  await pausa(200);
+  await pg.evaluate(() => rMapa()); await pausa(300);
+  const salio = await pg.evaluate(() => pantallaId);
+  await pg.evaluate(() => { window.__reg.dibujos.length = 0; diaAct = 9; vidas = 3; nvJefe(9, 0); });
+  await pausa(1800);
+  const r = await pg.evaluate(() => ({ pantalla: pantallaId, fase: $('#j-fase')?.textContent, golpes: $('#j-gol')?.textContent, hp: $('#j-hp')?.textContent,
+    atlas: window.__reg.dibujos.filter(x => x.k === 'atlas').length, poses: [...new Set(window.__reg.dibujos.filter(x => x.k === 'pose').map(x => x.pose))].join('') }));
+  return [salio === 'pasillo' && r.pantalla === 'nivel' && r.fase === '1' && r.golpes === '3' && r.atlas === 0 && r.poses === '1', JSON.stringify({ salio, ...r })];
+});
+
+await caso('jefe · con "reducir movimiento" el cambio de fase es instantáneo (sin transformación animada)', null, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  /* se espera a VER la pose 3 (tras un golpe el jefe parpadea y no se dibuja en todos los fotogramas) */
+  const { reg } = await luchaRobot(pg, 9, { hasta: () => window.__reg.dibujos.some(x => x.pose === 3) || pantallaId !== 'nivel',
+    bueno: r => new Set(r.dibujos.filter(x => x.k === 'pose').map(x => x.pose)).size === 3 });
+  const poses = [...new Set(reg.dibujos.filter(x => x.k === 'pose').map(x => x.pose))].sort().join('');
+  const atlas = reg.dibujos.filter(x => x.k === 'atlas').length;
+  /* el indicador va siempre a la par de la pose que se ve */
+  const desfase = reg.dibujos.filter(x => x.k === 'pose' && x.fase !== String(x.pose)).length;
+  return [poses === '123' && atlas === 0 && reg.emoji === 0 && desfase === 0, `poses ${poses}, cuadros de transformación ${atlas}, emojis ${reg.emoji}, desfase ${desfase}`];
+});
+
+await caso('jefe · si los dibujos no cargan, el combate sigue y evoluciona con el emoji de siempre', null, async pg => {
+  await pg.route('**/img/jefe/**', r => r.abort());
+  const { reg } = await luchaRobot(pg, 9, { hasta: () => $('#j-fase')?.textContent === '2' || pantallaId !== 'nivel', bueno: r => r.emoji > 0 });
+  const fase = await pg.evaluate(() => $('#j-fase')?.textContent || 'fuera');
+  return [reg.emoji > 20 && reg.dibujos.length === 0 && (fase === '2' || fase === 'fuera'), `emojis ${reg.emoji}, dibujos ${reg.dibujos.length}, indicador ${fase}`];
+});
+
+await caso('jefe · sin conexión: el service worker guarda los dibujos y se sirven de su caché', null, async pg => {
+  const { createServer } = await import('node:http');
+  const { readFile } = await import('node:fs/promises');
+  const tipos = { html: 'text/html', js: 'text/javascript', css: 'text/css', webmanifest: 'application/manifest+json', svg: 'image/svg+xml', png: 'image/png', webp: 'image/webp', woff2: 'font/woff2' };
+  const mini = createServer(async (q, r) => {
+    try {
+      let ruta = decodeURIComponent(new URL(q.url, 'http://x').pathname);
+      if (ruta.endsWith('/')) ruta += 'index.html';
+      const cuerpo = await readFile(join(RAIZ, ruta));
+      r.writeHead(200, { 'content-type': tipos[ruta.split('.').pop()] || 'application/octet-stream', 'cache-control': 'no-store' });
+      r.end(cuerpo);
+    } catch (e) { r.writeHead(404); r.end(); }
+  });
+  await new Promise(ok => mini.listen(0, '127.0.0.1', ok));
+  try {
+    await pg.goto(`http://127.0.0.1:${mini.address().port}/index.html`, { waitUntil: 'load' });
+    await pg.waitForFunction(() => typeof pantallaId !== 'undefined');
+    await pg.evaluate(() => registrarSW());
+    await pg.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 8000 });
+    await pausa(1500);
+    const rutas = ['img/jefe/jefe-fase-1.png', 'img/jefe/jefe-fase-2.png', 'img/jefe/jefe-fase-3.png', 'img/jefe/jefe-transformaciones-atlas.png', 'js/jefe-sprites.js'];
+    const guardadas = await pg.evaluate(async rs => Promise.all(rs.map(async u => !!(await caches.match(u)))), rutas);
+    await pg.context().setOffline(true);
+    const sinRed = await pg.evaluate(async () => {
+      const r = await fetch('img/jefe/jefe-transformaciones-atlas.png', { cache: 'reload' });
+      return { ok: r.ok, bytes: (await r.blob()).size };
+    });
+    await pg.context().setOffline(false);
+    return [guardadas.every(Boolean) && sinRed.ok && sinRed.bytes > 100000, `en la caché: ${guardadas}, atlas sin red: ${JSON.stringify(sinRed)}`];
+  } finally { mini.close(); }
+});
 
 await caso('jefe · la arena del día 15 es más grande y la del día 10 no cambia', null, async pg => {
   await prep(pg);
