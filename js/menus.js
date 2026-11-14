@@ -306,7 +306,7 @@ function rMapaLista(){
       <span class="etapa-num">★</span>
       <span class="etapa-ico">👾</span>
       <span class="etapa-body">
-        <span class="etapa-nom">??? · EL BUG FINAL</span>
+        <span class="etapa-nom">??? · ${t('jefe_nombre')}</span>
         <span class="etapa-sub" style="display:block">${t('jefereplay')}</span>
       </span>
       <span class="etapa-badge">⚔</span>

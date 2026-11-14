@@ -13,8 +13,10 @@ El jefe no son tres enemigos: es uno que evoluciona durante el combate.
 | 2 | más de 33 % y hasta 66 % | El Caos | naranja, con cuernos y armadura |
 | 3 | 33 % o menos | El Error Fatal | rojo, con armadura y energía digital |
 
-Nombre del conjunto propuesto: **El Error Evolutivo**. El nombre interno y las
-traducciones (EL BUG FINAL) **no se cambiaron**; falta que el autor apruebe el cambio.
+Nombre: **El Error Evolutivo** (aprobado por el autor el 2026-11-14, v26.1; en inglés, *The
+Evolving Error*). Cambió lo que se ve: el mapa, la historia y el botón de repetir. Los nombres
+internos (`nvJefe`, el logro `jefe`, las claves de texto) siguen igual. Las tres fases conservan
+sus nombres: El Bug, El Caos y El Error Fatal.
 
 ## Qué se hizo en la v26
 

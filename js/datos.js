@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v26';
+const VERSION='v26.1';
 const NOVEDADES=[
+  {v:'v26.1', fecha:'2026-11-14',
+   es:['El jefe final ya tiene nombre: EL ERROR EVOLUTIVO. Sale así en el mapa, en la historia y en el botón para repetir la pelea.'],
+   en:['The final boss now has a name: THE EVOLVING ERROR. It shows up like that on the map, in the story and on the button to replay the fight.']},
   {v:'v26', fecha:'2026-11-14',
    es:['El jefe final ahora es un solo enemigo que evoluciona: empieza como un Bug morado, se transforma en un demonio naranja con cuernos a mitad de la pelea y termina como un Error Fatal rojo, con armadura y energía digital.',
        'Cada cambio de fase tiene su transformación animada. Mientras dura (un segundo), el combate se detiene para que nadie reciba un golpe sin poder esquivarlo. Con "reducir movimiento" el cambio es instantáneo.'],
@@ -697,11 +700,11 @@ const FINAL={
 const JEFE_INTRO={
  es:[
   {ico:'⚠️',t:'Un momento... el servidor legado tiembla. Algo ENORME salió del código sin documentar.'},
-  {ico:'👾',t:'¡EL BUG FINAL ha despertado! Nadie sale a la productiva sin vencerlo. ¡Toma el teclado, aprendiz!'},
+  {ico:'👾',t:'¡EL ERROR EVOLUTIVO ha despertado! Nadie sale a la productiva sin vencerlo. ¡Toma el teclado, aprendiz!'},
  ],
  en:[
   {ico:'⚠️',t:'Wait... the legacy server is shaking. Something HUGE crawled out of the undocumented code.'},
-  {ico:'👾',t:'THE FINAL BUG has awakened! Nobody moves on without defeating it. Grab the keyboard, apprentice!'},
+  {ico:'👾',t:'THE EVOLVING ERROR has awakened! Nobody moves on without defeating it. Grab the keyboard, apprentice!'},
  ]
 };
 const T2_INTRO={
@@ -717,11 +720,11 @@ const T2_INTRO={
 const JEFE2_INTRO={
  es:[
   {ico:'🌙',t:'3:00 AM. El deploy terminó... pero algo se mueve en los logs del servidor.'},
-  {ico:'👾',t:'¡EL BUG FINAL volvió con sed de venganza! Termina lo que empezaste, junior.'},
+  {ico:'👾',t:'¡EL ERROR EVOLUTIVO volvió con sed de venganza! Termina lo que empezaste, junior.'},
  ],
  en:[
   {ico:'🌙',t:'3:00 AM. The deploy is done... but something is moving in the server logs.'},
-  {ico:'👾',t:'THE FINAL BUG is back for revenge! Finish what you started, junior.'},
+  {ico:'👾',t:'THE EVOLVING ERROR is back for revenge! Finish what you started, junior.'},
  ]
 };
 const FINAL2={
@@ -940,7 +943,7 @@ const TXT={
   pas_z1:'Formación · Aulas',pas_z2:'Formación · Laboratorios',pas_z3:'Empresa · Oficinas',
   pas_sec:'Secciones del pasillo',pas_elige:'Elige una puerta para conocer el nivel.',
   pas_ant:'Anterior',pas_sig:'Siguiente',pas_lista:'Ver como lista',pas_volver:'← Volver al pasillo',
-  pas_jefe:'Repetir Bug final',pas_menu:'Menú principal',
+  pas_jefe:'Repetir El Error Evolutivo',jefe_nombre:'EL ERROR EVOLUTIVO',pas_menu:'Menú principal',
   pas_ok:'Completado',pas_libre:'Disponible',pas_lock:'Bloqueado',
   pas_entrar:'ENTRAR AL NIVEL',pas_repetir:'REPETIR NIVEL',pas_cerrada:'PUERTA BLOQUEADA',
   sqlmsg:'Toca las piezas en ORDEN para armar la consulta',objetivo:'OBJETIVO',
@@ -1074,7 +1077,7 @@ const TXT={
   pas_z1:'Training · Classrooms',pas_z2:'Training · Labs',pas_z3:'Company · Offices',
   pas_sec:'Hallway sections',pas_elige:'Choose a door to learn about the level.',
   pas_ant:'Previous',pas_sig:'Next',pas_lista:'View as list',pas_volver:'← Back to hallway',
-  pas_jefe:'Replay final bug',pas_menu:'Main menu',
+  pas_jefe:'Replay The Evolving Error',jefe_nombre:'THE EVOLVING ERROR',pas_menu:'Main menu',
   pas_ok:'Completed',pas_libre:'Available',pas_lock:'Locked',
   pas_entrar:'ENTER LEVEL',pas_repetir:'REPLAY LEVEL',pas_cerrada:'LOCKED DOOR',
   sqlmsg:'Tap the pieces IN ORDER to build the query',objetivo:'GOAL',

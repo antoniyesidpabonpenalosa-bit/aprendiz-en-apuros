@@ -66,7 +66,7 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
 - **15 días en las 2 etapas reales de la formación**: 📚 **Etapa Lectiva**
   (días 1-10), en el centro de formación, donde se APRENDE — mecanografía,
   caza-bugs, memoria, simon de Git, sustentación, code review, proyecto
-  formativo, conflictos de merge, despliegue, la evaluación final y EL BUG FINAL
+  formativo, conflictos de merge, despliegue, la evaluación final y EL ERROR EVOLUTIVO
   oculto — y 💼 **Etapa Productiva** (días 11-15), ya en la empresa, donde se
   TRABAJA: **consultas SQL**, **regex**, bugs con bombas, Git avanzado (rebase y
   stash) y un **deploy nocturno** con la revancha del jefe
@@ -146,7 +146,7 @@ aprendiz-en-apuros/
     ├── minijuegos-runner.js    → 8: el runner
     ├── minijuegos-avanzados.js → 9-12: SQL, ordena, regex y terminal
     ├── jefe-sprites.js   → los dibujos del jefe evolutivo y las cuentas de sus transformaciones (se carga antes que jefe.js)
-    ├── jefe.js           → la batalla final contra EL BUG FINAL
+    ├── jefe.js           → la batalla final contra EL ERROR EVOLUTIVO
     ├── sprite.js         → sprite del aprendiz: carga, recoloreo por jugador y dibujo
     ├── sala.js           → salas de clase: datos, red y lógica (sin pantallas)
     ├── salaui.js         → salas de clase: crear, proyector, espera y podio
