@@ -154,7 +154,7 @@ function rTitulo(){
     <div class="dif-panel">
       <span class="dif-cap">${t('dificultad')}</span>
       <div class="dif-sel">
-        ${DIFS.map(d=>`<button class="dif-op ${S.dif===d.id?'sel':''}" data-dif="${d.id}" type="button">
+        ${DIFS.map(d=>`<button class="dif-op ${S.dif===d.id?'sel':''}" data-dif="${d.id}" type="button" aria-pressed="${S.dif===d.id}">
           <span class="dif-ico">${pxi(d.ico)}</span>${tj(d)}
           <span class="dif-puntos">${[0,1,2].map(n=>`<i class="${n<=d.id?'on':''}"></i>`).join('')}</span>
         </button>`).join('')}
@@ -205,7 +205,12 @@ function rTitulo(){
   /* retrato del avatar dentro de la tarjeta */
   const av=$('#t-av'); if(av)retratoVivo(av,CARAS.yo(true));
 
-  $$('.dif-op').forEach(b=>b.onclick=()=>{S.dif=+b.dataset.dif;guardar();SFX.click();rTitulo()});
+  $$('.dif-op').forEach(b=>b.onclick=()=>{
+    const teclado=b.matches(':focus-visible');
+    S.dif=+b.dataset.dif;guardar();SFX.click();rTitulo();
+    /* el menú se repinta entero: con teclado, el foco vuelve a la dificultad elegida */
+    if(teclado)$(`.portada .dif-op[data-dif="${S.dif}"]`)?.focus({preventScroll:true});
+  });
   $('#t-stats').onclick=()=>{SFX.click();rStats()};
   $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};
   $('#t-texto').onclick=()=>{S.legible=!S.legible;guardar();aplicarModo();SFX.click();rTitulo()};

@@ -1735,6 +1735,102 @@ html.hd button.rp-fila,html.hd .repaso-entrada{border-radius:10px}
 html.apaisado .tit-aprendiz{width:clamp(56px,10vh,100px)}
 @media(prefers-reduced-motion:reduce){.tit-aprendiz{filter:none}}
 
+/* ── PORTADA · botones arcade (paso 4) ──
+   Aislado en .portada: no afecta menús, minijuegos ni tarjeta Mi Avatar.
+   Usa los iconos PXI originales, sin imágenes nuevas ni dependencias. */
+.portada .menu-fila{
+  --tile-edge:#6572aa;--tile-top:#343e70;--tile-bottom:#202746;
+  min-width:0;min-height:76px;padding:7px 5px 8px;gap:5px;
+  justify-content:center;position:relative;
+  color:var(--tx4);border:2px solid var(--tile-edge);
+  background:linear-gradient(180deg,var(--tile-top) 0%,#2a325a 46%,var(--tile-bottom) 100%);
+  box-shadow:inset 0 2px 0 #8996c344,inset 0 -3px 0 #12182f,
+    0 0 0 1px var(--bd),0 4px 0 var(--bd);
+  text-shadow:1px 2px 0 #10152b;
+}
+.portada .tit-modos .menu-fila{
+  --tile-edge:#8262bc;--tile-top:#3e306a;--tile-bottom:#231e43;
+}
+.portada .menu-fila .m-ico{
+  display:grid;place-items:center;width:40px;height:38px;
+  line-height:1;background:#10162c99;border:1px solid #7583ae55;
+  box-shadow:inset 0 -2px 0 #070a1a66;
+}
+.portada .menu-fila .m-ico .pxi{width:36px;height:36px;image-rendering:pixelated}
+.portada .menu-fila .m-txt{line-height:1.35;color:inherit}
+.portada .dif-panel{
+  border-color:#555f92;background:#11162ce8;
+  box-shadow:inset 0 0 0 1px #111529,0 3px 0 #07080f99;
+}
+.portada .dif-panel .dif-cap{color:var(--g4);background:#151a32}
+.portada .dif-sel{gap:6px}
+.portada .dif-op{
+  position:relative;flex:1 1 0;min-width:0;max-width:130px;min-height:66px;
+  padding:7px 3px;justify-content:center;letter-spacing:0;
+  color:var(--tx3);border-color:#4b5788;
+  background:linear-gradient(180deg,#252e51,#151a32);
+  box-shadow:inset 0 2px 0 #7180aa33,0 3px 0 #07080f;
+  overflow-wrap:anywhere;
+}
+.portada .dif-op .dif-ico{line-height:1.1}
+.portada .dif-op .dif-ico .pxi{width:24px;height:24px;image-rendering:pixelated}
+.portada .dif-op .dif-puntos{margin-top:3px}
+.portada .dif-op.sel{
+  color:var(--y3);border-color:var(--y2);
+  background:linear-gradient(180deg,#4a3d32,#28273a);
+  box-shadow:inset 0 0 0 1px var(--y1),inset 0 -3px 0 #8b6400,0 3px 0 #07080f;
+}
+.portada .btn-jugar{
+  border:2px solid #a1ef6a;color:#fff;
+  background:linear-gradient(180deg,#56bd19 0%,#329807 48%,#237509 100%);
+  box-shadow:inset 0 3px 0 #9de85e,inset 0 -4px 0 #174d06,0 0 0 2px #172c13,0 5px 0 var(--bd);
+  text-shadow:2px 2px 0 #184307;
+}
+.portada .tit-reto{
+  background:linear-gradient(180deg,#9c59f1 0%,#7531cc 51%,#5a1bb0 100%);
+  text-shadow:1px 2px 0 var(--v0);
+}
+.portada .tit-reto::after{border-color:#d9c2ff66}
+/* El contorno queda dentro del polígono del reto, que recorta el outline. */
+.portada .tit-reto:focus-visible{outline:none;box-shadow:inset 0 0 0 4px var(--y2)}
+.portada .tit-reto:focus-visible::after{border-color:var(--y2)}
+.portada .tit-menudo .cut-skip{opacity:1;color:var(--tx3);min-height:36px;text-decoration-color:#7886b5}
+.portada .tit-menudo #t-lab{color:#9ed18e}
+.portada .tit-menudo #t-borrar{color:var(--tx2)}
+@media(hover:hover){
+  .portada .menu-fila:hover{border-color:var(--v4);background:linear-gradient(180deg,#414b7c,#282e54)}
+  .portada .dif-op:not(.sel):hover{border-color:var(--v3);background:#2c345c}
+  .portada .btn-jugar:hover{border-color:#e0ffc1;background:linear-gradient(180deg,#69ce25,#278509)}
+  .portada .tit-reto:hover{background:linear-gradient(180deg,#ac72ff,#6826c2)}
+  .portada .tit-menudo #t-lab:hover{color:var(--g4)}
+  .portada .tit-menudo #t-borrar:hover{color:var(--r4)}
+}
+.portada .menu-fila:focus-visible,.portada .dif-op:focus-visible,.portada .btn-jugar:focus-visible{
+  outline:3px solid var(--y2);outline-offset:2px;
+}
+.portada .menu-fila:active,.portada .dif-op:active,.portada .btn-jugar:active{
+  transform:translateY(2px);box-shadow:inset 0 2px 0 #07080f55,0 1px 0 var(--bd);
+}
+/* HD conserva sus esquinas suaves; texto legible conserva sus tamaños y fuente. */
+html.hd .portada .menu-fila,html.hd .portada .dif-op{border-radius:12px}
+html.hd .portada .menu-fila .m-ico{border-radius:6px}
+html.hd .portada .btn-jugar{border-radius:14px}
+html.legible .portada .menu-fila .m-txt{font-size:17px}
+html.legible .portada .dif-op{font-size:15px}
+@media(max-width:560px){
+  .portada .menu-fila{min-height:68px}
+  .portada .menu-fila .m-ico{width:32px;height:30px}
+  .portada .menu-fila .m-ico .pxi{width:24px;height:24px}
+}
+@media(max-width:380px){
+  .portada .dif-panel{padding-inline:6px}
+  .portada .dif-op{font-size:7px}
+  html.legible .portada .dif-op{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  .portada .menu-fila:active,.portada .dif-op:active,.portada .btn-jugar:active,.portada .tit-reto:active{transform:none}
+}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}
@@ -2545,6 +2641,102 @@ button.rp-fila:active{transform:translateY(3px);box-shadow:none}
 @media(max-width:360px){.tit-aprendiz{width:48px}.tit-jugar-fila{gap:2px}.tit-jugar-fila .btn-jugar{padding-inline:12px}}
 html.apaisado .tit-aprendiz{width:clamp(56px,10vh,100px)}
 @media(prefers-reduced-motion:reduce){.tit-aprendiz{filter:none}}
+
+/* ── PORTADA · botones arcade (paso 4) ──
+   Aislado en .portada: no afecta menús, minijuegos ni tarjeta Mi Avatar.
+   Usa los iconos PXI originales, sin imágenes nuevas ni dependencias. */
+.portada .menu-fila{
+  --tile-edge:#6572aa;--tile-top:#343e70;--tile-bottom:#202746;
+  min-width:0;min-height:76px;padding:7px 5px 8px;gap:5px;
+  justify-content:center;position:relative;
+  color:var(--tx4);border:2px solid var(--tile-edge);
+  background:linear-gradient(180deg,var(--tile-top) 0%,#2a325a 46%,var(--tile-bottom) 100%);
+  box-shadow:inset 0 2px 0 #8996c344,inset 0 -3px 0 #12182f,
+    0 0 0 1px var(--bd),0 4px 0 var(--bd);
+  text-shadow:1px 2px 0 #10152b;
+}
+.portada .tit-modos .menu-fila{
+  --tile-edge:#8262bc;--tile-top:#3e306a;--tile-bottom:#231e43;
+}
+.portada .menu-fila .m-ico{
+  display:grid;place-items:center;width:40px;height:38px;
+  line-height:1;background:#10162c99;border:1px solid #7583ae55;
+  box-shadow:inset 0 -2px 0 #070a1a66;
+}
+.portada .menu-fila .m-ico .pxi{width:36px;height:36px;image-rendering:pixelated}
+.portada .menu-fila .m-txt{line-height:1.35;color:inherit}
+.portada .dif-panel{
+  border-color:#555f92;background:#11162ce8;
+  box-shadow:inset 0 0 0 1px #111529,0 3px 0 #07080f99;
+}
+.portada .dif-panel .dif-cap{color:var(--g4);background:#151a32}
+.portada .dif-sel{gap:6px}
+.portada .dif-op{
+  position:relative;flex:1 1 0;min-width:0;max-width:130px;min-height:66px;
+  padding:7px 3px;justify-content:center;letter-spacing:0;
+  color:var(--tx3);border-color:#4b5788;
+  background:linear-gradient(180deg,#252e51,#151a32);
+  box-shadow:inset 0 2px 0 #7180aa33,0 3px 0 #07080f;
+  overflow-wrap:anywhere;
+}
+.portada .dif-op .dif-ico{line-height:1.1}
+.portada .dif-op .dif-ico .pxi{width:24px;height:24px;image-rendering:pixelated}
+.portada .dif-op .dif-puntos{margin-top:3px}
+.portada .dif-op.sel{
+  color:var(--y3);border-color:var(--y2);
+  background:linear-gradient(180deg,#4a3d32,#28273a);
+  box-shadow:inset 0 0 0 1px var(--y1),inset 0 -3px 0 #8b6400,0 3px 0 #07080f;
+}
+.portada .btn-jugar{
+  border:2px solid #a1ef6a;color:#fff;
+  background:linear-gradient(180deg,#56bd19 0%,#329807 48%,#237509 100%);
+  box-shadow:inset 0 3px 0 #9de85e,inset 0 -4px 0 #174d06,0 0 0 2px #172c13,0 5px 0 var(--bd);
+  text-shadow:2px 2px 0 #184307;
+}
+.portada .tit-reto{
+  background:linear-gradient(180deg,#9c59f1 0%,#7531cc 51%,#5a1bb0 100%);
+  text-shadow:1px 2px 0 var(--v0);
+}
+.portada .tit-reto::after{border-color:#d9c2ff66}
+/* El contorno queda dentro del polígono del reto, que recorta el outline. */
+.portada .tit-reto:focus-visible{outline:none;box-shadow:inset 0 0 0 4px var(--y2)}
+.portada .tit-reto:focus-visible::after{border-color:var(--y2)}
+.portada .tit-menudo .cut-skip{opacity:1;color:var(--tx3);min-height:36px;text-decoration-color:#7886b5}
+.portada .tit-menudo #t-lab{color:#9ed18e}
+.portada .tit-menudo #t-borrar{color:var(--tx2)}
+@media(hover:hover){
+  .portada .menu-fila:hover{border-color:var(--v4);background:linear-gradient(180deg,#414b7c,#282e54)}
+  .portada .dif-op:not(.sel):hover{border-color:var(--v3);background:#2c345c}
+  .portada .btn-jugar:hover{border-color:#e0ffc1;background:linear-gradient(180deg,#69ce25,#278509)}
+  .portada .tit-reto:hover{background:linear-gradient(180deg,#ac72ff,#6826c2)}
+  .portada .tit-menudo #t-lab:hover{color:var(--g4)}
+  .portada .tit-menudo #t-borrar:hover{color:var(--r4)}
+}
+.portada .menu-fila:focus-visible,.portada .dif-op:focus-visible,.portada .btn-jugar:focus-visible{
+  outline:3px solid var(--y2);outline-offset:2px;
+}
+.portada .menu-fila:active,.portada .dif-op:active,.portada .btn-jugar:active{
+  transform:translateY(2px);box-shadow:inset 0 2px 0 #07080f55,0 1px 0 var(--bd);
+}
+/* HD conserva sus esquinas suaves; texto legible conserva sus tamaños y fuente. */
+.oled-scope .portada .menu-fila,.oled-scope .portada .dif-op{border-radius:12px}
+.oled-scope .portada .menu-fila .m-ico{border-radius:6px}
+.oled-scope .portada .btn-jugar{border-radius:14px}
+html.legible .portada .menu-fila .m-txt{font-size:17px}
+html.legible .portada .dif-op{font-size:15px}
+@media(max-width:560px){
+  .portada .menu-fila{min-height:68px}
+  .portada .menu-fila .m-ico{width:32px;height:30px}
+  .portada .menu-fila .m-ico .pxi{width:24px;height:24px}
+}
+@media(max-width:380px){
+  .portada .dif-panel{padding-inline:6px}
+  .portada .dif-op{font-size:7px}
+  html.legible .portada .dif-op{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  .portada .menu-fila:active,.portada .dif-op:active,.portada .btn-jugar:active,.portada .tit-reto:active{transform:none}
+}
 
 </style>
 </head>

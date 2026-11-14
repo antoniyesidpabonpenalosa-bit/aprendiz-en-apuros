@@ -82,6 +82,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v27** | — | 2026-11-14 | Fondo nuevo del menú principal: ciudad nocturna animada en pixel art (`js/fondo.js`, `img/fondo/`); solo en la portada, las montañas siguen en el resto y de respaldo |
 | **v28** | — | 2026-11-14 | Título nuevo de la portada: dibujo en pixel art (`img/titulo/`) con el `<h1>` de texto como respaldo accesible; el modo HD conserva su título de texto |
 | **v29** | — | 2026-11-14 | El aprendiz de cuerpo entero junto a JUGAR en la portada: respira, parpadea, saluda y reacciona al puntero, al foco y al toque, con la piel y la camisa del jugador |
+| **v30** | — | 2026-11-14 | Botones e iconos de la portada con relieve (paso 4 del rediseño): tarjetas, modos en violeta, dificultad en dorado, JUGAR verde y reto morado; CSS acotado a `.portada` |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

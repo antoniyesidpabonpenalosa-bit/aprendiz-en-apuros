@@ -1566,6 +1566,130 @@ await caso('aprendiz de la portada · las demás pantallas no cambian: ninguna l
   return [Object.values(r).every(v => v === 0), JSON.stringify(r)];
 });
 
+/* ── LOS BOTONES DE LA PORTADA (v30) ──
+   Lo que no puede romperse: que las nueve tarjetas, JUGAR, el reto diario, las tres
+   dificultades, la consola y borrar sigan haciendo lo de siempre; que los iconos sigan siendo
+   los de pixel art; que todo quepa en móvil, escritorio, HD y texto legible; que el teclado no
+   pierda el foco al elegir dificultad; y que nada de esto salga de la portada. */
+const BOTONES_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v30', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+
+await caso('botones de la portada · las 9 tarjetas llevan su icono de pixel art (no emoji) a 36 px, y 24 px en móvil', BOTONES_J, async pg => {
+  const mide = async (w, h) => { await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(400);
+    return pg.evaluate(() => { const f = [...document.querySelectorAll('.portada .menu-fila')]; const ico = f.map(b => b.querySelector('.m-ico img.pxi')?.getBoundingClientRect().width || 0);
+      const d = [...document.querySelectorAll('.portada .dif-op .dif-ico img.pxi')].length;
+      return { filas: f.length, conPxi: ico.filter(x => x > 0).length, min: Math.min(...ico), dif: d }; }); };
+  const m = await mide(390, 760), g = await mide(1280, 800);
+  return [m.filas === 9 && m.conPxi === 9 && m.dif === 3 && m.min >= 23 && m.min <= 26 && g.conPxi === 9 && g.min >= 35, `móvil ${JSON.stringify(m)} · escritorio ${JSON.stringify(g)}`];
+});
+
+await caso('botones de la portada · cada acceso sigue llevando a su pantalla', BOTONES_J, async pg => {
+  const fuera = [];
+  for (const [id, pant] of [['t-libre', 'libre'], ['t-sinfin', 'sinfin'], ['t-sala', 'sala'], ['t-tienda', 'tienda'], ['t-logros', 'logros'], ['t-records', 'records'], ['t-stats', 'stats'], ['t-perso', 'perso'], ['t-reto', 'reto'], ['t-borrar', 'borrar'], ['t-jugar', 'mapa']]) {
+    await pg.evaluate(() => rTitulo()); await pausa(150);
+    await pg.evaluate(i => document.getElementById(i).click(), id); await pausa(250);
+    const ahora = await pg.evaluate(() => pantallaId);
+    if (ahora === 'titulo') fuera.push(id + '→se quedó');
+    else if (pant && !ahora.includes(pant) && !(id === 't-jugar')) fuera.push(`${id}→${ahora}`);
+  }
+  return [fuera.length === 0, fuera.length ? fuera.join(' · ') : '11 botones: todos cambian de pantalla'];
+});
+
+await caso('botones de la portada · HD y texto legible siguen funcionando (alternan y se repintan)', BOTONES_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  await pg.evaluate(() => document.getElementById('t-modo').click()); await pausa(200);
+  const hd = await pg.evaluate(() => ({ hd: S.hd, clase: document.documentElement.classList.contains('hd'), pant: pantallaId }));
+  await pg.evaluate(() => document.getElementById('t-texto').click()); await pausa(200);
+  const lg = await pg.evaluate(() => ({ legible: S.legible, clase: document.documentElement.classList.contains('legible'), pant: pantallaId }));
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  return [hd.hd && hd.clase && hd.pant === 'titulo' && lg.legible && lg.clase && lg.pant === 'titulo', JSON.stringify({ hd, lg })];
+});
+
+await caso('botones de la portada · la dificultad se elige y se guarda, con aria-pressed y en dorado', BOTONES_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const r = [];
+  for (const id of [0, 2, 1]) {
+    await pg.evaluate(i => document.querySelector(`.dif-op[data-dif="${i}"]`).click(), id); await pausa(150);
+    r.push(await pg.evaluate(i => { const bs = [...document.querySelectorAll('.dif-op')]; const sel = bs[i], otra = bs[(i + 1) % 3];
+      return { esperado: i, dif: S.dif, disco: JSON.parse(localStorage.getItem('pa3')).dif, pres: bs.map(b => b.getAttribute('aria-pressed')).join(','), nSel: document.querySelectorAll('.dif-op.sel').length, dorado: getComputedStyle(sel).borderTopColor !== getComputedStyle(otra).borderTopColor }; }, id));
+  }
+  const bien = r.every(x => x.dif === x.esperado && x.disco === x.dif && x.nSel === 1 && x.pres.split(',')[x.dif] === 'true' && x.pres.split(',').filter(v => v === 'true').length === 1 && x.dorado);
+  return [bien, JSON.stringify(r)];
+});
+
+await caso('botones de la portada · con teclado, al elegir dificultad el foco se queda en la elegida (no se pierde al repintar)', BOTONES_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  await pg.focus('.dif-op[data-dif="0"]'); await pg.keyboard.press('Enter'); await pausa(250);
+  const a = await pg.evaluate(() => ({ dif: S.dif, activo: document.activeElement?.dataset?.dif ?? document.activeElement?.id ?? document.activeElement?.tagName }));
+  await pg.focus('.dif-op[data-dif="2"]'); await pg.keyboard.press('Space'); await pausa(250);
+  const b = await pg.evaluate(() => ({ dif: S.dif, activo: document.activeElement?.dataset?.dif ?? document.activeElement?.tagName }));
+  return [a.dif === 0 && a.activo === '0' && b.dif === 2 && b.activo === '2', JSON.stringify({ a, b })];
+});
+
+await caso('botones de la portada · se reparte bien en 7 tamaños, también con HD y con texto legible: sin desbordar ni cortar textos', BOTONES_J, async pg => {
+  const mal = [];
+  for (const modo of [{}, { hd: true }, { legible: true }, { hd: true, legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); }, modo);
+    for (const [w, h] of [[320, 568], [360, 640], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+      await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(350);
+      const r = await pg.evaluate(() => { const sc = document.querySelector('#screen');
+        const corta = [...document.querySelectorAll('.portada .menu-fila .m-txt,.portada .dif-op,.portada .tit-reto,.portada .btn-jugar,.portada .cut-skip')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.id || e.className);
+        const f = [...document.querySelectorAll('.portada .menu-fila')].map(b => b.getBoundingClientRect());
+        const pisa = f.some((p, i) => f.some((q, j) => i < j && !(p.right <= q.left + 1 || p.left >= q.right - 1 || p.bottom <= q.top + 1 || p.top >= q.bottom - 1)));
+        return { sinScrollX: sc.scrollWidth <= sc.clientWidth && document.documentElement.scrollWidth <= innerWidth, corta, pisa, minAlto: Math.round(Math.min(...f.map(p => p.height))), minAncho: Math.round(Math.min(...f.map(p => p.width))) }; });
+      if (!(r.sinScrollX && r.corta.length === 0 && !r.pisa && r.minAlto >= 60 && r.minAncho >= 100)) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
+    }
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.slice(0, 4).join(' · ') : '4 modos × 7 tamaños: sin desbordar, cortar ni solaparse'];
+});
+
+await caso('botones de la portada · al pulsar se hunde 2 px, y con "reducir movimiento" no se mueve', BOTONES_J, async pg => {
+  const sube = async () => { await pg.evaluate(() => rTitulo()); await pausa(300);
+    await pg.evaluate(() => document.querySelector('#t-tienda').scrollIntoView({ block: 'center' })); const c = await pg.evaluate(() => { const r = document.querySelector('#t-tienda').getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
+    await pg.mouse.move(c[0], c[1]); await pg.mouse.down(); await pausa(150);
+    const t = await pg.evaluate(() => getComputedStyle(document.querySelector('#t-tienda')).transform); await pg.mouse.move(2, 2); await pg.mouse.up(); await pausa(100); return t; };
+  const normal = await sube();
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  const reducido = await sube();
+  await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  return [/matrix\(1, 0, 0, 1, 0, 2\)|translateY\(2px\)/.test(normal) && (reducido === 'none' || /matrix\(1, 0, 0, 1, 0, 0\)/.test(reducido)), `normal: ${normal} · reducido: ${reducido}`];
+});
+
+await caso('botones de la portada · el foco del teclado se ve (contorno dorado) en tarjetas, dificultad, JUGAR y reto diario', BOTONES_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(300);
+  const r = {};
+  for (const sel of ['#t-tienda', '.dif-op[data-dif="1"]', '#t-jugar', '#t-reto']) {
+    await pg.evaluate(() => document.body.focus()); await pg.keyboard.press('Tab'); await pg.focus(sel); await pg.keyboard.press('Shift+Tab'); await pg.keyboard.press('Tab'); await pausa(60);
+    r[sel] = await pg.evaluate(s => { const e = document.querySelector(s), c = getComputedStyle(e); return { foco: document.activeElement === e, contorno: c.outlineStyle !== 'none' && parseFloat(c.outlineWidth) >= 3 || /inset/.test(c.boxShadow) && /4px/.test(c.boxShadow) }; }, sel);
+  }
+  return [Object.values(r).every(v => v.foco && v.contorno), JSON.stringify(r)];
+});
+
+await caso('botones de la portada · ES y EN: los textos de las tarjetas salen y caben en los dos idiomas', BOTONES_J, async pg => {
+  const mal = [];
+  for (const lang of ['es', 'en']) {
+    await pg.evaluate(l => { S.lang = l; guardar(); }, lang);
+    for (const [w, h] of [[320, 568], [390, 760], [1280, 800]]) {
+      await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(300);
+      const r = await pg.evaluate(() => ({ txt: [...document.querySelectorAll('.portada .menu-fila .m-txt')].map(e => e.textContent.trim()), corta: [...document.querySelectorAll('.portada .menu-fila .m-txt,.portada .dif-op')].filter(e => e.scrollWidth > e.clientWidth + 1).length, sc: document.querySelector('#screen').scrollWidth <= document.querySelector('#screen').clientWidth }));
+      if (r.txt.length !== 9 || r.txt.some(x => !x) || r.corta || !r.sc) mal.push(`${lang} ${w}: ${JSON.stringify(r)}`);
+    }
+  }
+  await pg.evaluate(() => { S.lang = 'es'; guardar(); });
+  return [mal.length === 0, mal.length ? mal.join(' · ') : 'ES y EN × 3 tamaños: 9 textos, sin cortar'];
+});
+
+await caso('botones de la portada · fondo, título y aprendiz siguen ahí y las demás pantallas no cambian', BOTONES_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(500);
+  const p = await pg.evaluate(() => ({ fondo: document.getElementById('app').classList.contains('fondo-ciudad') || !!document.querySelector('#fondo .ciudad'), titulo: !!document.querySelector('.tit-logo .tit-img, .tit-logo h1'), aprendiz: !!document.querySelector('#t-aprendiz'), portada: !!document.querySelector('.centro.portada') }));
+  const otras = await pg.evaluate(() => { const o = {};
+    for (const [n, f] of [['libre', () => rLibre()], ['sala', () => rSala()], ['tienda', () => rTienda()], ['logros', () => rLogros()], ['perso', () => rPerso()], ['borrar', () => rBorrar()]]) { f();
+      const m = document.querySelector('#screen .menu-fila'); o[n] = { portada: !!document.querySelector('.portada'), sombra: m ? getComputedStyle(m).boxShadow.includes('rgb(18, 24, 47)') : false, minAlto: m ? getComputedStyle(m).minHeight : '' }; }
+    return o; });
+  const sinCambios = Object.values(otras).every(v => !v.portada && !v.sombra && v.minAlto !== '76px');
+  return [p.fondo && p.titulo && p.aprendiz && p.portada && sinCambios, JSON.stringify({ p, otras })];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

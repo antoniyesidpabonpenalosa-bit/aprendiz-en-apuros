@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v29';
+const VERSION='v30';
 const NOVEDADES=[
+  {v:'v30', fecha:'2026-11-14',
+   es:['Los botones de la pantalla principal estrenan diseño: tarjetas con relieve y bisel, los modos en violeta, los demás accesos en azul, iconos de pixel art en su placa, la dificultad elegida en dorado, JUGAR en verde y el reto diario en morado.'],
+   en:['The main screen buttons have a new design: cards with depth and bevel, the modes in violet, the other shortcuts in blue, pixel art icons on their plate, the chosen difficulty in gold, PLAY in green and the daily challenge in purple.']},
   {v:'v29', fecha:'2026-11-14',
    es:['En la pantalla principal, el aprendiz te espera junto al botón JUGAR: respira, parpadea, te saluda de vez en cuando y reacciona cuando te acercas o lo tocas. Lleva la piel y la camisa que elegiste.'],
    en:['On the main screen, the apprentice waits next to the PLAY button: it breathes, blinks, waves at you every now and then and reacts when you get close or tap it. It wears the skin and shirt you picked.']},
