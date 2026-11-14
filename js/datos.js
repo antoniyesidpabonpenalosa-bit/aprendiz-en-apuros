@@ -20,8 +20,13 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v26.1';
+const VERSION='v27';
 const NOVEDADES=[
+  {v:'v27', fecha:'2026-11-14',
+   es:['La pantalla principal tiene fondo nuevo: una ciudad nocturna en pixel art, con ventanas verdes y violetas que se encienden y apagan, estrellas que titilan y nubes que se mueven despacio.',
+       'Solo está en el menú principal. Las demás pantallas conservan las montañas de siempre, y con "reducir movimiento" la ciudad se queda quieta.'],
+   en:['The main screen has a new background: a pixel art city at night, with green and purple windows that light up and go dark, twinkling stars and slowly drifting clouds.',
+       'It is only on the main menu. Every other screen keeps the mountains, and with "reduce motion" the city stays still.']},
   {v:'v26.1', fecha:'2026-11-14',
    es:['El jefe final ya tiene nombre: EL ERROR EVOLUTIVO. Sale así en el mapa, en la historia y en el botón para repetir la pelea.'],
    en:['The final boss now has a name: THE EVOLVING ERROR. It shows up like that on the map, in the story and on the button to replay the fight.']},

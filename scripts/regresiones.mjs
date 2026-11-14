@@ -1167,6 +1167,167 @@ await caso('personajes · en un celular de 320 px caben, no tapan el texto y el 
   return [r.fuera === 0 && r.mismoTamano && r.retratoAlLado && r.sinPisar && r.ancho, JSON.stringify(r)];
 });
 
+/* ── EL FONDO DE LA PORTADA (v27) ──
+   Una ciudad nocturna animada, solo en el menú principal; las montañas de siempre en
+   el resto y si la imagen falla. Lo que no puede romperse: que no corran dos fondos a
+   la vez, que cubra sin deformarse, que respete "reducir movimiento" y la pestaña
+   oculta, que el texto siga leyéndose y que funcione sin conexión. */
+const FONDO = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v27', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+/* cuántas animaciones de CSS hay en marcha en las capas del fondo */
+const animFondo = () => ({
+  ciudad: document.getAnimations().filter(a => a.effect?.target?.classList?.contains('ciudad') && a.playState === 'running').length,
+  montanas: document.getAnimations().filter(a => a.effect?.target?.classList?.contains('mte') && a.playState === 'running').length,
+});
+/* las funciones de node no existen en la página: se instala animFondo como global de la página */
+const instalaAnim = pg => pg.evaluate(f => { window.animFondo = eval('(' + f + ')'); }, animFondo.toString());
+
+await caso('fondo del menú · la ciudad solo está en el menú principal y nunca corren dos fondos a la vez', FONDO, async pg => {
+  await pg.evaluate(() => rTitulo()); await pg.waitForFunction(() => document.querySelector('#app').classList.contains('fondo-ciudad'), null, { timeout: 5000 });
+  const pasos = [];
+  const foto = async nombre => pasos.push({ nombre, clase: await pg.evaluate(() => document.querySelector('#app').classList.contains('fondo-ciudad')),
+    display: await pg.evaluate(() => getComputedStyle(document.querySelector('.ciudad')).display), ...(await pg.evaluate(animFondo)) });
+  await foto('menú');
+  for (const [nombre, js] of [['pasillo', () => rPasillo()], ['lista', () => rMapaLista()], ['tienda', () => rTienda()], ['logros', () => rLogros()],
+                              ['récords', () => rRecords()], ['minijuego', () => { diaAct = 1; vidas = 3; nvBugs(1); }], ['jefe', () => { diaAct = 9; vidas = 3; nvJefe(9, 0); }]]) {
+    await pg.evaluate(js); await pausa(350); await foto(nombre);
+    await pg.evaluate(() => rTitulo()); await pausa(350);
+    await foto('menú tras ' + nombre);
+  }
+  const mal = pasos.filter(p => p.nombre.startsWith('menú') ? !(p.clase && p.display === 'block' && p.ciudad === 1 && p.montanas === 0)
+                                                           : !(!p.clase && p.display === 'none' && p.ciudad === 0));
+  return [mal.length === 0, mal.length ? 'mal: ' + JSON.stringify(mal) : `${pasos.length} pantallas: la ciudad solo en el menú (1 animación) y fuera, 0`];
+});
+
+await caso('fondo del menú · fuera del menú siguen las montañas (con su animación) y se esconden en el menú', FONDO, async pg => {
+  await instalaAnim(pg);
+  await pg.evaluate(() => rTitulo()); await pausa(600);
+  const menu = await pg.evaluate(() => ({ mte: getComputedStyle(document.querySelector('.mte.m1')).display, niebla: getComputedStyle(document.querySelector('.niebla')).display }));
+  await pg.evaluate(() => rPasillo()); await pausa(400);
+  const fuera = await pg.evaluate(() => ({ mte: getComputedStyle(document.querySelector('.mte.m1')).display, niebla: getComputedStyle(document.querySelector('.niebla')).display, ...animFondo() }));
+  return [menu.mte === 'none' && menu.niebla === 'none' && fuera.mte === 'block' && fuera.niebla === 'block' && fuera.montanas === 3 && fuera.ciudad === 0, JSON.stringify({ menu, fuera })];
+});
+
+await caso('fondo del menú · cubre sin deformar en móvil, móvil chico, tablet y escritorio (relación 549:466)', FONDO, async pg => {
+  const sal = [];
+  for (const [w, h] of [[390, 760], [320, 568], [820, 1100], [1280, 800], [1920, 1080], [360, 640]]) {
+    await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(450);
+    const r = await pg.evaluate(() => {
+      const a = document.querySelector('.ciudad').getBoundingClientRect(), f = document.querySelector('#fondo').getBoundingClientRect();
+      return { ratio: a.width / a.height, cubre: a.left <= f.left + 1 && a.right >= f.right - 1 && a.top <= f.top + 1 && a.bottom >= f.bottom - 1,
+               detras: getComputedStyle(document.querySelector('.ciudad')).pointerEvents === 'none' && getComputedStyle(document.querySelector('#fondo')).zIndex === '0' };
+    });
+    if (!r.cubre || Math.abs(r.ratio - 549 / 466) > .005 || !r.detras) sal.push(`${w}×${h}: ${JSON.stringify(r)}`);
+  }
+  return [sal.length === 0, sal.length ? sal.join(' · ') : '6 tamaños: cubre, sin deformar, detrás de todo y sin interceptar toques'];
+});
+
+await caso('fondo del menú · la animación recorre 6 cuadros distintos, de ~800 ms cada uno', FONDO, async pg => {
+  await pg.evaluate(() => rTitulo()); await pg.waitForFunction(() => document.querySelector('#app').classList.contains('fondo-ciudad'), null, { timeout: 5000 });
+  const m = await pg.evaluate(async () => {
+    const t0 = performance.now(), v = [];
+    while (performance.now() - t0 < 5600) { v.push([performance.now() - t0, getComputedStyle(document.querySelector('.ciudad')).backgroundPosition]); await new Promise(r => setTimeout(r, 40)); }
+    return v;
+  });
+  const cambios = m.filter((x, i) => i && x[1] !== m[i - 1][1]).map(x => Math.round(x[0]));
+  const dist = [...new Set(m.map(x => x[1]))];
+  const gaps = cambios.slice(1).map((c, i) => c - cambios[i]);
+  return [dist.length === 6 && gaps.length >= 4 && gaps.every(g => g > 600 && g < 1000), `${dist.length} posiciones, cambios a ${cambios}, intervalos ${gaps}`];
+});
+
+await caso('fondo del menú · con "reducir movimiento": imagen estática y ninguna animación', FONDO, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' }); await pg.reload({ waitUntil: 'load' });
+  await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+  await instalaAnim(pg);
+  await pg.evaluate(() => rTitulo()); await pg.waitForFunction(() => document.querySelector('#app').classList.contains('fondo-ciudad'), null, { timeout: 5000 });
+  const r = await pg.evaluate(() => { const e = getComputedStyle(document.querySelector('.ciudad')); return { anim: e.animationName, img: e.backgroundImage, tam: e.backgroundSize, corre: animFondo().ciudad,
+    pedidas: performance.getEntriesByType('resource').map(x => x.name.split('/').pop()).filter(n => n.startsWith('ciudad')) }; });
+  return [r.anim === 'none' && /ciudad-estatica\.png/.test(r.img) && r.corre === 0 && r.pedidas.join() === 'ciudad-estatica.png', JSON.stringify(r)];
+});
+
+await caso('fondo del menú · con la pestaña oculta la animación se pausa y al volver sigue', FONDO, async pg => {
+  await instalaAnim(pg);
+  await pg.evaluate(() => rTitulo()); await pg.waitForFunction(() => document.querySelector('#app').classList.contains('fondo-ciudad'), null, { timeout: 5000 });
+  const estado = () => pg.evaluate(() => ({ marca: document.documentElement.classList.contains('pestana-oculta'), play: getComputedStyle(document.querySelector('.ciudad')).animationPlayState, corre: animFondo().ciudad }));
+  const visible = await estado();
+  await pg.evaluate(() => { Object.defineProperty(document, 'hidden', { value: true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
+  const oculta = await estado();
+  await pg.evaluate(() => { Object.defineProperty(document, 'hidden', { value: false, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
+  const vuelve = await estado();
+  return [!visible.marca && visible.play === 'running' && oculta.marca && oculta.play === 'paused' && oculta.corre === 0 && !vuelve.marca && vuelve.play === 'running' && vuelve.corre === 1, JSON.stringify({ visible, oculta, vuelve })];
+});
+
+await caso('fondo del menú · si la imagen no carga, el menú se queda con las montañas de siempre', FONDO, async pg => {
+  await pg.route('**/img/fondo/**', r => r.abort());
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+  await instalaAnim(pg);
+  await pg.evaluate(() => rTitulo()); await pausa(900);
+  const r = await pg.evaluate(() => ({ clase: document.querySelector('#app').classList.contains('fondo-ciudad'), mte: getComputedStyle(document.querySelector('.mte.m1')).display, capa: getComputedStyle(document.querySelector('.ciudad')).display, ...animFondo() }));
+  return [!r.clase && r.mte === 'block' && r.capa === 'none' && r.montanas === 3 && r.ciudad === 0, JSON.stringify(r)];
+});
+
+await caso('fondo del menú · el texto suelto sobre el fondo sigue leyéndose (contraste ≥ 4,5 en móvil, móvil chico y escritorio)', FONDO, async pg => {
+  const lum = (r, g, b) => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
+  const sal = [];
+  for (const [w, h] of [[390, 760], [320, 568], [1280, 800]]) {
+    await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(500);
+    /* se mide el fondo SIN el texto (transparente) justo detrás de cada línea: el 95 % más claro de sus píxeles manda */
+    for (const sel of ['.sub', '.xp-txt', '.tit-h1 .l1', '.tit-h1 .l2', '.dif-cap']) {
+      const el = await pg.$(sel); if (!el) continue;
+      await el.scrollIntoViewIfNeeded(); await pausa(120);
+      const caja = await el.boundingBox();
+      if (!caja || caja.width < 2 || caja.y < 0 || caja.y + caja.height > h || caja.x < 0 || caja.x + caja.width > w) continue;
+      const color = await el.evaluate(e => getComputedStyle(e).color);
+      await el.evaluate(e => { e.dataset.c = e.style.color; e.style.color = 'transparent'; e.style.textShadow = 'none'; });
+      const png = await pg.screenshot({ clip: { x: caja.x, y: caja.y, width: caja.width, height: caja.height } });
+      await el.evaluate(e => { e.style.color = e.dataset.c; e.style.textShadow = ''; });
+      const px = await pg.evaluate(async b64 => { const i = new Image(); i.src = 'data:image/png;base64,' + b64; await i.decode(); const c = document.createElement('canvas'); c.width = i.width; c.height = i.height; const g = c.getContext('2d'); g.drawImage(i, 0, 0); const d = g.getImageData(0, 0, c.width, c.height).data; const o = []; for (let k = 0; k < d.length; k += 4) o.push([d[k], d[k + 1], d[k + 2]]); return o; }, png.toString('base64'));
+      const ls = px.map(p => lum(...p)).sort((a, b) => a - b), fondo = ls[Math.floor(ls.length * .95)];
+      const m = color.match(/\d+/g).map(Number), texto = lum(m[0], m[1], m[2]);
+      const contraste = (Math.max(texto, fondo) + .05) / (Math.min(texto, fondo) + .05);
+      if (contraste < 4.5) sal.push(`${w}×${h} ${sel}: ${contraste.toFixed(1)}`);
+    }
+  }
+  return [sal.length === 0, sal.length ? sal.join(' · ') : 'todos ≥ 4,5:1'];
+});
+
+await caso('fondo del menú · sin conexión: el service worker guarda las dos imágenes y la ciudad se sirve de su caché', FONDO, async pg => {
+  const { createServer } = await import('node:http');
+  const { readFile } = await import('node:fs/promises');
+  const tipos = { html: 'text/html', js: 'text/javascript', css: 'text/css', webmanifest: 'application/manifest+json', svg: 'image/svg+xml', png: 'image/png', webp: 'image/webp', woff2: 'font/woff2' };
+  const mini = createServer(async (q, r) => {
+    try {
+      let ruta = decodeURIComponent(new URL(q.url, 'http://x').pathname);
+      if (ruta.endsWith('/')) ruta += 'index.html';
+      const cuerpo = await readFile(join(RAIZ, ruta));
+      r.writeHead(200, { 'content-type': tipos[ruta.split('.').pop()] || 'application/octet-stream', 'cache-control': 'no-store' });
+      r.end(cuerpo);
+    } catch (e) { r.writeHead(404); r.end(); }
+  });
+  await new Promise(ok => mini.listen(0, '127.0.0.1', ok));
+  try {
+    await pg.goto(`http://127.0.0.1:${mini.address().port}/index.html`, { waitUntil: 'load' });
+    await pg.waitForFunction(() => typeof pantallaId !== 'undefined');
+    await pg.evaluate(() => registrarSW());
+    await pg.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 8000 });
+    await pausa(1500);
+    const rutas = ['img/fondo/ciudad-atlas.png', 'img/fondo/ciudad-estatica.png', 'js/fondo.js'];
+    const guardadas = await pg.evaluate(async rs => Promise.all(rs.map(async u => !!(await caches.match(u)))), rutas);
+    await pg.context().setOffline(true);
+    const sinRed = await pg.evaluate(async () => { const r = await fetch('img/fondo/ciudad-atlas.png', { cache: 'reload' }); return { ok: r.ok, bytes: (await r.blob()).size }; });
+    await pg.context().setOffline(false);
+    return [guardadas.every(Boolean) && sinRed.ok && sinRed.bytes > 200000, `en la caché: ${guardadas}, hoja sin red: ${JSON.stringify(sinRed)}`];
+  } finally { mini.close(); }
+});
+
+await caso('fondo del menú · con la ciudad, el menú se ve y los botones responden (JUGAR → pasillo, y volver)', FONDO, async pg => {
+  await pg.evaluate(() => rTitulo()); await pg.waitForFunction(() => document.querySelector('#app').classList.contains('fondo-ciudad'), null, { timeout: 5000 });
+  await pg.click('#t-jugar'); await pausa(500);
+  const en = await pg.evaluate(() => ({ p: pantallaId, clase: document.querySelector('#app').classList.contains('fondo-ciudad') }));
+  await pg.evaluate(() => rTitulo()); await pausa(500);
+  const vuelve = await pg.evaluate(() => document.querySelector('#app').classList.contains('fondo-ciudad'));
+  return [en.p === 'pasillo' && !en.clase && vuelve, JSON.stringify({ en, vuelve })];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

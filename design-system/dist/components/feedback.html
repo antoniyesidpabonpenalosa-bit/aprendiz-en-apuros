@@ -108,6 +108,43 @@ html.encaje #app{zoom:var(--esc,1);width:var(--app-w);height:var(--app-h);max-he
              linear-gradient(180deg,rgba(11,15,36,.55) 0%,transparent 35%,rgba(8,10,22,.5) 100%)}
 @keyframes derivaLenta{from{transform:translateX(-1.5%)}to{transform:translateX(1.5%)}}
 
+/* ══════════════════════════════════════════════
+   FONDO DEL MENÚ PRINCIPAL · ciudad nocturna (v27, js/fondo.js)
+   Una hoja de 3×2 cuadros de 549×466 (img/fondo/ciudad-atlas.png). La capa mide lo
+   justo para CUBRIR #fondo sin deformarse —el equivalente de background-size:cover,
+   con unidades de contenedor— y se recorta por el centro. Los cuadros los recorre una
+   animación con steps(): sin JavaScript en marcha. Solo se ve con #app.fondo-ciudad,
+   que pone pantalla() en 'titulo'; sin esa clase la capa no existe (display:none) y por
+   tanto no anima nada. Con ella, las montañas se esconden y paran sus animaciones.
+   ══════════════════════════════════════════════ */
+#fondo{container-type:size}
+.ciudad{display:none;position:absolute;left:50%;top:50%;z-index:0;pointer-events:none;
+  --ciudad-ms:800ms;                      /* lo que dura cada cuadro: 600-1000 ms es tranquilo */
+  width:max(100cqw,calc(100cqh*549/466));height:max(100cqh,calc(100cqw*466/549));
+  transform:translate(-50%,-50%);
+  background-repeat:no-repeat;background-size:300% 200%;background-position:0 0;
+  image-rendering:pixelated}
+/* oscurece lo justo para que el texto se lea: más arriba (título) y abajo (botones) */
+.ciudad::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(7,10,26,.4) 0%,rgba(7,10,26,.14) 40%,rgba(7,10,26,.36) 100%)}
+#app.fondo-ciudad .mte,#app.fondo-ciudad .niebla{display:none}
+/* la imagen solo se pide cuando la capa se ve (y con menos movimiento, ni se toca la hoja) */
+#app.fondo-ciudad .ciudad{display:block;background-image:url(../img/fondo/ciudad-atlas.png);animation:ciudadCuadros calc(6*var(--ciudad-ms)) steps(1,end) infinite}
+@keyframes ciudadCuadros{
+  0%{background-position:0% 0%}
+  16.667%{background-position:50% 0%}
+  33.333%{background-position:100% 0%}
+  50%{background-position:0% 100%}
+  66.667%{background-position:50% 100%}
+  83.333%{background-position:100% 100%}
+  100%{background-position:100% 100%}}
+/* con la pestaña oculta, en pausa */
+/* (con #app.fondo-ciudad delante: el `animation:` de arriba reinicia play-state y ganaría por especificidad) */
+html.pestana-oculta #app.fondo-ciudad .ciudad{animation-play-state:paused}
+/* con "reducir movimiento": el cuadro estático (el primero) y nada de animación */
+@media(prefers-reduced-motion:reduce){
+  #app.fondo-ciudad .ciudad{animation:none;background-image:url(../img/fondo/ciudad-estatica.png);background-size:100% 100%;background-position:0 0}}
+
 /* el contenido va por encima del fondo */
 #hud,#screen,#pausa,#logro-popup,#interrupcion{position:relative;z-index:1}
 
