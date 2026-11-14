@@ -119,7 +119,7 @@ function hud(){
     $('#h-vidas').textContent='♥'.repeat(Math.max(0,vidas))+'♡'.repeat(Math.max(0,maxVidas()-vidas));
   }
   $('#b-lang').textContent=S.lang==='es'?'EN':'ES';
-  $('#b-snd').textContent=!S.snd?'🔇':(S.mus?'🔊':'🔉');
+  $('#b-snd').innerHTML=pxi(!S.snd?'🔇':(S.mus?'🔊':'🔉'));
 }
 
 /* ── SACUDIDA DE PANTALLA (al recibir daño) ── */

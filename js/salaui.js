@@ -28,8 +28,8 @@ const DIRECCION_JUEGO = () =>
 const errorSala = r => r.red ? t('glob_sinred')
   : ({ 'sala no existe': t('sala_no_existe'), 'sala cerrada': t('sala_cerrada'),
        'sala llena': t('sala_llena') }[r.error] || t('sala_error'));
-const iconosJuegos = juegos => juegos.map(j => `<span title="${t('tipo_' + j)}">${ICO_TIPO[j] || '🎮'}</span>`).join('');
-const difChip = d => { const x = DIFS[d] || DIFS[1]; return `${x.ico} ${tj(x)}`; };
+const iconosJuegos = juegos => juegos.map(j => `<span title="${t('tipo_' + j)}">${pxi(ICO_TIPO[j] || '🎮')}</span>`).join('');
+const difChip = d => { const x = DIFS[d] || DIFS[1]; return `${pxi(x.ico)} ${tj(x)}`; };
 
 /* ══════════ ENTRADA ══════════ */
 
@@ -121,7 +121,7 @@ function rSalaCrear() {
       <span class="dif-cap">${t('dificultad')}</span>
       <div class="dif-sel" id="sc-dif">
         ${DIFS.map(d => `<button class="dif-op" data-dif="${d.id}" type="button" aria-pressed="false">
-          <span class="dif-ico">${d.ico}</span>${tj(d)}
+          <span class="dif-ico">${pxi(d.ico)}</span>${tj(d)}
           <span class="dif-puntos">${[0, 1, 2].map(n => `<i class="${n <= d.id ? 'on' : ''}"></i>`).join('')}</span>
         </button>`).join('')}
       </div>
@@ -146,7 +146,7 @@ function rSalaCrear() {
     <div class="tit-rejilla c3 sala-juegos" id="sc-lista">
       ${TIPOS_LIBRES.map(tipo => `<button class="btn btn2 menu-fila sala-j" data-tipo="${tipo}" type="button" aria-pressed="false">
         <span class="sj-num" aria-hidden="true"></span>
-        <span class="m-ico">${ICO_TIPO[tipo] || '🎮'}</span>
+        <span class="m-ico">${pxi(ICO_TIPO[tipo] || '🎮')}</span>
         <span class="m-txt">${t('tipo_' + tipo)}</span>
       </button>`).join('')}
     </div>
@@ -553,7 +553,7 @@ function salaRonda(stars, pts) {
     <h2 class="${stars > 0 ? 'verde' : ''}">${t('reto_ronda').replace('{n}', a.ronda).replace('{t}', a.juegos.length)}</h2>
     ${starsHtml(Math.max(0, stars))}
     <p class="pts-final">${a.pts} ${t('rec_pts')}</p>
-    <p class="mini">${t('sala_siguiente')}: ${ICO_TIPO[sig] || '🎮'} ${t('tipo_' + sig)}</p>
+    <p class="mini">${t('sala_siguiente')}: ${pxi(ICO_TIPO[sig] || '🎮')} ${t('tipo_' + sig)}</p>
     <button class="btn" id="sl-sig" type="button">${t('sala_sig')} ▶</button>
   </div>`, pintar);
   $('#sl-sig').onclick = () => { SFX.click(); siguienteSala(); };

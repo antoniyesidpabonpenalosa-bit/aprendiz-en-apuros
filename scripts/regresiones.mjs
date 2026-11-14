@@ -406,8 +406,9 @@ await caso('movimiento · con "reducir movimiento" la casilla del jefe no pulsa'
 
 /* ── EL JEFE, GANADO DE PUNTA A PUNTA ──
    El barrido no puede ganarle (su robot no apunta). Este sí: espía dónde se
-   dibuja el jefe (por drawImage: sus dibujos están en img/jefe/; si no cargan
-   cae al emoji y se le sigue por fillText) y las ❌ (por fillText), apunta con ADELANTO —la bala tarda ~25
+   dibuja el jefe (por drawImage: sus dibujos están en img/jefe/; si no cargan, el
+   respaldo es el dibujo de código de js/iconos.js, y en último caso el emoji) y las ❌
+   (iconos pixel: cada canvas lleva su nombre en dataset.pxi), apunta con ADELANTO —la bala tarda ~25
    fotogramas y el jefe se mueve 35-60 px en ese rato— y esquiva lo que cae y el
    aviso del láser. La agresividad va al mínimo desde la consola: lo que se prueba
    es el CAMINO de victoria y lo que viene después, no la dificultad. Sin escudo
@@ -424,24 +425,28 @@ const robotJefe = a => {
   /* REG: lo que pasó con el jefe, para las pruebas de la transformación. Cada
      dibujo del jefe apunta qué era (pose 1-3 o atlas fila/cuadro), dónde cayó
      y cómo estaban el indicador de fase y los golpes recibidos en ese instante. */
-  const REG = window.__reg = { dibujos: [], emoji: 0 };
+  const REG = window.__reg = { dibujos: [], emoji: 0, respaldo: 0 };
   const sigue = cx => { X.vel = X.vel * .6 + (cx - X.jefe) * .4; X.jefe = cx; X.err = X.errNext; X.errNext = []; };
   CanvasRenderingContext2D.prototype.fillText = function (txt, x, y) {
     if (txt === '👾' || txt === '😡' || txt === '🤬') { REG.emoji++; sigue(x); }
-    else if (txt === '❌') X.errNext.push([x + 6, y]);
     else if (txt === aviso) X.laser = { x, hasta: performance.now() + 1500 };
     return ft.apply(this, arguments);
   };
+  /* El jefe: los PNG de img/jefe/ (se anota cada dibujo) o, si no cargaron, el dibujo de
+     código jefe1-3 de js/iconos.js (48 px, esquina en jefe.x-24: REG.respaldo). La ❌ es
+     un icono de 12 px con la esquina en (o.x-6, o.y-11): se vuelve al centro y a la línea base. */
   const di = CanvasRenderingContext2D.prototype.drawImage;
   CanvasRenderingContext2D.prototype.drawImage = function (img, ...a) {
     const m = img && img.src && /img\/jefe\/(jefe-fase-(\d)|jefe-transformaciones-atlas)\.png/.exec(img.src);
+    const k = img && img.dataset && img.dataset.pxi;
     if (m) {
       const atlas = a.length >= 8, [dx, dy, dw, dh] = atlas ? a.slice(4, 8) : a.slice(0, 4);
       sigue(dx + dw / 2);
       REG.dibujos.push({ k: atlas ? 'atlas' : 'pose', pose: atlas ? 0 : +m[2], fila: atlas ? a[1] / 128 : -1, cuadro: atlas ? a[0] / 128 : -1,
         dx, dy, dw, dh, cx: dx + dw / 2, fase: $('#j-fase')?.textContent, golpes: $('#j-gol')?.textContent,
         suave: this.imageSmoothingEnabled, t: performance.now() });
-    }
+    } else if (k && k.startsWith('jefe')) { REG.respaldo++; sigue(a[0] + 24); }
+    else if (k === '❌') X.errNext.push([a[0] + 6, a[1] + 11]);
     return di.apply(this, arguments);
   };
   const o = APRENDIZ.dirDe;
@@ -505,7 +510,7 @@ const analizaEvolucion = (reg, W, H, { min, max = 2, poses = true } = {}) => {
     if (ultAtlas) { if (x.pose !== ultAtlas.fila + 2 || x.fase !== String(ultAtlas.fila + 2)) mal.push(`tras la fila ${ultAtlas.fila}: pose ${x.pose} indicador ${x.fase}`); ultAtlas = null; }
   });
   if (poses) { const vistas = [...new Set(d.filter(x => x.k === 'pose').map(x => x.pose))].sort().join(''); if (vistas !== '123'.slice(0, corridas.length + 1)) mal.push(`poses vistas: ${vistas}`); }
-  if (reg.emoji) mal.push(`${reg.emoji} dibujos de emoji (debería usar los sprites)`);
+  if (reg.emoji || reg.respaldo) mal.push(`${reg.emoji} emojis y ${reg.respaldo} dibujos de respaldo (debería usar los PNG)`);
   if (d.some(x => x.suave !== false)) mal.push('algún dibujo con imageSmoothingEnabled activo');
   /* la celda de 128 px tiene margen transparente: lo que cuenta es lo VISIBLE
      (medido en el arte: de x=8 a 120 en todos los cuadros; arriba, la fase 1 empieza
@@ -609,11 +614,11 @@ await caso('jefe · con "reducir movimiento" el cambio de fase es instantáneo (
   return [poses === '123' && atlas === 0 && reg.emoji === 0 && desfase === 0, `poses ${poses}, cuadros de transformación ${atlas}, emojis ${reg.emoji}, desfase ${desfase}`];
 });
 
-await caso('jefe · si los dibujos no cargan, el combate sigue y evoluciona con el emoji de siempre', null, async pg => {
+await caso('jefe · si los PNG no cargan, el combate sigue y evoluciona con el dibujo de respaldo (el de código de la v25)', null, async pg => {
   await pg.route('**/img/jefe/**', r => r.abort());
-  const { reg } = await luchaRobot(pg, 9, { hasta: () => $('#j-fase')?.textContent === '2' || pantallaId !== 'nivel', bueno: r => r.emoji > 0 });
+  const { reg } = await luchaRobot(pg, 9, { hasta: () => $('#j-fase')?.textContent === '2' || pantallaId !== 'nivel', bueno: r => r.respaldo > 0 });
   const fase = await pg.evaluate(() => $('#j-fase')?.textContent || 'fuera');
-  return [reg.emoji > 20 && reg.dibujos.length === 0 && (fase === '2' || fase === 'fuera'), `emojis ${reg.emoji}, dibujos ${reg.dibujos.length}, indicador ${fase}`];
+  return [reg.respaldo > 20 && reg.emoji === 0 && reg.dibujos.length === 0 && (fase === '2' || fase === 'fuera'), `dibujos de respaldo ${reg.respaldo}, emojis ${reg.emoji}, PNG ${reg.dibujos.length}, indicador ${fase}`];
 });
 
 await caso('jefe · sin conexión: el service worker guarda los dibujos y se sirven de su caché', null, async pg => {
@@ -848,7 +853,8 @@ await caso('pasillo · cada letrero lleva el icono de su minijuego y cabe en su 
       rPasillo(n);
       for (const b of $$('.pasillo-puerta')) {
         const i = +b.dataset.dia, ico = b.querySelector('.pasillo-ico'), c = b.querySelector('.pasillo-cartel').getBoundingClientRect(), p = b.getBoundingClientRect();
-        if (!ico || ico.textContent !== NIVELES[i].ico) mal.push('icono día ' + (i + 1));
+        const im = ico && ico.querySelector('img.pxi');   // el icono es un dibujo pixel (js/iconos.js)
+        if (!im || im.getAttribute('src') !== pxiSvg(NIVELES[i].ico)) mal.push('icono día ' + (i + 1));
         if (c.width > p.width + 1) mal.push('letrero ancho día ' + (i + 1));
         if (!b.querySelector('.pasillo-cartel').textContent.includes(String(i + 1))) mal.push('número día ' + (i + 1));
       }

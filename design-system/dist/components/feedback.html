@@ -215,6 +215,23 @@ h3::before,h3::after{content:'';flex:1;height:2px;background:var(--bl);min-width
 .modo{font-size:9px;color:var(--b4);background:var(--void2);
   border:2px solid var(--bl);padding:8px 13px}
 .ico{font-size:46px;line-height:1;filter:drop-shadow(0 4px 0 rgba(0,0,0,.45))}
+/* Iconos pixel (js/iconos.js): rejillas de 12×12, así que se ven nítidos en
+   múltiplos de 12 px (12, 24, 36, 48). Por defecto siguen al texto; donde el
+   texto es chico (letreros, botones) se fijan en un múltiplo. */
+.pxi{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;image-rendering:pixelated}
+.ico .pxi{width:48px;height:48px;vertical-align:baseline}
+.etapa-ico .pxi{width:36px;height:36px;vertical-align:middle}
+.pasillo-ico .pxi{width:24px;height:24px;vertical-align:middle}
+.dif-ico .pxi{width:24px;height:24px;vertical-align:middle}
+.b-snd .pxi{width:24px;height:24px;vertical-align:middle}
+h2 .pxi{width:36px;height:36px;vertical-align:middle}
+.tit-id .pxi{width:24px;height:24px;vertical-align:middle}
+.pasillo-ficha-datos .pxi{width:24px;height:24px;vertical-align:middle}
+.cv-msg .pxi{width:12px;height:12px;vertical-align:baseline}
+.m-ico .pxi{width:24px;height:24px;vertical-align:middle}
+.mapa-sec .pxi,.r-llama .pxi,.tit-reto .pxi,.rec-chip .pxi{width:12px;height:12px;vertical-align:baseline}
+.tit-reto>span>.pxi{width:24px;height:24px;vertical-align:middle}
+.tit-reto .r-llama .pxi{width:12px;height:12px}
 .pts-final{font-size:14px;color:var(--y2);text-shadow:2px 2px 0 var(--g0)}
 .rango{font-size:30px;color:var(--g4);text-shadow:3px 3px 0 var(--g0)}
 .blink{animation:blink 1s steps(2) infinite}
@@ -753,6 +770,7 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 @media(max-width:560px){
   .etapa-card{gap:6px;padding:11px 9px}
   .etapa-ico{font-size:24px;width:24px}
+  .etapa-ico .pxi{width:24px;height:24px}
   .etapa-num{width:13px;font-size:11px}
   .etapa-badge{font-size:16px;min-width:24px}
 }

@@ -18,7 +18,7 @@ function nvJefe(dia,ptsBase){
       <span>⛁ <b id="j-pts">0</b></span>
     </div>
     <canvas class="juego" id="j-cv" width="320" height="180"></canvas>
-    <p class="cv-msg">${t('jefemsg')}</p>
+    <p class="cv-msg">${pxiTexto(t('jefemsg'))}</p>
     <div class="fila-cv">
       <div class="dpad">
         <button class="dp dp-izq" id="j-izq" type="button">◀</button>
@@ -159,8 +159,9 @@ function nvJefe(dia,ptsBase){
          transformaciones: así no brinca al evolucionar. La zona de golpe no cambia. */
       const suelo=jefe.y+41-(blanco?2:0);
       const dibujado=trans?jefeDibujarTrans(c,jefe.x,suelo,trans.de,jefeCuadro(trans.ms)):jefeDibujar(c,jefe.x,suelo,fase);
-      if(!dibujado){
-        /* el dibujo no cargó: el emoji de siempre */
+      if(!dibujado&&!pxiDibujar(c,'jefe'+fase,jefe.x-24,jefe.y-20-(blanco?2:0),3)){
+        /* los PNG no cargaron: el dibujo de código de la v25 (js/iconos.js) y, si
+           tampoco hubiera canvas, el emoji de siempre */
         c.font=fase===3?'44px serif':'38px serif';
         c.textAlign='center';c.textBaseline='middle';
         c.fillText(fase===1?'👾':fase===2?'😡':'🤬',jefe.x,jefe.y+4-(blanco?2:0));
@@ -173,8 +174,7 @@ function nvJefe(dia,ptsBase){
     balas.forEach(b=>c.fillRect(b.x,b.y,3,8));
     c.shadowBlur=0;
     /* errores que caen */
-    c.font='13px serif';
-    errores.forEach(o=>c.fillText('❌',o.x-6,o.y));
+    errores.forEach(o=>pxiDibujar(c,'❌',o.x-6,o.y-11));
     /* láser del jefe: aviso parpadeante y luego rayo */
     if(laserEstado===1){
       if(frame%6<3){c.fillStyle='rgba(255,84,104,.5)';c.fillRect(laserX-2,jefe.y+8,4,H-12-jefe.y)}

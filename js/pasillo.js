@@ -27,11 +27,11 @@ function rPasillo(zona=pasilloZonaAuto()){
   const NOM_ESTADO={superada:'pas_ok',disponible:'pas_libre',bloqueada:'pas_lock'};
   const puerta=i=>{
     const N=NIVELES[i],stars=S.dias[i],estado=estadoDe(i);
-    const pista=estado==='superada'?'★'.repeat(stars):(estado==='disponible'?'●':'🔒');
+    const pista=estado==='superada'?'★'.repeat(stars):(estado==='disponible'?'●':pxi('🔒'));
     return `<button class="pasillo-puerta ${estado}" type="button" data-dia="${i}"
        aria-label="${t('pas_dia')} ${i+1}: ${esc(tj({es:N.es,en:N.en}))} · ${t(NOM_ESTADO[estado])}"
        aria-pressed="false">
-      <span class="pasillo-cartel"><span class="pasillo-ico" aria-hidden="true">${N.ico}</span><span>${t('pas_dia')} ${i+1}</span></span>
+      <span class="pasillo-cartel"><span class="pasillo-ico" aria-hidden="true">${pxi(N.ico)}</span><span>${t('pas_dia')} ${i+1}</span></span>
       <span class="pasillo-marco"><span class="pasillo-cristal" aria-hidden="true"></span><span class="pasillo-manija" aria-hidden="true"></span></span>
       <span class="pasillo-insignia" aria-hidden="true">${pista}</span>
     </button>`;
@@ -117,7 +117,7 @@ function rPasillo(zona=pasilloZonaAuto()){
     const N=NIVELES[i];
     const disponible=i<=progreso(),stars=S.dias[i];
     ficha.innerHTML=`<div class="pasillo-ficha-datos">
-      <strong>${t('pas_dia')} ${i+1} · ${N.ico} ${esc(tj({es:N.es,en:N.en}))}</strong>
+      <strong>${t('pas_dia')} ${i+1} · ${pxi(N.ico)} ${esc(tj({es:N.es,en:N.en}))}</strong>
       <span>${t(NOM_ESTADO[estadoDe(i)])}${stars>=1?' · '+'★'.repeat(stars):''}</span>
       <small>${esc(tj({es:N.ses,en:N.sen}))}</small>
     </div>

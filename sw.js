@@ -21,7 +21,7 @@ const BASE = [
   './img/retratos/vigilante-normal.webp', './img/retratos/vigilante-feliz.webp', './img/retratos/vigilante-enojado.webp', './img/retratos/vigilante-sorprendido.webp', './img/retratos/vigilante-preocupado.webp',
   './img/jefe/jefe-fase-1.png', './img/jefe/jefe-fase-2.png', './img/jefe/jefe-fase-3.png', './img/jefe/jefe-transformaciones-atlas.png',
   './fuentes/press-start-2p.woff2', './fuentes/vt323.woff2',
-  './js/datos.js', './js/estado.js', './js/consola.js', './js/reto.js', './js/ranking.js', './js/audio.js', './js/graficos.js', './js/efectos.js', './js/pixelfx.js', './js/pxefectos.js',
+  './js/datos.js', './js/iconos.js', './js/estado.js', './js/consola.js', './js/reto.js', './js/ranking.js', './js/audio.js', './js/graficos.js', './js/efectos.js', './js/pixelfx.js', './js/pxefectos.js',
   './js/entrada.js', './js/nucleo.js', './js/menus.js', './js/consejos.js', './js/pasillo.js', './js/certificados.js', './js/tienda.js', './js/records.js', './js/retoui.js',
   './js/minijuegos.js', './js/minijuegos-codigo.js', './js/minijuegos-runner.js', './js/minijuegos-avanzados.js',
   './js/jefe-sprites.js', './js/jefe.js', './js/modos.js', './js/sala.js', './js/salaui.js', './js/salavivo.js', './js/sprite.js', './js/consolaui.js', './js/principal.js',

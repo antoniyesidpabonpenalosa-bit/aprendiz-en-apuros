@@ -105,7 +105,7 @@ function resultado(i,stars,pts){
   const pintar=()=>{
   pantalla('resultado',`
   <div class="centro">
-    <span class="ico">${NIVELES[i].ico}</span>
+    <span class="ico">${pxi(NIVELES[i].ico)}</span>
     <h2 class="verde">${t('aprobado')}</h2>
     ${starsHtml(stars)}
     <p class="pts-final">+${gan} ${t('ptsgan')}</p>

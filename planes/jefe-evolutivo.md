@@ -29,8 +29,9 @@ traducciones (EL BUG FINAL) **no se cambiaron**; falta que el autor apruebe el c
   no se la comen ni se saltan cuadros.
 - Se dispara una sola vez por cambio de fase (`trans` existe mientras dura y `faseAnt` solo
   sube al acabar). El indicador "FASE n/3" cambia al terminar.
-- Con "reducir movimiento" el cambio es instantáneo. Si el atlas no carga, también; si las
-  poses no cargan, se pinta el emoji de siempre.
+- Con "reducir movimiento" el cambio es instantáneo. Si el atlas no carga, también; si los
+  PNG no cargan, se pinta el dibujo de código de la v25 (`jefe1`-`jefe3` de `js/iconos.js`) y,
+  en último caso, el emoji de siempre.
 - Las imágenes se piden al abrir el juego (en reposo) y otra vez al entrar al combate, que
   espera hasta 1,5 s a que terminen; están en la caché del service worker.
 
