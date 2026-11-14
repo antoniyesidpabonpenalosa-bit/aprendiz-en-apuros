@@ -118,6 +118,7 @@ aprendiz-en-apuros/
 │   ├── aprendiz-caminar.png → sprite del aprendiz: caminata de 4 cuadros en 8 direcciones
 │   ├── titulo/           → el título de la portada (PNG transparente, 920×360)
 │   ├── portada/          → el campus nocturno HD del menú principal: el escenario (WebP) y 5 capas animadas (PNG), de 1600×900
+│   ├── pasillo-hd/       → el pasillo HD: techo, muro y suelo (WebP) y la hoja de la puerta (PNG) de formación y de empresa
 │   ├── jefe/             → el jefe evolutivo (PNG): 3 poses de 128×128 y un atlas de transformaciones de 1536×256
 │   └── retratos/         → retratos dibujados (WebP): Gustavo, Valentina, Andrés y Don Jairo × 5 gestos
 ├── portada.png           → vista previa al compartir el enlace (Open Graph)
@@ -171,6 +172,7 @@ test/
 ├── iconos.test.mjs       → pruebas de los iconos pixel: rejillas, paleta igual a la de la interfaz y que cada emoji de pantalla tenga dibujo
 ├── jefe-sprites.test.mjs → pruebas del jefe evolutivo: fases, animación, recursos y caché sin conexión
 ├── fondo.test.mjs        → pruebas del fondo de la portada (campus HD): recursos, encuadre de las capas, animación y cuándo se activa
+├── pasillo-hd.test.mjs   → pruebas del pasillo HD: 8 recursos, rutas del CSS, CSS acotado, la hoja que gira y la caché
 ├── titulo.test.mjs       → pruebas del título de la portada: recurso, texto accesible de respaldo y reglas de CSS
 ├── portada.test.mjs      → pruebas del aprendiz animado de la portada: qué hace en cada instante y que quede decorativo
 ├── botones.test.mjs      → pruebas de los botones de la portada: CSS acotado a .portada, iconos pixel y dificultad accesible
