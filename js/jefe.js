@@ -1,5 +1,5 @@
 'use strict';
-/* ══════════ JEFE FINAL · EL BUG FINAL ══════════
+/* ══════════ JEFE FINAL · EL ERROR EVOLUTIVO ══════════
    Batalla oculta tras el runner del día 10.
    Muévete con ◀ ▶ (táctil), flechas/A-D (teclado),
    stick o cruceta (mando) o inclinando el teléfono (giro).

@@ -42,8 +42,8 @@ Recortado a propósito (2026-11-13, con `/terminar`):
 - **Mando (cruceta y A) en el pasillo:** el toque y el teclado cubren el pasillo;
   solo el runner y el jefe leen mando.
 
-Opcional, queda como está: la **puerta propia del Bug final** (hoy es un botón
-"Repetir Bug final" debajo de la escena; funciona, es solo presentación).
+Opcional, queda como está: la **puerta propia del Error Evolutivo** (hoy es un botón
+"Repetir El Error Evolutivo" debajo de la escena; funciona, es solo presentación).
 
 ## La idea en una frase
 
@@ -63,7 +63,7 @@ para darle consejos (con su retrato dibujado en el diálogo).
   - 🔒 Bloqueadas: cerradas y con candado.
   - ★ Superadas: sus estrellas en el letrero.
   - ✨ La del día que toca: brilla con un marco que late.
-  - 👾 Al final del pasillo productivo, la puerta del **Bug final**, que aparece
+  - 👾 Al final del pasillo productivo, la puerta del **Error Evolutivo**, que aparece
     al ganarle por primera vez.
 - **Se reutiliza lo que ya hay:** el sprite del aprendiz en sus 8 direcciones
   con su piel y camisa (`js/sprite.js`), los efectos de `js/efectos.js` (la

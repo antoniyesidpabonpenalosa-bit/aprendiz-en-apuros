@@ -81,3 +81,12 @@ test('el service worker precarga los dibujos y el módulo; index.html carga el m
   const a = html.indexOf('js/jefe-sprites.js'), b = html.indexOf('js/jefe.js');
   assert.ok(a > 0 && a < b, 'jefe-sprites.js debe cargarse antes de jefe.js');
 });
+
+test('el jefe se llama EL ERROR EVOLUTIVO en los dos idiomas y en todo lo que ve el jugador', () => {
+  const datos = leer('js/datos.js');
+  assert.ok(datos.includes("jefe_nombre:'EL ERROR EVOLUTIVO'") && datos.includes("jefe_nombre:'THE EVOLVING ERROR'"));
+  assert.ok(datos.includes("pas_jefe:'Repetir El Error Evolutivo'") && datos.includes("pas_jefe:'Replay The Evolving Error'"));
+  for (const f of ['js/datos.js', 'js/menus.js', 'js/pasillo.js', 'js/jefe.js'])
+    assert.ok(!/BUG FINAL|FINAL BUG|Bug final|final bug/i.test(leer(f)), `${f} todavía dice el nombre viejo`);
+  assert.ok(leer('js/menus.js').includes("t('jefe_nombre')"));
+});

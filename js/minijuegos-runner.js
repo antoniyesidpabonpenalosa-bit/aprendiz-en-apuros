@@ -154,7 +154,7 @@ function nvRunner(dia){
          una ronda suelta (en una sala, con toda la clase compitiendo). */
       if(enCampana()){
         if(dia===9)return rCutscene(JEFE_INTRO,()=>nvJefe(dia,pts+400+cafes*20));
-        /* deploy nocturno: el BUG FINAL vuelve por venganza */
+        /* deploy nocturno: el ERROR EVOLUTIVO vuelve por venganza */
         if(dia===14)return rCutscene(JEFE2_INTRO,()=>nvJefe(dia,pts+400+cafes*20));
       }
       return resultado(dia,stars,pts+400+cafes*20);

@@ -34,7 +34,7 @@ pasillo** (fase 2) y la **lista de días de respaldo**.
 - [x] **XP al repetir un día:** decidido y hecho en la v24.1. Repetir un día ya superado paga la cuarta parte de puntos y XP; los días nuevos pagan completo · de: `js/nucleo.js` (`resultado()`) y `js/estado.js` (`facRepite`) *(decisión del autor, 2026-11-13)*
 - [ ] **El XP de los días 10 y 15 no está medido**: el robot no gana al jefe ni al runner, y `/balance` los deja en "—" · de: `scripts/barrido.mjs` ("Qué NO cubre")
 - [ ] **Anotar la primera sesión de juego con `/playtest`**: no hay ninguna registrada, así que no hay datos de dónde se confunde o se aburre alguien · de: `playtests/` no existe
-- [ ] **Puerta propia para el Bug final**: hoy es un botón "Repetir Bug final" debajo de la escena. Funciona; es solo presentación y se puede dejar · de: `planes/pasillo.md`
+- [ ] **Puerta propia para el Bug final**: hoy es un botón "Repetir El Error Evolutivo" debajo de la escena. Funciona; es solo presentación y se puede dejar · de: `planes/pasillo.md`
 
 ## Te toca a ti
 
