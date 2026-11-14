@@ -92,6 +92,8 @@ function aprendizPortada(cv,boton){
 }
 
 function rTitulo(){
+  /* entrada suave solo al LLEGAR a la portada; repintarla (dificultad, HD, texto) no la repite */
+  const entradaPortada=pantallaId!=='titulo'||!$('#screen .portada');
   const {sig,pc}=progresoXp();
   const racha=RETO.rachaViva();
   const diasCampana=progreso();
@@ -110,7 +112,7 @@ function rTitulo(){
      de siempre; en pantalla apaisada son dos columnas, identidad y JUGAR a
      la izquierda, modos y ajustes a la derecha. */
   pantalla('titulo',`
-  <div class="centro portada">
+  <div class="centro portada${entradaPortada?' portada-entrada':''}">
    <div class="col2">
     <div class="col">
     <div class="tit-logo${tituloListo?' con-imagen':''}">
@@ -216,7 +218,9 @@ function rTitulo(){
     const teclado=b.matches(':focus-visible');
     S.dif=+b.dataset.dif;guardar();SFX.click();rTitulo();
     /* el menú se repinta entero: con teclado, el foco vuelve a la dificultad elegida */
-    if(teclado)$(`.portada .dif-op[data-dif="${S.dif}"]`)?.focus({preventScroll:true});
+    const elegida=$(`.portada .dif-op[data-dif="${S.dif}"]`);
+    elegida?.classList.add('portada-confirmada');   /* destello dorado de confirmación (CSS) */
+    if(teclado)elegida?.focus({preventScroll:true});
   });
   $('#t-stats').onclick=()=>{SFX.click();rStats()};
   $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};

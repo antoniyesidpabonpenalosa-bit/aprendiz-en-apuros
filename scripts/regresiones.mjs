@@ -39,11 +39,11 @@ let fallos = 0, total = 0;
 
 /* Cada caso recibe una página con la partida ya preparada y devuelve
    [ok, detalle]. Un error de página sin capturar hace fallar el caso. */
-async function caso(nombre, guardado, fn) {
+async function caso(nombre, guardado, fn, opciones = {}) {
   /* SOLO=texto: corre solo los casos cuyo nombre lo contenga (para iterar rápido) */
   if (process.env.SOLO && !nombre.includes(process.env.SOLO)) return;
   total++;
-  const ctx = await nav.newContext({ viewport: { width: 390, height: 760 } });
+  const ctx = await nav.newContext({ viewport: { width: 390, height: 760 }, ...opciones });
   if (guardado) await ctx.addInitScript(g => { if (!localStorage.getItem('pa3')) localStorage.setItem('pa3', JSON.stringify(g)); }, guardado);
   const pg = await ctx.newPage();
   const errs = [];
@@ -1800,6 +1800,113 @@ await caso('ficha de la portada · la pantalla de Mi Avatar y las demás no camb
     rPerso(); const cv = document.querySelector('#pe-cara'); o.peCara = cv ? [cv.width, cv.height] : null;
     return o; });
   return [['perso', 'tienda', 'logros', 'stats', 'libre'].every(n => !r[n].portada && r[n].ficha === 0) && r.peCara && r.peCara[0] === 64, JSON.stringify(r)];
+});
+
+/* ── LAS TRANSICIONES DE LA PORTADA (v32) ──
+   Lo que no puede romperse: un grupo de chispas por activación (ratón, toque o teclado), sin
+   duplicarse con el de pointerdown; la navegación inmediata y con UNA cortina; la entrada solo
+   al llegar; el motor FX de siempre (un lienzo, nada que se acumule); los demás botones del
+   juego con su efecto de antes; y nada de esto con "reducir movimiento". */
+const TRANS_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v32', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+/* pulsa `sel` como pide `modo` y cuenta, en el MISMO instante, cuántas partículas nuevas hay */
+const activa = async (pg, sel, modo) => {
+  await pg.evaluate(() => FX._vaciar());
+  if (modo === 'teclado') { await pg.focus(sel); await pg.evaluate(() => FX._vaciar()); await pg.keyboard.press('Enter'); }
+  else if (modo === 'toque') await pg.tap(sel);
+  else await pg.click(sel);
+  return pg.evaluate(() => ({ n: FX._vivas(), pant: pantallaId }));
+};
+
+await caso('transiciones de la portada · la portada entra con fundido solo al llegar, no al repintarla (dificultad, HD, idioma)', TRANS_J, async pg => {
+  const lee = () => pg.evaluate(() => { const p = document.querySelector('#screen>.portada'); return { entrada: p.classList.contains('portada-entrada'), anim: getComputedStyle(p).animationName, screen: getComputedStyle(document.getElementById('screen')).animationName }; });
+  await pg.evaluate(() => rTienda()); await pausa(100); await pg.evaluate(() => rTitulo()); await pausa(50);
+  const llegar = await lee();
+  await pg.click('.dif-op[data-dif="2"]'); await pausa(50); const dif = await lee();
+  await pg.evaluate(() => document.getElementById('t-modo').click()); await pausa(50); const hd = await lee();
+  await pg.evaluate(() => { S.hd = false; aplicarModo(); S.lang = 'en'; rehacerPantalla(); }); await pausa(50); const idioma = await lee();
+  await pg.evaluate(() => { S.lang = 'es'; rTienda(); rTitulo(); }); await pausa(50); const volver = await lee();
+  const ok = llegar.entrada && llegar.anim === 'portada-entrada' && llegar.screen === 'none' && !dif.entrada && dif.anim === 'none' && dif.screen === 'none' && !hd.entrada && !idioma.entrada && volver.entrada;
+  return [ok, JSON.stringify({ llegar, dif, hd, idioma, volver })];
+});
+
+await caso('transiciones de la portada · un grupo de chispas por activación: 6 con ratón, toque o teclado (no 12)', TRANS_J, async pg => {
+  const r = {};
+  for (const modo of ['raton', 'toque', 'teclado']) { await pg.evaluate(() => rTitulo()); await pausa(80); r['dif ' + modo] = (await activa(pg, '.dif-op[data-dif="0"]', modo)).n; }
+  for (const modo of ['raton', 'teclado']) { await pg.evaluate(() => rTitulo()); await pausa(80); r['reto ' + modo] = await activa(pg, '#t-reto', modo); }
+  const reto = Object.entries(r).filter(([k]) => k.startsWith('reto')).every(([, v]) => v.pant === 'reto' && v.n === 7);
+  return [r['dif raton'] === 6 && r['dif toque'] === 6 && r['dif teclado'] === 6 && reto, JSON.stringify(r) + ' (reto: 6 chispas + la cortina del cambio de pantalla)'];
+}, { hasTouch: true });
+
+await caso('transiciones de la portada · JUGAR suelta 10 chispas y una onda y entra al instante, con una sola cortina', TRANS_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(100);
+  const raton = await activa(pg, '#t-jugar', 'raton');
+  await pg.evaluate(() => rTitulo()); await pausa(100);
+  const teclado = await activa(pg, '#t-jugar', 'teclado');
+  return [raton.pant !== 'titulo' && raton.n === 12 && teclado.pant !== 'titulo' && teclado.n === 12, JSON.stringify({ raton, teclado }) + ' (10 chispas + 1 onda + 1 cortina)'];
+});
+
+await caso('transiciones de la portada · JUGAR de primer uso sigue igual: sin nombre → nombre; sin intro → historia', null, async pg => {
+  await prep(pg, { nombre: '', intro: false }); await pg.evaluate(() => rTitulo()); await pausa(150);
+  await pg.click('#t-jugar'); await pausa(100); const sinNombre = await pg.evaluate(() => pantallaId);
+  await pg.evaluate(() => { S.nombre = 'R'; S.intro = false; rTitulo(); }); await pausa(150);
+  await pg.click('#t-jugar'); await pausa(100); const sinIntro = await pg.evaluate(() => pantallaId);
+  return [sinNombre === 'nombre' && sinIntro === 'cut', JSON.stringify({ sinNombre, sinIntro })];
+});
+
+await caso('transiciones de la portada · la dificultad elegida destella en dorado (y el foco del teclado no se pierde)', TRANS_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(100);
+  await pg.click('.dif-op[data-dif="2"]'); await pausa(30);
+  const r = await pg.evaluate(() => { const e = document.querySelector('.dif-op.sel'); return { dif: e.dataset.dif, conf: e.classList.contains('portada-confirmada'), anim: getComputedStyle(e).animationName, otras: document.querySelectorAll('.portada-confirmada').length }; });
+  await pg.focus('.dif-op[data-dif="0"]'); await pg.keyboard.press('Enter'); await pausa(60);
+  const foco = await pg.evaluate(() => ({ activo: document.activeElement?.dataset?.dif, conf: document.activeElement?.classList.contains('portada-confirmada') }));
+  return [r.dif === '2' && r.conf && r.anim === 'portada-confirmar' && r.otras === 1 && foco.activo === '0' && foco.conf, JSON.stringify({ r, foco })];
+});
+
+await caso('transiciones de la portada · los iconos se levantan al pasar el ratón o con el foco del teclado', TRANS_J, async pg => {
+  await pg.setViewportSize({ width: 1280, height: 800 }); await pg.evaluate(() => rTitulo()); await pausa(300);
+  const tr = s => pg.evaluate(q => getComputedStyle(document.querySelector(q)).transform, s);
+  const reposo = await tr('#t-tienda .m-ico');
+  await pg.hover('#t-tienda'); await pausa(250); const hover = await tr('#t-tienda .m-ico');
+  await pg.mouse.move(1, 1); await pg.focus('#t-logros'); await pg.keyboard.press('Shift+Tab'); await pg.keyboard.press('Tab'); await pausa(250);
+  const foco = await tr('#t-logros .m-ico');
+  await pg.hover('#t-perso'); await pausa(250); const chev = await tr('#t-perso .m-chev');
+  const sube = /matrix\(1, 0, 0, 1, 0, -2\)/;
+  return [reposo === 'none' && sube.test(hover) && sube.test(foco) && /matrix\(1, 0, 0, 1, 3, 0\)/.test(chev), JSON.stringify({ reposo, hover, foco, chev })];
+});
+
+await caso('transiciones de la portada · con "reducir movimiento": ni chispas, ni fundido, ni destello, ni iconos que se mueven', TRANS_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await pg.setViewportSize({ width: 1280, height: 800 }); await pg.evaluate(() => { rTienda(); rTitulo(); }); await pausa(200);
+  const entrada = await pg.evaluate(() => getComputedStyle(document.querySelector('#screen>.portada')).animationName);
+  const n = [];
+  for (const s of ['.dif-op[data-dif="2"]', '#t-sinfin']) { await pg.evaluate(() => rTitulo()); await pausa(80); n.push((await activa(pg, s, 'raton')).n); }
+  await pg.evaluate(() => rTitulo()); await pausa(80); await pg.click('.dif-op[data-dif="1"]'); await pausa(30);
+  const conf = await pg.evaluate(() => getComputedStyle(document.querySelector('.dif-op.sel')).animationName);
+  await pg.hover('#t-tienda'); await pausa(200);
+  const ico = await pg.evaluate(() => ({ t: getComputedStyle(document.querySelector('#t-tienda .m-ico')).transform, tr: getComputedStyle(document.querySelector('#t-tienda')).transitionDuration }));
+  await pg.focus('#t-logros'); await pg.keyboard.press('Shift+Tab'); await pg.keyboard.press('Tab'); await pausa(80);
+  const foco = await pg.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
+  await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  return [entrada === 'none' && n.every(x => x === 0) && conf === 'none' && ico.t === 'none' && ico.tr === '0s' && foco !== 'none', JSON.stringify({ entrada, n, conf, ico, foco })];
+});
+
+await caso('transiciones de la portada · fuera de la portada los botones conservan su efecto de siempre (al apretar)', TRANS_J, async pg => {
+  await pg.evaluate(() => rTienda()); await pausa(150);
+  const b = await pg.evaluate(() => { const e = [...document.querySelectorAll('#screen button')].find(x => !x.disabled && x.getBoundingClientRect().height > 0); e.id = e.id || 'b-prueba'; return '#' + e.id; });
+  await pg.evaluate(() => FX._vaciar());
+  const c = await pg.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(); return [r.left + 5, r.top + 5]; }, b);
+  await pg.mouse.move(c[0], c[1]); await pg.mouse.down();
+  const n = await pg.evaluate(() => FX._vivas()); await pg.mouse.up();
+  return [n === 6, `${b}: ${n} chispas al apretar`];
+});
+
+await caso('transiciones de la portada · el motor FX no se duplica: un lienzo y las partículas se van solas', TRANS_J, async pg => {
+  for (let i = 0; i < 8; i++) { await pg.evaluate(() => rTitulo()); await pg.click('.dif-op[data-dif="' + (i % 3) + '"]'); await pg.click('#t-tienda'); }
+  await pg.evaluate(() => rTitulo()); await pg.click('#t-jugar');
+  const lienzos = await pg.evaluate(() => [...document.body.children].filter(e => e.tagName === 'CANVAS' && e.style.position === 'fixed').length);
+  await pausa(1800);
+  const quedan = await pg.evaluate(() => FX._vivas());
+  return [lienzos === 1 && quedan === 0, `lienzos de efectos: ${lienzos} · partículas vivas tras 1,8 s: ${quedan}`];
 });
 
 await nav.close();

@@ -14,7 +14,9 @@ const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
 const leer = f => readFileSync(join(RAIZ, f), 'utf8');
 const css = leer('css/estilos.css');
 const marca = '/* ── PORTADA · botones arcade (paso 4)';
-const bloque = css.slice(css.indexOf(marca));
+/* el bloque va desde su marca hasta la del paso siguiente (o el final del archivo) */
+const fin = css.indexOf('/* Paso 5 · ficha RPG', css.indexOf(marca));
+const bloque = css.slice(css.indexOf(marca), fin < 0 ? undefined : fin);
 
 /* las reglas del bloque, con sus selectores (entra en @media y aplana) */
 function selectores(txt) {

@@ -20,8 +20,13 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v31';
+const VERSION='v32';
 const NOVEDADES=[
+  {v:'v32', fecha:'2026-11-14',
+   es:['La pantalla principal se siente más viva: entra con un fundido suave, JUGAR suelta chispas verdes y una onda de energía, la dificultad elegida destella en dorado y los demás botones sueltan chispas violetas y cian. Los iconos se levantan un poco al pasar el ratón o el teclado.',
+       'Con "reducir movimiento" no hay chispas ni animaciones nuevas.'],
+   en:['The main screen feels more alive: it fades in softly, PLAY gives off green sparks and an energy wave, the chosen difficulty flashes gold and the other buttons give off purple and cyan sparks. Icons lift a little when the mouse or keyboard moves over them.',
+       'With "reduce motion" there are no sparks or new animations.']},
   {v:'v31', fecha:'2026-11-14',
    es:['La tarjeta Mi Avatar de la pantalla principal es ahora una ficha de jugador al estilo RPG: tu retrato en su marco, tu nombre y tu rango, la XP, las estrellas ganadas y los días de campaña superados.'],
    en:['The My Avatar card on the main screen is now an RPG-style player sheet: your portrait in its frame, your name and rank, XP, stars earned and campaign days cleared.']},

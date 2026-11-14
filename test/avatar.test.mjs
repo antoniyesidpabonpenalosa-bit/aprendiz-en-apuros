@@ -14,7 +14,8 @@ const leer = f => readFileSync(join(RAIZ, f), 'utf8');
 const js = leer('js/menus.js');
 const css = leer('css/estilos.css');
 const marca = '/* Paso 5 · ficha RPG del avatar.';
-const bloque = css.slice(css.indexOf(marca));
+const fin = css.indexOf('/* Paso 6 · microinteracciones', css.indexOf(marca));
+const bloque = css.slice(css.indexOf(marca), fin < 0 ? undefined : fin);
 const ficha = js.slice(js.indexOf('<button class="tit-avatar"'), js.indexOf('</button>', js.indexOf('<button class="tit-avatar"')) + 9);
 
 function selectores(txt) {

@@ -174,7 +174,8 @@ test/
 ├── titulo.test.mjs       → pruebas del título de la portada: recurso, texto accesible de respaldo y reglas de CSS
 ├── portada.test.mjs      → pruebas del aprendiz animado de la portada: qué hace en cada instante y que quede decorativo
 ├── botones.test.mjs      → pruebas de los botones de la portada: CSS acotado a .portada, iconos pixel y dificultad accesible
-└── avatar.test.mjs       → pruebas de la ficha de jugador de la portada: datos reales, un solo botón y CSS acotado
+├── avatar.test.mjs       → pruebas de la ficha de jugador de la portada: datos reales, un solo botón y CSS acotado
+└── transiciones.test.mjs → pruebas de las transiciones de la portada: un solo motor de efectos, sin retrasar la navegación y movimiento reducido
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 ├── barrido.mjs           → juega los 15 días × 3 dificultades × 2 idiomas y hace informe

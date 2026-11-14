@@ -1876,6 +1876,31 @@ html.legible .portada .tit-prog-fila .p-lbl,html.legible .portada .tit-prog-fila
 @media(max-width:560px){.portada .tit-avatar{padding:10px;gap:8px}.portada .tit-av-portrait{flex-basis:56px;height:56px}.portada .tit-av-portrait canvas{width:48px;height:48px}}
 @media(prefers-reduced-motion:reduce){.portada .tit-avatar:active{transform:none}}
 
+/* Paso 6 · microinteracciones de portada. Sin demorar la navegación. */
+#screen:has(>.portada).fade-in{animation:none}
+#screen>.portada{animation:none}
+#screen>.portada.portada-entrada{animation:portada-entrada .24s ease-out both}
+@keyframes portada-entrada{from{opacity:.72}to{opacity:1}}
+.portada .menu-fila,.portada .dif-op,.portada .btn-jugar,.portada .tit-reto,.portada .tit-avatar{
+  transition:border-color .13s ease-out,color .13s ease-out,transform .10s ease-out;
+}
+.portada .menu-fila .m-ico,.portada .dif-op .dif-ico,.portada .tit-avatar .m-chev{
+  transition:transform .14s ease-out;
+}
+@media(hover:hover) and (pointer:fine){
+  .portada .menu-fila:hover .m-ico,.portada .dif-op:hover .dif-ico{transform:translateY(-2px)}
+  .portada .tit-avatar:hover .m-chev{transform:translateX(3px)}
+}
+.portada .menu-fila:focus-visible .m-ico,.portada .dif-op:focus-visible .dif-ico{transform:translateY(-2px)}
+.portada .dif-op.sel.portada-confirmada{animation:portada-confirmar .24s ease-out}
+@keyframes portada-confirmar{0%,100%{filter:none}45%{filter:brightness(1.28)}}
+/* El foco sigue siendo visible aunque el sistema pida menos movimiento. */
+@media(prefers-reduced-motion:reduce){
+  #screen>.portada.portada-entrada,.portada .dif-op.sel.portada-confirmada{animation:none!important}
+  .portada .menu-fila,.portada .dif-op,.portada .btn-jugar,.portada .tit-reto,.portada .tit-avatar,
+  .portada .menu-fila .m-ico,.portada .dif-op .dif-ico,.portada .tit-avatar .m-chev{transition:none!important;transform:none!important}
+}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}
@@ -2827,6 +2852,31 @@ html.legible .portada .tit-av-txt .av-rango{font-size:14px}
 html.legible .portada .tit-prog-fila .p-lbl,html.legible .portada .tit-prog-fila .p-pc{font-size:13px}
 @media(max-width:560px){.portada .tit-avatar{padding:10px;gap:8px}.portada .tit-av-portrait{flex-basis:56px;height:56px}.portada .tit-av-portrait canvas{width:48px;height:48px}}
 @media(prefers-reduced-motion:reduce){.portada .tit-avatar:active{transform:none}}
+
+/* Paso 6 · microinteracciones de portada. Sin demorar la navegación. */
+#screen:has(>.portada).fade-in{animation:none}
+#screen>.portada{animation:none}
+#screen>.portada.portada-entrada{animation:portada-entrada .24s ease-out both}
+@keyframes portada-entrada{from{opacity:.72}to{opacity:1}}
+.portada .menu-fila,.portada .dif-op,.portada .btn-jugar,.portada .tit-reto,.portada .tit-avatar{
+  transition:border-color .13s ease-out,color .13s ease-out,transform .10s ease-out;
+}
+.portada .menu-fila .m-ico,.portada .dif-op .dif-ico,.portada .tit-avatar .m-chev{
+  transition:transform .14s ease-out;
+}
+@media(hover:hover) and (pointer:fine){
+  .portada .menu-fila:hover .m-ico,.portada .dif-op:hover .dif-ico{transform:translateY(-2px)}
+  .portada .tit-avatar:hover .m-chev{transform:translateX(3px)}
+}
+.portada .menu-fila:focus-visible .m-ico,.portada .dif-op:focus-visible .dif-ico{transform:translateY(-2px)}
+.portada .dif-op.sel.portada-confirmada{animation:portada-confirmar .24s ease-out}
+@keyframes portada-confirmar{0%,100%{filter:none}45%{filter:brightness(1.28)}}
+/* El foco sigue siendo visible aunque el sistema pida menos movimiento. */
+@media(prefers-reduced-motion:reduce){
+  #screen>.portada.portada-entrada,.portada .dif-op.sel.portada-confirmada{animation:none!important}
+  .portada .menu-fila,.portada .dif-op,.portada .btn-jugar,.portada .tit-reto,.portada .tit-avatar,
+  .portada .menu-fila .m-ico,.portada .dif-op .dif-ico,.portada .tit-avatar .m-chev{transition:none!important;transform:none!important}
+}
 
 </style>
 </head>
