@@ -2341,6 +2341,124 @@ await caso('personajes con sprite propio · tocar a cada uno abre su ficha con s
   return [ok, JSON.stringify(vistos)];
 });
 
+/* ── LOS DIÁLOGOS CINEMATOGRÁFICOS (v39) ──
+   Solo cambia cómo se presentan las escenas (js/cinematica.js): ni una frase de la historia.
+   Lo que no puede romperse: que cada texto de DIALOGOS y de las 6 escenas salga EXACTO y con su
+   personaje y su gesto, que continuar y saltar terminen la escena una sola vez, que el teclado y
+   el cambio de idioma sigan funcionando, que con "reducir movimiento" el texto salga entero, y
+   que el día siga llevando a su minijuego. */
+const CINE_J = { intro: true, nombre: 'R', pts: 900, xp: 6200, version: 'v39', t2: true, dias: [3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 1, 0, 0, 0],
+  vistos: ['escribir', 'bugs', 'memoria', 'simon', 'quiz', 'review', 'merge', 'runner', 'sql', 'regex', 'terminal', 'orden', 'jefe'] };
+const GUIONES = ['INTRO', 'FINAL', 'T2_INTRO', 'JEFE_INTRO', 'JEFE2_INTRO', 'FINAL2'];
+
+await caso('diálogos cine · los 15 días en ES y EN: el texto exacto de DIALOGOS, su hablante, su retrato con su gesto y su fondo', CINE_J, async pg => {
+  const mal = [];
+  for (const lang of ['es', 'en']) {
+    await pg.evaluate(l => { S.lang = l; }, lang);
+    for (let i = 0; i < 15; i++) {
+      const r = await pg.evaluate(i => { diaAct = i; rDialogo(i); $('#d-revelar')?.click();
+        const [quien, linea] = DIALOGOS[S.lang][i], img = $('.cine-retrato img.dibujo');
+        return { texto: $('#d-linea').textContent === linea, lector: ($('.cine-sr')?.textContent ?? linea) === linea, hablante: $('.cine-nombre').textContent === quien,
+          retrato: !!img && img.src.endsWith(`retratos/${dibujoDe(quien)}-${GESTO_DIA[i]}.webp`), fondo: !!$(`.cine-fondo-${i < 10 ? 'formacion' : 'empresa'}`) }; }, i);
+      if (!Object.values(r).every(Boolean)) mal.push(`${lang} día ${i + 1}: ${JSON.stringify(r)}`);
+    }
+  }
+  await pg.evaluate(() => { S.lang = 'es'; });
+  return [mal.length === 0, mal.length ? mal.slice(0, 4).join(' · ') : '30 diálogos (15 días × 2 idiomas): texto, hablante, retrato con gesto y fondo correctos'];
+});
+
+await caso('diálogos cine · las 6 escenas en ES y EN: cada página con su texto exacto, en orden, y el fondo de su lugar', CINE_J, async pg => {
+  const mal = [];
+  for (const lang of ['es', 'en']) for (const g of GUIONES) {
+    const r = await pg.evaluate(([g, lang]) => { S.lang = lang; const guion = eval(g), paginas = guion[lang], vistas = [];
+      let fin = 0; rCutscene(guion, () => { fin++; });
+      for (let k = 0; k < paginas.length; k++) { vistas.push({ t: $('#cut-linea').textContent, n: $('.cine-nombre').textContent, prog: $('.cut-prog').textContent, fondo: [...$('.cine-escena').classList].find(c => c.startsWith('cine-fondo-')) }); if (k < paginas.length - 1) $('#cut-next').click(); }
+      $('#cut-next').click();
+      return { iguales: vistas.every((v, k) => v.t === paginas[k].t), paginas: paginas.length, vistas: vistas.length, fin, fondos: [...new Set(vistas.map(v => v.fondo))].join(), progreso: vistas.at(-1).prog }; }, [g, lang]);
+    const fondo = { INTRO: 'cine-fondo-formacion', FINAL: 'cine-fondo-formacion', T2_INTRO: 'cine-fondo-empresa', FINAL2: 'cine-fondo-empresa', JEFE_INTRO: 'cine-fondo-servidor', JEFE2_INTRO: 'cine-fondo-servidor' }[g];
+    if (!(r.iguales && r.vistas === r.paginas && r.fin === 1 && r.fondos === fondo && r.progreso.endsWith(`${r.paginas}/${r.paginas}`))) mal.push(`${lang} ${g}: ${JSON.stringify(r)}`);
+  }
+  await pg.evaluate(() => { S.lang = 'es'; });
+  return [mal.length === 0, mal.length ? mal.slice(0, 4).join(' · ') : '12 escenas (6 × 2 idiomas): todas las páginas exactas y en orden, con su fondo, y el final una sola vez'];
+});
+
+await caso('diálogos cine · la aparición del jefe enseña su dibujo (el del Error Evolutivo, fase 1)', CINE_J, async pg => {
+  const r = [];
+  for (const g of ['JEFE_INTRO', 'JEFE2_INTRO']) {
+    await pg.evaluate(g => { const guion = eval(g); rCutscene(guion, () => {}); const k = guion.es.findIndex(p => p.ico === '👾'); for (let j = 0; j < k; j++) $('#cut-next').click(); }, g);
+    await pg.waitForFunction(() => { const i = $('.cine-jefe'); return i && i.complete; }, null, { timeout: 4000 }).catch(() => {});
+    r.push(await pg.evaluate(() => { const i = $('.cine-jefe'); return { img: !!i && /jefe\/jefe-fase-1\.png$/.test(i.src) && i.naturalWidth > 0 }; }));
+  }
+  return [r.every(x => x.img), JSON.stringify(r)];
+});
+
+await caso('diálogos cine · continuar, saltar y teclado: la escena termina UNA vez (también con doble clic o Enter repetido)', CINE_J, async pg => {
+  const r = await pg.evaluate(() => {
+    const o = {};
+    let fin = 0; rCutscene(INTRO, () => { fin++; }); $('#cut-skip').click(); $('#cut-skip')?.click(); o.saltar = fin;
+    fin = 0; rCutscene(INTRO, () => { fin++; }); for (let k = 0; k < 6; k++) $('#cut-next')?.click(); o.continuarDeMas = fin;
+    fin = 0; rCutscene(INTRO, () => { fin++; }); const z = $('#cut-zona');
+    z.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); o.paginaTrasEnter = $('.cut-prog').textContent;
+    $('#cut-zona').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', repeat: true, bubbles: true })); o.paginaTrasRepeat = $('.cut-prog').textContent;
+    $('#cut-zona').dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true })); o.paginaTrasEspacio = $('.cut-prog').textContent;
+    o.foco = document.activeElement?.id;
+    return o; });
+  const ok = r.saltar === 1 && r.continuarDeMas === 1 && r.paginaTrasEnter.endsWith('2/3') && r.paginaTrasRepeat.endsWith('2/3') && r.paginaTrasEspacio.endsWith('3/3') && r.foco === 'cut-zona';
+  return [ok, JSON.stringify(r)];
+});
+
+await caso('diálogos cine · cambiar de idioma no cambia de página, y el texto sale entero en el idioma nuevo', CINE_J, async pg => {
+  const r = await pg.evaluate(() => { S.lang = 'es'; rCutscene(INTRO, () => {}); $('#cut-next').click();
+    const antes = $('.cut-prog').textContent; S.lang = 'en'; rehacerPantalla();
+    const o = { antes, despues: $('.cut-prog').textContent, texto: $('#cut-linea').textContent === INTRO.en[1].t };
+    diaAct = 4; S.lang = 'es'; rDialogo(4); S.lang = 'en'; rehacerPantalla(); $('#d-revelar')?.click();
+    o.dia = $('#d-linea').textContent === DIALOGOS.en[4][1] && $('.cine-top .cut-prog').textContent.includes('5/15');
+    S.lang = 'es'; return o; });
+  return [r.antes.endsWith('2/3') && r.despues.endsWith('2/3') && r.texto && r.dia, JSON.stringify(r)];
+});
+
+await caso('diálogos cine · el texto del día se escribe solo, "Mostrar texto" lo completa, y al salir no queda nada escribiendo', CINE_J, async pg => {
+  await pg.evaluate(() => { diaAct = 2; rDialogo(2); }); await pausa(150);
+  const parcial = await pg.evaluate(() => ({ largo: $('#d-linea').textContent.length, total: DIALOGOS[S.lang][2][1].length, boton: !$('#d-revelar').hidden }));
+  await pg.click('#d-revelar');
+  const completo = await pg.evaluate(() => ({ igual: $('#d-linea').textContent === DIALOGOS[S.lang][2][1], boton: $('#d-revelar').hidden }));
+  await pg.evaluate(() => { diaAct = 3; rDialogo(3); }); await pausa(100); await pg.evaluate(() => rTitulo()); await pausa(400);
+  const quedan = await pg.evaluate(() => ({ p: pantallaId, linea: !!$('#d-linea') }));
+  return [parcial.largo > 0 && parcial.largo < parcial.total && parcial.boton && completo.igual && completo.boton && quedan.p === 'titulo' && !quedan.linea, JSON.stringify({ parcial, completo, quedan })];
+});
+
+await caso('diálogos cine · con "reducir movimiento" el texto sale entero al instante y sin botón de mostrar', CINE_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  const r = await pg.evaluate(() => { diaAct = 7; rDialogo(7); return { igual: $('#d-linea').textContent === DIALOGOS[S.lang][7][1], boton: $('#d-revelar').hidden }; });
+  await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  return [r.igual && r.boton, JSON.stringify(r)];
+});
+
+await caso('diálogos cine · ¡EMPEZAR! lleva al minijuego del día una sola vez (doble clic incluido)', CINE_J, async pg => {
+  const r = await pg.evaluate(() => { const o = jugarNivel; let n = 0, dia = -1; jugarNivel = i => { n++; dia = i; };
+    diaAct = 5; rDialogo(5); const b = $('#d-go'); b.click(); b.click(); jugarNivel = o; return { n, dia }; });
+  return [r.n === 1 && r.dia === 5, JSON.stringify(r)];
+});
+
+await caso('diálogos cine · caben en 6 tamaños y con HD y texto legible: retrato, texto y botones dentro, sin desbordar', CINE_J, async pg => {
+  const mal = [];
+  for (const modo of [{}, { hd: true, legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); }, modo);
+    for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+      await pg.setViewportSize({ width: w, height: h });
+      for (const que of ['dia', 'cut']) {
+        await pg.evaluate(q => { if (q === 'dia') { diaAct = 11; rDialogo(11); $('#d-revelar')?.click(); } else rCutscene(T2_INTRO, () => {}); }, que); await pausa(200);
+        const r = await pg.evaluate(() => { const sc = $('#screen'), c = $('#screen>.cine').getBoundingClientRect();
+          const fuera = [...document.querySelectorAll('.cine-panel button:not([hidden]), .cine-linea, .cine-retrato, .cine-simbolo')].filter(e => { const q = e.getBoundingClientRect(); return q.width && (q.left < c.left - 1 || q.right > c.right + 1); }).map(e => e.id || e.className);
+          return { scroll: sc.scrollWidth > sc.clientWidth || document.documentElement.scrollWidth > innerWidth, fuera }; });
+        if (r.scroll || r.fuera.length) mal.push(`${JSON.stringify(modo)} ${w}×${h} ${que}: ${JSON.stringify(r)}`);
+      }
+    }
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '2 modos × 6 tamaños × día y escena: todo dentro, sin desbordar'];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

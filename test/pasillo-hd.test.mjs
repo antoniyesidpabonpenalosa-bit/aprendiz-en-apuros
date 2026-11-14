@@ -12,7 +12,9 @@ import { fileURLToPath } from 'node:url';
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
 const leer = f => readFileSync(join(RAIZ, f), 'utf8');
 const css = leer('css/estilos.css');
-const bloque = css.slice(css.indexOf('/* ── PASILLO HD'));
+/* hasta el bloque siguiente (el cine, v39), no hasta el final del archivo */
+const fin = css.indexOf('/* ── CINE', css.indexOf('/* ── PASILLO HD'));
+const bloque = css.slice(css.indexOf('/* ── PASILLO HD'), fin < 0 ? undefined : fin);
 const webp = r => { const b = readFileSync(join(RAIZ, r)); return { tipo: b.toString('ascii', 8, 12) + b.toString('ascii', 12, 16), w: b.readUInt16LE(26) & 0x3fff, h: b.readUInt16LE(28) & 0x3fff }; };
 const png = r => { const b = readFileSync(join(RAIZ, r)); return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) }; };
 const AMB = ['formacion', 'empresa'];
