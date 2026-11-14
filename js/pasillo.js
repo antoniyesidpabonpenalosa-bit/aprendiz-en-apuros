@@ -32,7 +32,7 @@ function rPasillo(zona=pasilloZonaAuto()){
        aria-label="${t('pas_dia')} ${i+1}: ${esc(tj({es:N.es,en:N.en}))} · ${t(NOM_ESTADO[estado])}"
        aria-pressed="false">
       <span class="pasillo-cartel"><span class="pasillo-ico" aria-hidden="true">${pxi(N.ico)}</span><span>${t('pas_dia')} ${i+1}</span></span>
-      <span class="pasillo-marco"><span class="pasillo-cristal" aria-hidden="true"></span><span class="pasillo-manija" aria-hidden="true"></span></span>
+      <span class="pasillo-marco"><span class="pasillo-hoja" aria-hidden="true"><span class="pasillo-cristal"></span><span class="pasillo-manija"></span></span></span>
       <span class="pasillo-insignia" aria-hidden="true">${pista}</span>
     </button>`;
   };
@@ -44,7 +44,7 @@ function rPasillo(zona=pasilloZonaAuto()){
         <p class="pasillo-zona">${esc(titulo)}</p>
         <p class="pasillo-sub">${t('pas_ayuda')}</p>
       </header>
-      <div class="pasillo-escena ${bloque.tipo==='empresa'?'pasillo-empresa':'pasillo-formacion'}" id="pasillo-escena" tabindex="0"
+      <div class="pasillo-escena pasillo-hd ${bloque.tipo==='empresa'?'pasillo-empresa':'pasillo-formacion'}" id="pasillo-escena" tabindex="0"
            role="group" aria-label="${esc(titulo)}">
         <div class="pasillo-techo" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="pasillo-muro" aria-hidden="true"></div>

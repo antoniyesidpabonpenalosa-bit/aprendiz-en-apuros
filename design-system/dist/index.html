@@ -1952,6 +1952,67 @@ html.legible .rpg-xp-cab,html.legible .portada .rpg-xp-bloque .xp-txt{font-famil
 @media(max-width:470px){.hud-titulo .rpg-medidor{width:48px;height:10px}.portada .tit-prog-fila .rpg-medidor{height:13px}.portada .rpg-xp-bloque .rpg-medidor{height:17px}}
 @media(prefers-reduced-motion:reduce){.rpg-medidor[data-animar="true"] .rpg-relleno{animation:none;transition:none}}
 
+/* ── PASILLO HD · arte modular, exclusivo de la selección de días ── */
+.pasillo-escena.pasillo-hd{
+  border-color:#6d7495;box-shadow:0 0 0 1px #181f37,0 4px #090c19;
+  --arte-techo:url('../img/pasillo-hd/formacion-techo.webp');
+  --arte-muro:url('../img/pasillo-hd/formacion-muro.webp');
+  --arte-suelo:url('../img/pasillo-hd/formacion-suelo.webp');
+  --arte-puerta:url('../img/pasillo-hd/formacion-puerta.png');
+}
+.pasillo-escena.pasillo-hd.pasillo-empresa{
+  --arte-techo:url('../img/pasillo-hd/empresa-techo.webp');
+  --arte-muro:url('../img/pasillo-hd/empresa-muro.webp');
+  --arte-suelo:url('../img/pasillo-hd/empresa-suelo.webp');
+  --arte-puerta:url('../img/pasillo-hd/empresa-puerta.png');
+}
+/* Existing CSS art stays beneath the images, as a fallback. The layers share
+   the original 18% / 52% / 30% boundaries, so doors keep their hit targets. */
+.pasillo-hd .pasillo-techo,.pasillo-hd .pasillo-muro{border:0}
+.pasillo-hd .pasillo-techo::after,.pasillo-hd .pasillo-muro::after,.pasillo-hd .pasillo-suelo::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-position:center;background-size:cover;background-repeat:no-repeat;
+}
+.pasillo-hd .pasillo-techo::after{background-image:var(--arte-techo)}
+.pasillo-hd .pasillo-muro::after{background-image:var(--arte-muro)}
+.pasillo-hd .pasillo-suelo::after{background-image:var(--arte-suelo)}
+.pasillo-hd .pasillo-ventana{display:none}
+/* The existing button remains the hit target. Frame and leaf are separate:
+   only the leaf rotates, exposing the dark interior. */
+.pasillo-hd .pasillo-marco{
+  background:#111a2d;border:3px solid #303b55;border-top-color:#8d9bb6;
+  border-left-color:#66738f;border-right-color:#202a44;
+  border-bottom:0;box-shadow:0 0 0 1px #162139,2px 1px #29334e;
+  transform:none;transition:none;perspective:180px;
+}
+.pasillo-hd .pasillo-hoja{
+  position:absolute;inset:0;display:block;background:var(--puerta);
+  transform-origin:left center;transition:transform .35s steps(7,end);
+}
+.pasillo-hd .pasillo-hoja::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:var(--arte-puerta) center/100% 100% no-repeat;image-rendering:pixelated;
+}
+.pasillo-hd .pasillo-puerta.abriendo .pasillo-marco{transform:none}
+.pasillo-hd .pasillo-puerta.abriendo .pasillo-hoja{transform:rotateY(-68deg)}
+.pasillo-hd .pasillo-puerta.bloqueada .pasillo-marco{filter:none}
+.pasillo-hd .pasillo-puerta.bloqueada .pasillo-hoja{filter:brightness(.62) saturate(.55)}
+.pasillo-hd .pasillo-puerta.disponible .pasillo-marco{box-shadow:0 0 0 2px #82bb5c,0 0 8px #7aba5544}
+.pasillo-hd .pasillo-puerta.seleccionada .pasillo-marco{outline:2px solid #ffcf3f;outline-offset:2px}
+.pasillo-hd .pasillo-puerta:focus-visible .pasillo-marco{outline:2px solid #fff;outline-offset:3px}
+.pasillo-hd .pasillo-cartel{background:#17213b;border-color:#8999ba;box-shadow:0 2px #182238;color:#f7e9c5}
+.pasillo-hd .pasillo-puerta.superada .pasillo-cartel{border-color:#75ba52}
+.pasillo-hd .pasillo-puerta.seleccionada .pasillo-cartel{color:#ffcf3f;border-color:#ffcf3f;background:#29344a}
+.pasillo-hd .pasillo-insignia{background:#11192cdd;width:max-content;max-width:100%;margin:auto;padding:2px 4px;bottom:-18px;border-radius:2px}
+.pasillo-hd .pasillo-actor,.pasillo-hd .pasillo-gente{filter:drop-shadow(1px 3px 1px #111628aa)}
+/* Lighting and colors stay subtle; only the selection has a strong accent. */
+.pasillo-vista .pasillo-ficha{border-color:#59678c;box-shadow:inset 0 1px #7484a333,0 3px #090d1d;background:linear-gradient(180deg,#1b2440,#131a30)}
+.pasillo-vista .pasillo-bloque.actual{box-shadow:inset 0 -2px #7ac744;background:#1a3426}
+@media(prefers-reduced-motion:reduce){.pasillo-hd .pasillo-hoja{transition:none}}
+/* The original zone labels were only 8–10 px; allow them to wrap naturally. */
+.pasillo-vista .pasillo-bloque{font:16px/1.1 'VT323',monospace;letter-spacing:0;padding:5px 6px;text-wrap:balance}
+@media(max-width:550px){.pasillo-vista .pasillo-bloque{font-size:13px;min-height:42px;padding:4px 2px}}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}
@@ -2978,6 +3039,67 @@ html.legible .portada .tit-prog-fila .p-lbl,html.legible .portada .tit-prog-fila
 html.legible .rpg-xp-cab,html.legible .portada .rpg-xp-bloque .xp-txt{font-family:inherit;font-size:15px;letter-spacing:0}
 @media(max-width:470px){.hud-titulo .rpg-medidor{width:48px;height:10px}.portada .tit-prog-fila .rpg-medidor{height:13px}.portada .rpg-xp-bloque .rpg-medidor{height:17px}}
 @media(prefers-reduced-motion:reduce){.rpg-medidor[data-animar="true"] .rpg-relleno{animation:none;transition:none}}
+
+/* ── PASILLO HD · arte modular, exclusivo de la selección de días ── */
+.pasillo-escena.pasillo-hd{
+  border-color:#6d7495;box-shadow:0 0 0 1px #181f37,0 4px #090c19;
+  --arte-techo:url('../img/pasillo-hd/formacion-techo.webp');
+  --arte-muro:url('../img/pasillo-hd/formacion-muro.webp');
+  --arte-suelo:url('../img/pasillo-hd/formacion-suelo.webp');
+  --arte-puerta:url('../img/pasillo-hd/formacion-puerta.png');
+}
+.pasillo-escena.pasillo-hd.pasillo-empresa{
+  --arte-techo:url('../img/pasillo-hd/empresa-techo.webp');
+  --arte-muro:url('../img/pasillo-hd/empresa-muro.webp');
+  --arte-suelo:url('../img/pasillo-hd/empresa-suelo.webp');
+  --arte-puerta:url('../img/pasillo-hd/empresa-puerta.png');
+}
+/* Existing CSS art stays beneath the images, as a fallback. The layers share
+   the original 18% / 52% / 30% boundaries, so doors keep their hit targets. */
+.pasillo-hd .pasillo-techo,.pasillo-hd .pasillo-muro{border:0}
+.pasillo-hd .pasillo-techo::after,.pasillo-hd .pasillo-muro::after,.pasillo-hd .pasillo-suelo::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-position:center;background-size:cover;background-repeat:no-repeat;
+}
+.pasillo-hd .pasillo-techo::after{background-image:var(--arte-techo)}
+.pasillo-hd .pasillo-muro::after{background-image:var(--arte-muro)}
+.pasillo-hd .pasillo-suelo::after{background-image:var(--arte-suelo)}
+.pasillo-hd .pasillo-ventana{display:none}
+/* The existing button remains the hit target. Frame and leaf are separate:
+   only the leaf rotates, exposing the dark interior. */
+.pasillo-hd .pasillo-marco{
+  background:#111a2d;border:3px solid #303b55;border-top-color:#8d9bb6;
+  border-left-color:#66738f;border-right-color:#202a44;
+  border-bottom:0;box-shadow:0 0 0 1px #162139,2px 1px #29334e;
+  transform:none;transition:none;perspective:180px;
+}
+.pasillo-hd .pasillo-hoja{
+  position:absolute;inset:0;display:block;background:var(--puerta);
+  transform-origin:left center;transition:transform .35s steps(7,end);
+}
+.pasillo-hd .pasillo-hoja::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:var(--arte-puerta) center/100% 100% no-repeat;image-rendering:pixelated;
+}
+.pasillo-hd .pasillo-puerta.abriendo .pasillo-marco{transform:none}
+.pasillo-hd .pasillo-puerta.abriendo .pasillo-hoja{transform:rotateY(-68deg)}
+.pasillo-hd .pasillo-puerta.bloqueada .pasillo-marco{filter:none}
+.pasillo-hd .pasillo-puerta.bloqueada .pasillo-hoja{filter:brightness(.62) saturate(.55)}
+.pasillo-hd .pasillo-puerta.disponible .pasillo-marco{box-shadow:0 0 0 2px #82bb5c,0 0 8px #7aba5544}
+.pasillo-hd .pasillo-puerta.seleccionada .pasillo-marco{outline:2px solid #ffcf3f;outline-offset:2px}
+.pasillo-hd .pasillo-puerta:focus-visible .pasillo-marco{outline:2px solid #fff;outline-offset:3px}
+.pasillo-hd .pasillo-cartel{background:#17213b;border-color:#8999ba;box-shadow:0 2px #182238;color:#f7e9c5}
+.pasillo-hd .pasillo-puerta.superada .pasillo-cartel{border-color:#75ba52}
+.pasillo-hd .pasillo-puerta.seleccionada .pasillo-cartel{color:#ffcf3f;border-color:#ffcf3f;background:#29344a}
+.pasillo-hd .pasillo-insignia{background:#11192cdd;width:max-content;max-width:100%;margin:auto;padding:2px 4px;bottom:-18px;border-radius:2px}
+.pasillo-hd .pasillo-actor,.pasillo-hd .pasillo-gente{filter:drop-shadow(1px 3px 1px #111628aa)}
+/* Lighting and colors stay subtle; only the selection has a strong accent. */
+.pasillo-vista .pasillo-ficha{border-color:#59678c;box-shadow:inset 0 1px #7484a333,0 3px #090d1d;background:linear-gradient(180deg,#1b2440,#131a30)}
+.pasillo-vista .pasillo-bloque.actual{box-shadow:inset 0 -2px #7ac744;background:#1a3426}
+@media(prefers-reduced-motion:reduce){.pasillo-hd .pasillo-hoja{transition:none}}
+/* The original zone labels were only 8–10 px; allow them to wrap naturally. */
+.pasillo-vista .pasillo-bloque{font:16px/1.1 'VT323',monospace;letter-spacing:0;padding:5px 6px;text-wrap:balance}
+@media(max-width:550px){.pasillo-vista .pasillo-bloque{font-size:13px;min-height:42px;padding:4px 2px}}
 
 </style>
 </head>

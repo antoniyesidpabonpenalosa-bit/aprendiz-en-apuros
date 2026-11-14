@@ -2030,7 +2030,7 @@ const ICONOS_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v34',
 const clavesPortada = () => pg => pg.evaluate(() => [...document.querySelectorAll('#screen .pxi-portada')].map(i => Object.keys(PXI_PORTADA).find(k => PXI_PORTADA[k] === i.getAttribute('src'))));
 
 await caso('iconos de la portada · salen los 15 dibujos de 32×32 (el joystick, al activar HD o texto pixel), cargados y sin pedir nada a la red', ICONOS_J, async pg => {
-  const pedidos = []; pg.on('request', q => { if (/iconos|recursos|\.png/.test(q.url()) && !/aprendiz|titulo|fondo|jefe|retratos|icon-180/.test(q.url())) pedidos.push(q.url()); });
+  const pedidos = []; pg.on('request', q => { if (/iconos|recursos|\.png/.test(q.url()) && !/aprendiz|titulo|fondo|jefe|retratos|icon-180|img\/portada\/|pasillo-hd/.test(q.url())) pedidos.push(q.url()); });
   const vistas = new Set();
   for (const modo of [{}, { hd: true, legible: true }]) {
     await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); rTitulo(); }, modo); await pausa(400);
@@ -2146,6 +2146,131 @@ await caso('barras RPG · caben en 6 tamaños y con HD y texto legible, sin desb
   }
   await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '2 modos × 6 tamaños: barras dentro, cabecera sin cortar'];
+});
+
+/* ── EL PASILLO HD (v37) ──
+   Lo que no puede romperse: que cada zona lleve su ambiente (formación cálida, empresa fría)
+   con sus 3 capas y su puerta, que al entrar gire la hoja y no el botón, que con "reducir
+   movimiento" no haya giro, que si el arte no carga quede el pasillo de CSS de siempre y todo
+   siga funcionando, y que quepa en móvil, escritorio, HD y texto legible. */
+const PASILLO_HD = { intro: true, nombre: 'R', pts: 50, xp: 6065, version: 'v37', t2: true, dias: [3, 3, 3, 2, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0] };
+const capasPasillo = pg => pg.evaluate(() => { const e = $('#pasillo-escena'); const fondo = s => getComputedStyle($(s), '::after').backgroundImage.match(/pasillo-hd\/([\w-]+)\./)?.[1] || 'ninguna';
+  return { clases: e.className.replace('pasillo-escena ', ''), techo: fondo('.pasillo-techo'), muro: fondo('.pasillo-muro'), suelo: fondo('.pasillo-suelo'),
+    puerta: getComputedStyle($('.pasillo-hoja'), '::after').backgroundImage.match(/pasillo-hd\/([\w-]+)\./)?.[1], puertas: $$('.pasillo-puerta').length, hojas: $$('.pasillo-puerta .pasillo-marco > .pasillo-hoja').length }; });
+
+await caso('pasillo HD · cada zona con su ambiente: formación (zonas 1 y 2) cálida y empresa (zona 3) fría, con techo, muro, suelo y puerta propios', PASILLO_HD, async pg => {
+  const r = [];
+  for (const z of [0, 1, 2]) { await pg.evaluate(z => rPasillo(z), z); await pausa(200); r.push(await capasPasillo(pg)); }
+  const ok = r.every((x, i) => { const a = i < 2 ? 'formacion' : 'empresa';
+    return x.clases.includes('pasillo-hd') && x.clases.includes('pasillo-' + a) && x.techo === a + '-techo' && x.muro === a + '-muro' && x.suelo === a + '-suelo' && x.puerta === a + '-puerta' && x.puertas === 5 && x.hojas === 5; });
+  return [ok, JSON.stringify(r.map(x => [x.clases, x.techo, x.muro, x.suelo, x.puerta, x.hojas]))];
+});
+
+await caso('pasillo HD · al entrar gira la hoja de la puerta (no el botón ni el marco) y se llega al diálogo de ese día', PASILLO_HD, async pg => {
+  await pg.evaluate(() => rPasillo(1)); await pausa(300);
+  const antes = await pg.evaluate(() => $('.pasillo-puerta.seleccionada .pasillo-marco').getBoundingClientRect().width);
+  const esperado = await pg.evaluate(() => +$('.pasillo-puerta.seleccionada').dataset.dia);
+  await pg.click('.pasillo-puerta.seleccionada'); await pausa(180);
+  const medio = await pg.evaluate(() => { const d = $('.pasillo-puerta.seleccionada'); return d ? { abriendo: d.classList.contains('abriendo'), marco: getComputedStyle(d.querySelector('.pasillo-marco')).transform, hoja: getComputedStyle(d.querySelector('.pasillo-hoja')).transform, boton: getComputedStyle(d).transform, ancho: d.querySelector('.pasillo-marco').getBoundingClientRect().width } : null; });
+  await pausa(900);
+  const fin = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
+  const ok = medio && medio.abriendo && medio.marco === 'none' && medio.hoja !== 'none' && medio.boton === 'none' && Math.abs(medio.ancho - antes) < 1 && fin.pantalla === 'dialogo' && fin.dia === esperado;
+  return [ok, JSON.stringify({ medio, fin, esperado })];
+});
+
+await caso('pasillo HD · con "reducir movimiento" la hoja no gira con transición, y se entra igual', PASILLO_HD, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await pg.evaluate(() => rPasillo(1)); await pausa(300);
+  const tr = await pg.evaluate(() => getComputedStyle($('.pasillo-hoja')).transitionDuration);
+  const esperado = await pg.evaluate(() => +$('.pasillo-puerta.seleccionada').dataset.dia);
+  await pg.click('.pasillo-puerta.seleccionada'); await pausa(900);
+  const fin = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
+  await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  return [tr === '0s' && fin.pantalla === 'dialogo' && fin.dia === esperado, JSON.stringify({ tr, fin, esperado })];
+});
+
+await caso('pasillo HD · si el arte no carga, queda el pasillo de CSS de siempre y las puertas siguen entrando', PASILLO_HD, async pg => {
+  await pg.route('**/img/pasillo-hd/**', r => r.abort());
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+  await pg.evaluate(() => rPasillo(1)); await pausa(400);
+  const r = await pg.evaluate(() => ({ muro: getComputedStyle($('.pasillo-muro')).backgroundImage !== 'none' || getComputedStyle($('.pasillo-muro')).backgroundColor !== 'rgba(0, 0, 0, 0)', puerta: getComputedStyle($('.pasillo-hoja')).backgroundColor, puertas: $$('.pasillo-puerta').length }));
+  const esperado = await pg.evaluate(() => +$('.pasillo-puerta.seleccionada').dataset.dia);
+  await pg.click('.pasillo-puerta.seleccionada'); await pausa(900);
+  const fin = await pg.evaluate(() => ({ pantalla: pantallaId, dia: diaAct }));
+  return [r.muro && r.puerta !== 'rgba(0, 0, 0, 0)' && r.puertas === 5 && fin.pantalla === 'dialogo' && fin.dia === esperado, JSON.stringify({ ...r, fin, esperado })];
+});
+
+await caso('pasillo HD · cabe en 6 tamaños, con HD y texto legible: puertas, letreros y zonas dentro, sin cortar', PASILLO_HD, async pg => {
+  const mal = [];
+  for (const modo of [{}, { hd: true, legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); }, modo);
+    for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+      await pg.setViewportSize({ width: w, height: h });
+      for (const z of [1, 2]) {
+        await pg.evaluate(z => rPasillo(z), z); await pausa(250);
+        const r = await pg.evaluate(() => { const sc = $('#screen'), e = $('#pasillo-escena').getBoundingClientRect();
+          const fuera = $$('.pasillo-puerta .pasillo-marco, .pasillo-cartel').filter(x => { const q = x.getBoundingClientRect(); return q.left < e.left - 1 || q.right > e.right + 1; }).length;
+          const zonas = $$('.pasillo-bloque').filter(b => b.scrollWidth > b.clientWidth + 1 || b.scrollHeight > b.clientHeight + 2).map(b => b.textContent.trim());
+          return { scroll: sc.scrollWidth > sc.clientWidth || document.documentElement.scrollWidth > innerWidth, fuera, zonas, alto: Math.round(e.height) }; });
+        if (r.scroll || r.fuera || r.zonas.length || r.alto < 120) mal.push(`${JSON.stringify(modo)} ${w}×${h} z${z}: ${JSON.stringify(r)}`);
+      }
+    }
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '2 modos × 6 tamaños × 2 ambientes: todo dentro, sin cortar'];
+});
+
+await caso('pasillo HD · navegación completa: zonas, anterior/siguiente, lista de días y vuelta, NPC y menú principal', PASILLO_HD, async pg => {
+  const pasos = {};
+  await pg.evaluate(() => rPasillo(0)); await pausa(200);
+  await pg.evaluate(() => $$('.pasillo-bloque')[2].click()); await pausa(250);
+  pasos.zona3 = await pg.evaluate(() => $('#pasillo-escena').classList.contains('pasillo-empresa'));
+  await pg.evaluate(() => $$('.pasillo-bloque')[0].click()); await pausa(250);
+  pasos.zona1 = await pg.evaluate(() => $('#pasillo-escena').classList.contains('pasillo-formacion'));
+  /* «Siguiente» y «Anterior» cambian de zona (y de ambiente al pasar a la empresa) */
+  await pg.click('#pasillo-siguiente'); await pausa(200); await pg.click('#pasillo-siguiente'); await pausa(200);
+  pasos.sigEmpresa = await pg.evaluate(() => ({ empresa: $('#pasillo-escena').classList.contains('pasillo-empresa'), sigDesactivado: $('#pasillo-siguiente').disabled }));
+  await pg.click('#pasillo-anterior'); await pausa(200);
+  pasos.antFormacion = await pg.evaluate(() => $('#pasillo-escena').classList.contains('pasillo-formacion'));
+  await pg.evaluate(() => [...document.querySelectorAll('#screen button')].find(b => /lista|list/i.test(b.textContent)).click()); await pausa(300);
+  pasos.lista = await pg.evaluate(() => ({ p: pantallaId, etapas: $$('.etapa-card').length }));
+  await pg.evaluate(() => rPasillo(1)); await pausa(300);
+  const gente = await pg.evaluate(() => $$('.pasillo-gente').length);
+  /* el consejo de un personaje sale en el propio pasillo: su ficha con el retrato dibujado */
+  if (gente) { await pg.click('.pasillo-gente'); await pausa(900); pasos.npc = await pg.evaluate(() => ({ p: pantallaId, ficha: !!$('#pasillo-ficha img.dibujo') })); }
+  await pg.evaluate(() => rPasillo(1)); await pausa(200);
+  await pg.evaluate(() => [...document.querySelectorAll('#screen button')].find(b => /menú principal|main menu/i.test(b.textContent)).click()); await pausa(300);
+  pasos.menu = await pg.evaluate(() => pantallaId);
+  const ok = pasos.zona3 && pasos.zona1 && pasos.sigEmpresa.empresa && pasos.sigEmpresa.sigDesactivado && pasos.antFormacion && pasos.lista.etapas === 15 && (!gente || (pasos.npc.p === 'pasillo' && pasos.npc.ficha)) && pasos.menu === 'titulo';
+  return [ok, JSON.stringify(pasos)];
+});
+
+await caso('pasillo HD · sin conexión: el service worker guarda los 8 recursos y el pasillo se ve sin red', PASILLO_HD, async pg => {
+  const { createServer } = await import('node:http');
+  const { readFile } = await import('node:fs/promises');
+  const tipos = { html: 'text/html', js: 'text/javascript', css: 'text/css', webmanifest: 'application/manifest+json', svg: 'image/svg+xml', png: 'image/png', webp: 'image/webp', woff2: 'font/woff2' };
+  const mini = createServer(async (q, r) => {
+    try { let ruta = decodeURIComponent(new URL(q.url, 'http://x').pathname); if (ruta.endsWith('/')) ruta += 'index.html';
+      const cuerpo = await readFile(join(RAIZ, ruta)); r.writeHead(200, { 'content-type': tipos[ruta.split('.').pop()] || 'application/octet-stream', 'cache-control': 'no-store' }); r.end(cuerpo);
+    } catch (e) { r.writeHead(404); r.end(); }
+  });
+  await new Promise(ok => mini.listen(0, '127.0.0.1', ok));
+  try {
+    await pg.goto(`http://127.0.0.1:${mini.address().port}/index.html`, { waitUntil: 'load' });
+    await pg.waitForFunction(() => typeof pantallaId !== 'undefined');
+    await pg.evaluate(() => registrarSW());
+    await pg.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 8000 });
+    await pausa(1500);
+    const rutas = ['formacion', 'empresa'].flatMap(a => ['techo.webp', 'muro.webp', 'suelo.webp', 'puerta.png'].map(p => `img/pasillo-hd/${a}-${p}`));
+    const guardadas = await pg.evaluate(async rs => Promise.all(rs.map(async u => !!(await caches.match(u)))), rutas);
+    await pg.context().setOffline(true);
+    await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined');
+    await pg.evaluate(() => rPasillo(2)); await pausa(800);
+    const vistas = await pg.evaluate(() => performance.getEntriesByType('resource').filter(e => /pasillo-hd\/empresa/.test(e.name)).length);
+    const cargo = await pg.evaluate(async () => { const r = await fetch('img/pasillo-hd/empresa-muro.webp'); return r.ok && (await r.blob()).size > 1000; });
+    await pg.context().setOffline(false);
+    return [guardadas.every(Boolean) && cargo, `en la caché: ${guardadas.filter(Boolean).length}/8 · empresa sin red: ${cargo} (recursos pedidos: ${vistas})`];
+  } finally { mini.close(); }
 });
 
 await nav.close();
