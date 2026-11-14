@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v27';
+const VERSION='v28';
 const NOVEDADES=[
+  {v:'v28', fecha:'2026-11-14',
+   es:['El título de la pantalla principal estrena diseño: letras de pixel art con relieve, dorado y verde, con sus guiones de colores.'],
+   en:['The main screen title has a new design: pixel art letters with depth, gold and green, with their colored dashes.']},
   {v:'v27', fecha:'2026-11-14',
    es:['La pantalla principal tiene fondo nuevo: una ciudad nocturna en pixel art, con ventanas verdes y violetas que se encienden y apagan, estrellas que titilan y nubes que se mueven despacio.',
        'Solo está en el menú principal. Las demás pantallas conservan las montañas de siempre, y con "reducir movimiento" la ciudad se queda quieta.'],

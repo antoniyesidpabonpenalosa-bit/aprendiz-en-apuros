@@ -486,6 +486,15 @@ html.legible .pe-nombre{font-family:'VT323',monospace;font-size:19px}
 .tit-logo .guion.der i:nth-child(2){margin-left:0}
 .tit-logo .guion.der i:nth-child(3){margin-left:auto}
 
+/* Título en imagen (v28, js/menus.js): con el dibujo cargado y fuera del modo HD se ve el PNG
+   y el <h1> de texto pasa a "solo lectores de pantalla"; sin él (o en HD) se ve el texto de
+   siempre con sus guiones. image-rendering:pixelated mantiene el borde de los píxeles. */
+.tit-img{display:none}
+html:not(.hd) .tit-logo.con-imagen .tit-img{display:block;width:min(100%,460px);height:auto;margin:0 auto;image-rendering:pixelated}
+html:not(.hd) .tit-logo.con-imagen .guion{display:none}
+html:not(.hd) .tit-logo.con-imagen .tit-h1{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+.tit-logo{position:relative}
 .tit-h1{font-size:clamp(19px,6.2vw,30px);line-height:1.28;letter-spacing:1px;text-align:center}
 .tit-h1 .l1{color:var(--y2);text-shadow:3px 3px 0 var(--o1),4px 5px 0 var(--bd),0 0 24px rgba(255,207,63,.3)}
 .tit-h1 .l2{color:var(--g4);text-shadow:3px 3px 0 var(--g0),4px 5px 0 var(--bd),0 0 24px rgba(138,255,79,.3)}

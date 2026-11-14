@@ -1,0 +1,28 @@
+/* Alternativa HTML/CSS: aplicar al final de estilos.css, revisar con la rama actual.
+   Conserva el h1, las dos líneas y la fuente que ya carga el juego. */
+.tit-logo { position: relative; gap: clamp(4px,1.2vw,12px); }
+.tit-logo .tit-h1 {
+  margin: 0; line-height: 1.42; letter-spacing: 0;
+  font-size: clamp(15px, 4.6vw, 29px);
+  font-weight: normal; overflow-wrap: normal;
+}
+.tit-logo .tit-h1 .l1, .tit-logo .tit-h1 .l2 {
+  display: inline-block; white-space: nowrap; position: relative;
+}
+.tit-logo .tit-h1 .l1 {
+  color: #ffcf3f;
+  text-shadow: 0 -1px #fff0a1, 1px 1px #cf861d, 2px 2px #a85c12,
+    3px 3px #75400e, 4px 4px #090b20, -2px 0 #090b20,
+    2px 0 #090b20, 0 2px #090b20, 0 -2px #090b20;
+}
+.tit-logo .tit-h1 .l2 {
+  color: #8aff4f;
+  text-shadow: 0 -1px #d9ffad, 1px 1px #49a725, 2px 2px #327f20,
+    3px 3px #1e5719, 4px 4px #090b20, -2px 0 #090b20,
+    2px 0 #090b20, 0 2px #090b20, 0 -2px #090b20;
+}
+@media(max-width: 420px) {
+  .tit-logo .guion { display:none; }
+  .tit-logo .tit-h1 { font-size: clamp(15px,5.4vw,23px); }
+}
+/* No se añade animación ni bucle; respetar modo legible y HD existentes. */

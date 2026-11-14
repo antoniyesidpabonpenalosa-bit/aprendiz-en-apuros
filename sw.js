@@ -4,7 +4,7 @@
 /* Va a la par con VERSION de js/datos.js: scripts/validar.mjs falla si se
    separan, porque entonces el juego enseñaría unas novedades y la caché
    serviría otra versión. */
-const CACHE = 'pa4-v27';
+const CACHE = 'pa4-v28';
 /* Cuánto se espera a la red antes de servir la copia guardada. Con "red
    primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
    archivo colgado hasta que el navegador se rindiera, aunque estuviera en
@@ -20,6 +20,7 @@ const BASE = [
   './img/retratos/lider-normal.webp', './img/retratos/lider-feliz.webp', './img/retratos/lider-enojado.webp', './img/retratos/lider-sorprendido.webp', './img/retratos/lider-preocupado.webp',
   './img/retratos/vigilante-normal.webp', './img/retratos/vigilante-feliz.webp', './img/retratos/vigilante-enojado.webp', './img/retratos/vigilante-sorprendido.webp', './img/retratos/vigilante-preocupado.webp',
   './img/jefe/jefe-fase-1.png', './img/jefe/jefe-fase-2.png', './img/jefe/jefe-fase-3.png', './img/jefe/jefe-transformaciones-atlas.png',
+  './img/titulo/titulo-aprendiz-en-apuros.png',
   './img/fondo/ciudad-atlas.png', './img/fondo/ciudad-estatica.png',
   './fuentes/press-start-2p.woff2', './fuentes/vt323.woff2',
   './js/datos.js', './js/iconos.js', './js/estado.js', './js/consola.js', './js/reto.js', './js/ranking.js', './js/audio.js', './js/graficos.js', './js/fondo.js', './js/efectos.js', './js/pixelfx.js', './js/pxefectos.js',

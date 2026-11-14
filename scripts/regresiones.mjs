@@ -1328,6 +1328,107 @@ await caso('fondo del menú · con la ciudad, el menú se ve y los botones respo
   return [en.p === 'pasillo' && !en.clase && vuelve, JSON.stringify({ en, vuelve })];
 });
 
+/* ── EL TÍTULO DE LA PORTADA (v28) ──
+   Un dibujo en pixel art en vez del texto, con el <h1> de siempre como respaldo y para los
+   lectores de pantalla. Lo que no puede romperse: que nunca se vean los dos, que quepa y no
+   tape el subtítulo ni los botones, que el modo HD siga con su título de texto, que el modo
+   legible y las pantallas estrechas funcionen, y que si el dibujo no carga salga el texto. */
+const TITULO = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v28', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+const esperaTitulo = pg => pg.waitForFunction(() => document.querySelector('.tit-logo')?.classList.contains('con-imagen'), null, { timeout: 5000 });
+const estadoTitulo = pg => pg.evaluate(() => {
+  const l = document.querySelector('.tit-logo'), i = l.querySelector('.tit-img'), h = l.querySelector('.tit-h1'), g = l.querySelector('.guion');
+  const ri = i.getBoundingClientRect(), rh = h.getBoundingClientRect(), rl = l.getBoundingClientRect(), sub = document.querySelector('.sub').getBoundingClientRect(), sc = document.querySelector('#screen');
+  const imgVisible = getComputedStyle(i).display !== 'none' && ri.width > 4;
+  const textoVisible = rh.width > 4 && rh.height > 4 && getComputedStyle(h).visibility !== 'hidden';
+  return { imgVisible, textoVisible, guionVisible: getComputedStyle(g).display !== 'none', imgAncho: Math.round(ri.width), imgAlto: Math.round(ri.height),
+    dentro: ri.left >= rl.left - 1 && ri.right <= rl.right + 1, subLibre: !imgVisible || ri.bottom <= sub.top + 1, sinScroll: sc.scrollWidth <= sc.clientWidth,
+    ratio: imgVisible ? +(ri.width / ri.height).toFixed(3) : 0, nombre: h.textContent.replace(/\s+/g, ' ').trim(), alt: i.getAttribute('alt'), ocultoAria: i.getAttribute('aria-hidden') };
+});
+
+await caso('título del menú · con el dibujo cargado se ve solo el dibujo, y el h1 de texto queda para los lectores de pantalla', TITULO, async pg => {
+  await pg.evaluate(() => rTitulo()); await esperaTitulo(pg);
+  const e = await estadoTitulo(pg);
+  const h1 = await pg.evaluate(() => { const h = document.querySelector('.tit-h1'); const c = getComputedStyle(h); return { tag: h.tagName, pos: c.position, vis: c.visibility, disp: c.display }; });
+  return [e.imgVisible && !e.textoVisible && !e.guionVisible && e.nombre === 'APRENDIZ EN APUROS' && e.alt === '' && e.ocultoAria === 'true'
+    && h1.tag === 'H1' && h1.pos === 'absolute' && h1.vis === 'visible' && h1.disp !== 'none', JSON.stringify({ ...e, h1 })];
+});
+
+await caso('título del menú · cabe sin deformarse, sin desbordar y sin tapar el subtítulo en 6 tamaños', TITULO, async pg => {
+  const mal = [];
+  for (const [w, h] of [[320, 568], [360, 640], [390, 760], [820, 1100], [1280, 800], [1920, 1080]]) {
+    await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await esperaTitulo(pg); await pausa(300);
+    const e = await estadoTitulo(pg);
+    if (!(e.imgVisible && e.dentro && e.subLibre && e.sinScroll && Math.abs(e.ratio - 920 / 360) < .02)) mal.push(`${w}×${h}: ${JSON.stringify(e)}`);
+  }
+  return [mal.length === 0, mal.length ? mal.join(' · ') : '6 tamaños: dentro de su caja, relación 920:360, sin scroll y sin tapar el subtítulo'];
+});
+
+await caso('título del menú · el modo HD conserva el título de texto de siempre (sin dibujo)', { ...TITULO, hd: true }, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(900);
+  const e = await estadoTitulo(pg);
+  return [!e.imgVisible && e.textoVisible && e.guionVisible && e.nombre === 'APRENDIZ EN APUROS', JSON.stringify(e)];
+});
+
+await caso('título del menú · con el texto legible se ve el dibujo y el subtítulo sigue en su tipografía legible', { ...TITULO, legible: true }, async pg => {
+  await pg.evaluate(() => rTitulo()); await esperaTitulo(pg);
+  const e = await estadoTitulo(pg);
+  const fuente = await pg.evaluate(() => getComputedStyle(document.querySelector('.sub')).fontFamily);
+  return [e.imgVisible && !e.textoVisible && e.subLibre && /VT323/.test(fuente), JSON.stringify({ imgVisible: e.imgVisible, subLibre: e.subLibre, fuente })];
+});
+
+await caso('título del menú · si el dibujo no carga, sale el título de texto con sus guiones', TITULO, async pg => {
+  await pg.route('**/img/titulo/**', r => r.abort());
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+  await pg.evaluate(() => rTitulo()); await pausa(900);
+  const e = await estadoTitulo(pg);
+  const clase = await pg.evaluate(() => document.querySelector('.tit-logo').className);
+  return [!e.imgVisible && e.textoVisible && e.guionVisible && !/con-imagen/.test(clase), JSON.stringify({ ...e, clase })];
+});
+
+await caso('título del menú · cambiar de idioma y volver a la portada no duplica ni pierde el título', TITULO, async pg => {
+  await pg.evaluate(() => rTitulo()); await esperaTitulo(pg);
+  await pg.locator('#b-lang').click(); await pausa(500);
+  await pg.evaluate(() => rPasillo()); await pausa(300); await pg.evaluate(() => rTitulo()); await pausa(500);
+  const n = await pg.evaluate(() => ({ logos: document.querySelectorAll('.tit-logo').length, imgs: document.querySelectorAll('.tit-img').length, h1: document.querySelectorAll('h1').length, clase: document.querySelector('.tit-logo').className }));
+  const e = await estadoTitulo(pg);
+  return [n.logos === 1 && n.imgs === 1 && n.h1 === 1 && /con-imagen/.test(n.clase) && e.imgVisible && !e.textoVisible, JSON.stringify({ n, imgVisible: e.imgVisible })];
+});
+
+await caso('título del menú · las demás pantallas no cambian: ninguna lleva el título ni sus reglas', TITULO, async pg => {
+  const r = await pg.evaluate(() => { const o = {};
+    for (const [n, f] of [['pasillo', () => rPasillo()], ['lista', () => rMapaLista()], ['tienda', () => rTienda()], ['logros', () => rLogros()], ['récords', () => rRecords()]]) { f(); o[n] = document.querySelectorAll('.tit-logo,.tit-img').length; }
+    return o; });
+  return [Object.values(r).every(v => v === 0), JSON.stringify(r)];
+});
+
+await caso('título del menú · sin conexión: el service worker guarda el dibujo', TITULO, async pg => {
+  const { createServer } = await import('node:http');
+  const { readFile } = await import('node:fs/promises');
+  const tipos = { html: 'text/html', js: 'text/javascript', css: 'text/css', webmanifest: 'application/manifest+json', svg: 'image/svg+xml', png: 'image/png', webp: 'image/webp', woff2: 'font/woff2' };
+  const mini = createServer(async (q, r) => {
+    try {
+      let ruta = decodeURIComponent(new URL(q.url, 'http://x').pathname);
+      if (ruta.endsWith('/')) ruta += 'index.html';
+      const cuerpo = await readFile(join(RAIZ, ruta));
+      r.writeHead(200, { 'content-type': tipos[ruta.split('.').pop()] || 'application/octet-stream', 'cache-control': 'no-store' });
+      r.end(cuerpo);
+    } catch (e) { r.writeHead(404); r.end(); }
+  });
+  await new Promise(ok => mini.listen(0, '127.0.0.1', ok));
+  try {
+    await pg.goto(`http://127.0.0.1:${mini.address().port}/index.html`, { waitUntil: 'load' });
+    await pg.waitForFunction(() => typeof pantallaId !== 'undefined');
+    await pg.evaluate(() => registrarSW());
+    await pg.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 8000 });
+    await pausa(1500);
+    const guardada = await pg.evaluate(async () => !!(await caches.match('img/titulo/titulo-aprendiz-en-apuros.png')));
+    await pg.context().setOffline(true);
+    const sinRed = await pg.evaluate(async () => { const r = await fetch('img/titulo/titulo-aprendiz-en-apuros.png', { cache: 'reload' }); return { ok: r.ok, bytes: (await r.blob()).size }; });
+    await pg.context().setOffline(false);
+    return [guardada && sinRed.ok && sinRed.bytes > 1000, `en la caché: ${guardada}, sin red: ${JSON.stringify(sinRed)}`];
+  } finally { mini.close(); }
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

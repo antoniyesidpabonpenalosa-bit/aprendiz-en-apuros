@@ -80,6 +80,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v26** | — | 2026-11-14 | El jefe evolutivo: tres apariencias (Bug morado, Caos naranja, Error Fatal rojo) y dos transformaciones animadas de 12 cuadros que detienen el combate (`js/jefe-sprites.js`, `img/jefe/`); sin conexión incluido. |
 | v26.1 | — | 2026-11-14 | El jefe final se llama EL ERROR EVOLUTIVO (antes EL BUG FINAL) en el mapa, la historia y el botón de repetir; en inglés, THE EVOLVING ERROR |
 | **v27** | — | 2026-11-14 | Fondo nuevo del menú principal: ciudad nocturna animada en pixel art (`js/fondo.js`, `img/fondo/`); solo en la portada, las montañas siguen en el resto y de respaldo |
+| **v28** | — | 2026-11-14 | Título nuevo de la portada: dibujo en pixel art (`img/titulo/`) con el `<h1>` de texto como respaldo accesible; el modo HD conserva su título de texto |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

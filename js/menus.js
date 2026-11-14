@@ -8,6 +8,20 @@
      tienda.js        · tienda y personalizar el avatar (los dos gastan puntos)
      records.js       · logros, récords, código de aula y estadísticas */
 /* ── TÍTULO ── */
+/* ── EL TÍTULO DE LA PORTADA (v28) ──
+   El título es un dibujo en pixel art (img/titulo/, hecho con la tipografía del juego,
+   con sus guiones y su raya de colores integrados). El <h1> de texto SIGUE ahí: es lo que
+   leen los lectores de pantalla y lo que se ve si la imagen no carga o en el modo HD
+   (que cambia la tipografía de todo el juego). Con el dibujo cargado y fuera del modo HD,
+   el texto se esconde solo a la vista (clase con-imagen en .tit-logo; ver css/estilos.css),
+   así que nunca se ven los dos. Se pide la imagen una vez, al abrir el juego. */
+const TITULO_IMG='img/titulo/titulo-aprendiz-en-apuros.png';
+let tituloListo=false;
+if(typeof Image!=='undefined'){
+  const im=new Image();
+  im.onload=()=>{tituloListo=true;const l=document.querySelector('.tit-logo');if(l)l.classList.add('con-imagen')};
+  im.src=TITULO_IMG;
+}
 function rTitulo(){
   const {sig,pc}=progresoXp();
   const racha=RETO.rachaViva();
@@ -29,10 +43,11 @@ function rTitulo(){
   <div class="centro portada">
    <div class="col2">
     <div class="col">
-    <div class="tit-logo">
+    <div class="tit-logo${tituloListo?' con-imagen':''}">
       <span class="guion" aria-hidden="true"><i></i><i></i><i></i></span>
-      <h1 class="tit-h1"><span class="l1">APRENDIZ</span><br><span class="l2">EN APUROS</span></h1>
+      <h1 class="tit-h1"><span class="l1">APRENDIZ</span> <br><span class="l2">EN APUROS</span></h1>
       <span class="guion der" aria-hidden="true"><i></i><i></i><i></i></span>
+      <img class="tit-img" src="${TITULO_IMG}" alt="" aria-hidden="true" width="920" height="360" draggable="false">
     </div>
     <p class="sub">${t('sub')}</p>
 
