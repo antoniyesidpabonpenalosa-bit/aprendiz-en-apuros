@@ -29,8 +29,8 @@ pasillo** (fase 2) y la **lista de días de respaldo**.
 
 ## Pulido
 
-- [ ] **README.md está desactualizado.** Dice "sin librerías" y "el único recurso de imagen es `img/aprendiz.png`", pero ese archivo ya no existe (hay `img/aprendiz-caminar.png`, 15 retratos y `portada.png`) y `js/pixelfx.js` es una biblioteca incluida (MIT) · de: `README.md` línea 7 contra `img/` y `LICENCIAS.md`
-- [ ] **`planes/pasillo.md` sigue diciendo pendiente lo ya resuelto o recortado:** las decisiones 1 (pasillo con lista de respaldo, hecho en la v22) y 4 (estilo de retratos, hecho en la fase 3), y los tres recortes de arriba · de: `planes/pasillo.md` contra `VERSIONES.md`
+- [x] **README.md actualizado** (hecho en el PR de documentación del 2026-11-13): ya no dice "sin librerías" ni nombra `img/aprendiz.png`; lista las imágenes reales y `pixelfx.js` · de: `README.md`
+- [x] **`planes/pasillo.md` al día** (2026-11-13): decisiones resueltas, recortes y personajes marcados · de: `planes/pasillo.md`
 - [x] **XP al repetir un día:** decidido y hecho en la v24.1. Repetir un día ya superado paga la cuarta parte de puntos y XP; los días nuevos pagan completo · de: `js/nucleo.js` (`resultado()`) y `js/estado.js` (`facRepite`) *(decisión del autor, 2026-11-13)*
 - [ ] **El XP de los días 10 y 15 no está medido**: el robot no gana al jefe ni al runner, y `/balance` los deja en "—" · de: `scripts/barrido.mjs` ("Qué NO cubre")
 - [ ] **Anotar la primera sesión de juego con `/playtest`**: no hay ninguna registrada, así que no hay datos de dónde se confunde o se aburre alguien · de: `playtests/` no existe

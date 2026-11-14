@@ -4,7 +4,7 @@ Juego hecho con IA que representa lo que vive un aprendiz de programación
 del SENA: su **etapa lectiva**, donde aprende, y su **etapa productiva**, donde
 trabaja en una empresa, hasta titularse como **Técnico en Programación de
 Software**. Hecho con **HTML, CSS y JavaScript
-puro** — sin motores, sin librerías, sin dependencias. El único recurso de imagen es `img/aprendiz.png` (5 KB), el sprite del aprendiz que se pasea por el mapa y pelea contra el jefe; todo lo demás se dibuja con código.
+puro** — sin motores, sin dependencias y sin paso de compilación para jugarlo. Casi todo se dibuja con código. Las imágenes son pocas: el sprite del aprendiz (`img/aprendiz-caminar.png`), los 20 retratos de los personajes (`img/retratos/`) y la portada. Lo único de terceros es una pequeña biblioteca de efectos de pixel art (`js/pixelfx.js`, licencia MIT; ver `LICENCIAS.md`).
 
 **🎮 Juega en línea:** https://antoniyesidpabonpenalosa-bit.github.io/aprendiz-en-apuros/
 
@@ -114,7 +114,9 @@ aprendiz-en-apuros/
 ├── jsconfig.json         → comprobación de tipos del JS (TypeScript, sin build)
 ├── sw.js                 → service worker: caché y modo offline
 ├── icon.svg              → ícono de la app
-├── img/aprendiz.png      → sprite del aprendiz de cuerpo entero (8 direcciones)
+├── img/
+│   ├── aprendiz-caminar.png → sprite del aprendiz: caminata de 4 cuadros en 8 direcciones
+│   └── retratos/         → retratos dibujados (WebP): Gustavo, Valentina, Andrés y Don Jairo × 5 gestos
 ├── portada.png           → vista previa al compartir el enlace (Open Graph)
 ├── css/
 │   └── estilos.css       → todos los estilos (temas retro y 4K OLED)
@@ -165,7 +167,9 @@ scripts/
 ├── barrido.mjs           → juega los 15 días × 3 dificultades × 2 idiomas y hace informe
 ├── regresiones.mjs       → un caso en navegador por cada fallo de interacción ya arreglado
 ├── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
-└── build-sprite.py       → genera img/aprendiz.png desde arte/aprendiz/
+├── build-pixelfx.mjs     → empaqueta la biblioteca pixelfx en js/pixelfx.js (ver LICENCIAS.md)
+├── build-retratos.mjs    → convierte arte/retratos/ (PNG) en img/retratos/ (WebP)
+└── build-sprite.py       → genera los atlas del aprendiz en img/ desde arte/aprendiz/
 design-system/            → catálogo de componentes extraído de css/estilos.css
 ├── README.md             → cómo regenerarlo y sincronizarlo con claude.ai/design
 ├── src/                  → fuente de cada fragmento de componente

@@ -1,9 +1,12 @@
 # Plan: el pasillo del centro de formación
 
-> Estado: **fases 1 y 2 hechas (v22 y v24)**. El pasillo ya es el mapa de la campaña
+> Estado: **hecho** (v22 y v24). El pasillo ya es el mapa de la campaña
 > (`js/pasillo.js`) y los personajes están en él con sus consejos (`js/consejos.js`;
-> los textos, en `planes/personajes-consejos.md`). Don Jairo, el vigilante, tiene sus
-> 5 retratos dibujados como los otros tres.
+> los textos, en `planes/personajes-consejos.md`). Los cuatro, con nombre propio
+> (Gustavo, Valentina, Andrés y Don Jairo), tienen sus 5 retratos dibujados.
+> Este documento queda como historia de lo que se pensó; lo que difiere de lo
+> hecho está marcado abajo. Tres cosas se recortaron a propósito el 2026-11-13
+> (ver "Lo que NO entró").
 
 ## Lo que quedó en la v22 (fase 1)
 
@@ -30,9 +33,17 @@ decía el plan de abajo:
 - El fondo es CSS, sin imagen: los letreros se traducen y todo crece con el
   zoom del marco.
 
-Lo que NO entró y sigue pendiente de este plan: escaleras o ascensor entre
-etapas, la puerta propia del Bug final (hoy es un botón debajo), el mando, el
-sonido de pasos y toda la fase 2.
+## Lo que NO entró
+
+Recortado a propósito (2026-11-13, con `/terminar`):
+- **Escaleras o ascensor entre etapas:** se hicieron tres zonas que ya se cambian
+  con Anterior / Siguiente y las pestañas.
+- **Sonido de pasos:** el aprendiz ya camina con animación.
+- **Mando (cruceta y A) en el pasillo:** el toque y el teclado cubren el pasillo;
+  solo el runner y el jefe leen mando.
+
+Opcional, queda como está: la **puerta propia del Bug final** (hoy es un botón
+"Repetir Bug final" debajo de la escena; funciona, es solo presentación).
 
 ## La idea en una frase
 
@@ -42,13 +53,11 @@ para darle consejos (con su retrato dibujado en el diálogo).
 
 ## Cómo se ve
 
-- **Dos pasillos, uno por etapa**
-  - **Etapa lectiva (días 1–10):** pasillo del centro de formación, con puertas
-    de ambientes de formación, tablero de anuncios y cartelera.
-  - **Etapa productiva (días 11–15):** pasillo de la oficina de la empresa, con
-    otra paleta, escritorios y máquina de café.
-  - Se pasa de uno al otro por unas escaleras o un ascensor al final, que se
-    abren al terminar el día 10.
+- **Tres zonas** *(en el plan eran dos pasillos con escaleras; ver "Lo que quedó en la v22")*
+  - **Formación · Aulas (días 1–5)** y **Formación · Laboratorios (días 6–10)**:
+    el centro de formación.
+  - **Empresa · Oficinas (días 11–15):** la oficina de la empresa, con otra paleta.
+  - Se cambia de zona con Anterior / Siguiente o con las tres pestañas.
 - **Las puertas**
   - Letrero encima con el número del día y el icono del minijuego.
   - 🔒 Bloqueadas: cerradas y con candado.
@@ -65,38 +74,40 @@ para darle consejos (con su retrato dibujado en el diálogo).
 - **Celular:** tocas una puerta o un personaje y el aprendiz camina hasta allí.
   El pasillo se desplaza siguiendo al aprendiz.
 - **Computador:** ← → para caminar, Enter para entrar o hablar.
-- **Mando:** cruceta y botón A (el juego ya lee mandos, `leerMando()`).
+- **Mando:** no entró en el pasillo (recortado; ver "Lo que NO entró").
 - Al llegar a una puerta sale un cartelito con el nombre del día, sus estrellas
   y el botón **Entrar**.
 
 ## Los personajes y sus consejos
 
-Ya existen tres personajes con cara propia en los diálogos (`CARAS` en
-`js/graficos.js`): el **Instructor** (canoso, gafas), la **Compañera** (camisa
-roja, pelo largo) y el **Líder técnico** (camisa morada, corbata).
+**Hecho en la v24.** Cuatro personajes con nombre propio: **Gustavo** (instructor),
+**Valentina** (compañera), **Andrés** (líder técnico) y **Don Jairo** (el vigilante
+de la entrada, que cuenta qué más hay en el juego). Cada zona trae a los suyos:
 
-| Pasillo    | Quién         | Qué hace                                               |
-|------------|---------------|--------------------------------------------------------|
-| Lectiva    | Instructor    | Consejo sobre el minijuego de la puerta de al lado     |
-| Lectiva    | Compañera     | Ánimo y trucos ("en el runner, agáchate con los papeles") |
-| Productiva | Líder técnico | Consejos de "trabajo real" (SQL, Git, terminal)        |
-| Productiva | Compañera     | Te sigue a la empresa: continuidad de la historia      |
+| Zona                         | Quiénes                          |
+|------------------------------|----------------------------------|
+| Formación · Aulas            | Gustavo, Don Jairo, Valentina    |
+| Formación · Laboratorios     | Valentina, Gustavo               |
+| Empresa · Oficinas           | Andrés, Valentina, Gustavo       |
 
-- **Consejos personalizados:** el juego ya guarda en qué preguntas fallas
+Qué dicen (consejo de puerta, de tema flojo o general) y la regla que lo elige:
+`planes/personajes-consejos.md` y `js/consejos.js`.
+
+- **Consejos personalizados** *(hecho en la v24)*: el juego ya guarda en qué preguntas fallas
   (`S.pesos`, lo usa el modo Repaso). Un personaje puede decir *"Vi que te
   cuesta SQL: el WHERE va antes del ORDER BY"* y ofrecer ir directo al Repaso
   de ese tema.
 - Sin nada pendiente: consejos generales o felicitaciones.
-- Globito **"!"** encima de quien tenga algo nuevo que decir.
+- Globito **"!"** encima de quien tenga algo nuevo que decir *(hecho)*.
 
 ## Retratos dibujados (fase aparte)
 
 - En los diálogos se ve el retrato dibujado si existe; si no, el pixelado de
   siempre.
 - Opción en Ajustes: **Retratos: Pixel / Ilustrado**.
-- Las imágenes se generan con ChatGPT o Gemini: 3 personajes × 5 expresiones
-  (normal, feliz, enojado, sorprendido, preocupado) ≈ **15 imágenes** en WebP
-  de ~40 KB.
+- Las imágenes se generan con ChatGPT o Gemini: 4 personajes × 5 expresiones
+  (normal, feliz, enojado, sorprendido, preocupado) = **20 imágenes** en WebP
+  (fuente en `arte/retratos/`, resultado en `img/retratos/`).
 - Método para que salgan iguales: primero una **hoja de personaje** (frente,
   tres cuartos y expresiones); después cada imagen se pide pasando esa hoja
   como referencia, con el mismo prompt base y la misma paleta.
@@ -117,17 +128,17 @@ roja, pelo largo) y el **Líder técnico** (camisa morada, corbata).
 | 1    | ✅ Pasillo jugable: puertas, caminar, entrar, las 3 zonas y la lista de respaldo | Hecho (v22)     |
 | 2    | ✅ Personajes en el pasillo con consejos (también los personalizados) | Hecho (v24) |
 | 3    | ✅ Retratos dibujados en los diálogos, el jurado del quiz y opción en Personalización | Hecho (15 imágenes en `arte/retratos/`) |
-| 4    | ✅ Caminata de 4 cuadros en 8 direcciones (`img/aprendiz-caminar.png`, ya se usa en el jefe y el mapa). Falta: sonido de pasos, puertas que se abren | Opcional |
+| 4    | ✅ Caminata de 4 cuadros en 8 direcciones (`img/aprendiz-caminar.png`, ya se usa en el jefe y el mapa). El sonido de pasos se recortó; las puertas que se abren no se hicieron | Hecho / recortado |
 
 La fase 1 salió como v22 y la fase 2 como v24.
 
-## Decisiones de diseño pendientes
+## Decisiones de diseño (todas resueltas)
 
-1. **¿Pasillo en lugar del mapa, o como opción?** Propuesta: por defecto, con
-   la lista de respaldo.
-2. **Personajes:** ¿Instructor, Compañera y Líder? ¿Con nombre propio
-   (por ejemplo "Instructora Marta")?
-3. **¿Algún personaje nuevo?** Por ejemplo un aprendiz veterano o el vigilante
-   de la entrada.
-4. **Estilo de los retratos dibujados:** ¿más caricatura o más realista? Define
-   los prompts para la IA.
+1. **¿Pasillo en lugar del mapa, o como opción?** Pasillo por defecto, con la
+   lista de respaldo ("Ver como lista"). Hecho en la v22.
+2. **Personajes:** los tres de siempre, ahora con nombre propio (Gustavo,
+   Valentina, Andrés). Hecho en la v24.
+3. **¿Algún personaje nuevo?** Sí: Don Jairo, el vigilante de la entrada.
+   Hecho en la v24.
+4. **Estilo de los retratos dibujados:** definido en la fase 3 (15 retratos) y
+   mantenido para Don Jairo (5 más).
