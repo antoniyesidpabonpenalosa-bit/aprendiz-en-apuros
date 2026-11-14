@@ -20,8 +20,13 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v35';
+const VERSION='v36';
 const NOVEDADES=[
+  {v:'v36', fecha:'2026-11-14',
+   es:['La pantalla principal estrena escenario: un campus de noche en pixel art, con estrellas que brillan más y menos, dos capas de nubes que pasan despacio y ventanas cuya luz sube y baja suave. Reemplaza a la ciudad anterior.',
+       'Solo está en el menú principal; las demás pantallas conservan las montañas, y con "reducir movimiento" el campus se queda quieto.'],
+   en:['The main screen has a new setting: a pixel art campus at night, with stars that brighten and dim, two layers of slowly drifting clouds and windows whose light softly rises and falls. It replaces the previous city.',
+       'It is only on the main menu; every other screen keeps the mountains, and with "reduce motion" the campus stays still.']},
   {v:'v35', fecha:'2026-11-14',
    es:['Barras de progreso al estilo RPG: la XP en violeta con 10 casillas y el rango al que vas, la campaña en verde con una casilla por día y un borde dorado al completarla, y una barra compacta en la cabecera. Al superar un día, la barra de XP se llena desde donde estaba (o desde cero si subes de rango).'],
    en:['RPG-style progress bars: XP in purple with 10 cells and the rank you are heading for, the campaign in green with one cell per day and a gold border when complete, and a compact bar in the header. When you clear a day, the XP bar fills from where it was (or from zero if you rank up).']},

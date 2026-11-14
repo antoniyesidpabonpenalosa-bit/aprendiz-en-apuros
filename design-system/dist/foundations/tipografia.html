@@ -109,41 +109,42 @@ html.encaje #app{zoom:var(--esc,1);width:var(--app-w);height:var(--app-h);max-he
 @keyframes derivaLenta{from{transform:translateX(-1.5%)}to{transform:translateX(1.5%)}}
 
 /* ══════════════════════════════════════════════
-   FONDO DEL MENÚ PRINCIPAL · ciudad nocturna (v27, js/fondo.js)
-   Una hoja de 3×2 cuadros de 549×466 (img/fondo/ciudad-atlas.png). La capa mide lo
-   justo para CUBRIR #fondo sin deformarse —el equivalente de background-size:cover,
-   con unidades de contenedor— y se recorta por el centro. Los cuadros los recorre una
-   animación con steps(): sin JavaScript en marcha. Solo se ve con #app.fondo-ciudad,
-   que pone pantalla() en 'titulo'; sin esa clase la capa no existe (display:none) y por
-   tanto no anima nada. Con ella, las montañas se esconden y paran sus animaciones.
+   FONDO DEL MENÚ PRINCIPAL · campus nocturno HD (v36, js/fondo.js)
+   Seis capas de 1600×900 (img/portada/) con el mismo encuadre: background-size:cover anclado
+   abajo al centro, así en móvil se recortan los lados sin deformar el escenario. Solo se ve
+   con #app.fondo-campus, que pone pantalla() en 'titulo' cuando el escenario ya cargó; sin
+   esa clase la capa no existe (display:none) y no anima nada. Con ella, las montañas se
+   esconden y paran. Sustituye a la ciudad de la v27.
    ══════════════════════════════════════════════ */
-#fondo{container-type:size}
-.ciudad{display:none;position:absolute;left:50%;top:50%;z-index:0;pointer-events:none;
-  --ciudad-ms:800ms;                      /* lo que dura cada cuadro: 600-1000 ms es tranquilo */
-  width:max(100cqw,calc(100cqh*549/466));height:max(100cqh,calc(100cqw*466/549));
-  transform:translate(-50%,-50%);
-  background-repeat:no-repeat;background-size:300% 200%;background-position:0 0;
-  image-rendering:pixelated}
-/* oscurece lo justo para que el texto se lea: más arriba (título) y abajo (botones) */
-.ciudad::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(7,10,26,.4) 0%,rgba(7,10,26,.14) 40%,rgba(7,10,26,.36) 100%)}
-#app.fondo-ciudad .mte,#app.fondo-ciudad .niebla{display:none}
-/* la imagen solo se pide cuando la capa se ve (y con menos movimiento, ni se toca la hoja) */
-#app.fondo-ciudad .ciudad{display:block;background-image:url(../img/fondo/ciudad-atlas.png);animation:ciudadCuadros calc(6*var(--ciudad-ms)) steps(1,end) infinite}
-@keyframes ciudadCuadros{
-  0%{background-position:0% 0%}
-  16.667%{background-position:50% 0%}
-  33.333%{background-position:100% 0%}
-  50%{background-position:0% 100%}
-  66.667%{background-position:50% 100%}
-  83.333%{background-position:100% 100%}
-  100%{background-position:100% 100%}}
-/* con la pestaña oculta, en pausa */
-/* (con #app.fondo-ciudad delante: el `animation:` de arriba reinicia play-state y ganaría por especificidad) */
-html.pestana-oculta #app.fondo-ciudad .ciudad{animation-play-state:paused}
-/* con "reducir movimiento": el cuadro estático (el primero) y nada de animación */
+#fondo .campus-hd{display:none;position:absolute;inset:0;overflow:hidden;pointer-events:none;isolation:isolate;z-index:0}
+#app.fondo-campus .mte,#app.fondo-campus .niebla{display:none}
+#app.fondo-campus #fondo .campus-hd{display:block}
+#fondo .campus-hd>div{position:absolute;inset:0;background-position:center bottom;background-size:cover;background-repeat:no-repeat;pointer-events:none}
+/* las imágenes solo se piden cuando la capa se ve */
+#app.fondo-campus .campus-base{background-image:url(../img/portada/campus-noche.webp)}
+#app.fondo-campus .campus-nubes-lejos{background-image:url(../img/portada/nubes-lejanas.png);animation:campus-deriva 82s ease-in-out infinite alternate;opacity:.65}
+#app.fondo-campus .campus-nubes-cerca{background-image:url(../img/portada/nubes-cercanas.png);animation:campus-deriva 56s ease-in-out infinite alternate-reverse;opacity:.7}
+#app.fondo-campus .campus-estrellas-a{background-image:url(../img/portada/estrellas-1.png);animation:campus-estrellas 11s ease-in-out infinite alternate}
+#app.fondo-campus .campus-estrellas-b{background-image:url(../img/portada/estrellas-2.png);animation:campus-estrellas 17s ease-in-out infinite alternate-reverse}
+#app.fondo-campus .campus-ventanas{background-image:url(../img/portada/ventanas.png);animation:campus-ventanas 13s ease-in-out infinite alternate}
+/* velo oscuro con viñeta para que el menú se lea: para ajustar el contraste, solo estas opacidades */
+#fondo .campus-hd .campus-velo{background:linear-gradient(180deg,rgba(7,10,26,.30) 0%,rgba(7,10,26,.24) 38%,rgba(7,10,26,.40) 100%),radial-gradient(ellipse at center,transparent 35%,rgba(5,8,20,.36) 100%)}
+@keyframes campus-deriva{from{transform:translateX(-2.5%)}to{transform:translateX(2.5%)}}
+@keyframes campus-estrellas{from{opacity:.35}to{opacity:.85}}
+@keyframes campus-ventanas{from{opacity:.08}to{opacity:.7}}
+/* con la pestaña oculta, en pausa (con #app.fondo-campus delante para ganar a la regla de arriba) */
+html.pestana-oculta #app.fondo-campus .campus-hd>div{animation-play-state:paused}
+/* con "reducir movimiento": nada se mueve ni cambia de brillo */
 @media(prefers-reduced-motion:reduce){
-  #app.fondo-ciudad .ciudad{animation:none;background-image:url(../img/fondo/ciudad-estatica.png);background-size:100% 100%;background-position:0 0}}
+  #app.fondo-campus .campus-hd>div{animation:none!important;transform:none!important}
+  #app.fondo-campus .campus-estrellas-a,#app.fondo-campus .campus-estrellas-b{opacity:.55}
+  #app.fondo-campus .campus-ventanas{opacity:0}}
+/* contraste de los textos pequeños de la portada sobre el escenario, sin cambiar lo que hacen */
+#app.fondo-campus .portada .tit-menudo .cut-skip{color:#b1bedc;text-shadow:1px 1px 0 #080a16;background:rgba(8,11,28,.62);padding:4px 6px}
+#app.fondo-campus .portada .tit-menudo #t-lab{color:#9fdb87}
+#app.fondo-campus .portada .tit-pie .mini{color:#adb8d1;text-shadow:1px 1px 0 #080a16}
+/* el subtítulo, en apaisado, cae sobre el edificio iluminado (3,1:1 sin placa) */
+#app.fondo-campus .portada .sub{background:rgba(8,11,28,.62);padding:2px 8px;width:fit-content;margin-inline:auto}
 
 /* el contenido va por encima del fondo */
 #hud,#screen,#pausa,#logro-popup,#interrupcion{position:relative;z-index:1}
@@ -1931,8 +1932,8 @@ html.legible .portada .tit-prog-fila .p-lbl,html.legible .portada .tit-prog-fila
 .rpg-medidor[data-tipo="hud"]{--rpg-celda:16.6666667%}
 .rpg-medidor[data-completo="true"]{--rpg-borde:#e5bd50;box-shadow:0 2px 0 #050713,0 0 0 1px #080c1b,0 0 7px #ffcf3f22}
 .portada .tit-bloque.rpg-xp-bloque{width:min(340px,100%);gap:5px}
-/* v35: placa oscura detrás del bloque de XP. Las cifras quedaban sobre ventanas encendidas de la
-   ciudad (fondo animado, v27) y bajaban a 2,6:1 de contraste; con la placa se leen siempre. */
+/* v35: placa oscura detrás del bloque de XP. Las cifras quedaban sobre ventanas encendidas del
+   fondo animado y bajaban a 2,6:1 de contraste; con la placa se leen siempre. */
 .portada .tit-bloque.rpg-xp-bloque{padding:5px 8px 6px;background:#080c1bc4;box-shadow:0 0 0 1px #080c1b80}
 html.hd .portada .tit-bloque.rpg-xp-bloque{border-radius:6px}
 .rpg-xp-cab{width:100%;display:flex;align-items:baseline;justify-content:space-between;gap:6px;color:#bcb4e6;font-family:'VT323',monospace;font-size:17px;line-height:1.1}
