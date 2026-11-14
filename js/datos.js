@@ -20,8 +20,13 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v25';
+const VERSION='v26';
 const NOVEDADES=[
+  {v:'v26', fecha:'2026-11-14',
+   es:['El jefe final ahora es un solo enemigo que evoluciona: empieza como un Bug morado, se transforma en un demonio naranja con cuernos a mitad de la pelea y termina como un Error Fatal rojo, con armadura y energía digital.',
+       'Cada cambio de fase tiene su transformación animada. Mientras dura (un segundo), el combate se detiene para que nadie reciba un golpe sin poder esquivarlo. Con "reducir movimiento" el cambio es instantáneo.'],
+   en:['The final boss is now a single enemy that evolves: it starts as a purple Bug, turns into a horned orange demon halfway through the fight and ends as a red Fatal Error, with armor and digital energy.',
+       'Each phase change has its own animated transformation. While it plays (one second) the fight stops, so nobody gets hit without a chance to dodge. With "reduce motion" the change is instant.']},
   {v:'v25', fecha:'2026-11-14',
    es:['Iconos de pixel art hechos a mano: los de los 15 días, las dificultades, el candado, el sonido, el menú principal y los tipos de minijuego ya no son emojis del sistema, así que se ven igual en todos los celulares.',
        'El jefe tiene su propio dibujo en cada una de las tres fases (cada vez más furioso), y las ❌ que caen también son pixel. Los obstáculos del runner igual.'],

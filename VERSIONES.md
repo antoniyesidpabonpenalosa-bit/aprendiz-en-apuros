@@ -77,6 +77,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | v24.1 | — | 2026-11-13 | Repetir un día ya superado paga la cuarta parte de puntos y XP (antes, completo) |
 | v24.2 | — | 2026-11-13 | Jefe, fase 3: sin el abanico de ❌, rayo más seguido (cada 2 s) y jefe más lento (2,45 → 2,0) |
 | **v25** | — | 2026-11-14 | Iconos de pixel art propios (`js/iconos.js`) en lugar de emojis: los 15 días, dificultades, candado, sonido, menú principal y tipos de minijuego; el jefe con un dibujo por fase; las ❌ y los obstáculos del runner en pixel |
+| **v26** | — | 2026-11-14 | El jefe evolutivo: tres apariencias (Bug morado, Caos naranja, Error Fatal rojo) y dos transformaciones animadas de 12 cuadros que detienen el combate (`js/jefe-sprites.js`, `img/jefe/`); sin conexión incluido. |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

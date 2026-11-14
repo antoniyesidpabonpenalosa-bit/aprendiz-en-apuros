@@ -13,7 +13,9 @@
   pinta en un canvas. Si una clave no tiene dibujo, sale el emoji de siempre: se puede
   ir cambiando de a poco.
 - **B · El jefe en pixel:** un dibujo de 16×16 por fase (`jefe1`, `jefe2`, `jefe3`),
-  cada uno más furioso, y las ❌ que caen. Los obstáculos del runner también.
+  cada uno más furioso, y las ❌ que caen. Los obstáculos del runner también. *(Desde la
+  v26 el jefe se dibuja con el arte nuevo de `img/jefe/`, ver `planes/jefe-evolutivo.md`;
+  estos tres dibujos de código quedan como respaldo si los PNG no cargan.)*
 - **C · Paleta única:** cada letra de los dibujos es una variable de `:root` en
   `css/estilos.css` (las cinco rampas verde, amarillo, violeta, naranja, azul y rojo,
   más los grises). Una prueba (`test/iconos.test.mjs`) falla si los colores se separan.

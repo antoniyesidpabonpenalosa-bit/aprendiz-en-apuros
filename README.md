@@ -4,7 +4,7 @@ Juego hecho con IA que representa lo que vive un aprendiz de programación
 del SENA: su **etapa lectiva**, donde aprende, y su **etapa productiva**, donde
 trabaja en una empresa, hasta titularse como **Técnico en Programación de
 Software**. Hecho con **HTML, CSS y JavaScript
-puro** — sin motores, sin dependencias y sin paso de compilación para jugarlo. Casi todo se dibuja con código. Las imágenes son pocas: el sprite del aprendiz (`img/aprendiz-caminar.png`), los 20 retratos de los personajes (`img/retratos/`) y la portada. Lo único de terceros es una pequeña biblioteca de efectos de pixel art (`js/pixelfx.js`, licencia MIT; ver `LICENCIAS.md`).
+puro** — sin motores, sin dependencias y sin paso de compilación para jugarlo. Casi todo se dibuja con código. Las imágenes son pocas: el sprite del aprendiz (`img/aprendiz-caminar.png`), los 20 retratos de los personajes (`img/retratos/`), los dibujos del jefe (`img/jefe/`) y la portada. Lo único de terceros es una pequeña biblioteca de efectos de pixel art (`js/pixelfx.js`, licencia MIT; ver `LICENCIAS.md`).
 
 **🎮 Juega en línea:** https://antoniyesidpabonpenalosa-bit.github.io/aprendiz-en-apuros/
 
@@ -70,7 +70,7 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
   oculto — y 💼 **Etapa Productiva** (días 11-15), ya en la empresa, donde se
   TRABAJA: **consultas SQL**, **regex**, bugs con bombas, Git avanzado (rebase y
   stash) y un **deploy nocturno** con la revancha del jefe
-- **Jefe final con 3 fases reales**: lluvia de errores (doble en la última fase) y un
+- **Jefe final con 3 fases reales** (un solo enemigo que evoluciona, con transformación animada entre fases): lluvia de errores (doble en la última fase) y un
   **láser telegrafiado** que avisa antes de disparar · música chiptune tensa
   propia · casilla oculta **"???"** en el mapa para repetir la pelea
 - **Racha/combo** en el runner: encadena cafés sin recibir golpes para multiplicar
@@ -116,6 +116,7 @@ aprendiz-en-apuros/
 ├── icon.svg              → ícono de la app
 ├── img/
 │   ├── aprendiz-caminar.png → sprite del aprendiz: caminata de 4 cuadros en 8 direcciones
+│   ├── jefe/             → el jefe evolutivo (PNG): 3 poses de 128×128 y un atlas de transformaciones de 1536×256
 │   └── retratos/         → retratos dibujados (WebP): Gustavo, Valentina, Andrés y Don Jairo × 5 gestos
 ├── portada.png           → vista previa al compartir el enlace (Open Graph)
 ├── css/
@@ -144,6 +145,7 @@ aprendiz-en-apuros/
     ├── minijuegos-codigo.js    → 6-7: code review y conflicto de merge
     ├── minijuegos-runner.js    → 8: el runner
     ├── minijuegos-avanzados.js → 9-12: SQL, ordena, regex y terminal
+    ├── jefe-sprites.js   → los dibujos del jefe evolutivo y las cuentas de sus transformaciones (se carga antes que jefe.js)
     ├── jefe.js           → la batalla final contra EL BUG FINAL
     ├── sprite.js         → sprite del aprendiz: carga, recoloreo por jugador y dibujo
     ├── sala.js           → salas de clase: datos, red y lógica (sin pantallas)
@@ -163,7 +165,8 @@ test/
 ├── sala.test.mjs         → pruebas de las salas (orden, empates, reintentos, sorteo parejo)
 ├── consola.test.mjs      → pruebas de la consola: palancas, ensayo y que nada se guarde
 ├── novedades.test.mjs    → pruebas del aviso de versión: a quién se le cuenta y una sola vez
-└── iconos.test.mjs       → pruebas de los iconos pixel: rejillas, paleta igual a la de la interfaz y que cada emoji de pantalla tenga dibujo
+├── iconos.test.mjs       → pruebas de los iconos pixel: rejillas, paleta igual a la de la interfaz y que cada emoji de pantalla tenga dibujo
+└── jefe-sprites.test.mjs → pruebas del jefe evolutivo: fases, animación, recursos y caché sin conexión
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 ├── barrido.mjs           → juega los 15 días × 3 dificultades × 2 idiomas y hace informe
