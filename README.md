@@ -171,7 +171,8 @@ test/
 ├── iconos.test.mjs       → pruebas de los iconos pixel: rejillas, paleta igual a la de la interfaz y que cada emoji de pantalla tenga dibujo
 ├── jefe-sprites.test.mjs → pruebas del jefe evolutivo: fases, animación, recursos y caché sin conexión
 ├── fondo.test.mjs        → pruebas del fondo de la portada: recursos, encuadre, animación y cuándo se activa
-└── titulo.test.mjs       → pruebas del título de la portada: recurso, texto accesible de respaldo y reglas de CSS
+├── titulo.test.mjs       → pruebas del título de la portada: recurso, texto accesible de respaldo y reglas de CSS
+└── portada.test.mjs      → pruebas del aprendiz animado de la portada: qué hace en cada instante y que quede decorativo
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 ├── barrido.mjs           → juega los 15 días × 3 dificultades × 2 idiomas y hace informe

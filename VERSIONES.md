@@ -81,6 +81,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | v26.1 | — | 2026-11-14 | El jefe final se llama EL ERROR EVOLUTIVO (antes EL BUG FINAL) en el mapa, la historia y el botón de repetir; en inglés, THE EVOLVING ERROR |
 | **v27** | — | 2026-11-14 | Fondo nuevo del menú principal: ciudad nocturna animada en pixel art (`js/fondo.js`, `img/fondo/`); solo en la portada, las montañas siguen en el resto y de respaldo |
 | **v28** | — | 2026-11-14 | Título nuevo de la portada: dibujo en pixel art (`img/titulo/`) con el `<h1>` de texto como respaldo accesible; el modo HD conserva su título de texto |
+| **v29** | — | 2026-11-14 | El aprendiz de cuerpo entero junto a JUGAR en la portada: respira, parpadea, saluda y reacciona al puntero, al foco y al toque, con la piel y la camisa del jugador |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

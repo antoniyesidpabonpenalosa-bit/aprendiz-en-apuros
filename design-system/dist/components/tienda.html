@@ -1727,6 +1727,15 @@ html.hd button.rp-fila,html.hd .repaso-entrada{border-radius:10px}
 /* va DESPUÉS de la regla base de arriba, si no esa le gana y en el celular salen más grandes que el aprendiz */
 @media(max-width:550px){.pasillo-gente{width:32px;height:54px}}
 
+/* Portada: el aprendiz de cuerpo entero junto a JUGAR (v29, js/menus.js). Decorativo: no recibe toques. */
+.tit-jugar-fila{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-width:0}
+.tit-aprendiz{display:block;flex:0 0 auto;width:clamp(56px,9vw,112px);height:auto;image-rendering:pixelated;pointer-events:none;filter:drop-shadow(0 4px 0 rgba(0,0,0,.32))}
+.tit-jugar-fila .jugar-marco{min-width:0;flex:0 1 auto}
+.tit-jugar-fila .btn-jugar{padding-inline:clamp(16px,3vw,40px);white-space:nowrap}
+@media(max-width:360px){.tit-aprendiz{width:48px}.tit-jugar-fila{gap:2px}.tit-jugar-fila .btn-jugar{padding-inline:12px}}
+html.apaisado .tit-aprendiz{width:clamp(56px,10vh,100px)}
+@media(prefers-reduced-motion:reduce){.tit-aprendiz{filter:none}}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}

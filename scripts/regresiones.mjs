@@ -1429,6 +1429,143 @@ await caso('título del menú · sin conexión: el service worker guarda el dibu
   } finally { mini.close(); }
 });
 
+/* ── EL APRENDIZ DE LA PORTADA (v29) ──
+   Lo que no puede romperse: que JUGAR siga igual (y sin retraso), que el lienzo sea
+   decorativo y no tape ni intercepte nada, que respire / parpadee / salude, que lleve la
+   piel y la camisa del jugador, que respete "reducir movimiento", la pausa y la pestaña
+   oculta, que no deje bucles al salir y que se vea bien en móvil y escritorio. */
+const PORTADA_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v29', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+/* una huella barata del lienzo: la suma de sus bytes y dónde tiene píxeles (para saber si cambió de dibujo) */
+const huella = pg => pg.evaluate(() => { const cv = document.querySelector('#t-aprendiz'); const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let s = 0, n = 0; for (let i = 0; i < d.length; i += 4) { if (d[i + 3]) { n++; s = (s * 31 + d[i] + d[i + 1] * 3 + d[i + 2] * 7 + (i >> 2)) % 1000003; } } return `${n}:${s}`; });
+const listoAprendiz = pg => pg.waitForFunction(() => { const cv = document.querySelector('#t-aprendiz'); if (!cv) return false; const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; for (let i = 3; i < d.length; i += 4) if (d[i]) return true; return false; }, null, { timeout: 5000 });
+
+await caso('aprendiz de la portada · está junto a JUGAR, es decorativo y no intercepta toques ni tapa nada', PORTADA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg);
+  const r = await pg.evaluate(() => {
+    const cv = document.querySelector('#t-aprendiz'), j = document.querySelector('#t-jugar'), m = document.querySelector('.jugar-marco'), a = cv.getBoundingClientRect(), b = m.getBoundingClientRect();
+    cv.scrollIntoView({ block: 'center' }); const a2 = cv.getBoundingClientRect();
+    const tope = document.elementFromPoint(a2.left + a2.width / 2, a2.top + a2.height / 2);
+    return { aria: cv.getAttribute('aria-hidden'), pe: getComputedStyle(cv).pointerEvents, izq: a.right <= b.left + 2, mismaFila: Math.abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) < 40,
+      tope: tope && (tope === cv ? 'CANVAS' : tope.id || tope.className || tope.tagName), jugarAncho: Math.round(j.getBoundingClientRect().width) };
+  });
+  return [r.aria === 'true' && r.pe === 'none' && r.izq && r.mismaFila && r.tope !== 'CANVAS' && r.jugarAncho >= 120, JSON.stringify(r)];
+});
+
+await caso('aprendiz de la portada · se reparte bien en 6 tamaños: sin desbordar y sin tapar el título ni el reto diario', PORTADA_J, async pg => {
+  const mal = [];
+  for (const [w, h] of [[320, 568], [360, 640], [390, 760], [820, 1100], [1280, 800], [1920, 1080]]) {
+    await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(500);
+    const r = await pg.evaluate(() => {
+      const cv = document.querySelector('#t-aprendiz'), j = document.querySelector('.jugar-marco'), reto = document.querySelector('#t-reto'), xp = document.querySelector('.xp-txt'), sc = document.querySelector('#screen');
+      const a = cv.getBoundingClientRect(), b = j.getBoundingClientRect(), rr = reto.getBoundingClientRect(), x = xp.getBoundingClientRect();
+      const choca = (p, q) => !(p.right <= q.left || p.left >= q.right || p.bottom <= q.top || p.top >= q.bottom);
+      return { sinScroll: sc.scrollWidth <= sc.clientWidth, noChoca: !choca(a, rr) && !choca(a, x) && !choca(b, rr) && !choca(b, x), ancho: Math.round(a.width), jugar: Math.round(b.width) };
+    });
+    if (!(r.sinScroll && r.noChoca && r.ancho >= 40 && r.jugar >= 120)) mal.push(`${w}×${h}: ${JSON.stringify(r)}`);
+  }
+  return [mal.length === 0, mal.length ? mal.join(' · ') : '6 tamaños: sin scroll horizontal y sin choques'];
+});
+
+await caso('aprendiz de la portada · JUGAR sigue entrando al pasillo y sin retraso (con ratón, teclado y toque)', PORTADA_J, async pg => {
+  const mide = async accion => {
+    await pg.evaluate(() => rTitulo()); await listoAprendiz(pg);
+    const t0 = Date.now(); await accion(); await pg.waitForFunction(() => pantallaId === 'pasillo', null, { timeout: 3000 });
+    return Date.now() - t0;
+  };
+  const raton = await mide(() => pg.click('#t-jugar'));
+  const teclado = await mide(async () => { await pg.focus('#t-jugar'); await pg.keyboard.press('Enter'); });
+  const toque = await mide(() => pg.evaluate(() => document.querySelector('#t-jugar').click()));
+  return [raton < 1500 && teclado < 900 && toque < 900, `ratón ${raton} ms, teclado ${teclado} ms, clic ${toque} ms`];
+});
+
+await caso('aprendiz de la portada · respira: el dibujo cambia solo, cada ~0,65 s, sin que nadie toque nada', PORTADA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg);
+  const v = new Set(); const t0 = Date.now();
+  while (Date.now() - t0 < 2400) { v.add(await huella(pg)); await pausa(60); }
+  return [v.size >= 2, `${v.size} dibujos distintos en 2,4 s`];
+});
+
+await caso('aprendiz de la portada · saluda al pasar el puntero por JUGAR, al enfocarlo y al tocarlo, y luego vuelve al reposo', PORTADA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg); await pausa(1100);
+  const res = {};
+  /* se mide por el brazo: el saludo es el único que pinta en la columna derecha del lienzo (x ≥ 46) */
+  const brazo = pg => pg.evaluate(() => { const cv = document.querySelector('#t-aprendiz'); const d = cv.getContext('2d').getImageData(46, 20, 10, 30).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) n++; return n; });
+  const reposo = await brazo(pg);
+  for (const [nombre, accion] of [['puntero', () => pg.hover('#t-jugar')], ['foco', async () => { await pg.mouse.move(2, 2); await pg.focus('#t-jugar'); }], ['toque', () => pg.evaluate(() => document.querySelector('#t-jugar').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })))]]) {
+    await pg.evaluate(() => { document.activeElement?.blur(); }); await pg.mouse.move(2, 2); await pausa(1300);
+    await accion(); await pausa(250);
+    res[nombre] = await brazo(pg);
+  }
+  /* y vuelve al reposo (puede coincidir con el saludo periódico, que dura ~1 s: se espera hasta 4 s) */
+  const vuelve = await pg.waitForFunction(() => { const cv = document.querySelector('#t-aprendiz'); const d = cv.getContext('2d').getImageData(46, 20, 10, 30).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) n++; return n < 30; }, null, { timeout: 4000 }).then(() => true, () => false);
+  return [Object.values(res).every(n => n > reposo + 20) && vuelve, JSON.stringify({ reposo, ...res, vuelveAlReposo: vuelve })];
+});
+
+await caso('aprendiz de la portada · lleva la piel y la camisa del jugador (y cambian al elegir otras)', PORTADA_J, async pg => {
+  const color = (pg, y) => pg.evaluate(yy => { const cv = document.querySelector('#t-aprendiz'); const d = cv.getContext('2d').getImageData(12, yy, 30, 1).data; const c = {}; for (let i = 0; i < d.length; i += 4) if (d[i + 3] === 255) { const k = d[i] + ',' + d[i + 1] + ',' + d[i + 2]; c[k] = (c[k] || 0) + 1; } return Object.entries(c).sort((a, b) => b[1] - a[1])[0]?.[0]; }, y);
+  const casos = [[0, 0], [1, 2], [3, 3]], vistos = [];
+  for (const [skin, camisa] of casos) {
+    await pg.evaluate(([s, c]) => { S.skin = s; S.camisa = c; rTitulo(); }, [skin, camisa]); await listoAprendiz(pg); await pausa(400);
+    const cam = await color(pg, 36), piel = await color(pg, 12);
+    const hexes = await pg.evaluate(([s, c]) => [SKINS[s], CAMISAS[c]], [skin, camisa]);
+    vistos.push({ skin, camisa, cam, piel, hexes });
+  }
+  /* el color dominante del torso tiene que parecerse al de la camisa elegida (el sprite lleva sombreado: se admite ±70 por canal) */
+  const cerca = (rgb, hex) => { if (!rgb) return false; const [r, g, b] = rgb.split(',').map(Number), h = hex.slice(1).match(/../g).map(x => parseInt(x, 16)); return Math.abs(r - h[0]) < 80 && Math.abs(g - h[1]) < 80 && Math.abs(b - h[2]) < 80; };
+  const ok = vistos.every(v => cerca(v.cam, v.hexes[1])) && new Set(vistos.map(v => v.cam)).size === 3;
+  return [ok, JSON.stringify(vistos.map(v => ({ skin: v.skin, camisa: v.camisa, torso: v.cam, esperado: v.hexes[1] })))];
+});
+
+await caso('aprendiz de la portada · con "reducir movimiento" se pinta una vez, quieto: ni respira ni saluda', PORTADA_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' }); await pg.reload({ waitUntil: 'load' });
+  await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg);
+  const v = new Set(); const t0 = Date.now();
+  while (Date.now() - t0 < 2200) { v.add(await huella(pg)); await pausa(80); }
+  await pg.hover('#t-jugar'); await pausa(300); v.add(await huella(pg));
+  const intervalos = await pg.evaluate(() => tms.length);
+  return [v.size === 1 && intervalos <= 3, `${v.size} dibujo(s) distintos (con el puntero encima también), temporizadores del juego: ${intervalos}`];
+});
+
+await caso('aprendiz de la portada · en pausa y con la pestaña oculta se queda quieto', PORTADA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg); await pausa(500);
+  const quietoDurante = async () => { const a = await huella(pg); const v = new Set([a]); const t0 = Date.now(); while (Date.now() - t0 < 2000) { v.add(await huella(pg)); await pausa(100); } return v.size; };
+  await pg.evaluate(() => { pausado = true; });
+  const enPausa = await quietoDurante();
+  await pg.evaluate(() => { pausado = false; Object.defineProperty(document, 'hidden', { value: true, configurable: true }); });
+  const oculta = await quietoDurante();
+  await pg.evaluate(() => { Object.defineProperty(document, 'hidden', { value: false, configurable: true }); });
+  const vuelve = await quietoDurante();
+  return [enPausa === 1 && oculta === 1 && vuelve >= 2, `en pausa: ${enPausa} dibujo(s), pestaña oculta: ${oculta}, al volver: ${vuelve}`];
+});
+
+await caso('aprendiz de la portada · al salir de la portada no queda ningún bucle (y volver 10 veces no los acumula)', PORTADA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg);
+  const base = await pg.evaluate(() => { rPasillo(); return tms.length; });
+  const salidas = [];
+  for (let i = 0; i < 10; i++) { await pg.evaluate(() => rTitulo()); const dentro = await pg.evaluate(() => tms.length); await pg.evaluate(() => rPasillo()); salidas.push([dentro, await pg.evaluate(() => tms.length), await pg.evaluate(() => document.querySelectorAll('#t-aprendiz').length)]); }
+  const ok = salidas.every(([dentro, fuera, lienzos]) => fuera === base && lienzos === 0 && dentro <= base + 3);
+  return [ok, `fuera de la portada: ${base} temporizadores; en 10 vueltas ${JSON.stringify(salidas.slice(0, 3))}…`];
+});
+
+await caso('aprendiz de la portada · con el modo HD y con el texto legible sigue en su sitio, sin desbordar', PORTADA_J, async pg => {
+  const mal = [];
+  for (const modo of [{ hd: true }, { legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); rTitulo(); }, modo); await listoAprendiz(pg); await pausa(300);
+    const r = await pg.evaluate(() => { const a = document.querySelector('#t-aprendiz').getBoundingClientRect(), b = document.querySelector('.jugar-marco').getBoundingClientRect(), sc = document.querySelector('#screen'); return { izq: a.right <= b.left + 2, sinScroll: sc.scrollWidth <= sc.clientWidth, ancho: Math.round(a.width) }; });
+    if (!(r.izq && r.sinScroll && r.ancho >= 40)) mal.push(JSON.stringify(modo) + ' ' + JSON.stringify(r));
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.join(' · ') : 'HD y legible: a la izquierda de JUGAR, sin scroll'];
+});
+
+await caso('aprendiz de la portada · las demás pantallas no cambian: ninguna lleva el lienzo ni sus reglas', PORTADA_J, async pg => {
+  const r = await pg.evaluate(() => { const o = {};
+    for (const [n, f] of [['pasillo', () => rPasillo()], ['lista', () => rMapaLista()], ['tienda', () => rTienda()], ['logros', () => rLogros()], ['récords', () => rRecords()], ['perso', () => rPerso()]]) { f(); o[n] = document.querySelectorAll('#t-aprendiz,.tit-jugar-fila').length; }
+    return o; });
+  return [Object.values(r).every(v => v === 0), JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

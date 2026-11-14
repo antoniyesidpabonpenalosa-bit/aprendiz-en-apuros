@@ -22,6 +22,75 @@ if(typeof Image!=='undefined'){
   im.onload=()=>{tituloListo=true;const l=document.querySelector('.tit-logo');if(l)l.classList.add('con-imagen')};
   im.src=TITULO_IMG;
 }
+/* ── EL APRENDIZ DE LA PORTADA (v29) ──
+   El aprendiz de cuerpo entero (el mismo atlas recoloreado que usan el runner, el jefe y el
+   pasillo: APRENDIZ.dibujar) está junto a JUGAR, con la piel y la camisa que eligió el jugador.
+   Respira (la mitad de arriba sube un píxel cada 0,65 s con los pies quietos), parpadea cada
+   4,1 s, saluda cada 12 s y, de golpe, al pasar el puntero, enfocar o tocar JUGAR. El lienzo es
+   decorativo: aria-hidden y pointer-events:none, así que no intercepta ni retrasa el clic.
+   Se pinta a 10 cuadros por segundo con tcada() —lo limpia pantalla()/limpiarT() al salir de la
+   portada, y con ello no queda ningún bucle— y solo se redibuja cuando algo cambia. Quieto con la
+   pestaña oculta o el juego en pausa; con "reducir movimiento" se pinta una sola vez, quieto.
+   La cuenta de qué toca en cada instante va aparte (portadaEstado) para poder probarla. */
+const PORTADA={RESPIRA:650,PARPADEO:{cada:4100,desde:3700,hasta:3840},SALUDO:{cada:12000,desde:6500,hasta:7550,dura:1050,paso:170}};
+function portadaEstado(t,saludoHasta,reduce,ahora=t){
+  if(reduce)return {saludo:false,parpadeo:false,respira:false,brazo:0};
+  const p=PORTADA.SALUDO,k=PORTADA.PARPADEO;
+  const saludo=ahora<saludoHasta||(t%p.cada>=p.desde&&t%p.cada<p.hasta);
+  const parpadeo=!saludo&&(t%k.cada>=k.desde&&t%k.cada<k.hasta);
+  const respira=!saludo&&Math.floor(t/PORTADA.RESPIRA)%2===1;
+  return {saludo,parpadeo,respira,brazo:Math.floor(t/p.paso)%2};
+}
+function aprendizPortada(cv,boton){
+  if(!cv||!boton||typeof APRENDIZ==='undefined')return;
+  const c=cv.getContext('2d'),base=document.createElement('canvas');
+  base.width=44;base.height=74;
+  const b=base.getContext('2d',{willReadFrequently:true});
+  const t0=performance.now();
+  let saludoHasta=0,ultimo='',colores=null;
+  const saludar=()=>{if(!quieto()){saludoHasta=performance.now()+PORTADA.SALUDO.dura;pinta()}};
+  ['pointerenter','pointerdown','focus'].forEach(ev=>boton.addEventListener(ev,saludar));
+  /* los colores del brazo y del párpado salen del propio sprite recoloreado (conservan su
+     sombreado); si el navegador no deja leerlos (file://), los de la piel y la camisa elegidas */
+  const leeColores=()=>{
+    const lee=(x,y,def)=>{try{const p=b.getImageData(x,y,1,1).data;return `rgb(${p[0]},${p[1]},${p[2]})`}catch(e){return def}};
+    return {piel:lee(18,10,SKINS[S.skin]||SKINS[0]),tela:lee(20,36,CAMISAS[S.camisa]||CAMISAS[0])};
+  };
+  function pinta(){
+    if(!cv.isConnected||pantallaId!=='titulo'||document.hidden||pausado)return;
+    const ahora=performance.now(),t=ahora-t0,e=portadaEstado(t,saludoHasta,quieto(),ahora);
+    const clave=[e.saludo?'s'+e.brazo:'',e.parpadeo?'p':'',e.respira?'r':'',S.skin,S.camisa].join('|');
+    if(clave===ultimo)return;
+    b.clearRect(0,0,44,74);
+    if(!APRENDIZ.dibujar(b,22,74,74,APRENDIZ.idx.south,0))return;     /* el atlas aún no cargó: se reintenta */
+    ultimo=clave;
+    if(!colores||colores.s!==S.skin||colores.c!==S.camisa)colores={...leeColores(),s:S.skin,c:S.camisa};
+    c.clearRect(0,0,56,80);c.imageSmoothingEnabled=false;
+    /* pies fijos; al respirar solo se mueve la mitad de arriba, un píxel */
+    if(e.respira){c.drawImage(base,0,0,44,49,6,2,44,49);c.drawImage(base,0,48,44,26,6,51,44,26)}
+    else c.drawImage(base,6,3);
+    const rect=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
+    if(e.parpadeo){
+      const yy=15-(e.respira?1:0);
+      rect(20,yy,3,2,colores.piel);rect(30,yy,4,2,colores.piel);
+      rect(20,yy+1,3,1,'#272335');rect(30,yy+1,4,1,'#272335');
+    }
+    if(e.saludo){
+      /* brazo articulado en píxeles, con la camisa y la piel de verdad */
+      const borde='#0d0f28',hx=e.brazo?48:46,hy=e.brazo?23:25;
+      c.clearRect(39,37,9,18);
+      rect(39,34,7,10,borde);rect(40,35,5,7,colores.tela);
+      rect(43,32,8,8,borde);rect(44,33,6,6,colores.tela);
+      rect(46,hy+5,5,9,borde);rect(47,hy+5,3,7,colores.piel);
+      rect(hx,hy,7,8,borde);rect(hx+1,hy+1,5,6,colores.piel);
+      rect(hx+2,hy-2,3,4,borde);rect(hx+3,hy-1,1,3,colores.piel);
+    }
+  }
+  pinta();
+  if(quieto()){let n=0;const reintenta=()=>{pinta();if(!ultimo&&++n<8)tvez(reintenta,400)};tvez(reintenta,200)}
+  else tcada(pinta,100);
+}
+
 function rTitulo(){
   const {sig,pc}=progresoXp();
   const racha=RETO.rachaViva();
@@ -60,9 +129,12 @@ function rTitulo(){
       <p class="xp-txt">${sig?`${S.xp} / ${sig.xp} XP · ${pc}%`:`${S.xp} XP · ${t('rango_max')}`}</p>
     </div>
 
-    <div class="jugar-marco">
-      <i></i><i></i><i></i><i></i>
-      <button class="btn btn-jugar" id="t-jugar" type="button">${t('jugar')}</button>
+    <div class="tit-jugar-fila">
+      <canvas id="t-aprendiz" class="tit-aprendiz" width="56" height="80" aria-hidden="true"></canvas>
+      <div class="jugar-marco">
+        <i></i><i></i><i></i><i></i>
+        <button class="btn btn-jugar" id="t-jugar" type="button">${t('jugar')}</button>
+      </div>
     </div>
 
     <button class="tit-reto" id="t-reto" type="button">
@@ -129,6 +201,7 @@ function rTitulo(){
     </div>
   </div>`,rTitulo);
 
+  aprendizPortada($('#t-aprendiz'),$('#t-jugar'));
   /* retrato del avatar dentro de la tarjeta */
   const av=$('#t-av'); if(av)retratoVivo(av,CARAS.yo(true));
 
