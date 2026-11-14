@@ -1273,6 +1273,8 @@ await caso('fondo del menú · el texto suelto sobre el fondo sigue leyéndose (
     /* se mide el fondo SIN el texto (transparente) justo detrás de cada línea: el 95 % más claro de sus píxeles manda */
     for (const sel of ['.sub', '.xp-txt', '.tit-h1 .l1', '.tit-h1 .l2', '.dif-cap']) {
       const el = await pg.$(sel); if (!el) continue;
+      /* desde la v28 el título lo pinta el dibujo y el h1 queda solo para lectores de pantalla (1 px, recortado): no hay texto que leer */
+      if (await el.evaluate(e => { const h = e.closest('.tit-h1'); return !!h && h.getBoundingClientRect().width <= 2; })) continue;
       await el.scrollIntoViewIfNeeded(); await pausa(120);
       const caja = await el.boundingBox();
       if (!caja || caja.width < 2 || caja.y < 0 || caja.y + caja.height > h || caja.x < 0 || caja.x + caja.width > w) continue;
