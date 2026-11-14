@@ -8,10 +8,78 @@
      tienda.js        · tienda y personalizar el avatar (los dos gastan puntos)
      records.js       · logros, récords, código de aula y estadísticas */
 /* ── TÍTULO ── */
+/* ── EL TÍTULO DE LA PORTADA (v28) ──
+   El título es un dibujo en pixel art (img/titulo/, hecho con la tipografía del juego,
+   con sus guiones y su raya de colores integrados). El <h1> de texto SIGUE ahí: es lo que
+   leen los lectores de pantalla y lo que se ve si la imagen no carga o en el modo HD
+   (que cambia la tipografía de todo el juego). Con el dibujo cargado y fuera del modo HD,
+   el texto se esconde solo a la vista (clase con-imagen en .tit-logo; ver css/estilos.css),
+   así que nunca se ven los dos. Se pide la imagen una vez, al abrir el juego. */
+const TITULO_IMG='img/titulo/titulo-aprendiz-en-apuros.png';
+let tituloListo=false;
+if(typeof Image!=='undefined'){
+  const im=new Image();
+  im.onload=()=>{tituloListo=true;const l=document.querySelector('.tit-logo');if(l)l.classList.add('con-imagen')};
+  im.src=TITULO_IMG;
+}
+/* ── EL APRENDIZ DE LA PORTADA (v29) ──
+   El aprendiz de cuerpo entero (el mismo atlas recoloreado que usan el runner, el jefe y el
+   pasillo: APRENDIZ.dibujar) está junto a JUGAR, con la piel y la camisa que eligió el jugador.
+   Respira (la mitad de arriba sube un píxel cada 0,65 s con los pies quietos), parpadea cada
+   4,1 s, saluda cada 12 s y, de golpe, al pasar el puntero, enfocar o tocar JUGAR. Desde la v33
+   el parpadeo y el saludo son poses dibujadas (APRENDIZ.dibujarPortada). El lienzo es
+   decorativo: aria-hidden y pointer-events:none, así que no intercepta ni retrasa el clic.
+   Se pinta a 10 cuadros por segundo con tcada() —lo limpia pantalla()/limpiarT() al salir de la
+   portada, y con ello no queda ningún bucle— y solo se redibuja cuando algo cambia. Quieto con la
+   pestaña oculta o el juego en pausa; con "reducir movimiento" se pinta una sola vez, quieto.
+   La cuenta de qué toca en cada instante va aparte (portadaEstado) para poder probarla. */
+const PORTADA={RESPIRA:650,PARPADEO:{cada:4100,desde:3700,hasta:3840},SALUDO:{cada:12000,desde:6500,hasta:7550,dura:1050,paso:170}};
+function portadaEstado(t,saludoHasta,reduce,ahora=t){
+  if(reduce)return {saludo:false,parpadeo:false,respira:false,brazo:0};
+  const p=PORTADA.SALUDO,k=PORTADA.PARPADEO;
+  const saludo=ahora<saludoHasta||(t%p.cada>=p.desde&&t%p.cada<p.hasta);
+  const parpadeo=!saludo&&(t%k.cada>=k.desde&&t%k.cada<k.hasta);
+  const respira=!saludo&&Math.floor(t/PORTADA.RESPIRA)%2===1;
+  return {saludo,parpadeo,respira,brazo:Math.floor(t/p.paso)%2};
+}
+function aprendizPortada(cv,boton){
+  if(!cv||!boton||typeof APRENDIZ==='undefined')return;
+  const c=cv.getContext('2d'),base=document.createElement('canvas');
+  base.width=44;base.height=74;
+  const b=base.getContext('2d');
+  const t0=performance.now();
+  let saludoHasta=0,ultimo='';
+  const saludar=()=>{if(!quieto()){saludoHasta=performance.now()+PORTADA.SALUDO.dura;pinta()}};
+  ['pointerenter','pointerdown','focus'].forEach(ev=>boton.addEventListener(ev,saludar));
+  function pinta(){
+    if(!cv.isConnected||pantallaId!=='titulo'||document.hidden||pausado)return;
+    const ahora=performance.now(),t=ahora-t0,e=portadaEstado(t,saludoHasta,quieto(),ahora);
+    /* v33: el parpadeo y el saludo son poses dibujadas del atlas de la portada
+       (img/aprendiz-portada-hd.png: 0 reposo, 1 parpadeo, 2-3 saludo), no píxeles pintados
+       encima. Si ese atlas no cargó, dibujarPortada pinta el reposo de la caminata. */
+    const pose=e.saludo?2+e.brazo:e.parpadeo?1:0;
+    const clave=[pose,e.respira?'r':'',S.skin,S.camisa,APRENDIZ.listoPortada?'hd':''].join('|');
+    if(clave===ultimo)return;
+    b.clearRect(0,0,44,74);
+    if(!APRENDIZ.dibujarPortada(b,22,74,74,pose))return;     /* el atlas aún no cargó: se reintenta */
+    ultimo=clave;
+    c.clearRect(0,0,56,80);c.imageSmoothingEnabled=false;
+    /* pies fijos; al respirar solo se mueve la mitad de arriba, un píxel */
+    if(e.respira){c.drawImage(base,0,0,44,49,6,2,44,49);c.drawImage(base,0,48,44,26,6,51,44,26)}
+    else c.drawImage(base,6,3);
+  }
+  pinta();
+  if(quieto()){let n=0;const reintenta=()=>{pinta();if(!ultimo&&++n<8)tvez(reintenta,400)};tvez(reintenta,200)}
+  else tcada(pinta,100);
+}
+
 function rTitulo(){
+  /* entrada suave solo al LLEGAR a la portada; repintarla (dificultad, HD, texto) no la repite */
+  const entradaPortada=pantallaId!=='titulo'||!$('#screen .portada');
   const {sig,pc}=progresoXp();
   const racha=RETO.rachaViva();
-  const pcCampana=Math.round(progreso()/TOT_DIAS*100);
+  const diasCampana=progreso();
+  const pcCampana=Math.round(diasCampana/TOT_DIAS*100);
   const nuevoReto=!RETO.jugadoHoy();
   /* Icono + etiqueta + flecha, el patrón de fila de menú de la portada.
      La fila SIEMPRE recibe su icono por separado, así que si la etiqueta ya
@@ -26,13 +94,14 @@ function rTitulo(){
      de siempre; en pantalla apaisada son dos columnas, identidad y JUGAR a
      la izquierda, modos y ajustes a la derecha. */
   pantalla('titulo',`
-  <div class="centro portada">
+  <div class="centro portada${entradaPortada?' portada-entrada':''}">
    <div class="col2">
     <div class="col">
-    <div class="tit-logo">
+    <div class="tit-logo${tituloListo?' con-imagen':''}">
       <span class="guion" aria-hidden="true"><i></i><i></i><i></i></span>
-      <h1 class="tit-h1"><span class="l1">APRENDIZ</span><br><span class="l2">EN APUROS</span></h1>
+      <h1 class="tit-h1"><span class="l1">APRENDIZ</span> <br><span class="l2">EN APUROS</span></h1>
       <span class="guion der" aria-hidden="true"><i></i><i></i><i></i></span>
+      <img class="tit-img" src="${TITULO_IMG}" alt="" aria-hidden="true" width="920" height="360" draggable="false">
     </div>
     <p class="sub">${t('sub')}</p>
 
@@ -45,9 +114,12 @@ function rTitulo(){
       <p class="xp-txt">${sig?`${S.xp} / ${sig.xp} XP · ${pc}%`:`${S.xp} XP · ${t('rango_max')}`}</p>
     </div>
 
-    <div class="jugar-marco">
-      <i></i><i></i><i></i><i></i>
-      <button class="btn btn-jugar" id="t-jugar" type="button">${t('jugar')}</button>
+    <div class="tit-jugar-fila">
+      <canvas id="t-aprendiz" class="tit-aprendiz" width="56" height="80" aria-hidden="true"></canvas>
+      <div class="jugar-marco">
+        <i></i><i></i><i></i><i></i>
+        <button class="btn btn-jugar" id="t-jugar" type="button">${t('jugar')}</button>
+      </div>
     </div>
 
     <button class="tit-reto" id="t-reto" type="button">
@@ -67,7 +139,7 @@ function rTitulo(){
     <div class="dif-panel">
       <span class="dif-cap">${t('dificultad')}</span>
       <div class="dif-sel">
-        ${DIFS.map(d=>`<button class="dif-op ${S.dif===d.id?'sel':''}" data-dif="${d.id}" type="button">
+        ${DIFS.map(d=>`<button class="dif-op ${S.dif===d.id?'sel':''}" data-dif="${d.id}" type="button" aria-pressed="${S.dif===d.id}">
           <span class="dif-ico">${pxi(d.ico)}</span>${tj(d)}
           <span class="dif-puntos">${[0,1,2].map(n=>`<i class="${n<=d.id?'on':''}"></i>`).join('')}</span>
         </button>`).join('')}
@@ -87,19 +159,25 @@ function rTitulo(){
     </div>
 
     <button class="tit-avatar" id="t-perso" type="button">
-      <div class="tit-av-fila">
-        <canvas id="t-av" width="24" height="24"></canvas>
-        <div class="tit-av-txt">
+      <span class="tit-av-fila">
+        <span class="tit-av-portrait" aria-hidden="true"><canvas id="t-av" width="${S.av32?32:16}" height="${S.av32?32:16}"></canvas></span>
+        <span class="tit-av-txt">
           <b>${t('perso')}</b>
-          <span>${t('perso_sub')}</span>
-        </div>
-        <span class="m-chev">❯</span>
-      </div>
-      <div class="tit-prog-fila">
-        <span class="p-lbl">★ ${t('progreso_lbl')}</span>
-        <div class="barra"><div class="barra-fill" style="width:${pcCampana}%"></div></div>
+          <span class="av-nombre">${esc(tieneNombre()?S.nombre:t('tu'))}</span>
+          <span class="av-rango">${pxi('🎓')} ${rangoNom()}</span>
+        </span>
+        <span class="m-chev" aria-hidden="true">❯</span>
+      </span>
+      <span class="av-metricas">
+        <span class="av-xp"><b>XP</b> ${S.xp}${sig?` / ${sig.xp}`:''}</span>
+        <span class="av-estrellas">★ ${totalStars()} / ${TOT_DIAS*3}</span>
+      </span>
+      <span class="tit-prog-fila">
+        <span class="p-lbl">${t('progreso_lbl')}</span>
+        <span class="av-dias">${diasCampana}/${TOT_DIAS}</span>
+        <span class="barra" aria-hidden="true"><span class="barra-fill" style="width:${pcCampana}%"></span></span>
         <span class="p-pc">${pcCampana}%</span>
-      </div>
+      </span>
     </button>
     </div>
    </div>
@@ -114,10 +192,18 @@ function rTitulo(){
     </div>
   </div>`,rTitulo);
 
+  aprendizPortada($('#t-aprendiz'),$('#t-jugar'));
   /* retrato del avatar dentro de la tarjeta */
   const av=$('#t-av'); if(av)retratoVivo(av,CARAS.yo(true));
 
-  $$('.dif-op').forEach(b=>b.onclick=()=>{S.dif=+b.dataset.dif;guardar();SFX.click();rTitulo()});
+  $$('.dif-op').forEach(b=>b.onclick=()=>{
+    const teclado=b.matches(':focus-visible');
+    S.dif=+b.dataset.dif;guardar();SFX.click();rTitulo();
+    /* el menú se repinta entero: con teclado, el foco vuelve a la dificultad elegida */
+    const elegida=$(`.portada .dif-op[data-dif="${S.dif}"]`);
+    elegida?.classList.add('portada-confirmada');   /* destello dorado de confirmación (CSS) */
+    if(teclado)elegida?.focus({preventScroll:true});
+  });
   $('#t-stats').onclick=()=>{SFX.click();rStats()};
   $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};
   $('#t-texto').onclick=()=>{S.legible=!S.legible;guardar();aplicarModo();SFX.click();rTitulo()};

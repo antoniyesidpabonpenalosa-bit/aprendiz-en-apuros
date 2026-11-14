@@ -56,6 +56,8 @@ function pantalla(id,html,rehacer){
   limpiarT();pausado=false;modoJefe=false;$('#pausa').hidden=true;$('#interrupcion').hidden=true;
   const otra=id!==pantallaId;
   pantallaId=id;rehacerPantalla=rehacer||null;
+  /* fondo del menú principal: la ciudad solo en 'titulo' (js/fondo.js) */
+  if(typeof fondoPantalla==='function')fondoPantalla(id);
   /* Si mientras jugabas salió una versión nueva, el aviso esperaba a que
      terminaras: este es el momento (js/principal.js). */
   if(typeof mostrarAvisoVersion==='function')mostrarAvisoVersion();

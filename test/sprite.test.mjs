@@ -59,9 +59,9 @@ test('quieto se usa el cuadro 0; andando, los 4 pasos en orden cada 135 ms', () 
 });
 
 test('dibujar toma la columna del paso y la fila de la dirección', async () => {
-  let cargar;
+  const cargas = [];
   const c2 = createContext({
-    Image: class { set src(_) { cargar = () => this.onload(); } },
+    Image: class { set src(_) { cargas.push(() => this.onload()); } },
     document: { createElement: () => ({ getContext: () => ({ drawImage() {}, getImageData() { throw new Error('sin píxeles'); } }) }) },
     SKINS: ['#f4c898'], CAMISAS: ['#39a900'], S: { skin: 0, camisa: 0 },
   });
@@ -70,7 +70,7 @@ test('dibujar toma la columna del paso y la fila de la dirección', async () => 
   const pintado = [];
   const ctx2 = { imageSmoothingEnabled: true, drawImage: (...a) => pintado.push(a.slice(1, 5)) };
   assert.equal(B.dibujar(ctx2, 50, 100, 74, B.idx.east, 2), false, 'sin cargar todavía: false (respaldo)');
-  cargar();
+  cargas.forEach(cargar => cargar());
   assert.equal(B.dibujar(ctx2, 50, 100, 74, B.idx.east, 2), true);
   assert.deepEqual(pintado[0], [2 * 44, B.idx.east * 74, 44, 74]);
   B.dibujar(ctx2, 50, 100, 74, B.idx.south);

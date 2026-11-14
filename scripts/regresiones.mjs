@@ -39,11 +39,11 @@ let fallos = 0, total = 0;
 
 /* Cada caso recibe una página con la partida ya preparada y devuelve
    [ok, detalle]. Un error de página sin capturar hace fallar el caso. */
-async function caso(nombre, guardado, fn) {
+async function caso(nombre, guardado, fn, opciones = {}) {
   /* SOLO=texto: corre solo los casos cuyo nombre lo contenga (para iterar rápido) */
   if (process.env.SOLO && !nombre.includes(process.env.SOLO)) return;
   total++;
-  const ctx = await nav.newContext({ viewport: { width: 390, height: 760 } });
+  const ctx = await nav.newContext({ viewport: { width: 390, height: 760 }, ...opciones });
   if (guardado) await ctx.addInitScript(g => { if (!localStorage.getItem('pa3')) localStorage.setItem('pa3', JSON.stringify(g)); }, guardado);
   const pg = await ctx.newPage();
   const errs = [];
@@ -1165,6 +1165,845 @@ await caso('personajes · en un celular de 320 px caben, no tapan el texto y el 
     return { fuera, mismoTamano: Math.abs(a.height - g.height) < 1, retratoAlLado: txt.left >= ret.right - 2, sinPisar: f.bottom <= n.top + 1, ancho: $('#screen').scrollWidth <= $('#screen').clientWidth };
   });
   return [r.fuera === 0 && r.mismoTamano && r.retratoAlLado && r.sinPisar && r.ancho, JSON.stringify(r)];
+});
+
+/* ── EL FONDO DE LA PORTADA (v27) ──
+   Una ciudad nocturna animada, solo en el menú principal; las montañas de siempre en
+   el resto y si la imagen falla. Lo que no puede romperse: que no corran dos fondos a
+   la vez, que cubra sin deformarse, que respete "reducir movimiento" y la pestaña
+   oculta, que el texto siga leyéndose y que funcione sin conexión. */
+const FONDO = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v27', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+/* cuántas animaciones de CSS hay en marcha en las capas del fondo */
+const animFondo = () => ({
+  ciudad: document.getAnimations().filter(a => a.effect?.target?.classList?.contains('ciudad') && a.playState === 'running').length,
+  montanas: document.getAnimations().filter(a => a.effect?.target?.classList?.contains('mte') && a.playState === 'running').length,
+});
+/* las funciones de node no existen en la página: se instala animFondo como global de la página */
+const instalaAnim = pg => pg.evaluate(f => { window.animFondo = eval('(' + f + ')'); }, animFondo.toString());
+
+await caso('fondo del menú · la ciudad solo está en el menú principal y nunca corren dos fondos a la vez', FONDO, async pg => {
+  await pg.evaluate(() => rTitulo()); await pg.waitForFunction(() => document.querySelector('#app').classList.contains('fondo-ciudad'), null, { timeout: 5000 });
+  const pasos = [];
+  const foto = async nombre => pasos.push({ nombre, clase: await pg.evaluate(() => document.querySelector('#app').classList.contains('fondo-ciudad')),
+    display: await pg.evaluate(() => getComputedStyle(document.querySelector('.ciudad')).display), ...(await pg.evaluate(animFondo)) });
+  await foto('menú');
+  for (const [nombre, js] of [['pasillo', () => rPasillo()], ['lista', () => rMapaLista()], ['tienda', () => rTienda()], ['logros', () => rLogros()],
+                              ['récords', () => rRecords()], ['minijuego', () => { diaAct = 1; vidas = 3; nvBugs(1); }], ['jefe', () => { diaAct = 9; vidas = 3; nvJefe(9, 0); }]]) {
+    await pg.evaluate(js); await pausa(350); await foto(nombre);
+    await pg.evaluate(() => rTitulo()); await pausa(350);
+    await foto('menú tras ' + nombre);
+  }
+  const mal = pasos.filter(p => p.nombre.startsWith('menú') ? !(p.clase && p.display === 'block' && p.ciudad === 1 && p.montanas === 0)
+                                                           : !(!p.clase && p.display === 'none' && p.ciudad === 0));
+  return [mal.length === 0, mal.length ? 'mal: ' + JSON.stringify(mal) : `${pasos.length} pantallas: la ciudad solo en el menú (1 animación) y fuera, 0`];
+});
+
+await caso('fondo del menú · fuera del menú siguen las montañas (con su animación) y se esconden en el menú', FONDO, async pg => {
+  await instalaAnim(pg);
+  await pg.evaluate(() => rTitulo()); await pausa(600);
+  const menu = await pg.evaluate(() => ({ mte: getComputedStyle(document.querySelector('.mte.m1')).display, niebla: getComputedStyle(document.querySelector('.niebla')).display }));
+  await pg.evaluate(() => rPasillo()); await pausa(400);
+  const fuera = await pg.evaluate(() => ({ mte: getComputedStyle(document.querySelector('.mte.m1')).display, niebla: getComputedStyle(document.querySelector('.niebla')).display, ...animFondo() }));
+  return [menu.mte === 'none' && menu.niebla === 'none' && fuera.mte === 'block' && fuera.niebla === 'block' && fuera.montanas === 3 && fuera.ciudad === 0, JSON.stringify({ menu, fuera })];
+});
+
+await caso('fondo del menú · cubre sin deformar en móvil, móvil chico, tablet y escritorio (relación 549:466)', FONDO, async pg => {
+  const sal = [];
+  for (const [w, h] of [[390, 760], [320, 568], [820, 1100], [1280, 800], [1920, 1080], [360, 640]]) {
+    await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(450);
+    const r = await pg.evaluate(() => {
+      const a = document.querySelector('.ciudad').getBoundingClientRect(), f = document.querySelector('#fondo').getBoundingClientRect();
+      return { ratio: a.width / a.height, cubre: a.left <= f.left + 1 && a.right >= f.right - 1 && a.top <= f.top + 1 && a.bottom >= f.bottom - 1,
+               detras: getComputedStyle(document.querySelector('.ciudad')).pointerEvents === 'none' && getComputedStyle(document.querySelector('#fondo')).zIndex === '0' };
+    });
+    if (!r.cubre || Math.abs(r.ratio - 549 / 466) > .005 || !r.detras) sal.push(`${w}×${h}: ${JSON.stringify(r)}`);
+  }
+  return [sal.length === 0, sal.length ? sal.join(' · ') : '6 tamaños: cubre, sin deformar, detrás de todo y sin interceptar toques'];
+});
+
+await caso('fondo del menú · la animación recorre 6 cuadros distintos, de ~800 ms cada uno', FONDO, async pg => {
+  await pg.evaluate(() => rTitulo()); await pg.waitForFunction(() => document.querySelector('#app').classList.contains('fondo-ciudad'), null, { timeout: 5000 });
+  const m = await pg.evaluate(async () => {
+    const t0 = performance.now(), v = [];
+    while (performance.now() - t0 < 5600) { v.push([performance.now() - t0, getComputedStyle(document.querySelector('.ciudad')).backgroundPosition]); await new Promise(r => setTimeout(r, 40)); }
+    return v;
+  });
+  const cambios = m.filter((x, i) => i && x[1] !== m[i - 1][1]).map(x => Math.round(x[0]));
+  const dist = [...new Set(m.map(x => x[1]))];
+  const gaps = cambios.slice(1).map((c, i) => c - cambios[i]);
+  return [dist.length === 6 && gaps.length >= 4 && gaps.every(g => g > 600 && g < 1000), `${dist.length} posiciones, cambios a ${cambios}, intervalos ${gaps}`];
+});
+
+await caso('fondo del menú · con "reducir movimiento": imagen estática y ninguna animación', FONDO, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' }); await pg.reload({ waitUntil: 'load' });
+  await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+  await instalaAnim(pg);
+  await pg.evaluate(() => rTitulo()); await pg.waitForFunction(() => document.querySelector('#app').classList.contains('fondo-ciudad'), null, { timeout: 5000 });
+  const r = await pg.evaluate(() => { const e = getComputedStyle(document.querySelector('.ciudad')); return { anim: e.animationName, img: e.backgroundImage, tam: e.backgroundSize, corre: animFondo().ciudad,
+    pedidas: performance.getEntriesByType('resource').map(x => x.name.split('/').pop()).filter(n => n.startsWith('ciudad')) }; });
+  return [r.anim === 'none' && /ciudad-estatica\.png/.test(r.img) && r.corre === 0 && r.pedidas.join() === 'ciudad-estatica.png', JSON.stringify(r)];
+});
+
+await caso('fondo del menú · con la pestaña oculta la animación se pausa y al volver sigue', FONDO, async pg => {
+  await instalaAnim(pg);
+  await pg.evaluate(() => rTitulo()); await pg.waitForFunction(() => document.querySelector('#app').classList.contains('fondo-ciudad'), null, { timeout: 5000 });
+  const estado = () => pg.evaluate(() => ({ marca: document.documentElement.classList.contains('pestana-oculta'), play: getComputedStyle(document.querySelector('.ciudad')).animationPlayState, corre: animFondo().ciudad }));
+  const visible = await estado();
+  await pg.evaluate(() => { Object.defineProperty(document, 'hidden', { value: true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
+  const oculta = await estado();
+  await pg.evaluate(() => { Object.defineProperty(document, 'hidden', { value: false, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
+  const vuelve = await estado();
+  return [!visible.marca && visible.play === 'running' && oculta.marca && oculta.play === 'paused' && oculta.corre === 0 && !vuelve.marca && vuelve.play === 'running' && vuelve.corre === 1, JSON.stringify({ visible, oculta, vuelve })];
+});
+
+await caso('fondo del menú · si la imagen no carga, el menú se queda con las montañas de siempre', FONDO, async pg => {
+  await pg.route('**/img/fondo/**', r => r.abort());
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+  await instalaAnim(pg);
+  await pg.evaluate(() => rTitulo()); await pausa(900);
+  const r = await pg.evaluate(() => ({ clase: document.querySelector('#app').classList.contains('fondo-ciudad'), mte: getComputedStyle(document.querySelector('.mte.m1')).display, capa: getComputedStyle(document.querySelector('.ciudad')).display, ...animFondo() }));
+  return [!r.clase && r.mte === 'block' && r.capa === 'none' && r.montanas === 3 && r.ciudad === 0, JSON.stringify(r)];
+});
+
+await caso('fondo del menú · el texto suelto sobre el fondo sigue leyéndose (contraste ≥ 4,5 en móvil, móvil chico y escritorio)', FONDO, async pg => {
+  const lum = (r, g, b) => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
+  const sal = [];
+  for (const [w, h] of [[390, 760], [320, 568], [1280, 800]]) {
+    await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(500);
+    /* se mide el fondo SIN el texto (transparente) justo detrás de cada línea: el 95 % más claro de sus píxeles manda */
+    for (const sel of ['.sub', '.xp-txt', '.tit-h1 .l1', '.tit-h1 .l2', '.dif-cap']) {
+      const el = await pg.$(sel); if (!el) continue;
+      /* desde la v28 el título lo pinta el dibujo y el h1 queda solo para lectores de pantalla (1 px, recortado): no hay texto que leer */
+      if (await el.evaluate(e => { const h = e.closest('.tit-h1'); return !!h && h.getBoundingClientRect().width <= 2; })) continue;
+      await el.scrollIntoViewIfNeeded(); await pausa(120);
+      const caja = await el.boundingBox();
+      if (!caja || caja.width < 2 || caja.y < 0 || caja.y + caja.height > h || caja.x < 0 || caja.x + caja.width > w) continue;
+      const color = await el.evaluate(e => getComputedStyle(e).color);
+      await el.evaluate(e => { e.dataset.c = e.style.color; e.style.color = 'transparent'; e.style.textShadow = 'none'; });
+      const png = await pg.screenshot({ clip: { x: caja.x, y: caja.y, width: caja.width, height: caja.height } });
+      await el.evaluate(e => { e.style.color = e.dataset.c; e.style.textShadow = ''; });
+      const px = await pg.evaluate(async b64 => { const i = new Image(); i.src = 'data:image/png;base64,' + b64; await i.decode(); const c = document.createElement('canvas'); c.width = i.width; c.height = i.height; const g = c.getContext('2d'); g.drawImage(i, 0, 0); const d = g.getImageData(0, 0, c.width, c.height).data; const o = []; for (let k = 0; k < d.length; k += 4) o.push([d[k], d[k + 1], d[k + 2]]); return o; }, png.toString('base64'));
+      const ls = px.map(p => lum(...p)).sort((a, b) => a - b), fondo = ls[Math.floor(ls.length * .95)];
+      const m = color.match(/\d+/g).map(Number), texto = lum(m[0], m[1], m[2]);
+      const contraste = (Math.max(texto, fondo) + .05) / (Math.min(texto, fondo) + .05);
+      if (contraste < 4.5) sal.push(`${w}×${h} ${sel}: ${contraste.toFixed(1)}`);
+    }
+  }
+  return [sal.length === 0, sal.length ? sal.join(' · ') : 'todos ≥ 4,5:1'];
+});
+
+await caso('fondo del menú · sin conexión: el service worker guarda las dos imágenes y la ciudad se sirve de su caché', FONDO, async pg => {
+  const { createServer } = await import('node:http');
+  const { readFile } = await import('node:fs/promises');
+  const tipos = { html: 'text/html', js: 'text/javascript', css: 'text/css', webmanifest: 'application/manifest+json', svg: 'image/svg+xml', png: 'image/png', webp: 'image/webp', woff2: 'font/woff2' };
+  const mini = createServer(async (q, r) => {
+    try {
+      let ruta = decodeURIComponent(new URL(q.url, 'http://x').pathname);
+      if (ruta.endsWith('/')) ruta += 'index.html';
+      const cuerpo = await readFile(join(RAIZ, ruta));
+      r.writeHead(200, { 'content-type': tipos[ruta.split('.').pop()] || 'application/octet-stream', 'cache-control': 'no-store' });
+      r.end(cuerpo);
+    } catch (e) { r.writeHead(404); r.end(); }
+  });
+  await new Promise(ok => mini.listen(0, '127.0.0.1', ok));
+  try {
+    await pg.goto(`http://127.0.0.1:${mini.address().port}/index.html`, { waitUntil: 'load' });
+    await pg.waitForFunction(() => typeof pantallaId !== 'undefined');
+    await pg.evaluate(() => registrarSW());
+    await pg.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 8000 });
+    await pausa(1500);
+    const rutas = ['img/fondo/ciudad-atlas.png', 'img/fondo/ciudad-estatica.png', 'js/fondo.js'];
+    const guardadas = await pg.evaluate(async rs => Promise.all(rs.map(async u => !!(await caches.match(u)))), rutas);
+    await pg.context().setOffline(true);
+    const sinRed = await pg.evaluate(async () => { const r = await fetch('img/fondo/ciudad-atlas.png', { cache: 'reload' }); return { ok: r.ok, bytes: (await r.blob()).size }; });
+    await pg.context().setOffline(false);
+    return [guardadas.every(Boolean) && sinRed.ok && sinRed.bytes > 200000, `en la caché: ${guardadas}, hoja sin red: ${JSON.stringify(sinRed)}`];
+  } finally { mini.close(); }
+});
+
+await caso('fondo del menú · con la ciudad, el menú se ve y los botones responden (JUGAR → pasillo, y volver)', FONDO, async pg => {
+  await pg.evaluate(() => rTitulo()); await pg.waitForFunction(() => document.querySelector('#app').classList.contains('fondo-ciudad'), null, { timeout: 5000 });
+  await pg.click('#t-jugar'); await pausa(500);
+  const en = await pg.evaluate(() => ({ p: pantallaId, clase: document.querySelector('#app').classList.contains('fondo-ciudad') }));
+  await pg.evaluate(() => rTitulo()); await pausa(500);
+  const vuelve = await pg.evaluate(() => document.querySelector('#app').classList.contains('fondo-ciudad'));
+  return [en.p === 'pasillo' && !en.clase && vuelve, JSON.stringify({ en, vuelve })];
+});
+
+/* ── EL TÍTULO DE LA PORTADA (v28) ──
+   Un dibujo en pixel art en vez del texto, con el <h1> de siempre como respaldo y para los
+   lectores de pantalla. Lo que no puede romperse: que nunca se vean los dos, que quepa y no
+   tape el subtítulo ni los botones, que el modo HD siga con su título de texto, que el modo
+   legible y las pantallas estrechas funcionen, y que si el dibujo no carga salga el texto. */
+const TITULO = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v28', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+const esperaTitulo = pg => pg.waitForFunction(() => document.querySelector('.tit-logo')?.classList.contains('con-imagen'), null, { timeout: 5000 });
+const estadoTitulo = pg => pg.evaluate(() => {
+  const l = document.querySelector('.tit-logo'), i = l.querySelector('.tit-img'), h = l.querySelector('.tit-h1'), g = l.querySelector('.guion');
+  const ri = i.getBoundingClientRect(), rh = h.getBoundingClientRect(), rl = l.getBoundingClientRect(), sub = document.querySelector('.sub').getBoundingClientRect(), sc = document.querySelector('#screen');
+  const imgVisible = getComputedStyle(i).display !== 'none' && ri.width > 4;
+  const textoVisible = rh.width > 4 && rh.height > 4 && getComputedStyle(h).visibility !== 'hidden';
+  return { imgVisible, textoVisible, guionVisible: getComputedStyle(g).display !== 'none', imgAncho: Math.round(ri.width), imgAlto: Math.round(ri.height),
+    dentro: ri.left >= rl.left - 1 && ri.right <= rl.right + 1, subLibre: !imgVisible || ri.bottom <= sub.top + 1, sinScroll: sc.scrollWidth <= sc.clientWidth,
+    ratio: imgVisible ? +(ri.width / ri.height).toFixed(3) : 0, nombre: h.textContent.replace(/\s+/g, ' ').trim(), alt: i.getAttribute('alt'), ocultoAria: i.getAttribute('aria-hidden') };
+});
+
+await caso('título del menú · con el dibujo cargado se ve solo el dibujo, y el h1 de texto queda para los lectores de pantalla', TITULO, async pg => {
+  await pg.evaluate(() => rTitulo()); await esperaTitulo(pg);
+  const e = await estadoTitulo(pg);
+  const h1 = await pg.evaluate(() => { const h = document.querySelector('.tit-h1'); const c = getComputedStyle(h); return { tag: h.tagName, pos: c.position, vis: c.visibility, disp: c.display }; });
+  return [e.imgVisible && !e.textoVisible && !e.guionVisible && e.nombre === 'APRENDIZ EN APUROS' && e.alt === '' && e.ocultoAria === 'true'
+    && h1.tag === 'H1' && h1.pos === 'absolute' && h1.vis === 'visible' && h1.disp !== 'none', JSON.stringify({ ...e, h1 })];
+});
+
+await caso('título del menú · cabe sin deformarse, sin desbordar y sin tapar el subtítulo en 6 tamaños', TITULO, async pg => {
+  const mal = [];
+  for (const [w, h] of [[320, 568], [360, 640], [390, 760], [820, 1100], [1280, 800], [1920, 1080]]) {
+    await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await esperaTitulo(pg); await pausa(300);
+    const e = await estadoTitulo(pg);
+    if (!(e.imgVisible && e.dentro && e.subLibre && e.sinScroll && Math.abs(e.ratio - 920 / 360) < .02)) mal.push(`${w}×${h}: ${JSON.stringify(e)}`);
+  }
+  return [mal.length === 0, mal.length ? mal.join(' · ') : '6 tamaños: dentro de su caja, relación 920:360, sin scroll y sin tapar el subtítulo'];
+});
+
+await caso('título del menú · el modo HD conserva el título de texto de siempre (sin dibujo)', { ...TITULO, hd: true }, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(900);
+  const e = await estadoTitulo(pg);
+  return [!e.imgVisible && e.textoVisible && e.guionVisible && e.nombre === 'APRENDIZ EN APUROS', JSON.stringify(e)];
+});
+
+await caso('título del menú · con el texto legible se ve el dibujo y el subtítulo sigue en su tipografía legible', { ...TITULO, legible: true }, async pg => {
+  await pg.evaluate(() => rTitulo()); await esperaTitulo(pg);
+  const e = await estadoTitulo(pg);
+  const fuente = await pg.evaluate(() => getComputedStyle(document.querySelector('.sub')).fontFamily);
+  return [e.imgVisible && !e.textoVisible && e.subLibre && /VT323/.test(fuente), JSON.stringify({ imgVisible: e.imgVisible, subLibre: e.subLibre, fuente })];
+});
+
+await caso('título del menú · si el dibujo no carga, sale el título de texto con sus guiones', TITULO, async pg => {
+  await pg.route('**/img/titulo/**', r => r.abort());
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+  await pg.evaluate(() => rTitulo()); await pausa(900);
+  const e = await estadoTitulo(pg);
+  const clase = await pg.evaluate(() => document.querySelector('.tit-logo').className);
+  return [!e.imgVisible && e.textoVisible && e.guionVisible && !/con-imagen/.test(clase), JSON.stringify({ ...e, clase })];
+});
+
+await caso('título del menú · cambiar de idioma y volver a la portada no duplica ni pierde el título', TITULO, async pg => {
+  await pg.evaluate(() => rTitulo()); await esperaTitulo(pg);
+  await pg.locator('#b-lang').click(); await pausa(500);
+  await pg.evaluate(() => rPasillo()); await pausa(300); await pg.evaluate(() => rTitulo()); await pausa(500);
+  const n = await pg.evaluate(() => ({ logos: document.querySelectorAll('.tit-logo').length, imgs: document.querySelectorAll('.tit-img').length, h1: document.querySelectorAll('h1').length, clase: document.querySelector('.tit-logo').className }));
+  const e = await estadoTitulo(pg);
+  return [n.logos === 1 && n.imgs === 1 && n.h1 === 1 && /con-imagen/.test(n.clase) && e.imgVisible && !e.textoVisible, JSON.stringify({ n, imgVisible: e.imgVisible })];
+});
+
+await caso('título del menú · las demás pantallas no cambian: ninguna lleva el título ni sus reglas', TITULO, async pg => {
+  const r = await pg.evaluate(() => { const o = {};
+    for (const [n, f] of [['pasillo', () => rPasillo()], ['lista', () => rMapaLista()], ['tienda', () => rTienda()], ['logros', () => rLogros()], ['récords', () => rRecords()]]) { f(); o[n] = document.querySelectorAll('.tit-logo,.tit-img').length; }
+    return o; });
+  return [Object.values(r).every(v => v === 0), JSON.stringify(r)];
+});
+
+await caso('título del menú · sin conexión: el service worker guarda el dibujo', TITULO, async pg => {
+  const { createServer } = await import('node:http');
+  const { readFile } = await import('node:fs/promises');
+  const tipos = { html: 'text/html', js: 'text/javascript', css: 'text/css', webmanifest: 'application/manifest+json', svg: 'image/svg+xml', png: 'image/png', webp: 'image/webp', woff2: 'font/woff2' };
+  const mini = createServer(async (q, r) => {
+    try {
+      let ruta = decodeURIComponent(new URL(q.url, 'http://x').pathname);
+      if (ruta.endsWith('/')) ruta += 'index.html';
+      const cuerpo = await readFile(join(RAIZ, ruta));
+      r.writeHead(200, { 'content-type': tipos[ruta.split('.').pop()] || 'application/octet-stream', 'cache-control': 'no-store' });
+      r.end(cuerpo);
+    } catch (e) { r.writeHead(404); r.end(); }
+  });
+  await new Promise(ok => mini.listen(0, '127.0.0.1', ok));
+  try {
+    await pg.goto(`http://127.0.0.1:${mini.address().port}/index.html`, { waitUntil: 'load' });
+    await pg.waitForFunction(() => typeof pantallaId !== 'undefined');
+    await pg.evaluate(() => registrarSW());
+    await pg.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 8000 });
+    await pausa(1500);
+    const guardada = await pg.evaluate(async () => !!(await caches.match('img/titulo/titulo-aprendiz-en-apuros.png')));
+    await pg.context().setOffline(true);
+    const sinRed = await pg.evaluate(async () => { const r = await fetch('img/titulo/titulo-aprendiz-en-apuros.png', { cache: 'reload' }); return { ok: r.ok, bytes: (await r.blob()).size }; });
+    await pg.context().setOffline(false);
+    return [guardada && sinRed.ok && sinRed.bytes > 1000, `en la caché: ${guardada}, sin red: ${JSON.stringify(sinRed)}`];
+  } finally { mini.close(); }
+});
+
+/* ── EL APRENDIZ DE LA PORTADA (v29) ──
+   Lo que no puede romperse: que JUGAR siga igual (y sin retraso), que el lienzo sea
+   decorativo y no tape ni intercepte nada, que respire / parpadee / salude, que lleve la
+   piel y la camisa del jugador, que respete "reducir movimiento", la pausa y la pestaña
+   oculta, que no deje bucles al salir y que se vea bien en móvil y escritorio. */
+const PORTADA_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v29', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+/* una huella barata del lienzo: la suma de sus bytes y dónde tiene píxeles (para saber si cambió de dibujo) */
+const huella = pg => pg.evaluate(() => { const cv = document.querySelector('#t-aprendiz'); const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let s = 0, n = 0; for (let i = 0; i < d.length; i += 4) { if (d[i + 3]) { n++; s = (s * 31 + d[i] + d[i + 1] * 3 + d[i + 2] * 7 + (i >> 2)) % 1000003; } } return `${n}:${s}`; });
+const listoAprendiz = pg => pg.waitForFunction(() => { const cv = document.querySelector('#t-aprendiz'); if (!cv) return false; const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; for (let i = 3; i < d.length; i += 4) if (d[i]) return true; return false; }, null, { timeout: 5000 });
+
+await caso('aprendiz de la portada · está junto a JUGAR, es decorativo y no intercepta toques ni tapa nada', PORTADA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg);
+  const r = await pg.evaluate(() => {
+    const cv = document.querySelector('#t-aprendiz'), j = document.querySelector('#t-jugar'), m = document.querySelector('.jugar-marco'), a = cv.getBoundingClientRect(), b = m.getBoundingClientRect();
+    cv.scrollIntoView({ block: 'center' }); const a2 = cv.getBoundingClientRect();
+    const tope = document.elementFromPoint(a2.left + a2.width / 2, a2.top + a2.height / 2);
+    return { aria: cv.getAttribute('aria-hidden'), pe: getComputedStyle(cv).pointerEvents, izq: a.right <= b.left + 2, mismaFila: Math.abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) < 40,
+      tope: tope && (tope === cv ? 'CANVAS' : tope.id || tope.className || tope.tagName), jugarAncho: Math.round(j.getBoundingClientRect().width) };
+  });
+  return [r.aria === 'true' && r.pe === 'none' && r.izq && r.mismaFila && r.tope !== 'CANVAS' && r.jugarAncho >= 120, JSON.stringify(r)];
+});
+
+await caso('aprendiz de la portada · se reparte bien en 6 tamaños: sin desbordar y sin tapar el título ni el reto diario', PORTADA_J, async pg => {
+  const mal = [];
+  for (const [w, h] of [[320, 568], [360, 640], [390, 760], [820, 1100], [1280, 800], [1920, 1080]]) {
+    await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(500);
+    const r = await pg.evaluate(() => {
+      const cv = document.querySelector('#t-aprendiz'), j = document.querySelector('.jugar-marco'), reto = document.querySelector('#t-reto'), xp = document.querySelector('.xp-txt'), sc = document.querySelector('#screen');
+      const a = cv.getBoundingClientRect(), b = j.getBoundingClientRect(), rr = reto.getBoundingClientRect(), x = xp.getBoundingClientRect();
+      const choca = (p, q) => !(p.right <= q.left || p.left >= q.right || p.bottom <= q.top || p.top >= q.bottom);
+      return { sinScroll: sc.scrollWidth <= sc.clientWidth, noChoca: !choca(a, rr) && !choca(a, x) && !choca(b, rr) && !choca(b, x), ancho: Math.round(a.width), jugar: Math.round(b.width) };
+    });
+    if (!(r.sinScroll && r.noChoca && r.ancho >= 40 && r.jugar >= 120)) mal.push(`${w}×${h}: ${JSON.stringify(r)}`);
+  }
+  return [mal.length === 0, mal.length ? mal.join(' · ') : '6 tamaños: sin scroll horizontal y sin choques'];
+});
+
+await caso('aprendiz de la portada · JUGAR sigue entrando al pasillo y sin retraso (con ratón, teclado y toque)', PORTADA_J, async pg => {
+  const mide = async accion => {
+    await pg.evaluate(() => rTitulo()); await listoAprendiz(pg);
+    const t0 = Date.now(); await accion(); await pg.waitForFunction(() => pantallaId === 'pasillo', null, { timeout: 3000 });
+    return Date.now() - t0;
+  };
+  const raton = await mide(() => pg.click('#t-jugar'));
+  const teclado = await mide(async () => { await pg.focus('#t-jugar'); await pg.keyboard.press('Enter'); });
+  const toque = await mide(() => pg.evaluate(() => document.querySelector('#t-jugar').click()));
+  return [raton < 1500 && teclado < 900 && toque < 900, `ratón ${raton} ms, teclado ${teclado} ms, clic ${toque} ms`];
+});
+
+await caso('aprendiz de la portada · respira: el dibujo cambia solo, cada ~0,65 s, sin que nadie toque nada', PORTADA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg);
+  const v = new Set(); const t0 = Date.now();
+  while (Date.now() - t0 < 2400) { v.add(await huella(pg)); await pausa(60); }
+  return [v.size >= 2, `${v.size} dibujos distintos en 2,4 s`];
+});
+
+await caso('aprendiz de la portada · saluda al pasar el puntero por JUGAR, al enfocarlo y al tocarlo, y luego vuelve al reposo', PORTADA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg); await pausa(1100);
+  const res = {};
+  /* se mide por el brazo: el saludo es el único que pinta en la columna derecha del lienzo (x ≥ 46) */
+  const brazo = pg => pg.evaluate(() => { const cv = document.querySelector('#t-aprendiz'); const d = cv.getContext('2d').getImageData(46, 20, 10, 30).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) n++; return n; });
+  const reposo = await brazo(pg);
+  for (const [nombre, accion] of [['puntero', () => pg.hover('#t-jugar')], ['foco', async () => { await pg.mouse.move(2, 2); await pg.focus('#t-jugar'); }], ['toque', () => pg.evaluate(() => document.querySelector('#t-jugar').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })))]]) {
+    await pg.evaluate(() => { document.activeElement?.blur(); }); await pg.mouse.move(2, 2); await pausa(1300);
+    await accion(); await pausa(250);
+    res[nombre] = await brazo(pg);
+  }
+  /* y vuelve al reposo (puede coincidir con el saludo periódico, que dura ~1 s: se espera hasta 4 s) */
+  const vuelve = await pg.waitForFunction(() => { const cv = document.querySelector('#t-aprendiz'); const d = cv.getContext('2d').getImageData(46, 20, 10, 30).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) n++; return n < 30; }, null, { timeout: 4000 }).then(() => true, () => false);
+  return [Object.values(res).every(n => n > reposo + 20) && vuelve, JSON.stringify({ reposo, ...res, vuelveAlReposo: vuelve })];
+});
+
+await caso('aprendiz de la portada · lleva la piel y la camisa del jugador (y cambian al elegir otras)', PORTADA_J, async pg => {
+  const color = (pg, y) => pg.evaluate(yy => { const cv = document.querySelector('#t-aprendiz'); const d = cv.getContext('2d').getImageData(12, yy, 30, 1).data; const c = {}; for (let i = 0; i < d.length; i += 4) if (d[i + 3] === 255) { const k = d[i] + ',' + d[i + 1] + ',' + d[i + 2]; c[k] = (c[k] || 0) + 1; } return Object.entries(c).sort((a, b) => b[1] - a[1])[0]?.[0]; }, y);
+  const casos = [[0, 0], [1, 2], [3, 3]], vistos = [];
+  for (const [skin, camisa] of casos) {
+    await pg.evaluate(([s, c]) => { S.skin = s; S.camisa = c; rTitulo(); }, [skin, camisa]); await listoAprendiz(pg); await pausa(400);
+    const cam = await color(pg, 36), piel = await color(pg, 12);
+    const hexes = await pg.evaluate(([s, c]) => [SKINS[s], CAMISAS[c]], [skin, camisa]);
+    vistos.push({ skin, camisa, cam, piel, hexes });
+  }
+  /* el color dominante del torso tiene que parecerse al de la camisa elegida (el sprite lleva sombreado: se admite ±70 por canal) */
+  const cerca = (rgb, hex) => { if (!rgb) return false; const [r, g, b] = rgb.split(',').map(Number), h = hex.slice(1).match(/../g).map(x => parseInt(x, 16)); return Math.abs(r - h[0]) < 80 && Math.abs(g - h[1]) < 80 && Math.abs(b - h[2]) < 80; };
+  const ok = vistos.every(v => cerca(v.cam, v.hexes[1])) && new Set(vistos.map(v => v.cam)).size === 3;
+  return [ok, JSON.stringify(vistos.map(v => ({ skin: v.skin, camisa: v.camisa, torso: v.cam, esperado: v.hexes[1] })))];
+});
+
+await caso('aprendiz de la portada · con "reducir movimiento" se pinta una vez, quieto: ni respira ni saluda', PORTADA_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' }); await pg.reload({ waitUntil: 'load' });
+  await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg);
+  const v = new Set(); const t0 = Date.now();
+  while (Date.now() - t0 < 2200) { v.add(await huella(pg)); await pausa(80); }
+  await pg.hover('#t-jugar'); await pausa(300); v.add(await huella(pg));
+  const intervalos = await pg.evaluate(() => tms.length);
+  return [v.size === 1 && intervalos <= 3, `${v.size} dibujo(s) distintos (con el puntero encima también), temporizadores del juego: ${intervalos}`];
+});
+
+await caso('aprendiz de la portada · en pausa y con la pestaña oculta se queda quieto', PORTADA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg); await pausa(500);
+  const quietoDurante = async () => { const a = await huella(pg); const v = new Set([a]); const t0 = Date.now(); while (Date.now() - t0 < 2000) { v.add(await huella(pg)); await pausa(100); } return v.size; };
+  await pg.evaluate(() => { pausado = true; });
+  const enPausa = await quietoDurante();
+  await pg.evaluate(() => { pausado = false; Object.defineProperty(document, 'hidden', { value: true, configurable: true }); });
+  const oculta = await quietoDurante();
+  await pg.evaluate(() => { Object.defineProperty(document, 'hidden', { value: false, configurable: true }); });
+  const vuelve = await quietoDurante();
+  return [enPausa === 1 && oculta === 1 && vuelve >= 2, `en pausa: ${enPausa} dibujo(s), pestaña oculta: ${oculta}, al volver: ${vuelve}`];
+});
+
+await caso('aprendiz de la portada · al salir de la portada no queda ningún bucle (y volver 10 veces no los acumula)', PORTADA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await listoAprendiz(pg);
+  const base = await pg.evaluate(() => { rPasillo(); return tms.length; });
+  const salidas = [];
+  for (let i = 0; i < 10; i++) { await pg.evaluate(() => rTitulo()); const dentro = await pg.evaluate(() => tms.length); await pg.evaluate(() => rPasillo()); salidas.push([dentro, await pg.evaluate(() => tms.length), await pg.evaluate(() => document.querySelectorAll('#t-aprendiz').length)]); }
+  const ok = salidas.every(([dentro, fuera, lienzos]) => fuera === base && lienzos === 0 && dentro <= base + 3);
+  return [ok, `fuera de la portada: ${base} temporizadores; en 10 vueltas ${JSON.stringify(salidas.slice(0, 3))}…`];
+});
+
+await caso('aprendiz de la portada · con el modo HD y con el texto legible sigue en su sitio, sin desbordar', PORTADA_J, async pg => {
+  const mal = [];
+  for (const modo of [{ hd: true }, { legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); rTitulo(); }, modo); await listoAprendiz(pg); await pausa(300);
+    const r = await pg.evaluate(() => { const a = document.querySelector('#t-aprendiz').getBoundingClientRect(), b = document.querySelector('.jugar-marco').getBoundingClientRect(), sc = document.querySelector('#screen'); return { izq: a.right <= b.left + 2, sinScroll: sc.scrollWidth <= sc.clientWidth, ancho: Math.round(a.width) }; });
+    if (!(r.izq && r.sinScroll && r.ancho >= 40)) mal.push(JSON.stringify(modo) + ' ' + JSON.stringify(r));
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.join(' · ') : 'HD y legible: a la izquierda de JUGAR, sin scroll'];
+});
+
+await caso('aprendiz de la portada · las demás pantallas no cambian: ninguna lleva el lienzo ni sus reglas', PORTADA_J, async pg => {
+  const r = await pg.evaluate(() => { const o = {};
+    for (const [n, f] of [['pasillo', () => rPasillo()], ['lista', () => rMapaLista()], ['tienda', () => rTienda()], ['logros', () => rLogros()], ['récords', () => rRecords()], ['perso', () => rPerso()]]) { f(); o[n] = document.querySelectorAll('#t-aprendiz,.tit-jugar-fila').length; }
+    return o; });
+  return [Object.values(r).every(v => v === 0), JSON.stringify(r)];
+});
+
+/* ── LOS BOTONES DE LA PORTADA (v30) ──
+   Lo que no puede romperse: que las nueve tarjetas, JUGAR, el reto diario, las tres
+   dificultades, la consola y borrar sigan haciendo lo de siempre; que los iconos sigan siendo
+   los de pixel art; que todo quepa en móvil, escritorio, HD y texto legible; que el teclado no
+   pierda el foco al elegir dificultad; y que nada de esto salga de la portada. */
+const BOTONES_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v30', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+
+await caso('botones de la portada · las 9 tarjetas llevan su icono de pixel art (no emoji) a 36 px, y 24 px en móvil', BOTONES_J, async pg => {
+  const mide = async (w, h) => { await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(400);
+    return pg.evaluate(() => { const f = [...document.querySelectorAll('.portada .menu-fila')]; const ico = f.map(b => b.querySelector('.m-ico img.pxi')?.getBoundingClientRect().width || 0);
+      const d = [...document.querySelectorAll('.portada .dif-op .dif-ico img.pxi')].length;
+      return { filas: f.length, conPxi: ico.filter(x => x > 0).length, min: Math.min(...ico), dif: d }; }); };
+  const m = await mide(390, 760), g = await mide(1280, 800);
+  return [m.filas === 9 && m.conPxi === 9 && m.dif === 3 && m.min >= 23 && m.min <= 26 && g.conPxi === 9 && g.min >= 35, `móvil ${JSON.stringify(m)} · escritorio ${JSON.stringify(g)}`];
+});
+
+await caso('botones de la portada · cada acceso sigue llevando a su pantalla', BOTONES_J, async pg => {
+  const fuera = [];
+  for (const [id, pant] of [['t-libre', 'libre'], ['t-sinfin', 'sinfin'], ['t-sala', 'sala'], ['t-tienda', 'tienda'], ['t-logros', 'logros'], ['t-records', 'records'], ['t-stats', 'stats'], ['t-perso', 'perso'], ['t-reto', 'reto'], ['t-borrar', 'borrar'], ['t-jugar', 'mapa']]) {
+    await pg.evaluate(() => rTitulo()); await pausa(150);
+    await pg.evaluate(i => document.getElementById(i).click(), id); await pausa(250);
+    const ahora = await pg.evaluate(() => pantallaId);
+    if (ahora === 'titulo') fuera.push(id + '→se quedó');
+    else if (pant && !ahora.includes(pant) && !(id === 't-jugar')) fuera.push(`${id}→${ahora}`);
+  }
+  return [fuera.length === 0, fuera.length ? fuera.join(' · ') : '11 botones: todos cambian de pantalla'];
+});
+
+await caso('botones de la portada · HD y texto legible siguen funcionando (alternan y se repintan)', BOTONES_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  await pg.evaluate(() => document.getElementById('t-modo').click()); await pausa(200);
+  const hd = await pg.evaluate(() => ({ hd: S.hd, clase: document.documentElement.classList.contains('hd'), pant: pantallaId }));
+  await pg.evaluate(() => document.getElementById('t-texto').click()); await pausa(200);
+  const lg = await pg.evaluate(() => ({ legible: S.legible, clase: document.documentElement.classList.contains('legible'), pant: pantallaId }));
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  return [hd.hd && hd.clase && hd.pant === 'titulo' && lg.legible && lg.clase && lg.pant === 'titulo', JSON.stringify({ hd, lg })];
+});
+
+await caso('botones de la portada · la dificultad se elige y se guarda, con aria-pressed y en dorado', BOTONES_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const r = [];
+  for (const id of [0, 2, 1]) {
+    await pg.evaluate(i => document.querySelector(`.dif-op[data-dif="${i}"]`).click(), id); await pausa(150);
+    r.push(await pg.evaluate(i => { const bs = [...document.querySelectorAll('.dif-op')]; const sel = bs[i], otra = bs[(i + 1) % 3];
+      return { esperado: i, dif: S.dif, disco: JSON.parse(localStorage.getItem('pa3')).dif, pres: bs.map(b => b.getAttribute('aria-pressed')).join(','), nSel: document.querySelectorAll('.dif-op.sel').length, dorado: getComputedStyle(sel).borderTopColor !== getComputedStyle(otra).borderTopColor }; }, id));
+  }
+  const bien = r.every(x => x.dif === x.esperado && x.disco === x.dif && x.nSel === 1 && x.pres.split(',')[x.dif] === 'true' && x.pres.split(',').filter(v => v === 'true').length === 1 && x.dorado);
+  return [bien, JSON.stringify(r)];
+});
+
+await caso('botones de la portada · con teclado, al elegir dificultad el foco se queda en la elegida (no se pierde al repintar)', BOTONES_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  await pg.focus('.dif-op[data-dif="0"]'); await pg.keyboard.press('Enter'); await pausa(250);
+  const a = await pg.evaluate(() => ({ dif: S.dif, activo: document.activeElement?.dataset?.dif ?? document.activeElement?.id ?? document.activeElement?.tagName }));
+  await pg.focus('.dif-op[data-dif="2"]'); await pg.keyboard.press('Space'); await pausa(250);
+  const b = await pg.evaluate(() => ({ dif: S.dif, activo: document.activeElement?.dataset?.dif ?? document.activeElement?.tagName }));
+  return [a.dif === 0 && a.activo === '0' && b.dif === 2 && b.activo === '2', JSON.stringify({ a, b })];
+});
+
+await caso('botones de la portada · se reparte bien en 7 tamaños, también con HD y con texto legible: sin desbordar ni cortar textos', BOTONES_J, async pg => {
+  const mal = [];
+  for (const modo of [{}, { hd: true }, { legible: true }, { hd: true, legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); }, modo);
+    for (const [w, h] of [[320, 568], [360, 640], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+      await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(350);
+      const r = await pg.evaluate(() => { const sc = document.querySelector('#screen');
+        const corta = [...document.querySelectorAll('.portada .menu-fila .m-txt,.portada .dif-op,.portada .tit-reto,.portada .btn-jugar,.portada .cut-skip')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.id || e.className);
+        const f = [...document.querySelectorAll('.portada .menu-fila')].map(b => b.getBoundingClientRect());
+        const pisa = f.some((p, i) => f.some((q, j) => i < j && !(p.right <= q.left + 1 || p.left >= q.right - 1 || p.bottom <= q.top + 1 || p.top >= q.bottom - 1)));
+        return { sinScrollX: sc.scrollWidth <= sc.clientWidth && document.documentElement.scrollWidth <= innerWidth, corta, pisa, minAlto: Math.round(Math.min(...f.map(p => p.height))), minAncho: Math.round(Math.min(...f.map(p => p.width))) }; });
+      if (!(r.sinScrollX && r.corta.length === 0 && !r.pisa && r.minAlto >= 60 && r.minAncho >= 100)) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
+    }
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.slice(0, 4).join(' · ') : '4 modos × 7 tamaños: sin desbordar, cortar ni solaparse'];
+});
+
+await caso('botones de la portada · al pulsar se hunde 2 px, y con "reducir movimiento" no se mueve', BOTONES_J, async pg => {
+  const sube = async () => { await pg.evaluate(() => rTitulo()); await pausa(300);
+    await pg.evaluate(() => document.querySelector('#t-tienda').scrollIntoView({ block: 'center' })); const c = await pg.evaluate(() => { const r = document.querySelector('#t-tienda').getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
+    await pg.mouse.move(c[0], c[1]); await pg.mouse.down(); await pausa(150);
+    const t = await pg.evaluate(() => getComputedStyle(document.querySelector('#t-tienda')).transform); await pg.mouse.move(2, 2); await pg.mouse.up(); await pausa(100); return t; };
+  const normal = await sube();
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  const reducido = await sube();
+  await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  return [/matrix\(1, 0, 0, 1, 0, 2\)|translateY\(2px\)/.test(normal) && (reducido === 'none' || /matrix\(1, 0, 0, 1, 0, 0\)/.test(reducido)), `normal: ${normal} · reducido: ${reducido}`];
+});
+
+await caso('botones de la portada · el foco del teclado se ve (contorno dorado) en tarjetas, dificultad, JUGAR y reto diario', BOTONES_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(300);
+  const r = {};
+  for (const sel of ['#t-tienda', '.dif-op[data-dif="1"]', '#t-jugar', '#t-reto']) {
+    await pg.evaluate(() => document.body.focus()); await pg.keyboard.press('Tab'); await pg.focus(sel); await pg.keyboard.press('Shift+Tab'); await pg.keyboard.press('Tab'); await pausa(60);
+    r[sel] = await pg.evaluate(s => { const e = document.querySelector(s), c = getComputedStyle(e); return { foco: document.activeElement === e, contorno: c.outlineStyle !== 'none' && parseFloat(c.outlineWidth) >= 3 || /inset/.test(c.boxShadow) && /4px/.test(c.boxShadow) }; }, sel);
+  }
+  return [Object.values(r).every(v => v.foco && v.contorno), JSON.stringify(r)];
+});
+
+await caso('botones de la portada · ES y EN: los textos de las tarjetas salen y caben en los dos idiomas', BOTONES_J, async pg => {
+  const mal = [];
+  for (const lang of ['es', 'en']) {
+    await pg.evaluate(l => { S.lang = l; guardar(); }, lang);
+    for (const [w, h] of [[320, 568], [390, 760], [1280, 800]]) {
+      await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(300);
+      const r = await pg.evaluate(() => ({ txt: [...document.querySelectorAll('.portada .menu-fila .m-txt')].map(e => e.textContent.trim()), corta: [...document.querySelectorAll('.portada .menu-fila .m-txt,.portada .dif-op')].filter(e => e.scrollWidth > e.clientWidth + 1).length, sc: document.querySelector('#screen').scrollWidth <= document.querySelector('#screen').clientWidth }));
+      if (r.txt.length !== 9 || r.txt.some(x => !x) || r.corta || !r.sc) mal.push(`${lang} ${w}: ${JSON.stringify(r)}`);
+    }
+  }
+  await pg.evaluate(() => { S.lang = 'es'; guardar(); });
+  return [mal.length === 0, mal.length ? mal.join(' · ') : 'ES y EN × 3 tamaños: 9 textos, sin cortar'];
+});
+
+await caso('botones de la portada · fondo, título y aprendiz siguen ahí y las demás pantallas no cambian', BOTONES_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(500);
+  const p = await pg.evaluate(() => ({ fondo: document.getElementById('app').classList.contains('fondo-ciudad') || !!document.querySelector('#fondo .ciudad'), titulo: !!document.querySelector('.tit-logo .tit-img, .tit-logo h1'), aprendiz: !!document.querySelector('#t-aprendiz'), portada: !!document.querySelector('.centro.portada') }));
+  const otras = await pg.evaluate(() => { const o = {};
+    for (const [n, f] of [['libre', () => rLibre()], ['sala', () => rSala()], ['tienda', () => rTienda()], ['logros', () => rLogros()], ['perso', () => rPerso()], ['borrar', () => rBorrar()]]) { f();
+      const m = document.querySelector('#screen .menu-fila'); o[n] = { portada: !!document.querySelector('.portada'), sombra: m ? getComputedStyle(m).boxShadow.includes('rgb(18, 24, 47)') : false, minAlto: m ? getComputedStyle(m).minHeight : '' }; }
+    return o; });
+  const sinCambios = Object.values(otras).every(v => !v.portada && !v.sombra && v.minAlto !== '76px');
+  return [p.fondo && p.titulo && p.aprendiz && p.portada && sinCambios, JSON.stringify({ p, otras })];
+});
+
+/* ── LA FICHA DE JUGADOR DE LA PORTADA (v31) ──
+   Lo que no puede romperse: que los números sean los de la partida (y cambien con ella), que
+   siga siendo un solo botón que abre la personalización, que el retrato lleve lo que elegiste
+   allí (piel, camisa, accesorio, detalle 16/32), que quepa en todos los tamaños y modos, y que
+   las demás pantallas no cambien. */
+const FICHA_J = { intro: true, nombre: 'ANTONI', pts: 900, xp: 1700, version: 'v31', accs: ['gafas', 'gorra'], dias: [3, 2, 3, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+const leeFicha = pg => pg.evaluate(() => { const b = document.querySelector('#t-perso');
+  return { nombre: b.querySelector('.av-nombre').textContent.trim(), rango: b.querySelector('.av-rango').textContent.trim(), xp: b.querySelector('.av-xp').textContent.replace(/\s+/g, ' ').trim(),
+    est: b.querySelector('.av-estrellas').textContent.replace(/\s+/g, ' ').trim(), dias: b.querySelector('.av-dias').textContent.trim(), pc: b.querySelector('.p-pc').textContent.trim(),
+    barra: b.querySelector('.barra-fill').style.width,
+    esperado: { nombre: S.nombre, rango: rangoNom(), xp: `XP ${S.xp}${progresoXp().sig ? ' / ' + progresoXp().sig.xp : ''}`, est: `★ ${totalStars()} / ${TOT_DIAS * 3}`, dias: `${progreso()}/${TOT_DIAS}`, pc: Math.round(progreso() / TOT_DIAS * 100) + '%' } }; });
+const cuadra = f => f.nombre === f.esperado.nombre && f.rango === f.esperado.rango && f.xp === f.esperado.xp && f.est === f.esperado.est && f.dias === f.esperado.dias && f.pc === f.esperado.pc && f.barra === f.pc;
+const huellaAv = pg => pg.evaluate(() => { const cv = document.querySelector('#t-av'); const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let s = 0; for (let i = 0; i < d.length; i++) s = (s * 31 + d[i]) >>> 0; return cv.width + ':' + s; });
+
+await caso('ficha de la portada · enseña los datos reales: nombre, rango, XP, estrellas y días de campaña', FICHA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const f = await leeFicha(pg);
+  return [cuadra(f) && f.dias === '6/15' && f.est === '★ 14 / 45' && f.pc === '40%', JSON.stringify(f)];
+});
+
+await caso('ficha de la portada · al superar un día cambian estrellas, días, porcentaje, XP y rango (también tras recargar)', FICHA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const antes = await leeFicha(pg);
+  await pg.evaluate(() => { S.dias[6] = 3; S.xp = 6000; guardar(); rTitulo(); }); await pausa(200);
+  const despues = await leeFicha(pg);
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pg.evaluate(() => rTitulo()); await pausa(300);
+  const recargado = await leeFicha(pg);
+  const ok = cuadra(despues) && cuadra(recargado) && despues.dias === '7/15' && despues.est === '★ 17 / 45' && despues.pc === '47%' && despues.rango !== antes.rango && recargado.xp === despues.xp;
+  return [ok, JSON.stringify({ antes: [antes.rango, antes.xp, antes.est, antes.dias], despues: [despues.rango, despues.xp, despues.est, despues.dias, despues.pc], recargado: [recargado.xp, recargado.dias] })];
+});
+
+await caso('ficha de la portada · en el rango máximo solo sale la XP, y sin nombre sale TÚ / YOU (el nombre va escapado)', FICHA_J, async pg => {
+  await pg.evaluate(() => { S.xp = 999999; rTitulo(); }); await pausa(150);
+  const max = await leeFicha(pg);
+  await pg.evaluate(() => { S.nombre = ''; rTitulo(); }); await pausa(150);
+  const es = await pg.evaluate(() => document.querySelector('.av-nombre').textContent.trim());
+  await pg.evaluate(() => { S.lang = 'en'; rTitulo(); }); await pausa(150);
+  const en = await pg.evaluate(() => document.querySelector('.av-nombre').textContent.trim());
+  await pg.evaluate(() => { S.lang = 'es'; S.nombre = 'A<b>B'; rTitulo(); }); await pausa(150);
+  const raro = await pg.evaluate(() => ({ txt: document.querySelector('.av-nombre').textContent, etiquetas: document.querySelectorAll('.av-nombre *').length }));
+  return [max.xp === max.esperado.xp && !max.xp.includes('/') && es === 'TÚ' && en === 'YOU' && raro.etiquetas === 0, JSON.stringify({ xp: max.xp, es, en, raro })];
+});
+
+await caso('ficha de la portada · es un solo botón: con clic, Enter y Espacio abre Mi Avatar', FICHA_J, async pg => {
+  const r = {};
+  for (const modo of ['clic', 'Enter', 'Space']) {
+    await pg.evaluate(() => rTitulo()); await pausa(150);
+    if (modo === 'clic') await pg.click('#t-perso'); else { await pg.focus('#t-perso'); await pg.keyboard.press(modo); }
+    await pausa(250); r[modo] = await pg.evaluate(() => pantallaId);
+  }
+  const unico = await pg.evaluate(() => { rTitulo(); const b = document.querySelector('#t-perso'); return { botones: b.querySelectorAll('button,a,input').length, divs: b.querySelectorAll('div').length }; });
+  return [Object.values(r).every(p => p === 'perso') && unico.botones === 0 && unico.divs === 0, JSON.stringify({ r, unico })];
+});
+
+await caso('ficha de la portada · el retrato lleva lo que eliges en Mi Avatar: piel, camisa, accesorio y detalle 16/32', FICHA_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const h0 = await huellaAv(pg); const pasos = [];
+  const vuelta = async (accion, nombre) => {
+    await pg.click('#t-perso'); await pausa(200); await pg.evaluate(accion); await pausa(150);
+    await pg.evaluate(() => document.getElementById('pe-volver').click()); await pausa(250);
+    const p = await pg.evaluate(() => pantallaId); const h = await huellaAv(pg); pasos.push({ nombre, p, h }); return h;
+  };
+  const h1 = await vuelta(() => document.querySelector('.skin-op[data-s="2"]').click(), 'piel');
+  const h2 = await vuelta(() => document.querySelector('.camisa-op[data-c="3"]').click(), 'camisa');
+  const h3 = await vuelta(() => document.querySelector('.acc-op[data-a="gafas"]').click(), 'gafas');
+  const h4 = await vuelta(() => document.getElementById('pe-d32').click(), 'detalle 32');
+  const s = await pg.evaluate(() => ({ skin: S.skin, camisa: S.camisa, acc: S.acc, av32: S.av32, ancho: document.querySelector('#t-av').width }));
+  const distintas = new Set([h0, h1, h2, h3, h4]).size === 5;
+  return [distintas && pasos.every(p => p.p === 'titulo') && s.skin === 2 && s.camisa === 3 && s.acc === 'gafas' && s.av32 && s.ancho === 32 && h0.startsWith('16:'), JSON.stringify({ s, pasos: pasos.map(p => p.nombre + '→' + p.p + ' ' + p.h.split(':')[0]) })];
+});
+
+await caso('ficha de la portada · se reparte bien en 7 tamaños, con HD y texto legible, en ES y EN: sin desbordar ni salirse', FICHA_J, async pg => {
+  const mal = [];
+  for (const modo of [{}, { hd: true }, { legible: true }, { hd: true, legible: true }, { lang: 'en', av32: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false, lang: 'es', av32: false }, m); aplicarModo(); }, modo);
+    for (const [w, h] of [[320, 568], [360, 640], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+      await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(300);
+      const r = await pg.evaluate(() => { const sc = document.querySelector('#screen'), b = document.querySelector('#t-perso'), bb = b.getBoundingClientRect();
+        const fuera = [...b.querySelectorAll('span,b,canvas')].filter(e => { const q = e.getBoundingClientRect(); return q.width && (q.right > bb.right + 1 || q.left < bb.left - 1 || q.bottom > bb.bottom + 1); }).map(e => e.className || e.tagName);
+        const corta = [...b.querySelectorAll('.av-xp,.av-estrellas,.av-dias,.p-pc,.p-lbl,.tit-av-txt b')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.className || e.tagName);
+        const cv = document.querySelector('#t-av').getBoundingClientRect();
+        return { sinScrollX: sc.scrollWidth <= sc.clientWidth && document.documentElement.scrollWidth <= innerWidth, fuera, corta, retrato: Math.round(cv.width), barra: Math.round(b.querySelector('.barra').getBoundingClientRect().width) }; });
+      if (!(r.sinScrollX && !r.fuera.length && !r.corta.length && r.retrato >= 40 && r.barra >= 40)) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
+    }
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es', av32: false }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.slice(0, 4).join(' · ') : '5 modos × 7 tamaños: todo dentro de la ficha, sin scroll horizontal'];
+});
+
+await caso('ficha de la portada · con "reducir movimiento" el retrato no parpadea y la ficha no se hunde al pulsar', FICHA_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await pg.evaluate(() => rTitulo()); await pausa(200);
+  const hs = new Set(); for (let i = 0; i < 12; i++) { hs.add(await huellaAv(pg)); await pausa(500); }
+  await pg.evaluate(() => document.querySelector('#t-perso').scrollIntoView({ block: 'center' }));
+  const c = await pg.evaluate(() => { const r = document.querySelector('#t-perso').getBoundingClientRect(); return [r.left + 20, r.top + 20]; });
+  await pg.mouse.move(c[0], c[1]); await pg.mouse.down(); await pausa(120);
+  const tr = await pg.evaluate(() => getComputedStyle(document.querySelector('#t-perso')).transform);
+  await pg.mouse.move(1, 1); await pg.mouse.up(); await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  return [hs.size === 1 && tr === 'none', `dibujos distintos en 6 s: ${hs.size} · al pulsar: ${tr}`];
+});
+
+await caso('ficha de la portada · la pantalla de Mi Avatar y las demás no cambian (sin reglas de la ficha fuera de la portada)', FICHA_J, async pg => {
+  const r = await pg.evaluate(() => { const o = {};
+    for (const [n, f] of [['perso', () => rPerso()], ['tienda', () => rTienda()], ['logros', () => rLogros()], ['stats', () => rStats()], ['libre', () => rLibre()]]) { f();
+      o[n] = { portada: !!document.querySelector('.portada'), ficha: document.querySelectorAll('.tit-avatar,.av-metricas,.tit-av-portrait').length }; }
+    rPerso(); const cv = document.querySelector('#pe-cara'); o.peCara = cv ? [cv.width, cv.height] : null;
+    return o; });
+  return [['perso', 'tienda', 'logros', 'stats', 'libre'].every(n => !r[n].portada && r[n].ficha === 0) && r.peCara && r.peCara[0] === 64, JSON.stringify(r)];
+});
+
+/* ── LAS TRANSICIONES DE LA PORTADA (v32) ──
+   Lo que no puede romperse: un grupo de chispas por activación (ratón, toque o teclado), sin
+   duplicarse con el de pointerdown; la navegación inmediata y con UNA cortina; la entrada solo
+   al llegar; el motor FX de siempre (un lienzo, nada que se acumule); los demás botones del
+   juego con su efecto de antes; y nada de esto con "reducir movimiento". */
+const TRANS_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v32', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
+/* pulsa `sel` como pide `modo` y cuenta, en el MISMO instante, cuántas partículas nuevas hay */
+const activa = async (pg, sel, modo) => {
+  await pg.evaluate(() => FX._vaciar());
+  if (modo === 'teclado') { await pg.focus(sel); await pg.evaluate(() => FX._vaciar()); await pg.keyboard.press('Enter'); }
+  else if (modo === 'toque') await pg.tap(sel);
+  else await pg.click(sel);
+  return pg.evaluate(() => ({ n: FX._vivas(), pant: pantallaId }));
+};
+
+await caso('transiciones de la portada · la portada entra con fundido solo al llegar, no al repintarla (dificultad, HD, idioma)', TRANS_J, async pg => {
+  const lee = () => pg.evaluate(() => { const p = document.querySelector('#screen>.portada'); return { entrada: p.classList.contains('portada-entrada'), anim: getComputedStyle(p).animationName, screen: getComputedStyle(document.getElementById('screen')).animationName }; });
+  await pg.evaluate(() => rTienda()); await pausa(100); await pg.evaluate(() => rTitulo()); await pausa(50);
+  const llegar = await lee();
+  await pg.click('.dif-op[data-dif="2"]'); await pausa(50); const dif = await lee();
+  await pg.evaluate(() => document.getElementById('t-modo').click()); await pausa(50); const hd = await lee();
+  await pg.evaluate(() => { S.hd = false; aplicarModo(); S.lang = 'en'; rehacerPantalla(); }); await pausa(50); const idioma = await lee();
+  await pg.evaluate(() => { S.lang = 'es'; rTienda(); rTitulo(); }); await pausa(50); const volver = await lee();
+  const ok = llegar.entrada && llegar.anim === 'portada-entrada' && llegar.screen === 'none' && !dif.entrada && dif.anim === 'none' && dif.screen === 'none' && !hd.entrada && !idioma.entrada && volver.entrada;
+  return [ok, JSON.stringify({ llegar, dif, hd, idioma, volver })];
+});
+
+await caso('transiciones de la portada · un grupo de chispas por activación: 6 con ratón, toque o teclado (no 12)', TRANS_J, async pg => {
+  const r = {};
+  for (const modo of ['raton', 'toque', 'teclado']) { await pg.evaluate(() => rTitulo()); await pausa(80); r['dif ' + modo] = (await activa(pg, '.dif-op[data-dif="0"]', modo)).n; }
+  for (const modo of ['raton', 'teclado']) { await pg.evaluate(() => rTitulo()); await pausa(80); r['reto ' + modo] = await activa(pg, '#t-reto', modo); }
+  const reto = Object.entries(r).filter(([k]) => k.startsWith('reto')).every(([, v]) => v.pant === 'reto' && v.n === 7);
+  return [r['dif raton'] === 6 && r['dif toque'] === 6 && r['dif teclado'] === 6 && reto, JSON.stringify(r) + ' (reto: 6 chispas + la cortina del cambio de pantalla)'];
+}, { hasTouch: true });
+
+await caso('transiciones de la portada · JUGAR suelta 10 chispas y una onda y entra al instante, con una sola cortina', TRANS_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(100);
+  const raton = await activa(pg, '#t-jugar', 'raton');
+  await pg.evaluate(() => rTitulo()); await pausa(100);
+  const teclado = await activa(pg, '#t-jugar', 'teclado');
+  return [raton.pant !== 'titulo' && raton.n === 12 && teclado.pant !== 'titulo' && teclado.n === 12, JSON.stringify({ raton, teclado }) + ' (10 chispas + 1 onda + 1 cortina)'];
+});
+
+await caso('transiciones de la portada · JUGAR de primer uso sigue igual: sin nombre → nombre; sin intro → historia', null, async pg => {
+  await prep(pg, { nombre: '', intro: false }); await pg.evaluate(() => rTitulo()); await pausa(150);
+  await pg.click('#t-jugar'); await pausa(100); const sinNombre = await pg.evaluate(() => pantallaId);
+  await pg.evaluate(() => { S.nombre = 'R'; S.intro = false; rTitulo(); }); await pausa(150);
+  await pg.click('#t-jugar'); await pausa(100); const sinIntro = await pg.evaluate(() => pantallaId);
+  return [sinNombre === 'nombre' && sinIntro === 'cut', JSON.stringify({ sinNombre, sinIntro })];
+});
+
+await caso('transiciones de la portada · la dificultad elegida destella en dorado (y el foco del teclado no se pierde)', TRANS_J, async pg => {
+  await pg.evaluate(() => rTitulo()); await pausa(100);
+  await pg.click('.dif-op[data-dif="2"]'); await pausa(30);
+  const r = await pg.evaluate(() => { const e = document.querySelector('.dif-op.sel'); return { dif: e.dataset.dif, conf: e.classList.contains('portada-confirmada'), anim: getComputedStyle(e).animationName, otras: document.querySelectorAll('.portada-confirmada').length }; });
+  await pg.focus('.dif-op[data-dif="0"]'); await pg.keyboard.press('Enter'); await pausa(60);
+  const foco = await pg.evaluate(() => ({ activo: document.activeElement?.dataset?.dif, conf: document.activeElement?.classList.contains('portada-confirmada') }));
+  return [r.dif === '2' && r.conf && r.anim === 'portada-confirmar' && r.otras === 1 && foco.activo === '0' && foco.conf, JSON.stringify({ r, foco })];
+});
+
+await caso('transiciones de la portada · los iconos se levantan al pasar el ratón o con el foco del teclado', TRANS_J, async pg => {
+  await pg.setViewportSize({ width: 1280, height: 800 }); await pg.evaluate(() => rTitulo()); await pausa(300);
+  const tr = s => pg.evaluate(q => getComputedStyle(document.querySelector(q)).transform, s);
+  const reposo = await tr('#t-tienda .m-ico');
+  await pg.hover('#t-tienda'); await pausa(250); const hover = await tr('#t-tienda .m-ico');
+  await pg.mouse.move(1, 1); await pg.focus('#t-logros'); await pg.keyboard.press('Shift+Tab'); await pg.keyboard.press('Tab'); await pausa(250);
+  const foco = await tr('#t-logros .m-ico');
+  await pg.hover('#t-perso'); await pausa(250); const chev = await tr('#t-perso .m-chev');
+  const sube = /matrix\(1, 0, 0, 1, 0, -2\)/;
+  return [reposo === 'none' && sube.test(hover) && sube.test(foco) && /matrix\(1, 0, 0, 1, 3, 0\)/.test(chev), JSON.stringify({ reposo, hover, foco, chev })];
+});
+
+await caso('transiciones de la portada · con "reducir movimiento": ni chispas, ni fundido, ni destello, ni iconos que se mueven', TRANS_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await pg.setViewportSize({ width: 1280, height: 800 }); await pg.evaluate(() => { rTienda(); rTitulo(); }); await pausa(200);
+  const entrada = await pg.evaluate(() => getComputedStyle(document.querySelector('#screen>.portada')).animationName);
+  const n = [];
+  for (const s of ['.dif-op[data-dif="2"]', '#t-sinfin']) { await pg.evaluate(() => rTitulo()); await pausa(80); n.push((await activa(pg, s, 'raton')).n); }
+  await pg.evaluate(() => rTitulo()); await pausa(80); await pg.click('.dif-op[data-dif="1"]'); await pausa(30);
+  const conf = await pg.evaluate(() => getComputedStyle(document.querySelector('.dif-op.sel')).animationName);
+  await pg.hover('#t-tienda'); await pausa(200);
+  const ico = await pg.evaluate(() => ({ t: getComputedStyle(document.querySelector('#t-tienda .m-ico')).transform, tr: getComputedStyle(document.querySelector('#t-tienda')).transitionDuration }));
+  await pg.focus('#t-logros'); await pg.keyboard.press('Shift+Tab'); await pg.keyboard.press('Tab'); await pausa(80);
+  const foco = await pg.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
+  await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  return [entrada === 'none' && n.every(x => x === 0) && conf === 'none' && ico.t === 'none' && ico.tr === '0s' && foco !== 'none', JSON.stringify({ entrada, n, conf, ico, foco })];
+});
+
+await caso('transiciones de la portada · fuera de la portada los botones conservan su efecto de siempre (al apretar)', TRANS_J, async pg => {
+  await pg.evaluate(() => rTienda()); await pausa(150);
+  const b = await pg.evaluate(() => { const e = [...document.querySelectorAll('#screen button')].find(x => !x.disabled && x.getBoundingClientRect().height > 0); e.id = e.id || 'b-prueba'; return '#' + e.id; });
+  await pg.evaluate(() => FX._vaciar());
+  const c = await pg.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(); return [r.left + 5, r.top + 5]; }, b);
+  await pg.mouse.move(c[0], c[1]); await pg.mouse.down();
+  const n = await pg.evaluate(() => FX._vivas()); await pg.mouse.up();
+  return [n === 6, `${b}: ${n} chispas al apretar`];
+});
+
+await caso('transiciones de la portada · el motor FX no se duplica: un lienzo y las partículas se van solas', TRANS_J, async pg => {
+  for (let i = 0; i < 8; i++) { await pg.evaluate(() => rTitulo()); await pg.click('.dif-op[data-dif="' + (i % 3) + '"]'); await pg.click('#t-tienda'); }
+  await pg.evaluate(() => rTitulo()); await pg.click('#t-jugar');
+  const lienzos = await pg.evaluate(() => [...document.body.children].filter(e => e.tagName === 'CANVAS' && e.style.position === 'fixed').length);
+  await pausa(1800);
+  const quedan = await pg.evaluate(() => FX._vivas());
+  return [lienzos === 1 && quedan === 0, `lienzos de efectos: ${lienzos} · partículas vivas tras 1,8 s: ${quedan}`];
+});
+
+/* ── EL ARTE NUEVO DEL APRENDIZ (v33) ──
+   Lo que no puede romperse: que el jugador salga con el atlas nuevo en TODOS los sitios donde
+   sale (portada, pasillo, mapa, runner y jefe) y los personajes del pasillo con el clásico; que
+   si el nuevo no carga se vea el clásico; que la portada use sus poses (y solo la de reposo con
+   "reducir movimiento"); y que los pies queden donde estaban (mismo contrato que el clásico). */
+const HD_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v33', t2: true, skin: 2, camisa: 3, dias: [3, 3, 3, 2, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+  vistos: ['escribir', 'bugs', 'memoria', 'simon', 'quiz', 'review', 'merge', 'runner', 'sql', 'regex', 'terminal', 'orden', 'jefe'] };
+/* Marca cada lienzo recoloreado con el atlas del que salió, y anota qué atlas (y qué columna)
+   se pinta en pantalla: window.__atlas = [{o:'hd'|'clasico'|'portada', sx}] */
+const espiaAtlas = () => {
+  const d = CanvasRenderingContext2D.prototype.drawImage;
+  CanvasRenderingContext2D.prototype.drawImage = function (src, ...a) {
+    if (src && src.src) { const o = /portada-hd/.test(src.src) ? 'portada' : /caminar-hd/.test(src.src) ? 'hd' : /aprendiz-caminar\.png/.test(src.src) ? 'clasico' : null; if (o && this.canvas) this.canvas.__origen = o; }
+    else if (src && src.__origen && a.length >= 8) (window.__atlas = window.__atlas || []).push({ o: src.__origen, sx: a[0] });
+    return d.call(this, src, ...a);
+  };
+};
+/* el espía tiene que estar ANTES de que se cree ningún atlas recoloreado (se cachean) */
+const conEspia = async pg => { await pg.addInitScript(espiaAtlas); await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); };
+const atlasEn = async (pg, fn, ms = 700) => { await pg.evaluate(() => { window.__atlas = []; }); await pg.evaluate(fn); await pausa(ms); return pg.evaluate(() => [...new Set(window.__atlas.map(x => x.o))].sort().join(',')); };
+
+await caso('aprendiz nuevo · el jugador sale con el atlas nuevo en portada, pasillo, mapa, runner y jefe; los personajes del pasillo con el clásico', HD_J, async pg => {
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listoPortada); await pausa(300);
+  const r = {};
+  r.portada = await atlasEn(pg, () => rTitulo());
+  r.mapa = await atlasEn(pg, () => rMapaLista());
+  r.runner = await atlasEn(pg, () => { diaAct = 4; vidas = 3; nvRunner(4); }, 1500);
+  r.jefe = await atlasEn(pg, () => { diaAct = 9; vidas = 3; nvJefe(9, 0); }, 2500);
+  await pg.evaluate(() => rPasillo());
+  await pausa(300);
+  r.pasillo = await atlasEn(pg, () => { const e = document.querySelector('#pasillo-escena'); e.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })); }, 600);
+  const npc = await pg.evaluate(() => { window.__atlas = []; const k = document.createElement('canvas').getContext('2d'); APRENDIZ.dibujar(k, 22, 73, 71, 0, 0, '#e0b088', '#2c3460'); APRENDIZ.dibujar(k, 22, 73, 71, 0, 0, 2, 3); return window.__atlas.map(x => x.o).join(','); });
+  const ok = r.portada === 'portada' && r.mapa === 'hd' && r.runner === 'hd' && r.jefe === 'hd' && r.pasillo.includes('hd') && npc === 'clasico,hd';
+  return [ok, JSON.stringify({ ...r, 'NPC,jugador': npc })];
+});
+
+await caso('aprendiz nuevo · los NPC del pasillo se pintan con el atlas clásico dentro del pasillo', HD_J, async pg => {
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listoPortada);
+  const r = await atlasEn(pg, () => rPasillo(), 1200);
+  const npcs = await pg.evaluate(() => document.querySelectorAll('.pasillo-gente').length);
+  return [npcs > 0 && r.includes('clasico') && r.includes('hd'), `en el pasillo: ${r} · personajes: ${npcs}`];
+});
+
+await caso('aprendiz nuevo · si el atlas nuevo no carga, el jugador sale con el clásico (y la portada con su reposo)', HD_J, async pg => {
+  await pg.route(/aprendiz-(caminar|portada)-hd\.png/, r => r.abort());
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listo); await pausa(300);
+  const portada = await atlasEn(pg, () => rTitulo(), 900);
+  const mapa = await atlasEn(pg, () => rMapaLista());
+  const poses = await pg.evaluate(() => APRENDIZ.listoPortada);
+  return [portada === 'clasico' && mapa === 'clasico' && poses === false, JSON.stringify({ portada, mapa, poses })];
+});
+
+await caso('aprendiz nuevo · la portada usa sus poses: reposo, parpadeo y saludo (al pasar por JUGAR)', HD_J, async pg => {
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listoPortada);
+  await pg.evaluate(() => { window.__atlas = []; rTitulo(); }); await pausa(400);
+  await pg.hover('#t-jugar'); await pausa(500);
+  await pg.mouse.move(1, 1); await pausa(4300);                     /* el parpadeo llega a los 3,7 s */
+  const poses = await pg.evaluate(() => [...new Set(window.__atlas.filter(x => x.o === 'portada').map(x => x.sx / 44))].sort());
+  return [poses.includes(0) && poses.includes(1) && poses.includes(2) && poses.includes(3), `poses vistas: ${poses.join(',')} (0 reposo, 1 parpadeo, 2-3 saludo)`];
+});
+
+await caso('aprendiz nuevo · con "reducir movimiento" la portada se queda en la pose de reposo', HD_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listoPortada);
+  await pg.evaluate(() => { window.__atlas = []; rTitulo(); }); await pausa(600);
+  await pg.hover('#t-jugar'); await pausa(1500);
+  const poses = await pg.evaluate(() => [...new Set(window.__atlas.filter(x => x.o === 'portada').map(x => x.sx / 44))]);
+  await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  return [poses.length === 1 && poses[0] === 0, `poses: ${poses.join(',')}`];
+});
+
+await caso('aprendiz nuevo · 16 combinaciones × 8 direcciones × 4 pasos: todas se pintan y los pies quedan donde en el clásico', HD_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listoPortada && APRENDIZ.listo);
+  const r = await pg.evaluate(async () => {
+    const pie = (src, fila, col) => { const k = document.createElement('canvas'); k.width = 44; k.height = 74; const c = k.getContext('2d'); c.drawImage(src, col * 44, fila * 74, 44, 74, 0, 0, 44, 74); const d = c.getImageData(0, 0, 44, 74).data; let b = -1, n = 0; for (let y = 0; y < 74; y++) for (let x = 0; x < 44; x++) if (d[(y * 44 + x) * 4 + 3] > 0) { b = y; n++; } return { b, n }; };
+    const carga = u => new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.src = u; });
+    const hd = await carga('img/aprendiz-caminar-hd.png'), cl = await carga('img/aprendiz-caminar.png'), po = await carga('img/aprendiz-portada-hd.png');
+    const mal = [];
+    for (let f = 0; f < 8; f++) for (let p = 0; p < 4; p++) { const a = pie(hd, f, p), b = pie(cl, f, p); if (a.n < 300 || Math.abs(a.b - b.b) > 2) mal.push(`dir ${f} paso ${p}: pie ${a.b} vs ${b.b}, ${a.n} px`); }
+    for (let p = 0; p < 4; p++) { const a = pie(po, 0, p), b = pie(cl, 0, 0); if (a.n < 300 || Math.abs(a.b - b.b) > 2) mal.push(`pose ${p}: pie ${a.b} vs ${b.b}`); }
+    /* y las 16 × 8 × 4 se recolorean y pintan sin error, con algo dentro */
+    let pintadas = 0; const k = document.createElement('canvas'); k.width = 44; k.height = 74; const c = k.getContext('2d', { willReadFrequently: true });
+    for (let s = 0; s < 4; s++) for (let m = 0; m < 4; m++) for (let d = 0; d < 8; d++) for (let p = 0; p < 4; p++) { c.clearRect(0, 0, 44, 74); if (APRENDIZ.dibujar(c, 22, 74, 74, d, p, s, m) && c.getImageData(0, 0, 44, 74).data.some((v, i) => i % 4 === 3 && v > 0)) pintadas++; }
+    return { mal, pintadas };
+  });
+  return [r.mal.length === 0 && r.pintadas === 512, r.mal.length ? r.mal.slice(0, 5).join(' · ') : `512 de 512 cuadros pintados; pies a la altura del clásico en las 32 de caminata y las 4 poses`];
+});
+
+await caso('aprendiz nuevo · la camisa y la piel elegidas se aplican (el azul y la piel de referencia no quedan)', HD_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listo);
+  const r = await pg.evaluate(() => {
+    const cuenta = (s, m) => { const k = document.createElement('canvas'); k.width = 44; k.height = 74; const c = k.getContext('2d'); APRENDIZ.dibujar(c, 22, 74, 74, 0, 0, s, m); const d = c.getImageData(0, 0, 44, 74).data; let azul = 0, piel = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3]) { const q = (r, g, b) => (d[i] - r) ** 2 + (d[i + 1] - g) ** 2 + (d[i + 2] - b) ** 2 < 300; if (q(23, 104, 157)) azul++; if (q(245, 203, 154)) piel++; } return { azul, piel }; };
+    return { verdeOscura: cuenta(3, 0), rojaMedia: cuenta(2, 3) };
+  });
+  return [r.verdeOscura.azul === 0 && r.verdeOscura.piel === 0 && r.rojaMedia.azul === 0 && r.rojaMedia.piel === 0, JSON.stringify(r)];
 });
 
 await nav.close();

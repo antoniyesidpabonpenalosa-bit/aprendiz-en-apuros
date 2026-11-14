@@ -346,8 +346,24 @@ const FX=(()=>{
       toque={x:e.clientX,y:e.clientY,t:performance.now()};
       const t=/** @type {Element|null} */(e.target);
       const b=t&&t.closest?t.closest('button'):null;
-      if(b&&!b.disabled&&!b.closest('.cv-wrap'))
+      if(b&&!b.disabled&&!b.closest('.cv-wrap')&&!b.closest('#screen .portada'))
         chispas(e.clientX,e.clientY,{n:6,vel:95,col:['#6fd2f0','#ffffff','#a86bff']});
+    },true);
+    /* Portada: un efecto por activación real (también teclado), no por
+       pointerdown. No se intercepta el clic ni se retrasa la navegación. */
+    addEventListener('click',e=>{
+      const t=/** @type {Element|null} */(e.target);
+      const b=/** @type {HTMLButtonElement|null} */(t&&t.closest?t.closest('#screen .portada button'):null);
+      if(!b||b.disabled||e.defaultPrevented||document.hidden||quieto())return;
+      const r=b.getBoundingClientRect();
+      const x=e.detail?e.clientX:r.left+r.width/2;
+      const y=e.detail?e.clientY:r.top+r.height/2;
+      const jugar=b.id==='t-jugar', dif=b.classList.contains('dif-op');
+      const col=jugar?['#54c41a','#a7f96a','#ffcf3f']:
+        dif?['#ffcf3f','#fff1a8','#a86bff']:
+        b.id==='t-borrar'?['#aeb8d2','#7886b5']:['#a86bff','#6fd2f0','#e2cfff'];
+      chispas(x,y,{n:jugar?10:6,vel:jugar?125:85,col,g:180});
+      if(jugar)onda(x,y,'#a7f96a',38);
     },true);
   }
 

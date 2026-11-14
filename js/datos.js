@@ -20,8 +20,35 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v26.1';
+const VERSION='v33';
 const NOVEDADES=[
+  {v:'v33', fecha:'2026-11-14',
+   es:['El aprendiz estrena dibujo: más detalle en la cara, el pelo y la ropa, con sombras nuevas y una caminata con las piernas articuladas. Sale así en la pantalla principal, el pasillo, el runner y la pelea contra el jefe, con la piel y la camisa que elegiste.',
+       'En la pantalla principal ahora parpadea y saluda con poses dibujadas a mano.'],
+   en:['The apprentice has a new look: more detail in the face, hair and clothes, with new shading and a walk with articulated legs. It shows up like that on the main screen, the hallway, the runner and the boss fight, with the skin and shirt you picked.',
+       'On the main screen it now blinks and waves with hand-drawn poses.']},
+  {v:'v32', fecha:'2026-11-14',
+   es:['La pantalla principal se siente más viva: entra con un fundido suave, JUGAR suelta chispas verdes y una onda de energía, la dificultad elegida destella en dorado y los demás botones sueltan chispas violetas y cian. Los iconos se levantan un poco al pasar el ratón o el teclado.',
+       'Con "reducir movimiento" no hay chispas ni animaciones nuevas.'],
+   en:['The main screen feels more alive: it fades in softly, PLAY gives off green sparks and an energy wave, the chosen difficulty flashes gold and the other buttons give off purple and cyan sparks. Icons lift a little when the mouse or keyboard moves over them.',
+       'With "reduce motion" there are no sparks or new animations.']},
+  {v:'v31', fecha:'2026-11-14',
+   es:['La tarjeta Mi Avatar de la pantalla principal es ahora una ficha de jugador al estilo RPG: tu retrato en su marco, tu nombre y tu rango, la XP, las estrellas ganadas y los días de campaña superados.'],
+   en:['The My Avatar card on the main screen is now an RPG-style player sheet: your portrait in its frame, your name and rank, XP, stars earned and campaign days cleared.']},
+  {v:'v30', fecha:'2026-11-14',
+   es:['Los botones de la pantalla principal estrenan diseño: tarjetas con relieve y bisel, los modos en violeta, los demás accesos en azul, iconos de pixel art en su placa, la dificultad elegida en dorado, JUGAR en verde y el reto diario en morado.'],
+   en:['The main screen buttons have a new design: cards with depth and bevel, the modes in violet, the other shortcuts in blue, pixel art icons on their plate, the chosen difficulty in gold, PLAY in green and the daily challenge in purple.']},
+  {v:'v29', fecha:'2026-11-14',
+   es:['En la pantalla principal, el aprendiz te espera junto al botón JUGAR: respira, parpadea, te saluda de vez en cuando y reacciona cuando te acercas o lo tocas. Lleva la piel y la camisa que elegiste.'],
+   en:['On the main screen, the apprentice waits next to the PLAY button: it breathes, blinks, waves at you every now and then and reacts when you get close or tap it. It wears the skin and shirt you picked.']},
+  {v:'v28', fecha:'2026-11-14',
+   es:['El título de la pantalla principal estrena diseño: letras de pixel art con relieve, dorado y verde, con sus guiones de colores.'],
+   en:['The main screen title has a new design: pixel art letters with depth, gold and green, with their colored dashes.']},
+  {v:'v27', fecha:'2026-11-14',
+   es:['La pantalla principal tiene fondo nuevo: una ciudad nocturna en pixel art, con ventanas verdes y violetas que se encienden y apagan, estrellas que titilan y nubes que se mueven despacio.',
+       'Solo está en el menú principal. Las demás pantallas conservan las montañas de siempre, y con "reducir movimiento" la ciudad se queda quieta.'],
+   en:['The main screen has a new background: a pixel art city at night, with green and purple windows that light up and go dark, twinkling stars and slowly drifting clouds.',
+       'It is only on the main menu. Every other screen keeps the mountains, and with "reduce motion" the city stays still.']},
   {v:'v26.1', fecha:'2026-11-14',
    es:['El jefe final ya tiene nombre: EL ERROR EVOLUTIVO. Sale así en el mapa, en la historia y en el botón para repetir la pelea.'],
    en:['The final boss now has a name: THE EVOLVING ERROR. It shows up like that on the map, in the story and on the button to replay the fight.']},

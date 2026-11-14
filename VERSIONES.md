@@ -79,6 +79,13 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v25** | — | 2026-11-14 | Iconos de pixel art propios (`js/iconos.js`) en lugar de emojis: los 15 días, dificultades, candado, sonido, menú principal y tipos de minijuego; el jefe con un dibujo por fase; las ❌ y los obstáculos del runner en pixel |
 | **v26** | — | 2026-11-14 | El jefe evolutivo: tres apariencias (Bug morado, Caos naranja, Error Fatal rojo) y dos transformaciones animadas de 12 cuadros que detienen el combate (`js/jefe-sprites.js`, `img/jefe/`); sin conexión incluido. |
 | v26.1 | — | 2026-11-14 | El jefe final se llama EL ERROR EVOLUTIVO (antes EL BUG FINAL) en el mapa, la historia y el botón de repetir; en inglés, THE EVOLVING ERROR |
+| **v27** | — | 2026-11-14 | Fondo nuevo del menú principal: ciudad nocturna animada en pixel art (`js/fondo.js`, `img/fondo/`); solo en la portada, las montañas siguen en el resto y de respaldo |
+| **v28** | — | 2026-11-14 | Título nuevo de la portada: dibujo en pixel art (`img/titulo/`) con el `<h1>` de texto como respaldo accesible; el modo HD conserva su título de texto |
+| **v29** | — | 2026-11-14 | El aprendiz de cuerpo entero junto a JUGAR en la portada: respira, parpadea, saluda y reacciona al puntero, al foco y al toque, con la piel y la camisa del jugador |
+| **v30** | — | 2026-11-14 | Botones e iconos de la portada con relieve (paso 4 del rediseño): tarjetas, modos en violeta, dificultad en dorado, JUGAR verde y reto morado; CSS acotado a `.portada` |
+| **v31** | — | 2026-11-14 | Ficha de jugador estilo RPG en la tarjeta Mi Avatar de la portada (paso 5 del rediseño): retrato a resolución nativa, nombre, rango, XP, estrellas y días de campaña; CSS acotado a `.portada` |
+| **v32** | — | 2026-11-14 | Transiciones y efectos de selección de la portada (paso 6 y último del rediseño): entrada suave, chispas y onda en JUGAR, confirmación dorada de la dificultad, chispas en los demás botones y microanimaciones de iconos, con el motor FX de siempre |
+| **v33** | — | 2026-11-14 | Arte nuevo del aprendiz (`img/aprendiz-caminar-hd.png`, `img/aprendiz-portada-hd.png`) en portada, pasillo, mapa, runner y jefe; poses dibujadas de parpadeo y saludo en la portada; el atlas clásico queda de respaldo y para los personajes del pasillo |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

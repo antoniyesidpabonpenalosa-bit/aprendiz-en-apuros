@@ -100,6 +100,43 @@ html.encaje #app{zoom:var(--esc,1);width:var(--app-w);height:var(--app-h);max-he
              linear-gradient(180deg,rgba(11,15,36,.55) 0%,transparent 35%,rgba(8,10,22,.5) 100%)}
 @keyframes derivaLenta{from{transform:translateX(-1.5%)}to{transform:translateX(1.5%)}}
 
+/* ══════════════════════════════════════════════
+   FONDO DEL MENÚ PRINCIPAL · ciudad nocturna (v27, js/fondo.js)
+   Una hoja de 3×2 cuadros de 549×466 (img/fondo/ciudad-atlas.png). La capa mide lo
+   justo para CUBRIR #fondo sin deformarse —el equivalente de background-size:cover,
+   con unidades de contenedor— y se recorta por el centro. Los cuadros los recorre una
+   animación con steps(): sin JavaScript en marcha. Solo se ve con #app.fondo-ciudad,
+   que pone pantalla() en 'titulo'; sin esa clase la capa no existe (display:none) y por
+   tanto no anima nada. Con ella, las montañas se esconden y paran sus animaciones.
+   ══════════════════════════════════════════════ */
+#fondo{container-type:size}
+.ciudad{display:none;position:absolute;left:50%;top:50%;z-index:0;pointer-events:none;
+  --ciudad-ms:800ms;                      /* lo que dura cada cuadro: 600-1000 ms es tranquilo */
+  width:max(100cqw,calc(100cqh*549/466));height:max(100cqh,calc(100cqw*466/549));
+  transform:translate(-50%,-50%);
+  background-repeat:no-repeat;background-size:300% 200%;background-position:0 0;
+  image-rendering:pixelated}
+/* oscurece lo justo para que el texto se lea: más arriba (título) y abajo (botones) */
+.ciudad::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(7,10,26,.4) 0%,rgba(7,10,26,.14) 40%,rgba(7,10,26,.36) 100%)}
+#app.fondo-ciudad .mte,#app.fondo-ciudad .niebla{display:none}
+/* la imagen solo se pide cuando la capa se ve (y con menos movimiento, ni se toca la hoja) */
+#app.fondo-ciudad .ciudad{display:block;background-image:url(../img/fondo/ciudad-atlas.png);animation:ciudadCuadros calc(6*var(--ciudad-ms)) steps(1,end) infinite}
+@keyframes ciudadCuadros{
+  0%{background-position:0% 0%}
+  16.667%{background-position:50% 0%}
+  33.333%{background-position:100% 0%}
+  50%{background-position:0% 100%}
+  66.667%{background-position:50% 100%}
+  83.333%{background-position:100% 100%}
+  100%{background-position:100% 100%}}
+/* con la pestaña oculta, en pausa */
+/* (con #app.fondo-ciudad delante: el `animation:` de arriba reinicia play-state y ganaría por especificidad) */
+html.pestana-oculta #app.fondo-ciudad .ciudad{animation-play-state:paused}
+/* con "reducir movimiento": el cuadro estático (el primero) y nada de animación */
+@media(prefers-reduced-motion:reduce){
+  #app.fondo-ciudad .ciudad{animation:none;background-image:url(../img/fondo/ciudad-estatica.png);background-size:100% 100%;background-position:0 0}}
+
 /* el contenido va por encima del fondo */
 #hud,#screen,#pausa,#logro-popup,#interrupcion{position:relative;z-index:1}
 
@@ -449,6 +486,15 @@ html.legible .pe-nombre{font-family:'VT323',monospace;font-size:19px}
 .tit-logo .guion.der i:nth-child(2){margin-left:0}
 .tit-logo .guion.der i:nth-child(3){margin-left:auto}
 
+/* Título en imagen (v28, js/menus.js): con el dibujo cargado y fuera del modo HD se ve el PNG
+   y el <h1> de texto pasa a "solo lectores de pantalla"; sin él (o en HD) se ve el texto de
+   siempre con sus guiones. image-rendering:pixelated mantiene el borde de los píxeles. */
+.tit-img{display:none}
+html:not(.hd) .tit-logo.con-imagen .tit-img{display:block;width:min(100%,460px);height:auto;margin:0 auto;image-rendering:pixelated}
+html:not(.hd) .tit-logo.con-imagen .guion{display:none}
+html:not(.hd) .tit-logo.con-imagen .tit-h1{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+.tit-logo{position:relative}
 .tit-h1{font-size:clamp(19px,6.2vw,30px);line-height:1.28;letter-spacing:1px;text-align:center}
 .tit-h1 .l1{color:var(--y2);text-shadow:3px 3px 0 var(--o1),4px 5px 0 var(--bd),0 0 24px rgba(255,207,63,.3)}
 .tit-h1 .l2{color:var(--g4);text-shadow:3px 3px 0 var(--g0),4px 5px 0 var(--bd),0 0 24px rgba(138,255,79,.3)}
@@ -1672,3 +1718,178 @@ html.hd button.rp-fila,html.hd .repaso-entrada{border-radius:10px}
 @media(prefers-reduced-motion:reduce){.pasillo-marco{transition:none}.pasillo-aviso{animation:none}}
 /* va DESPUÉS de la regla base de arriba, si no esa le gana y en el celular salen más grandes que el aprendiz */
 @media(max-width:550px){.pasillo-gente{width:32px;height:54px}}
+
+/* Portada: el aprendiz de cuerpo entero junto a JUGAR (v29, js/menus.js). Decorativo: no recibe toques. */
+.tit-jugar-fila{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-width:0}
+.tit-aprendiz{display:block;flex:0 0 auto;width:clamp(56px,9vw,112px);height:auto;image-rendering:pixelated;pointer-events:none;filter:drop-shadow(0 4px 0 rgba(0,0,0,.32))}
+.tit-jugar-fila .jugar-marco{min-width:0;flex:0 1 auto}
+.tit-jugar-fila .btn-jugar{padding-inline:clamp(16px,3vw,40px);white-space:nowrap}
+@media(max-width:360px){.tit-aprendiz{width:48px}.tit-jugar-fila{gap:2px}.tit-jugar-fila .btn-jugar{padding-inline:12px}}
+html.apaisado .tit-aprendiz{width:clamp(56px,10vh,100px)}
+@media(prefers-reduced-motion:reduce){.tit-aprendiz{filter:none}}
+
+/* ── PORTADA · botones arcade (paso 4) ──
+   Aislado en .portada: no afecta menús, minijuegos ni tarjeta Mi Avatar.
+   Usa los iconos PXI originales, sin imágenes nuevas ni dependencias. */
+.portada .menu-fila{
+  --tile-edge:#6572aa;--tile-top:#343e70;--tile-bottom:#202746;
+  min-width:0;min-height:76px;padding:7px 5px 8px;gap:5px;
+  justify-content:center;position:relative;
+  color:var(--tx4);border:2px solid var(--tile-edge);
+  background:linear-gradient(180deg,var(--tile-top) 0%,#2a325a 46%,var(--tile-bottom) 100%);
+  box-shadow:inset 0 2px 0 #8996c344,inset 0 -3px 0 #12182f,
+    0 0 0 1px var(--bd),0 4px 0 var(--bd);
+  text-shadow:1px 2px 0 #10152b;
+}
+.portada .tit-modos .menu-fila{
+  --tile-edge:#8262bc;--tile-top:#3e306a;--tile-bottom:#231e43;
+}
+.portada .menu-fila .m-ico{
+  display:grid;place-items:center;width:40px;height:38px;
+  line-height:1;background:#10162c99;border:1px solid #7583ae55;
+  box-shadow:inset 0 -2px 0 #070a1a66;
+}
+.portada .menu-fila .m-ico .pxi{width:36px;height:36px;image-rendering:pixelated}
+.portada .menu-fila .m-txt{line-height:1.35;color:inherit}
+.portada .dif-panel{
+  border-color:#555f92;background:#11162ce8;
+  box-shadow:inset 0 0 0 1px #111529,0 3px 0 #07080f99;
+}
+.portada .dif-panel .dif-cap{color:var(--g4);background:#151a32}
+.portada .dif-sel{gap:6px}
+.portada .dif-op{
+  position:relative;flex:1 1 0;min-width:0;max-width:130px;min-height:66px;
+  padding:7px 3px;justify-content:center;letter-spacing:0;
+  color:var(--tx3);border-color:#4b5788;
+  background:linear-gradient(180deg,#252e51,#151a32);
+  box-shadow:inset 0 2px 0 #7180aa33,0 3px 0 #07080f;
+  overflow-wrap:anywhere;
+}
+.portada .dif-op .dif-ico{line-height:1.1}
+.portada .dif-op .dif-ico .pxi{width:24px;height:24px;image-rendering:pixelated}
+.portada .dif-op .dif-puntos{margin-top:3px}
+.portada .dif-op.sel{
+  color:var(--y3);border-color:var(--y2);
+  background:linear-gradient(180deg,#4a3d32,#28273a);
+  box-shadow:inset 0 0 0 1px var(--y1),inset 0 -3px 0 #8b6400,0 3px 0 #07080f;
+}
+.portada .btn-jugar{
+  border:2px solid #a1ef6a;color:#fff;
+  background:linear-gradient(180deg,#56bd19 0%,#329807 48%,#237509 100%);
+  box-shadow:inset 0 3px 0 #9de85e,inset 0 -4px 0 #174d06,0 0 0 2px #172c13,0 5px 0 var(--bd);
+  text-shadow:2px 2px 0 #184307;
+}
+.portada .tit-reto{
+  background:linear-gradient(180deg,#9c59f1 0%,#7531cc 51%,#5a1bb0 100%);
+  text-shadow:1px 2px 0 var(--v0);
+}
+.portada .tit-reto::after{border-color:#d9c2ff66}
+/* El contorno queda dentro del polígono del reto, que recorta el outline. */
+.portada .tit-reto:focus-visible{outline:none;box-shadow:inset 0 0 0 4px var(--y2)}
+.portada .tit-reto:focus-visible::after{border-color:var(--y2)}
+.portada .tit-menudo .cut-skip{opacity:1;color:var(--tx3);min-height:36px;text-decoration-color:#7886b5}
+.portada .tit-menudo #t-lab{color:#9ed18e}
+.portada .tit-menudo #t-borrar{color:var(--tx2)}
+@media(hover:hover){
+  .portada .menu-fila:hover{border-color:var(--v4);background:linear-gradient(180deg,#414b7c,#282e54)}
+  .portada .dif-op:not(.sel):hover{border-color:var(--v3);background:#2c345c}
+  .portada .btn-jugar:hover{border-color:#e0ffc1;background:linear-gradient(180deg,#69ce25,#278509)}
+  .portada .tit-reto:hover{background:linear-gradient(180deg,#ac72ff,#6826c2)}
+  .portada .tit-menudo #t-lab:hover{color:var(--g4)}
+  .portada .tit-menudo #t-borrar:hover{color:var(--r4)}
+}
+.portada .menu-fila:focus-visible,.portada .dif-op:focus-visible,.portada .btn-jugar:focus-visible{
+  outline:3px solid var(--y2);outline-offset:2px;
+}
+.portada .menu-fila:active,.portada .dif-op:active,.portada .btn-jugar:active{
+  transform:translateY(2px);box-shadow:inset 0 2px 0 #07080f55,0 1px 0 var(--bd);
+}
+/* HD conserva sus esquinas suaves; texto legible conserva sus tamaños y fuente. */
+html.hd .portada .menu-fila,html.hd .portada .dif-op{border-radius:12px}
+html.hd .portada .menu-fila .m-ico{border-radius:6px}
+html.hd .portada .btn-jugar{border-radius:14px}
+html.legible .portada .menu-fila .m-txt{font-size:17px}
+html.legible .portada .dif-op{font-size:15px}
+@media(max-width:560px){
+  .portada .menu-fila{min-height:68px}
+  .portada .menu-fila .m-ico{width:32px;height:30px}
+  .portada .menu-fila .m-ico .pxi{width:24px;height:24px}
+}
+@media(max-width:380px){
+  .portada .dif-panel{padding-inline:6px}
+  .portada .dif-op{font-size:7px}
+  html.legible .portada .dif-op{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  .portada .menu-fila:active,.portada .dif-op:active,.portada .btn-jugar:active,.portada .tit-reto:active{transform:none}
+}
+
+/* Paso 5 · ficha RPG del avatar. Solo afecta a la portada. */
+.portada .tit-avatar{
+  width:min(460px,100%);position:relative;isolation:isolate;min-width:0;
+  gap:9px;padding:11px 12px 10px;
+  border:2px solid #7760ba;
+  background:linear-gradient(155deg,#25294a 0%,#161b36 48%,#10152b 100%);
+  box-shadow:inset 0 2px 0 #c8a3ff55,inset 0 -2px 0 #070a1a,0 0 0 2px var(--bd),0 4px 0 #080a17;
+}
+.portada .tit-avatar::before{content:'';position:absolute;inset:4px;pointer-events:none;
+  background:linear-gradient(var(--y2),var(--y2)) left top/11px 2px no-repeat,
+    linear-gradient(var(--y2),var(--y2)) left top/2px 11px no-repeat,
+    linear-gradient(var(--y2),var(--y2)) right bottom/11px 2px no-repeat,
+    linear-gradient(var(--y2),var(--y2)) right bottom/2px 11px no-repeat;opacity:.9}
+.portada .tit-av-fila{display:flex;align-items:center;gap:11px;min-width:0;width:100%}
+.portada .tit-av-portrait{display:grid;place-items:center;flex:0 0 64px;height:64px;
+  background:linear-gradient(145deg,#243452,#10152a);border:2px solid var(--g3);
+  box-shadow:inset 0 0 0 2px #080c1b,0 2px 0 #080c1b;position:relative}
+.portada .tit-av-portrait canvas{width:56px;height:56px;border:0;background:transparent;image-rendering:pixelated;display:block}
+.portada .tit-av-txt{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.portada .tit-av-txt b{color:var(--y2);font-size:11px;line-height:1.3;letter-spacing:.5px}
+.portada .tit-av-txt .av-nombre{color:var(--tx4);font-family:'VT323',monospace;font-size:21px;line-height:1;overflow-wrap:anywhere}
+.portada .tit-av-txt .av-rango{display:flex;align-items:center;gap:5px;color:var(--v4);font-family:inherit;font-size:8px;line-height:1.4;overflow-wrap:anywhere}
+.portada .av-rango .pxi{width:16px;height:16px;flex:none;image-rendering:pixelated}
+.portada .tit-avatar .m-chev{color:var(--y3);font-size:15px;flex:none}
+.portada .av-metricas{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;width:100%;padding:6px 0 5px;border-top:1px solid #6d72a34d;border-bottom:1px solid #6d72a34d}
+.portada .av-xp,.portada .av-estrellas{display:flex;align-items:center;gap:6px;color:var(--tx3);font-family:'VT323',monospace;font-size:17px;line-height:1.1;min-width:0}
+.portada .av-xp b{color:var(--v4);font-family:inherit;font-size:inherit;font-weight:400}
+.portada .av-estrellas{color:var(--y3);white-space:nowrap}
+.portada .tit-prog-fila{width:100%;gap:7px;min-width:0}
+.portada .tit-prog-fila .p-lbl{color:var(--g4);font-size:7px;letter-spacing:0;line-height:1.5}
+.portada .tit-prog-fila .barra{display:block;min-width:12px;height:11px;box-shadow:inset 0 1px 0 #0009;overflow:hidden}
+.portada .tit-prog-fila .barra-fill{display:block;height:100%;background:linear-gradient(180deg,#a7f96a 0 25%,#55c41a 25% 72%,#2e7a10 72%);box-shadow:inset 0 0 0 1px #80ef4a55}
+.portada .tit-prog-fila .p-pc{color:var(--y3);font-size:9px;white-space:nowrap}
+.portada .tit-prog-fila .av-dias{font-family:'VT323',monospace;font-size:16px;color:var(--tx2);white-space:nowrap}
+@media(hover:hover){.portada .tit-avatar:hover{border-color:var(--y2);box-shadow:inset 0 2px 0 #c8a3ff55,0 0 0 2px var(--bd),0 4px 0 #080a17,0 0 12px #a86bff33}}
+.portada .tit-avatar:focus-visible{outline:3px solid var(--y2);outline-offset:3px}
+.portada .tit-avatar:active{transform:translateY(2px);box-shadow:0 0 0 2px var(--bd),0 2px 0 #080a17}
+html.hd .portada .tit-avatar{border-radius:12px}
+html.hd .portada .tit-av-portrait{border-radius:6px}
+html.legible .portada .tit-av-txt b{font-size:17px}
+html.legible .portada .tit-av-txt .av-rango{font-size:14px}
+html.legible .portada .tit-prog-fila .p-lbl,html.legible .portada .tit-prog-fila .p-pc{font-size:13px}
+@media(max-width:560px){.portada .tit-avatar{padding:10px;gap:8px}.portada .tit-av-portrait{flex-basis:56px;height:56px}.portada .tit-av-portrait canvas{width:48px;height:48px}}
+@media(prefers-reduced-motion:reduce){.portada .tit-avatar:active{transform:none}}
+
+/* Paso 6 · microinteracciones de portada. Sin demorar la navegación. */
+#screen:has(>.portada).fade-in{animation:none}
+#screen>.portada{animation:none}
+#screen>.portada.portada-entrada{animation:portada-entrada .24s ease-out both}
+@keyframes portada-entrada{from{opacity:.72}to{opacity:1}}
+.portada .menu-fila,.portada .dif-op,.portada .btn-jugar,.portada .tit-reto,.portada .tit-avatar{
+  transition:border-color .13s ease-out,color .13s ease-out,transform .10s ease-out;
+}
+.portada .menu-fila .m-ico,.portada .dif-op .dif-ico,.portada .tit-avatar .m-chev{
+  transition:transform .14s ease-out;
+}
+@media(hover:hover) and (pointer:fine){
+  .portada .menu-fila:hover .m-ico,.portada .dif-op:hover .dif-ico{transform:translateY(-2px)}
+  .portada .tit-avatar:hover .m-chev{transform:translateX(3px)}
+}
+.portada .menu-fila:focus-visible .m-ico,.portada .dif-op:focus-visible .dif-ico{transform:translateY(-2px)}
+.portada .dif-op.sel.portada-confirmada{animation:portada-confirmar .24s ease-out}
+@keyframes portada-confirmar{0%,100%{filter:none}45%{filter:brightness(1.28)}}
+/* El foco sigue siendo visible aunque el sistema pida menos movimiento. */
+@media(prefers-reduced-motion:reduce){
+  #screen>.portada.portada-entrada,.portada .dif-op.sel.portada-confirmada{animation:none!important}
+  .portada .menu-fila,.portada .dif-op,.portada .btn-jugar,.portada .tit-reto,.portada .tit-avatar,
+  .portada .menu-fila .m-ico,.portada .dif-op .dif-ico,.portada .tit-avatar .m-chev{transition:none!important;transform:none!important}
+}
