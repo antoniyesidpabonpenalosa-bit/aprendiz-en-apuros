@@ -300,30 +300,22 @@ function rNombre(next){
    página que se está leyendo se vuelve a pintar en el idioma nuevo en vez de
    quedarse con el texto con el que entró. */
 function rCutscene(guion,fin){
-  let i=0;
+  let i=0,finalizada=false;
+  const terminar=()=>{if(finalizada)return;finalizada=true;fin()};
   function pag(){
     const paginas=guion[S.lang]||guion.es;
+    if(!paginas.length)return terminar();
     i=Math.min(i,paginas.length-1);
-    pantalla('cut',`
-    <div class="centro cut" id="cut-zona" tabindex="0" role="button" aria-label="${t('toca')}">
-      <span class="ico">${paginas[i].ico}</span>
-      <p class="desc">${paginas[i].t}</p>
-      <div class="cut-nav"><span class="cut-prog">${t('pagina')} ${i+1}/${paginas.length}</span></div>
-      <p class="mini blink">${t('toca')}</p>
-      <button class="cut-skip" id="cut-skip" type="button">${t('saltar')}</button>
-    </div>`,pag);
-    $('#cut-zona').onclick=e=>{
-      if(e.target.id==='cut-skip')return;
-      SFX.click();i++;
-      i<paginas.length?pag():fin();
-    };
-    $('#cut-skip').onclick=e=>{e.stopPropagation();SFX.click();fin()};
-    /* Con teclado la escena solo se podía saltar entera: ahora Enter o Espacio
-       avanzan página, como el toque. */
-    $('#cut-zona').onkeydown=e=>{
-      if(e.target.id==='cut-skip')return;
-      if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!e.repeat)$('#cut-zona').click()}
-    };
+    const p=CINE.pagina(paginas[i],{fondo:CINE.contexto(guion)});
+    const html=CINE.escena(p,{tipo:'cut',contador:`${t('pagina')} ${i+1}/${paginas.length}`,progreso:{i,total:paginas.length}});
+    pantalla('cut',`${html}`,pag);
+    CINE.montar(p,'cut');
+    const zona=$('#cut-zona'),avanzar=()=>{if(finalizada||pausado||!zona.isConnected)return;SFX.click();i++;i<paginas.length?pag():terminar()};
+    zona.onclick=e=>{if(!e.target.closest('button'))avanzar()};
+    $('#cut-next').onclick=avanzar;
+    $('#cut-next').onkeydown=e=>{if(e.key==='Enter'&&e.repeat)e.preventDefault()};
+    $('#cut-skip').onclick=()=>{if(!pausado&&!finalizada){SFX.click();terminar()}};
+    zona.onkeydown=e=>{if(e.target.closest('button'))return;if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!e.repeat)avanzar()}};
     enfocar('#cut-zona');
   }
   pag();
@@ -462,29 +454,27 @@ function empezarDia(i){
   rDialogo(i);
 }
 function rDialogo(i){
-  const [quien,linea]=DIALOGOS[S.lang][i];
+  let n=0,entrando=false;
   const N=NIVELES[i];
-  pantalla('dialogo',`
-  <div class="centro">
-    <p class="dia">${t('dia')} ${i+1}/${NIVELES.length}</p>
-    <h2>${pxi(N.ico)} ${tj({es:N.es,en:N.en})}</h2>
-    <div class="dialogo">
-      <div class="retrato-wrap"><canvas class="retrato" id="d-cara" width="64" height="64"></canvas></div>
-      <div>
-        <p class="hablante">${quien}</p>
-        <p class="linea" id="d-linea"></p>
-      </div>
-    </div>
-    <span class="modo">${tj({es:N.ses,en:N.sen})}</span>
-    <button class="btn" id="d-go" type="button">${t('empezar')}</button>
-  </div>`,()=>rDialogo(i));
-  retratoVivo($('#d-cara'),quienCara(quien));
-  retratoDibujo($('#d-cara'),quien,GESTO_DIA[i]);
-  /* máquina de escribir */
-  let j=0;const el=$('#d-linea');
-  tcada(()=>{if(pausado)return;if(j<linea.length){el.textContent=linea.slice(0,++j);if(j%3===0)beep(700+Math.random()*200,.02,'triangle',.05)}},28);
-  $('#d-go').onclick=()=>{SFX.click();jugarNivel(i)};
+  function pintar(){
+    const paginas=CINE.dia(DIALOGOS[S.lang][i],i);
+    if(!paginas.length){if(!entrando){entrando=true;jugarNivel(i)}return;}
+    n=Math.min(n,paginas.length-1);
+    const p=paginas[n],ultimo=n===paginas.length-1;
+    const html=CINE.escena(p,{tipo:'dia',contador:`${t('dia')} ${i+1}/${NIVELES.length}`,
+      titulo:`${pxi(N.ico)} ${esc(tj({es:N.es,en:N.en}))}`,sub:tj({es:N.ses,en:N.sen}),
+      ultimo,progreso:paginas.length>1?{i:n,total:paginas.length}:null});
+    pantalla('dialogo',`${html}`,pintar);
+    CINE.montar(p,'dia');
+    const b=$('#d-go');
+    b.onkeydown=e=>{if(e.key==='Enter'&&e.repeat)e.preventDefault()};
+    b.onclick=()=>{if(entrando||pausado||!b.isConnected)return;SFX.click();
+      if(!ultimo){n++;pintar();return;}entrando=true;jugarNivel(i)};
+    enfocar('#d-go');
+  }
+  pintar();
 }
+
 /* Arranca el minijuego del día, enseñando antes los controles si es la primera
    vez que se ve ese tipo. */
 function jugarNivel(i){

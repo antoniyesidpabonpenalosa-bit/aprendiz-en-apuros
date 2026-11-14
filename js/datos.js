@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v38';
+const VERSION='v39';
 const NOVEDADES=[
+  {v:'v39', fecha:'2026-11-14',
+   es:['Las escenas de la historia y las charlas antes de cada día se ven ahora como en el cine: retrato grande del personaje que habla, el lugar de fondo (el centro de formación, la empresa o el servidor), el nombre con su color y botones claros para continuar o saltar. La historia es la misma de siempre.'],
+   en:['Story scenes and the talks before each day now look cinematic: a large portrait of whoever is speaking, the place in the background (the training center, the company or the server), the name in its color and clear buttons to continue or skip. The story is the same as always.']},
   {v:'v38', fecha:'2026-11-14',
    es:['Gustavo, Valentina, Andrés y Don Jairo estrenan dibujo de cuerpo entero en el pasillo, cada uno con su ropa: las gafas y el carné de Gustavo, la mochila de Valentina, la corbata de Andrés y el uniforme de Don Jairo. Siguen en los mismos sitios y con los mismos consejos.'],
    en:['Gustavo, Valentina, Andrés and Don Jairo have new full-body art in the hallway, each in their own clothes: Gustavo\'s glasses and badge, Valentina\'s backpack, Andrés\'s tie and Don Jairo\'s uniform. They stay in the same spots with the same advice.']},
