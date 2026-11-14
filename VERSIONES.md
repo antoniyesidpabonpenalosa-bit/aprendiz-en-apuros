@@ -85,6 +85,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v30** | — | 2026-11-14 | Botones e iconos de la portada con relieve (paso 4 del rediseño): tarjetas, modos en violeta, dificultad en dorado, JUGAR verde y reto morado; CSS acotado a `.portada` |
 | **v31** | — | 2026-11-14 | Ficha de jugador estilo RPG en la tarjeta Mi Avatar de la portada (paso 5 del rediseño): retrato a resolución nativa, nombre, rango, XP, estrellas y días de campaña; CSS acotado a `.portada` |
 | **v32** | — | 2026-11-14 | Transiciones y efectos de selección de la portada (paso 6 y último del rediseño): entrada suave, chispas y onda en JUGAR, confirmación dorada de la dificultad, chispas en los demás botones y microanimaciones de iconos, con el motor FX de siempre |
+| **v33** | — | 2026-11-14 | Arte nuevo del aprendiz (`img/aprendiz-caminar-hd.png`, `img/aprendiz-portada-hd.png`) en portada, pasillo, mapa, runner y jefe; poses dibujadas de parpadeo y saludo en la portada; el atlas clásico queda de respaldo y para los personajes del pasillo |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

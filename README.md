@@ -175,7 +175,8 @@ test/
 ├── portada.test.mjs      → pruebas del aprendiz animado de la portada: qué hace en cada instante y que quede decorativo
 ├── botones.test.mjs      → pruebas de los botones de la portada: CSS acotado a .portada, iconos pixel y dificultad accesible
 ├── avatar.test.mjs       → pruebas de la ficha de jugador de la portada: datos reales, un solo botón y CSS acotado
-└── transiciones.test.mjs → pruebas de las transiciones de la portada: un solo motor de efectos, sin retrasar la navegación y movimiento reducido
+├── transiciones.test.mjs → pruebas de las transiciones de la portada: un solo motor de efectos, sin retrasar la navegación y movimiento reducido
+└── aprendiz-hd.test.mjs  → pruebas del arte nuevo del aprendiz: atlas HD del jugador, clásico de respaldo y para los NPC, poses de la portada
 scripts/
 ├── validar.mjs           → sintaxis, referencias, HTML y caché del SW (CI + local)
 ├── barrido.mjs           → juega los 15 días × 3 dificultades × 2 idiomas y hace informe

@@ -14,7 +14,14 @@
    Recoloreado: el sprite viene con una piel y una camisa fijas; aquí se
    remapean a las que eligió el jugador (SKINS[S.skin]/CAMISAS[S.camisa]), para
    no perder la personalización que ya tienen el runner y el jefe. Se cachea por
-   combinación (solo hay 4×4), calculando cada una una sola vez. */
+   combinación (solo hay 4×4), calculando cada una una sola vez.
+
+   v33 · ARTE NUEVO DEL PROTAGONISTA: img/aprendiz-caminar-hd.png (mismo contrato:
+   8 filas × 4 columnas de 44×74, pies en la base) y img/aprendiz-portada-hd.png
+   (1 fila: 0 reposo, 1 parpadeo, 2-3 saludo, para la portada). Se usa para el JUGADOR
+   (piel y camisa por índice); los personajes del pasillo (colores "#rrggbb") siguen con
+   el atlas clásico, que además es el respaldo si el nuevo no carga. Fuentes y notas en
+   arte/aprendiz-hd/. */
 
 const APRENDIZ = (() => {
   const DIRS = ['south', 'south-east', 'east', 'north-east', 'north', 'north-west', 'west', 'south-west'];
@@ -35,19 +42,27 @@ const APRENDIZ = (() => {
   const img = new Image();
   img.onload = () => { listo = true; };
   img.src = 'img/aprendiz-caminar.png';
+  // Nuevo arte opcional del protagonista. No sustituye el atlas de los NPC.
+  let listoHD = false, listoPortada = false;
+  const imgHD = new Image(), imgPortada = new Image();
+  imgHD.onload = () => { listoHD = true; };
+  imgPortada.onload = () => { listoPortada = true; };
+  imgHD.src = 'img/aprendiz-caminar-hd.png';
+  imgPortada.src = 'img/aprendiz-portada-hd.png';
+  const origenDe = (s,c) => listoHD && typeof s !== 'string' && typeof c !== 'string' ? imgHD : img;
   const PASOS = 4;                               // columnas de la caminata
 
   /* Atlas recoloreado a (skin,camisa). Multiplica el color destino por el brillo
      relativo de cada píxel, así conserva el sombreado del sprite. */
   const cache = new Map();
-  function atlasDe(s, c) {
-    const clave = s + ':' + c;
+  function atlasDe(s, c, origen = origenDe(s,c)) {
+    const clave = (origen === imgPortada ? 'portada:' : origen === imgHD ? 'hd:' : 'clasico:') + s + ':' + c;
     let cv = cache.get(clave);
     if (cv) return cv;
     cv = document.createElement('canvas');
-    cv.width = img.width; cv.height = img.height;
+    cv.width = origen.width; cv.height = origen.height;
     const cx = cv.getContext('2d');
-    cx.drawImage(img, 0, 0);
+    cx.drawImage(origen, 0, 0);
     /* Al abrir con doble clic (file://) el navegador "contamina" el canvas y
        getImageData lanza SecurityError: no se puede recolorear. En ese caso se
        deja el sprite con sus colores originales, sin romper nada. Sobre http/
@@ -90,8 +105,9 @@ const APRENDIZ = (() => {
      lógico. Devuelve false si el atlas aún no cargó (quien llama pinta su
      respaldo). */
   function dibujar(ctx, x, yPie, alto, dir, paso = 0, s = S.skin, c = S.camisa) {
-    if (!listo) return false;
-    const cv = atlasDe(s, c);
+    const origen = origenDe(s,c);
+    if (origen === img ? !listo : !listoHD) return false;
+    const cv = atlasDe(s, c, origen);
     const w = Math.round(alto * FW / FH);
     const antes = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
@@ -100,5 +116,15 @@ const APRENDIZ = (() => {
     return true;
   }
 
-  return { DIRS, idx, FW, FH, PASOS, dirDe, pasoDe, dibujar, atlasDe, get listo() { return listo; } };
+  // Poses de portada: 0 reposo, 1 parpadeo, 2 y 3 saludo.
+  function dibujarPortada(ctx, x, yPie, alto, pose = 0, s = S.skin, c = S.camisa) {
+    if (!listoPortada) return dibujar(ctx,x,yPie,alto,idx.south,0,s,c);
+    const cv = atlasDe(s,c,imgPortada), w = Math.round(alto * FW / FH);
+    const antes = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(cv, (pose % 4) * FW, 0, FW, FH, Math.round(x - w / 2), Math.round(yPie - alto), w, alto);
+    ctx.imageSmoothingEnabled = antes;
+    return true;
+  }
+  return { DIRS, idx, FW, FH, PASOS, dirDe, pasoDe, dibujar, dibujarPortada, atlasDe, get listo() { return listo || listoHD; }, get listoPortada() { return listoPortada; } };
 })();

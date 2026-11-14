@@ -64,10 +64,12 @@ test('rTitulo() pone el lienzo decorativo junto a JUGAR y no toca el botón ni s
   assert.ok(js.includes("$('#t-jugar').onclick") || /t-jugar/.test(leer('js/principal.js')) || /t-jugar/.test(leer('js/menus.js')), 'el controlador de JUGAR sigue');
 });
 
-test('reutiliza el atlas del aprendiz (APRENDIZ.dibujar) y los bucles se limpian con tcada()/limpiarT()', () => {
+test('usa las poses del aprendiz (APRENDIZ.dibujarPortada, sin píxeles pintados encima) y los bucles se limpian con tcada()/limpiarT()', () => {
   const js = leer('js/menus.js');
   const f = js.slice(js.indexOf('function aprendizPortada'), js.indexOf('function rTitulo'));
-  assert.ok(f.includes('APRENDIZ.dibujar('));
+  assert.ok(f.includes('APRENDIZ.dibujarPortada('));
+  assert.ok(!/fillRect|getImageData/.test(f), 'el parpadeo y el saludo son poses dibujadas, no rectángulos encima');
+  assert.match(f, /const pose=e\.saludo\?2\+e\.brazo:e\.parpadeo\?1:0;/);
   assert.ok(f.includes('tcada(pinta,100)'), 'a 10 cuadros por segundo con el temporizador del juego');
   assert.ok(!/requestAnimationFrame|setInterval\(/.test(f), 'ningún bucle propio que pantalla() no pueda limpiar');
   assert.ok(f.includes('document.hidden') && f.includes('pausado') && f.includes("pantallaId!=='titulo'"), 'quieto con la pestaña oculta, en pausa o fuera de la portada');

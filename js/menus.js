@@ -26,7 +26,8 @@ if(typeof Image!=='undefined'){
    El aprendiz de cuerpo entero (el mismo atlas recoloreado que usan el runner, el jefe y el
    pasillo: APRENDIZ.dibujar) está junto a JUGAR, con la piel y la camisa que eligió el jugador.
    Respira (la mitad de arriba sube un píxel cada 0,65 s con los pies quietos), parpadea cada
-   4,1 s, saluda cada 12 s y, de golpe, al pasar el puntero, enfocar o tocar JUGAR. El lienzo es
+   4,1 s, saluda cada 12 s y, de golpe, al pasar el puntero, enfocar o tocar JUGAR. Desde la v33
+   el parpadeo y el saludo son poses dibujadas (APRENDIZ.dibujarPortada). El lienzo es
    decorativo: aria-hidden y pointer-events:none, así que no intercepta ni retrasa el clic.
    Se pinta a 10 cuadros por segundo con tcada() —lo limpia pantalla()/limpiarT() al salir de la
    portada, y con ello no queda ningún bucle— y solo se redibuja cuando algo cambia. Quieto con la
@@ -45,46 +46,27 @@ function aprendizPortada(cv,boton){
   if(!cv||!boton||typeof APRENDIZ==='undefined')return;
   const c=cv.getContext('2d'),base=document.createElement('canvas');
   base.width=44;base.height=74;
-  const b=base.getContext('2d',{willReadFrequently:true});
+  const b=base.getContext('2d');
   const t0=performance.now();
-  let saludoHasta=0,ultimo='',colores=null;
+  let saludoHasta=0,ultimo='';
   const saludar=()=>{if(!quieto()){saludoHasta=performance.now()+PORTADA.SALUDO.dura;pinta()}};
   ['pointerenter','pointerdown','focus'].forEach(ev=>boton.addEventListener(ev,saludar));
-  /* los colores del brazo y del párpado salen del propio sprite recoloreado (conservan su
-     sombreado); si el navegador no deja leerlos (file://), los de la piel y la camisa elegidas */
-  const leeColores=()=>{
-    const lee=(x,y,def)=>{try{const p=b.getImageData(x,y,1,1).data;return `rgb(${p[0]},${p[1]},${p[2]})`}catch(e){return def}};
-    return {piel:lee(18,10,SKINS[S.skin]||SKINS[0]),tela:lee(20,36,CAMISAS[S.camisa]||CAMISAS[0])};
-  };
   function pinta(){
     if(!cv.isConnected||pantallaId!=='titulo'||document.hidden||pausado)return;
     const ahora=performance.now(),t=ahora-t0,e=portadaEstado(t,saludoHasta,quieto(),ahora);
-    const clave=[e.saludo?'s'+e.brazo:'',e.parpadeo?'p':'',e.respira?'r':'',S.skin,S.camisa].join('|');
+    /* v33: el parpadeo y el saludo son poses dibujadas del atlas de la portada
+       (img/aprendiz-portada-hd.png: 0 reposo, 1 parpadeo, 2-3 saludo), no píxeles pintados
+       encima. Si ese atlas no cargó, dibujarPortada pinta el reposo de la caminata. */
+    const pose=e.saludo?2+e.brazo:e.parpadeo?1:0;
+    const clave=[pose,e.respira?'r':'',S.skin,S.camisa,APRENDIZ.listoPortada?'hd':''].join('|');
     if(clave===ultimo)return;
     b.clearRect(0,0,44,74);
-    if(!APRENDIZ.dibujar(b,22,74,74,APRENDIZ.idx.south,0))return;     /* el atlas aún no cargó: se reintenta */
+    if(!APRENDIZ.dibujarPortada(b,22,74,74,pose))return;     /* el atlas aún no cargó: se reintenta */
     ultimo=clave;
-    if(!colores||colores.s!==S.skin||colores.c!==S.camisa)colores={...leeColores(),s:S.skin,c:S.camisa};
     c.clearRect(0,0,56,80);c.imageSmoothingEnabled=false;
     /* pies fijos; al respirar solo se mueve la mitad de arriba, un píxel */
     if(e.respira){c.drawImage(base,0,0,44,49,6,2,44,49);c.drawImage(base,0,48,44,26,6,51,44,26)}
     else c.drawImage(base,6,3);
-    const rect=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
-    if(e.parpadeo){
-      const yy=15-(e.respira?1:0);
-      rect(20,yy,3,2,colores.piel);rect(30,yy,4,2,colores.piel);
-      rect(20,yy+1,3,1,'#272335');rect(30,yy+1,4,1,'#272335');
-    }
-    if(e.saludo){
-      /* brazo articulado en píxeles, con la camisa y la piel de verdad */
-      const borde='#0d0f28',hx=e.brazo?48:46,hy=e.brazo?23:25;
-      c.clearRect(39,37,9,18);
-      rect(39,34,7,10,borde);rect(40,35,5,7,colores.tela);
-      rect(43,32,8,8,borde);rect(44,33,6,6,colores.tela);
-      rect(46,hy+5,5,9,borde);rect(47,hy+5,3,7,colores.piel);
-      rect(hx,hy,7,8,borde);rect(hx+1,hy+1,5,6,colores.piel);
-      rect(hx+2,hy-2,3,4,borde);rect(hx+3,hy-1,1,3,colores.piel);
-    }
   }
   pinta();
   if(quieto()){let n=0;const reintenta=()=>{pinta();if(!ultimo&&++n<8)tvez(reintenta,400)};tvez(reintenta,200)}

@@ -20,8 +20,13 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v32';
+const VERSION='v33';
 const NOVEDADES=[
+  {v:'v33', fecha:'2026-11-14',
+   es:['El aprendiz estrena dibujo: más detalle en la cara, el pelo y la ropa, con sombras nuevas y una caminata con las piernas articuladas. Sale así en la pantalla principal, el pasillo, el runner y la pelea contra el jefe, con la piel y la camisa que elegiste.',
+       'En la pantalla principal ahora parpadea y saluda con poses dibujadas a mano.'],
+   en:['The apprentice has a new look: more detail in the face, hair and clothes, with new shading and a walk with articulated legs. It shows up like that on the main screen, the hallway, the runner and the boss fight, with the skin and shirt you picked.',
+       'On the main screen it now blinks and waves with hand-drawn poses.']},
   {v:'v32', fecha:'2026-11-14',
    es:['La pantalla principal se siente más viva: entra con un fundido suave, JUGAR suelta chispas verdes y una onda de energía, la dificultad elegida destella en dorado y los demás botones sueltan chispas violetas y cian. Los iconos se levantan un poco al pasar el ratón o el teclado.',
        'Con "reducir movimiento" no hay chispas ni animaciones nuevas.'],

@@ -1909,6 +1909,103 @@ await caso('transiciones de la portada · el motor FX no se duplica: un lienzo y
   return [lienzos === 1 && quedan === 0, `lienzos de efectos: ${lienzos} · partículas vivas tras 1,8 s: ${quedan}`];
 });
 
+/* ── EL ARTE NUEVO DEL APRENDIZ (v33) ──
+   Lo que no puede romperse: que el jugador salga con el atlas nuevo en TODOS los sitios donde
+   sale (portada, pasillo, mapa, runner y jefe) y los personajes del pasillo con el clásico; que
+   si el nuevo no carga se vea el clásico; que la portada use sus poses (y solo la de reposo con
+   "reducir movimiento"); y que los pies queden donde estaban (mismo contrato que el clásico). */
+const HD_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v33', t2: true, skin: 2, camisa: 3, dias: [3, 3, 3, 2, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+  vistos: ['escribir', 'bugs', 'memoria', 'simon', 'quiz', 'review', 'merge', 'runner', 'sql', 'regex', 'terminal', 'orden', 'jefe'] };
+/* Marca cada lienzo recoloreado con el atlas del que salió, y anota qué atlas (y qué columna)
+   se pinta en pantalla: window.__atlas = [{o:'hd'|'clasico'|'portada', sx}] */
+const espiaAtlas = () => {
+  const d = CanvasRenderingContext2D.prototype.drawImage;
+  CanvasRenderingContext2D.prototype.drawImage = function (src, ...a) {
+    if (src && src.src) { const o = /portada-hd/.test(src.src) ? 'portada' : /caminar-hd/.test(src.src) ? 'hd' : /aprendiz-caminar\.png/.test(src.src) ? 'clasico' : null; if (o && this.canvas) this.canvas.__origen = o; }
+    else if (src && src.__origen && a.length >= 8) (window.__atlas = window.__atlas || []).push({ o: src.__origen, sx: a[0] });
+    return d.call(this, src, ...a);
+  };
+};
+/* el espía tiene que estar ANTES de que se cree ningún atlas recoloreado (se cachean) */
+const conEspia = async pg => { await pg.addInitScript(espiaAtlas); await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); };
+const atlasEn = async (pg, fn, ms = 700) => { await pg.evaluate(() => { window.__atlas = []; }); await pg.evaluate(fn); await pausa(ms); return pg.evaluate(() => [...new Set(window.__atlas.map(x => x.o))].sort().join(',')); };
+
+await caso('aprendiz nuevo · el jugador sale con el atlas nuevo en portada, pasillo, mapa, runner y jefe; los personajes del pasillo con el clásico', HD_J, async pg => {
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listoPortada); await pausa(300);
+  const r = {};
+  r.portada = await atlasEn(pg, () => rTitulo());
+  r.mapa = await atlasEn(pg, () => rMapaLista());
+  r.runner = await atlasEn(pg, () => { diaAct = 4; vidas = 3; nvRunner(4); }, 1500);
+  r.jefe = await atlasEn(pg, () => { diaAct = 9; vidas = 3; nvJefe(9, 0); }, 2500);
+  await pg.evaluate(() => rPasillo());
+  await pausa(300);
+  r.pasillo = await atlasEn(pg, () => { const e = document.querySelector('#pasillo-escena'); e.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })); }, 600);
+  const npc = await pg.evaluate(() => { window.__atlas = []; const k = document.createElement('canvas').getContext('2d'); APRENDIZ.dibujar(k, 22, 73, 71, 0, 0, '#e0b088', '#2c3460'); APRENDIZ.dibujar(k, 22, 73, 71, 0, 0, 2, 3); return window.__atlas.map(x => x.o).join(','); });
+  const ok = r.portada === 'portada' && r.mapa === 'hd' && r.runner === 'hd' && r.jefe === 'hd' && r.pasillo.includes('hd') && npc === 'clasico,hd';
+  return [ok, JSON.stringify({ ...r, 'NPC,jugador': npc })];
+});
+
+await caso('aprendiz nuevo · los NPC del pasillo se pintan con el atlas clásico dentro del pasillo', HD_J, async pg => {
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listoPortada);
+  const r = await atlasEn(pg, () => rPasillo(), 1200);
+  const npcs = await pg.evaluate(() => document.querySelectorAll('.pasillo-gente').length);
+  return [npcs > 0 && r.includes('clasico') && r.includes('hd'), `en el pasillo: ${r} · personajes: ${npcs}`];
+});
+
+await caso('aprendiz nuevo · si el atlas nuevo no carga, el jugador sale con el clásico (y la portada con su reposo)', HD_J, async pg => {
+  await pg.route(/aprendiz-(caminar|portada)-hd\.png/, r => r.abort());
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listo); await pausa(300);
+  const portada = await atlasEn(pg, () => rTitulo(), 900);
+  const mapa = await atlasEn(pg, () => rMapaLista());
+  const poses = await pg.evaluate(() => APRENDIZ.listoPortada);
+  return [portada === 'clasico' && mapa === 'clasico' && poses === false, JSON.stringify({ portada, mapa, poses })];
+});
+
+await caso('aprendiz nuevo · la portada usa sus poses: reposo, parpadeo y saludo (al pasar por JUGAR)', HD_J, async pg => {
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listoPortada);
+  await pg.evaluate(() => { window.__atlas = []; rTitulo(); }); await pausa(400);
+  await pg.hover('#t-jugar'); await pausa(500);
+  await pg.mouse.move(1, 1); await pausa(4300);                     /* el parpadeo llega a los 3,7 s */
+  const poses = await pg.evaluate(() => [...new Set(window.__atlas.filter(x => x.o === 'portada').map(x => x.sx / 44))].sort());
+  return [poses.includes(0) && poses.includes(1) && poses.includes(2) && poses.includes(3), `poses vistas: ${poses.join(',')} (0 reposo, 1 parpadeo, 2-3 saludo)`];
+});
+
+await caso('aprendiz nuevo · con "reducir movimiento" la portada se queda en la pose de reposo', HD_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listoPortada);
+  await pg.evaluate(() => { window.__atlas = []; rTitulo(); }); await pausa(600);
+  await pg.hover('#t-jugar'); await pausa(1500);
+  const poses = await pg.evaluate(() => [...new Set(window.__atlas.filter(x => x.o === 'portada').map(x => x.sx / 44))]);
+  await pg.emulateMedia({ reducedMotion: 'no-preference' });
+  return [poses.length === 1 && poses[0] === 0, `poses: ${poses.join(',')}`];
+});
+
+await caso('aprendiz nuevo · 16 combinaciones × 8 direcciones × 4 pasos: todas se pintan y los pies quedan donde en el clásico', HD_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listoPortada && APRENDIZ.listo);
+  const r = await pg.evaluate(async () => {
+    const pie = (src, fila, col) => { const k = document.createElement('canvas'); k.width = 44; k.height = 74; const c = k.getContext('2d'); c.drawImage(src, col * 44, fila * 74, 44, 74, 0, 0, 44, 74); const d = c.getImageData(0, 0, 44, 74).data; let b = -1, n = 0; for (let y = 0; y < 74; y++) for (let x = 0; x < 44; x++) if (d[(y * 44 + x) * 4 + 3] > 0) { b = y; n++; } return { b, n }; };
+    const carga = u => new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.src = u; });
+    const hd = await carga('img/aprendiz-caminar-hd.png'), cl = await carga('img/aprendiz-caminar.png'), po = await carga('img/aprendiz-portada-hd.png');
+    const mal = [];
+    for (let f = 0; f < 8; f++) for (let p = 0; p < 4; p++) { const a = pie(hd, f, p), b = pie(cl, f, p); if (a.n < 300 || Math.abs(a.b - b.b) > 2) mal.push(`dir ${f} paso ${p}: pie ${a.b} vs ${b.b}, ${a.n} px`); }
+    for (let p = 0; p < 4; p++) { const a = pie(po, 0, p), b = pie(cl, 0, 0); if (a.n < 300 || Math.abs(a.b - b.b) > 2) mal.push(`pose ${p}: pie ${a.b} vs ${b.b}`); }
+    /* y las 16 × 8 × 4 se recolorean y pintan sin error, con algo dentro */
+    let pintadas = 0; const k = document.createElement('canvas'); k.width = 44; k.height = 74; const c = k.getContext('2d', { willReadFrequently: true });
+    for (let s = 0; s < 4; s++) for (let m = 0; m < 4; m++) for (let d = 0; d < 8; d++) for (let p = 0; p < 4; p++) { c.clearRect(0, 0, 44, 74); if (APRENDIZ.dibujar(c, 22, 74, 74, d, p, s, m) && c.getImageData(0, 0, 44, 74).data.some((v, i) => i % 4 === 3 && v > 0)) pintadas++; }
+    return { mal, pintadas };
+  });
+  return [r.mal.length === 0 && r.pintadas === 512, r.mal.length ? r.mal.slice(0, 5).join(' · ') : `512 de 512 cuadros pintados; pies a la altura del clásico en las 32 de caminata y las 4 poses`];
+});
+
+await caso('aprendiz nuevo · la camisa y la piel elegidas se aplican (el azul y la piel de referencia no quedan)', HD_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listo);
+  const r = await pg.evaluate(() => {
+    const cuenta = (s, m) => { const k = document.createElement('canvas'); k.width = 44; k.height = 74; const c = k.getContext('2d'); APRENDIZ.dibujar(c, 22, 74, 74, 0, 0, s, m); const d = c.getImageData(0, 0, 44, 74).data; let azul = 0, piel = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3]) { const q = (r, g, b) => (d[i] - r) ** 2 + (d[i + 1] - g) ** 2 + (d[i + 2] - b) ** 2 < 300; if (q(23, 104, 157)) azul++; if (q(245, 203, 154)) piel++; } return { azul, piel }; };
+    return { verdeOscura: cuenta(3, 0), rojaMedia: cuenta(2, 3) };
+  });
+  return [r.verdeOscura.azul === 0 && r.verdeOscura.piel === 0 && r.rojaMedia.azul === 0 && r.rojaMedia.piel === 0, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);
