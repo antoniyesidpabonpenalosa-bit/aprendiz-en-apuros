@@ -1,5 +1,8 @@
 # Plan: el fondo del menú principal
 
+> **Sustituido en la v36** por el campus nocturno HD (ver `planes/fondo-campus.md`): la ciudad de
+> este plan ya no está en el juego. Se deja como historia.
+>
 > Estado: **primera entrega hecha (v27)**: solo el fondo animado. El menú en sí (botones,
 > disposición, textos) no se tocó; el autor quiere aprobar primero el fondo y después mejorar
 > el resto de la pantalla.
