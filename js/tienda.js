@@ -189,7 +189,7 @@ function rPerso(){
   let orientacion=0, andando=false, ultimoVisor='';
   const pintaCuerpo=()=>{
     const cv=$('#pe-cuerpo-av');if(!cv||pantallaId!=='perso')return;
-    const paso=APRENDIZ.pasoDe(andando&&!quieto()), clave=[S.apariencia,S.skin,S.camisa,orientacion,paso,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPortada].join('|');
+    const paso=APRENDIZ.pasoDe(andando&&!quieto()), clave=[S.apariencia,S.skin,S.camisa,orientacion,paso,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');
     if(clave===ultimoVisor)return;
     const c=cv.getContext('2d');c.clearRect(0,0,44,74);
     if(!APRENDIZ.dibujar(c,22,74,74,orientacion,paso))return;
@@ -215,7 +215,7 @@ function rPerso(){
   let cargaAnterior='';
   tcada(()=>{
     if(document.hidden||pausado)return;
-    const carga=[APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPortada].join('|');
+    const carga=[APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');
     if(carga!==cargaAnterior){cargaAnterior=carga;pintaOpciones()}
     pintaCuerpo();
   },135);

@@ -1,0 +1,10 @@
+{
+  "frameWidth": 44,
+  "frameHeight": 74,
+  "directions": ["south", "south-east", "east", "north-east", "north", "north-west", "west", "south-west"],
+  "walk": {"file": "img/aprendiz-masculino-premium-caminar.png", "columns": 4, "rows": 8, "frames": ["idle", "step-a", "passing", "step-b"], "frameDurationMs": 135},
+  "menu": {"file": "img/aprendiz-masculino-premium-portada.png", "columns": 4, "rows": 1, "frames": ["idle", "blink", "wave-a", "wave-b"]},
+  "anchor": {"x": 22, "y": 74},
+  "fallback": ["img/aprendiz-caminar-hd.png", "img/aprendiz-caminar.png"],
+  "source": "scripts/build-aprendiz-masculino.py"
+}

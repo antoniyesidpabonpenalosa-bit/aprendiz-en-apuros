@@ -93,6 +93,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v38** | — | 2026-11-14 | Sprites propios de cuerpo entero para los 4 personajes del pasillo (`img/npc/pasillo.png`, `js/npc-sprites.js`); el cuerpo del aprendiz recoloreado queda de respaldo |
 | **v39** | — | 2026-11-14 | Diálogos cinematográficos (`js/cinematica.js`, `img/cine/`): retrato grande, fondo del lugar, narrador, texto animado, continuar/saltar y páginas con hablante y gesto; los textos de la historia no cambian |
 | **v40** | — | 2026-11-15 | Primera fase de identidad: apariencia masculina/femenina guardada, atlas femenino y visor de cuerpo entero en Mi Avatar, con giro y caminata de prueba |
+| **v40.1** | — | 2026-11-15 | Identidad, parte 2: atlas masculino premium (`img/aprendiz-masculino-premium-*.png`) con cabello, ojos, cuello, cinturón, botas y saludo articulado; el HD anterior queda de respaldo |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

@@ -55,10 +55,17 @@ const APRENDIZ = (() => {
   imgPortadaFemenina.onload=()=>{listaPortadaFemenina=true};
   imgFemenina.src='img/aprendiz-femenina-caminar.png';
   imgPortadaFemenina.src='img/aprendiz-femenina-portada.png';
+  // Masculino premium: atlas independiente. Los HD anteriores siguen como respaldo.
+  let listoPremium=false, listoPortadaPremium=false;
+  const imgPremium=new Image(), imgPortadaPremium=new Image();
+  imgPremium.onload=()=>{listoPremium=true};
+  imgPortadaPremium.onload=()=>{listoPortadaPremium=true};
+  imgPremium.src='img/aprendiz-masculino-premium-caminar.png';
+  imgPortadaPremium.src='img/aprendiz-masculino-premium-portada.png';
   const esJugador=(s,c)=>typeof s!=='string'&&typeof c!=='string';
-  const origenDe=(s,c,apariencia=S.apariencia)=>esJugador(s,c) ? (apariencia==='femenina'&&listaFemenina?imgFemenina:listoHD?imgHD:img) : img;
-  const listaOrigen=o=>o===img?listo:o===imgHD?listoHD:o===imgPortada?listoPortada:o===imgFemenina?listaFemenina:listaPortadaFemenina;
-  const femenina=o=>o===imgFemenina||o===imgPortadaFemenina;
+  const origenDe=(s,c,apariencia=S.apariencia)=>esJugador(s,c) ? (apariencia==='femenina'&&listaFemenina?imgFemenina:listoPremium?imgPremium:listoHD?imgHD:img) : img;
+  const listaOrigen=o=>o===img?listo:o===imgHD?listoHD:o===imgPortada?listoPortada:o===imgFemenina?listaFemenina:o===imgPortadaFemenina?listaPortadaFemenina:o===imgPremium?listoPremium:listoPortadaPremium;
+  const paletaExacta=o=>o===imgFemenina||o===imgPortadaFemenina||o===imgPremium||o===imgPortadaPremium;
   const claveRGB=(r,g,b)=>(r<<16)|(g<<8)|b;
   const palCamisa=new Set([[16,47,91],[20,67,116],[23,87,143],[32,110,171],[54,137,195],[86,165,217]].map(p=>claveRGB(...p)));
   const palPiel=new Set([[145,82,49],[187,116,72],[217,150,99],[239,182,125],[250,204,153],[255,225,183]].map(p=>claveRGB(...p)));
@@ -68,7 +75,7 @@ const APRENDIZ = (() => {
      relativo de cada píxel, así conserva el sombreado del sprite. */
   const cache = new Map();
   function atlasDe(s, c, origen = origenDe(s,c)) {
-    const clave = (origen === imgPortadaFemenina?'femenina-portada:':origen===imgFemenina?'femenina:':origen === imgPortada ? 'portada:' : origen === imgHD ? 'hd:' : 'clasico:') + s + ':' + c;
+    const clave = (origen===imgPremium?'masculino-premium:':origen===imgPortadaPremium?'masculino-premium-portada:':origen === imgPortadaFemenina?'femenina-portada:':origen===imgFemenina?'femenina:':origen === imgPortada ? 'portada:' : origen === imgHD ? 'hd:' : 'clasico:') + s + ':' + c;
     let cv = cache.get(clave);
     if (cv) return cv;
     cv = document.createElement('canvas');
@@ -88,9 +95,9 @@ const APRENDIZ = (() => {
       for (let i = 0; i < px.length; i += 4) {
         if (px[i + 3] === 0) continue;
         const r = px[i], g = px[i + 1], b = px[i + 2];
-        if (femenina(origen)?palCamisa.has(claveRGB(r,g,b)):dist2(r, g, b, SHIRT) < TOL2) { const k = lum(r, g, b) / (femenina(origen)?lum(32,110,171):LSHIRT);
+        if (paletaExacta(origen)?palCamisa.has(claveRGB(r,g,b)):dist2(r, g, b, SHIRT) < TOL2) { const k = lum(r, g, b) / (paletaExacta(origen)?lum(32,110,171):LSHIRT);
           px[i] = Math.min(255, camisa[0] * k); px[i + 1] = Math.min(255, camisa[1] * k); px[i + 2] = Math.min(255, camisa[2] * k);
-        } else if (femenina(origen)?palPiel.has(claveRGB(r,g,b)):dist2(r, g, b, SKIN) < TOL2) { const k = lum(r, g, b) / (femenina(origen)?lum(250,204,153):LSKIN);
+        } else if (paletaExacta(origen)?palPiel.has(claveRGB(r,g,b)):dist2(r, g, b, SKIN) < TOL2) { const k = lum(r, g, b) / (paletaExacta(origen)?lum(250,204,153):LSKIN);
           px[i] = Math.min(255, piel[0] * k); px[i + 1] = Math.min(255, piel[1] * k); px[i + 2] = Math.min(255, piel[2] * k);
         }
       }
@@ -130,7 +137,7 @@ const APRENDIZ = (() => {
 
   // Poses de portada: 0 reposo, 1 parpadeo, 2 y 3 saludo.
   function dibujarPortada(ctx, x, yPie, alto, pose = 0, s = S.skin, c = S.camisa, apariencia = S.apariencia) {
-    const origen=esJugador(s,c)&&apariencia==='femenina'?imgPortadaFemenina:imgPortada;
+    const origen=esJugador(s,c)&&apariencia==='femenina'?imgPortadaFemenina:esJugador(s,c)&&listoPortadaPremium?imgPortadaPremium:imgPortada;
     if (!listaOrigen(origen)) return dibujar(ctx,x,yPie,alto,idx.south,0,s,c,apariencia);
     const cv = atlasDe(s,c,origen), w = Math.round(alto * FW / FH);
     const antes = ctx.imageSmoothingEnabled;
@@ -139,5 +146,5 @@ const APRENDIZ = (() => {
     ctx.imageSmoothingEnabled = antes;
     return true;
   }
-  return { DIRS, idx, FW, FH, PASOS, dirDe, pasoDe, dibujar, dibujarPortada, atlasDe, get listo() { return listo || listoHD || listaFemenina; }, get listoHD(){return listoHD}, get listaFemenina(){return listaFemenina}, get listoPortada() { return S.apariencia==='femenina'?listaPortadaFemenina:listoPortada; } };
+  return { DIRS, idx, FW, FH, PASOS, dirDe, pasoDe, dibujar, dibujarPortada, atlasDe, get listo() { return listo || listoHD || listaFemenina || listoPremium; }, get listoHD(){return listoHD}, get listoPremium(){return listoPremium}, get listoPortadaPremium(){return listoPortadaPremium}, get listaFemenina(){return listaFemenina}, get listoPortada() { return S.apariencia==='femenina'?listaPortadaFemenina:(listoPortadaPremium||listoPortada); } };
 })();
