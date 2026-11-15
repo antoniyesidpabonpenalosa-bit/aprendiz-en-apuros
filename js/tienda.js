@@ -83,6 +83,9 @@ function rTienda(){
    comprar, y volver siempre a PIEL después de comprar un accesorio sería
    exasperante. */
 let pePestana='apariencia';
+// Preferencia de vista de esta sesión; no es parte de la partida.
+let peVista='ambos';
+const PE_DIRECCIONES=['sur','sureste','este','noreste','norte','noroeste','oeste','suroeste'];
 
 /* Las muestras conservan los índices de las paletas originales: nunca crean
    una segunda preferencia ni alteran inventario. El color es una pista extra,
@@ -126,35 +129,50 @@ function rPerso(){
       </div></div>`;
   };
 
+  const resumenColor=tipo=>`<div class="pe-resumen-bloque"><h4>${t(tipo==='piel'?'pe_tonos':'pe_colores')}</h4>
+    <div class="pe-rapidos" role="group" aria-label="${t(tipo==='piel'?'pe_tonos':'pe_colores')}">
+      ${(tipo==='piel'?SKINS:CAMISAS).map((color,i)=>`<button type="button" class="pe-rapido" data-pe-quick="${tipo}" data-indice="${i}" style="--muestra:${color}" aria-label="${t('pe_'+tipo+'_'+i)}" aria-pressed="${(tipo==='piel'?S.skin:S.camisa)===i}"><span aria-hidden="true">${(tipo==='piel'?S.skin:S.camisa)===i?'✓':''}</span></button>`).join('')}
+    </div><p class="pe-resumen-nom" id="pe-resumen-${tipo}"></p></div>`;
   pantalla('perso',`
-  <div class="pe-wrap">
+  <div class="pe-wrap pe-definitivo">
     <div class="pe-cab">
-      <h2>🎨 ${t('perso')}</h2>
+      <div class="pe-cab-titulo"><span class="pe-cab-kicker">${t('pe_vestidor')}</span><h2>${t('perso')}</h2></div>
       <span class="moneda" id="pe-pts">⛁ ${S.pts} PTS</span>
     </div>
 
     <div class="pe-cuerpo">
       <section class="pe-lado">
-        <p class="pe-cap">${t('personaje')}</p>
-        <div class="pe-escena pe-visor">
-          <div class="pe-mini-retrato"><canvas class="pe-av" id="pe-cara" width="64" height="64" aria-label="${t('pe_retrato')}"></canvas></div>
+        <div class="pe-lado-preview">
+        <div class="pe-lado-cab"><p class="pe-cap">${t('personaje')}</p><span id="pe-etiqueta-apariencia">${t('pe_'+S.apariencia)}</span></div>
+        <div class="pe-escena pe-visor" id="pe-escena-av" data-vista="${peVista}">
+          <div class="pe-mini-retrato"><canvas class="pe-av" id="pe-cara" width="64" height="64" aria-label="${t('pe_retrato')}"></canvas><span>${t('pe_retrato')}</span></div>
           <div class="pe-plataforma"><canvas id="pe-cuerpo-av" width="44" height="74" aria-label="${t('pe_cuerpo')}"></canvas></div>
+          <span class="pe-escena-tag" id="pe-escena-tag">${t('pe_equipado_actual')}</span>
         </div>
-        <div class="pe-visor-controles" role="group" aria-label="${t('pe_vista')}">
-          <button class="rec-chip" id="pe-girar" type="button">↻ ${t('pe_girar')}</button>
+        <div class="pe-vistas" role="group" aria-label="${t('pe_vista')}">
+          ${[['ambos','pe_ambos'],['retrato','pe_retrato'],['cuerpo','pe_cuerpo']].map(([id,k])=>`<button class="rec-chip ${peVista===id?'act':''}" type="button" data-pe-vista="${id}" aria-pressed="${peVista===id}">${t(k)}</button>`).join('')}
+        </div>
+        <div class="pe-visor-controles" id="pe-movimiento" role="group" aria-label="${t('pe_vista')}" ${peVista==='retrato'?'hidden':''}>
+          <button class="rec-chip" id="pe-girar-atras" type="button" aria-label="${t('pe_girar_atras')}">↶</button>
+          <span class="pe-direccion" id="pe-direccion" aria-live="polite">${t('pe_dir_sur')}</span>
+          <button class="rec-chip" id="pe-girar" type="button" aria-label="${t('pe_girar')}">↻</button>
           <button class="rec-chip" id="pe-caminar" type="button" aria-pressed="false">▶ ${t('pe_caminar')}</button>
         </div>
-        <div class="pe-detalle" role="group" aria-label="${t('pe_detalle')}">
-          <button class="rec-chip ${!S.av32?'act':''}" id="pe-d16" type="button">${t('pe_detalle16')}</button>
-          <button class="rec-chip ${S.av32?'act':''}" id="pe-d32" type="button">${t('pe_detalle32')}</button>
+        <div class="pe-detalle" id="pe-resolucion" role="group" aria-label="${t('pe_detalle')}" ${peVista==='cuerpo'?'hidden':''}>
+          <span>${t('pe_detalle')}</span>
+          <button class="rec-chip ${!S.av32?'act':''}" id="pe-d16" type="button" aria-pressed="${!S.av32}">16×16</button>
+          <button class="rec-chip ${S.av32?'act':''}" id="pe-d32" type="button" aria-pressed="${!!S.av32}">32×32</button>
         </div>
-        <p class="pe-nombre">${esc(S.nombre||t('tu'))}</p>
-        <p class="pe-rango">${rangoNom()}</p>
+        </div>
+        <div class="pe-perfil">
+        <div class="pe-identidad"><p class="pe-nombre">${esc(S.nombre||t('tu'))}</p><p class="pe-rango">${rangoNom()}</p></div>
         <dl class="pe-stats">
-          <div><dt>⛁</dt><dd id="pe-st-pts">${S.pts}</dd></div>
-          <div><dt>★</dt><dd>${S.xp} XP</dd></div>
-          <div><dt>🎁</dt><dd id="pe-st-acc">${S.accs.length}/${ACCS.length}</dd></div>
+          <div><dt>${t('pe_saldo')}</dt><dd id="pe-st-pts">${S.pts}</dd></div>
+          <div><dt>XP</dt><dd>${S.xp}</dd></div>
+          <div><dt>${t('pe_coleccion')}</dt><dd id="pe-st-acc">${S.accs.length}/${ACCS.length}</dd></div>
         </dl>
+        <div class="pe-coleccion-bar" id="pe-coleccion-bar" role="progressbar" aria-label="${t('pe_coleccion')}" aria-valuemin="0" aria-valuemax="${ACCS.length}" aria-valuenow="${S.accs.length}" style="--pe-coleccion:${S.accs.length/ACCS.length*100}%"><span></span></div>
+        </div>
       </section>
 
       <section class="pe-custom">
@@ -165,11 +183,16 @@ function rPerso(){
         </div>
 
         <div class="pe-panel pe-apariencias" id="pe-p-apariencia" role="tabpanel" aria-labelledby="pe-t-apariencia" ${pePestana==='apariencia'?'':'hidden'}>
-          <p class="pe-cap">${t('pe_apariencia')}</p>
-          <div class="pe-apariencia-grid">
-            ${['masculina','femenina'].map(id=>`<button type="button" class="pe-apariencia-op ${S.apariencia===id?'sel':''}" data-apariencia="${id}" aria-pressed="${S.apariencia===id}">
-              <canvas width="44" height="74" aria-hidden="true"></canvas><span>${t('pe_'+id)}</span>
-            </button>`).join('')}
+          <div class="pe-apariencia-cab"><h3>${t('pe_elegir_apariencia')}</h3><span class="pe-gratis">${t('pe_gratis')}</span></div>
+          <div class="pe-overview">
+            <div class="pe-apariencia-grid">
+              ${['masculina','femenina'].map(id=>`<button type="button" class="pe-apariencia-op ${S.apariencia===id?'sel':''}" data-apariencia="${id}" aria-pressed="${S.apariencia===id}">
+                <span class="pe-apariencia-marca" aria-hidden="true">${S.apariencia===id?'✓':''}</span><canvas width="44" height="74" aria-hidden="true"></canvas><span class="pe-apariencia-nom">${t('pe_'+id)}</span>
+              </button>`).join('')}
+            </div>
+            <div class="pe-resumen">${resumenColor('piel')}${resumenColor('camisa')}
+              <div class="pe-resumen-bloque"><h4>${t('accesorio')}</h4><button class="pe-atajo-acc" id="pe-atajo-acc" type="button"><canvas width="32" height="32" aria-hidden="true"></canvas><span><strong id="pe-acc-actual"></strong><small>${t('pe_probar_acc')}</small></span><span aria-hidden="true">›</span></button></div>
+            </div>
           </div>
         </div>
 
@@ -182,21 +205,23 @@ function rPerso(){
         </div>
 
         <div class="pe-panel" id="pe-p-acc" role="tabpanel" aria-labelledby="pe-t-acc" ${pePestana==='acc'?'':'hidden'}>
+          <div class="pe-apariencia-cab"><h3>${t('pe_coleccion')}</h3><span class="pe-gratis">${t('pe_prueba')}</span></div>
+          <p class="pe-color-ayuda">${t('pe_prueba_gratis')}</p>
           <div class="accs-tienda" id="pe-accs">${htmlAccs()}</div>
           <div id="pe-conf">${htmlConfirma()}</div>
         </div>
 
-        <div class="pe-pie">
-          <span class="pe-estado" id="pe-estado" role="status" aria-live="polite">${t('pe_guardado')}</span>
-          <button class="btn btn2 pe-volver" id="pe-volver" type="button">${t('volver')}</button>
-        </div>
       </section>
+      <div class="pe-pie">
+        <span class="pe-estado" id="pe-estado" role="status" aria-live="polite">${t('pe_guardado')}</span>
+        <button class="btn btn2 pe-volver" id="pe-volver" type="button">${t('volver')}</button>
+      </div>
     </div>
   </div>`,rPerso);
 
   let orientacion=0, andando=false, ultimoVisor='';
   const pintaCuerpo=()=>{
-    const cv=$('#pe-cuerpo-av');if(!cv||pantallaId!=='perso')return;
+    const cv=$('#pe-cuerpo-av');if(!cv||pantallaId!=='perso'||peVista==='retrato')return;
     const paso=APRENDIZ.pasoDe(andando&&!quieto()), clave=[S.apariencia,S.skin,S.camisa,prueba,orientacion,paso,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');
     if(clave===ultimoVisor)return;
     const c=cv.getContext('2d');c.clearRect(0,0,44,74);
@@ -207,6 +232,7 @@ function rPerso(){
     const id=b.dataset.apariencia,cv=b.querySelector('canvas'),c=cv.getContext('2d');
     c.clearRect(0,0,44,74);
     b.classList.toggle('sel',S.apariencia===id);b.setAttribute('aria-pressed',String(S.apariencia===id));
+    b.querySelector('.pe-apariencia-marca').textContent=S.apariencia===id?'✓':'';
     if(id==='femenina'&&!APRENDIZ.listaFemenina)return;
     APRENDIZ.dibujar(c,22,74,74,0,0,S.skin,S.camisa,id);
   });
@@ -220,15 +246,38 @@ function rPerso(){
     const c=cv.getContext('2d');c.clearRect(0,0,44,74);
     APRENDIZ.dibujar(c,22,74,74,0,0,S.skin,i,S.apariencia);
   });
-  const pinta=()=>{const cara=CARAS.yo(true);for(const id of ACC_ARTE.ids)cara[id]=prueba===id;retratoVivo($('#pe-cara'),cara);ultimoVisor='';pintaCuerpo();pintaOpciones();pintaColores()};
+  const pintaResumen=()=>{
+    $('#pe-etiqueta-apariencia').textContent=t('pe_'+S.apariencia);
+    $('#pe-escena-tag').textContent=t(prueba===S.acc?'pe_equipado_actual':'pe_prueba');
+    $('#pe-escena-av').classList.toggle('pe-en-prueba',prueba!==S.acc);
+    $$('[data-pe-quick]').forEach(b=>{
+      const elegido=Number(b.dataset.indice)===(b.dataset.peQuick==='piel'?S.skin:S.camisa);
+      b.setAttribute('aria-pressed',String(elegido));b.querySelector('span').textContent=elegido?'✓':'';
+    });
+    $('#pe-resumen-piel').textContent=t('pe_piel_'+S.skin);
+    $('#pe-resumen-camisa').textContent=t('pe_camisa_'+S.camisa);
+    $('#pe-acc-actual').textContent=S.acc?nAcc(S.acc):t('pe_ninguno');
+    ACC_ARTE.icono($('#pe-atajo-acc canvas'),S.acc);
+    const barra=$('#pe-coleccion-bar');barra.setAttribute('aria-valuenow',String(S.accs.length));barra.style.setProperty('--pe-coleccion',S.accs.length/ACCS.length*100+'%');
+  };
+  const pinta=()=>{const cara=CARAS.yo(true);for(const id of ACC_ARTE.ids)cara[id]=prueba===id;retratoVivo($('#pe-cara'),cara);ultimoVisor='';pintaCuerpo();pintaOpciones();pintaColores();pintaResumen()};
   $$('.pe-apariencia-op').forEach(b=>b.onclick=()=>{
-    const id=b.dataset.apariencia;if(id!=='masculina'&&id!=='femenina')return;
+    const id=b.dataset.apariencia;if((id!=='masculina'&&id!=='femenina')||S.apariencia===id)return;
     S.apariencia=id;guardar();SFX.click();pinta();avisar(t('pe_guardado'));
   });
-  $('#pe-girar').onclick=()=>{orientacion=(orientacion+1)%8;SFX.click();pintaCuerpo()};
+  const gira=delta=>{orientacion=(orientacion+delta+8)%8;$('#pe-direccion').textContent=t('pe_dir_'+PE_DIRECCIONES[orientacion]);SFX.click();pintaCuerpo()};
+  $('#pe-girar').onclick=()=>gira(1);
+  $('#pe-girar-atras').onclick=()=>gira(-1);
   const botonCaminar=$('#pe-caminar');
   botonCaminar.disabled=quieto();
   botonCaminar.onclick=()=>{andando=!andando&&!quieto();botonCaminar.setAttribute('aria-pressed',String(andando));botonCaminar.textContent=andando?'■ '+t('pe_detener'):'▶ '+t('pe_caminar');pintaCuerpo()};
+  $$('[data-pe-vista]').forEach(b=>b.onclick=()=>{
+    peVista=b.dataset.peVista;$('#pe-escena-av').dataset.vista=peVista;
+    $$('[data-pe-vista]').forEach(x=>{const on=x.dataset.peVista===peVista;x.classList.toggle('act',on);x.setAttribute('aria-pressed',String(on))});
+    $('#pe-movimiento').hidden=peVista==='retrato';$('#pe-resolucion').hidden=peVista==='cuerpo';
+    if(peVista==='retrato'&&andando){andando=false;botonCaminar.setAttribute('aria-pressed','false');botonCaminar.textContent='▶ '+t('pe_caminar')}
+    SFX.click();pintaCuerpo();
+  });
   // Solo durante esta pantalla. limpiarT() elimina el intervalo al navegar.
   let cargaAnterior='';
   tcada(()=>{
@@ -238,7 +287,7 @@ function rPerso(){
     pintaCuerpo();
   },135);
   const avisar=(txt,cls)=>{const e=$('#pe-estado');if(!e)return;e.textContent=txt;e.className='pe-estado'+(cls?' '+cls:'')};
-  const latido=()=>{const a=$('#pe-escena-av')||$('#pe-cara');a.classList.remove('pe-pum');void a.offsetWidth;a.classList.add('pe-pum')};
+  const latido=()=>{const a=$('#pe-escena-av')||$('#pe-cara');if(quieto())return;a.classList.remove('pe-pum');void a.offsetWidth;a.classList.add('pe-pum')};
 
   /* ── detalle del retrato: 16 de siempre / 32 más fino ──
      Es aparte de S.hd (la piel retro/OLED): los dos se combinan, no se
@@ -247,13 +296,13 @@ function rPerso(){
   $('#pe-d16').onclick=()=>{
     if(!S.av32)return;
     S.av32=false;guardar();aplicarModo();SFX.click();
-    $('#pe-d16').classList.add('act');$('#pe-d32').classList.remove('act');
+    $('#pe-d16').classList.add('act');$('#pe-d32').classList.remove('act');$('#pe-d16').setAttribute('aria-pressed','true');$('#pe-d32').setAttribute('aria-pressed','false');
     pinta();latido();
   };
   $('#pe-d32').onclick=()=>{
     if(S.av32)return;
     S.av32=true;guardar();aplicarModo();SFX.click();
-    $('#pe-d32').classList.add('act');$('#pe-d16').classList.remove('act');
+    $('#pe-d32').classList.add('act');$('#pe-d16').classList.remove('act');$('#pe-d32').setAttribute('aria-pressed','true');$('#pe-d16').setAttribute('aria-pressed','false');
     pinta();latido();
   };
 
@@ -278,6 +327,12 @@ function rPerso(){
     };
   });
 
+  $('#pe-atajo-acc').onclick=()=>{SFX.click();abrir('acc');$('#pe-t-acc').focus()};
+  // Los accesos rápidos usan los mismos botones/handlers de las paletas.
+  $$('[data-pe-quick]').forEach(b=>b.onclick=()=>{
+    const i=Number(b.dataset.indice),campo=b.dataset.peQuick==='piel'?'s':'c';
+    $(`.pe-color-op[data-${campo}="${i}"]`)?.click();
+  });
   /* ── piel y camisa ── */
   $$('.pe-color-op').forEach(b=>b.onclick=()=>{
     const piel=b.dataset.s!==undefined, i=Number(piel?b.dataset.s:b.dataset.c),
@@ -295,7 +350,7 @@ function rPerso(){
     $('#pe-st-pts').textContent=S.pts;
     $('#pe-st-acc').textContent=S.accs.length+'/'+ACCS.length;
     enlazarAccs();
-    pinta();
+    pinta();hud();
   }
   function comprar(){
     if(prueba===S.acc||!aTiempo())return;

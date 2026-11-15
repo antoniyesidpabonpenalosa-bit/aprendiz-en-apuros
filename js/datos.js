@@ -20,8 +20,9 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.4';
+const VERSION='v40.5';
 const NOVEDADES=[
+  {v:'v40.5', fecha:'2026-11-15', es:['Mi Avatar reúne apariencia, colores y accesorios en un vestidor RPG con visor ampliado y controles de giro.'], en:['My Avatar brings appearance, colors and accessories together in an RPG dressing room with an enlarged preview and rotation controls.']},
   {v:'v40.4', fecha:'2026-11-15', es:['Prueba los nueve accesorios sin gastar puntos y equípalos también en el cuerpo del Aprendiz.'], en:['Try all nine accessories for free and equip them on the full-body Apprentice.']},
   {v:'v40.3', fecha:'2026-11-15',
    es:['Mi Avatar muestra tarjetas de piel y camisa con vistas previas reales, nombres de colores y selección clara para ambas apariencias. Los colores siguen siendo gratuitos.'],
@@ -945,6 +946,7 @@ const TXT={
  lab_ensayo:'ENSAYO',lab_ensayo_ay:'partida de prueba: no da puntos ni sube al marcador',
  lab_no_sala:'La consola no se abre dentro de una sala: ahí se juega derecho',
  lab_sala_ensayo:'Estás en un ENSAYO. Abre la consola y escribe "normal" antes de entrar a una sala.',
+ pe_vestidor:'VESTIDOR RPG',pe_ambos:'AMBOS',pe_elegir_apariencia:'ELIGE TU APARIENCIA',pe_equipado_actual:'ASPECTO ACTUAL',pe_saldo:'PUNTOS',pe_coleccion:'COLECCIÓN',pe_girar_atras:'GIRAR AL OTRO LADO',pe_dir_sur:'FRENTE',pe_dir_suroeste:'DIAG. IZQ.',pe_dir_oeste:'IZQUIERDA',pe_dir_noroeste:'DIAG. ATRÁS IZQ.',pe_dir_norte:'ESPALDA',pe_dir_noreste:'DIAG. ATRÁS DER.',pe_dir_este:'DERECHA',pe_dir_sureste:'DIAG. DER.',
  pe_apariencia:'APARIENCIA',pe_masculina:'MASCULINA',pe_femenina:'FEMENINA',pe_cuerpo:'CUERPO ENTERO',pe_retrato:'RETRATO',pe_girar:'GIRAR',pe_caminar:'CAMINAR',pe_detener:'DETENER',pe_vista:'VISTA PREVIA',
  pe_tonos:'TONO DE PIEL',pe_colores:'COLOR DE CAMISA',pe_gratis:'GRATIS',pe_elegido:'EQUIPADO',pe_elegir:'ELEGIR',
  pe_ayuda_piel:'Elige un tono. Tu retrato y personaje se actualizan al instante.',pe_ayuda_camisa:'Elige el color de tu camisa. Puedes cambiarlo cuando quieras.',
@@ -1084,6 +1086,7 @@ const TXT={
   lab_ensayo:'REHEARSAL',lab_ensayo_ay:'practice run: no points, nothing published',
   lab_no_sala:'The console does not open inside a room: there you play straight',
   lab_sala_ensayo:'You are in a REHEARSAL. Open the console and type "reset" before joining a room.',
+  pe_vestidor:'RPG DRESSING ROOM',pe_ambos:'BOTH',pe_elegir_apariencia:'CHOOSE YOUR APPEARANCE',pe_equipado_actual:'CURRENT LOOK',pe_saldo:'POINTS',pe_coleccion:'COLLECTION',pe_girar_atras:'ROTATE BACK',pe_dir_sur:'FRONT',pe_dir_suroeste:'FRONT LEFT',pe_dir_oeste:'LEFT',pe_dir_noroeste:'BACK LEFT',pe_dir_norte:'BACK',pe_dir_noreste:'BACK RIGHT',pe_dir_este:'RIGHT',pe_dir_sureste:'FRONT RIGHT',
   pe_apariencia:'APPEARANCE',pe_masculina:'MASCULINE',pe_femenina:'FEMININE',pe_cuerpo:'FULL BODY',pe_retrato:'PORTRAIT',pe_girar:'ROTATE',pe_caminar:'WALK',pe_detener:'STOP',pe_vista:'PREVIEW',
   pe_tonos:'SKIN TONE',pe_colores:'SHIRT COLOR',pe_gratis:'FREE',pe_elegido:'SELECTED',pe_elegir:'SELECT',
   pe_ayuda_piel:'Choose a tone. Your portrait and character update instantly.',pe_ayuda_camisa:'Choose your shirt color. You can change it anytime.',
