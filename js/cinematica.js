@@ -50,7 +50,12 @@ const CINE=(()=>{
     const jefe=$('.cine-jefe');
     if(jefe){const respaldo=()=>jefe.remove();jefe.onerror=respaldo;if(jefe.complete&&!jefe.naturalWidth)respaldo();}
     const cv=$('#'+(tipo==='cut'?'cut-cara':'d-cara'));
-    if(cv){retratoVivo(cv,quienCara(p.quien));retratoDibujo(cv,p.quien,p.gesto);}
+    if(cv){
+      const o=quienCara(p.quien);
+      if(o.protagonista){cv.width=cv.height=96;cv.classList.add('cine-protagonista');}
+      retratoVivo(cv,o.protagonista?Object.assign({},o,{cine:true,gesto:p.gesto}):o);
+      retratoDibujo(cv,p.quien,p.gesto);
+    }
     const el=$('#'+(tipo==='cut'?'cut-linea':'d-linea')), revelar=$('#d-revelar');
     if(!p.animar||!el)return;
     const letras=Array.from(p.texto);let j=0,reloj=0;

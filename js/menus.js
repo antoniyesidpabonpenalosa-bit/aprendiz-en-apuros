@@ -58,7 +58,7 @@ function aprendizPortada(cv,boton){
        (img/aprendiz-portada-hd.png: 0 reposo, 1 parpadeo, 2-3 saludo), no píxeles pintados
        encima. Si ese atlas no cargó, dibujarPortada pinta el reposo de la caminata. */
     const pose=e.saludo?2+e.brazo:e.parpadeo?1:0;
-    const clave=[pose,e.respira?'r':'',S.skin,S.camisa,APRENDIZ.listoPortada?'hd':''].join('|');
+    const clave=[pose,e.respira?'r':'',S.skin,S.camisa,S.apariencia,S.acc,APRENDIZ.listaFemenina,APRENDIZ.listoPremium,APRENDIZ.listoPortadaPremium,APRENDIZ.listoPortada?'hd':''].join('|');
     if(clave===ultimo)return;
     b.clearRect(0,0,44,74);
     if(!APRENDIZ.dibujarPortada(b,22,74,74,pose))return;     /* el atlas aún no cargó: se reintenta */
@@ -69,7 +69,7 @@ function aprendizPortada(cv,boton){
     else c.drawImage(base,6,3);
   }
   pinta();
-  if(quieto()){let n=0;const reintenta=()=>{pinta();if(!ultimo&&++n<8)tvez(reintenta,400)};tvez(reintenta,200)}
+  if(quieto()){let n=0;const reintenta=()=>{pinta();if((!ultimo||(S.apariencia==='femenina'?!APRENDIZ.listoPortada:!APRENDIZ.listoPortadaPremium))&&++n<8)tvez(reintenta,400)};tvez(reintenta,200)}
   else tcada(pinta,100);
 }
 

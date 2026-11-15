@@ -116,6 +116,8 @@ aprendiz-en-apuros/
 ├── icon.svg              → ícono de la app
 ├── img/
 │   ├── aprendiz-caminar.png → sprite del aprendiz: caminata de 4 cuadros en 8 direcciones
+│   ├── aprendiz-femenina-caminar.png / -portada.png → la apariencia femenina: caminata 4×8 y 4 poses de portada (celdas de 44×74)
+│   ├── aprendiz-masculino-premium-caminar.png / -portada.png → el protagonista masculino premium (se genera con scripts/build-aprendiz-masculino.py desde los HD)
 │   ├── titulo/           → el título de la portada (PNG transparente, 920×360)
 │   ├── portada/          → el campus nocturno HD del menú principal: el escenario (WebP) y 5 capas animadas (PNG), de 1600×900
 │   ├── pasillo-hd/       → el pasillo HD: techo, muro y suelo (WebP) y la hoja de la puerta (PNG) de formación y de empresa
@@ -153,7 +155,9 @@ aprendiz-en-apuros/
     ├── fondo.js          → el fondo de la portada: un campus nocturno HD por capas que se activa solo en el menú principal (con las montañas de respaldo)
     ├── jefe-sprites.js   → los dibujos del jefe evolutivo y las cuentas de sus transformaciones (se carga antes que jefe.js)
     ├── jefe.js           → la batalla final contra EL ERROR EVOLUTIVO
-    ├── sprite.js         → sprite del aprendiz: carga, recoloreo por jugador y dibujo
+    ├── sprite.js         → sprite del aprendiz (masculino premium, femenino, HD y clásico de respaldo): carga, recoloreo por jugador y dibujo
+    ├── retratos-aprendiz-arte.js → los retratos de los dos protagonistas como datos (generado; no editar a mano)
+    ├── retratos-aprendiz.js → dibuja el retrato del jugador: 16×16, 32×32 y cine con 5 gestos, colores y accesorios
     ├── sala.js           → salas de clase: datos, red y lógica (sin pantallas)
     ├── salaui.js         → salas de clase: crear, proyector, espera y podio
     ├── salavivo.js       → ronda en vivo (proyector y celular) y panel del instructor
@@ -177,6 +181,12 @@ test/
 ├── pasillo-hd.test.mjs   → pruebas del pasillo HD: 8 recursos, rutas del CSS, CSS acotado, la hoja que gira y la caché
 ├── npc-sprites.test.mjs  → pruebas de los sprites de los personajes del pasillo: atlas propio, ancla de los pies y respaldo si no carga
 ├── cinematica.test.mjs   → pruebas de las escenas cinematográficas: páginas, formatos de guion compatibles y fondos
+├── identidad.test.mjs    → pruebas de la apariencia masculina/femenina: migración, guardado e importación, atlas femenino y su recoloreo
+├── aprendiz-masculino-premium.test.mjs → pruebas del masculino premium: tamaños, respaldo HD/clásico, femenina y NPC aparte, recoloreo de las 16 combinaciones
+├── retratos-protagonistas.test.mjs → pruebas de los retratos de los protagonistas: datos íntegros, solo el jugador local y scripts en caché
+├── colores-avatar.test.mjs → pruebas de las tarjetas de piel y camisa: índices de las paletas, nombres ES/EN y guardado de las 32 combinaciones
+├── accesorios-cuerpo.test.mjs → pruebas de los accesorios sobre el cuerpo: cobertura por dirección, paso y apariencia, y que se guardan
+├── vestidor-rpg.test.mjs → pruebas del vestidor de Mi Avatar: los 8 rótulos de dirección en el orden del sprite y sus textos ES/EN
 ├── titulo.test.mjs       → pruebas del título de la portada: recurso, texto accesible de respaldo y reglas de CSS
 ├── portada.test.mjs      → pruebas del aprendiz animado de la portada: qué hace en cada instante y que quede decorativo
 ├── botones.test.mjs      → pruebas de los botones de la portada: CSS acotado a .portada, iconos pixel y dificultad accesible
@@ -192,6 +202,8 @@ scripts/
 ├── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
 ├── build-pixelfx.mjs     → empaqueta la biblioteca pixelfx en js/pixelfx.js (ver LICENCIAS.md)
 ├── build-retratos.mjs    → convierte arte/retratos/ (PNG) en img/retratos/ (WebP)
+├── build-aprendiz-masculino.py → genera el atlas masculino premium desde los HD (Pillow)
+├── build-retratos-protagonistas.py → genera js/retratos-aprendiz-arte.js y arte/retratos-protagonistas/ (Pillow)
 └── build-sprite.py       → genera los atlas del aprendiz en img/ desde arte/aprendiz/
 design-system/            → catálogo de componentes extraído de css/estilos.css
 ├── README.md             → cómo regenerarlo y sincronizarlo con claude.ai/design

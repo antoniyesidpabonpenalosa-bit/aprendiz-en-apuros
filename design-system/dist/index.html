@@ -2049,6 +2049,204 @@ html.legible .cine .cine-nombre,html.legible .cine .cine-titulo,html.legible .ci
 .cine-simbolo-jefe .cine-jefe{transform:translateY(-22%) scale(2);image-rendering:pixelated}
 
 
+/* v40 RC · identidad del protagonista y probador de cuerpo entero.
+   Acotado a Mi Avatar; no cambia los paneles ni los botones de otros menús. */
+.pe-wrap .pe-lado{justify-content:flex-start;border-color:#7061aa;background:linear-gradient(160deg,#1d2850,#0d1229 75%);box-shadow:inset 0 1px #9f8ee055,0 3px #080b18}
+.pe-wrap .pe-visor{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px;padding:12px 5px;min-height:132px;background:radial-gradient(ellipse at 70% 75%,#1e4670 0%,#182541 38%,#0b1028 80%)}
+.pe-wrap .pe-mini-retrato{width:100%;border:1px solid #52749a;background:#0b0e22;display:grid;place-items:center;padding:3px}
+.pe-wrap .pe-mini-retrato .pe-av{width:100%;max-width:96px;animation:none}
+.pe-wrap .pe-plataforma{position:relative;display:grid;justify-items:center;align-items:end;min-width:0;width:100%;padding:6px 0 9px}
+.pe-wrap .pe-plataforma::before{content:'';position:absolute;bottom:4px;width:90%;height:14px;border:2px solid #6fd2f0;border-radius:50%;background:#193f61;box-shadow:0 0 7px #6fd2f055;pointer-events:none}
+.pe-wrap #pe-cuerpo-av{width:min(100%,88px);height:auto;aspect-ratio:44/74;image-rendering:pixelated;position:relative;z-index:1}
+.pe-wrap .pe-visor-controles{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+.pe-wrap .pe-custom{padding:9px;border:2px solid #7061aa;background:linear-gradient(150deg,#141e3bdf,#10142bea);box-shadow:0 3px #080b18}
+.pe-wrap .pe-tabs{gap:3px;border:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.pe-wrap .pe-tab{border:1px solid #6c659e;letter-spacing:0;line-height:1.5;padding:9px 2px;background:linear-gradient(#303458,#181d3b);font-size:7px}
+.pe-wrap .pe-tab.act{color:#d7ffb6;border-color:#74d431;background:linear-gradient(#245325,#123819);box-shadow:inset 0 -2px #72e626}
+.pe-wrap .pe-panel{border:1px solid #4b507e;background:#0c1229b8;padding:11px;min-height:150px}
+.pe-wrap .pe-panel[hidden]{display:none!important}
+.pe-wrap .pe-apariencias .pe-cap{letter-spacing:0;margin-bottom:10px;color:#8ce65a;line-height:1.6}
+.pe-wrap .pe-apariencia-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pe-wrap .pe-apariencia-op{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-width:0;padding:8px 3px;border:2px solid #6e62b1;background:linear-gradient(145deg,#24365d,#12182f);font:inherit;color:var(--tx1);cursor:pointer;box-shadow:0 3px #080b18}
+.pe-wrap .pe-apariencia-op canvas{width:min(100%,66px);height:auto;aspect-ratio:44/74;image-rendering:pixelated}
+.pe-wrap .pe-apariencia-op span{font-size:7px;overflow-wrap:anywhere;line-height:1.5}
+.pe-wrap .pe-apariencia-op.sel{border-color:#ffcf3f;color:#ffcf3f;box-shadow:0 0 0 1px #ffcf3f66,inset 0 0 12px #ffcf3f15}
+.pe-wrap .pe-apariencia-op:focus-visible,.pe-wrap .pe-tab:focus-visible,.pe-wrap .rec-chip:focus-visible{outline:2px solid #6fd2f0;outline-offset:2px}
+.pe-wrap .pe-panel .custom-fila{padding:12px 0;gap:12px}
+.pe-wrap .skin-op,.pe-wrap .camisa-op{box-shadow:inset 0 3px #ffffff28,0 3px #090c20;border-width:2px;border-radius:2px}
+.pe-wrap .skin-op.sel,.pe-wrap .camisa-op.sel{outline:2px solid #ffcf3f;outline-offset:2px}
+.pe-wrap .pe-pie{padding-top:9px}
+html.legible .pe-wrap .pe-apariencia-op span{font-family:'VT323',monospace;font-size:16px}
+@media(max-width:390px){.pe-wrap .pe-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.pe-wrap .pe-visor{min-height:110px}.pe-wrap .pe-plataforma canvas{max-width:64px}}
+@media(prefers-reduced-motion:reduce){.pe-wrap .pe-visor canvas,.pe-wrap .pe-apariencia-op{animation:none;transition:none}}
+
+/* Busto del protagonista con alpha real: mantiene la escala de escena. */
+.cine .cine-retrato canvas.cine-protagonista{width:100%;height:100%;left:0;top:0;border:0;background:none;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 5px 5px #080c20)}
+
+/* v40.3 · Vestidor RPG: las muestras son controles reales, no imágenes del menú. */
+.pe-wrap .pe-color-cab{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #5c5794;padding:3px 0 10px;flex-wrap:wrap}
+.pe-wrap .pe-color-cab h3{font:inherit;font-size:11px;line-height:1.5;color:#a4f373;margin:0}
+.pe-wrap .pe-gratis{font-size:8px;color:#bdf59d;background:#152d24;border:1px solid #4a8950;padding:5px 8px;line-height:1.4}
+.pe-wrap .pe-color-ayuda{font:18px/1.15 'VT323',monospace;color:#b8c6eb;margin:10px 0 14px;text-align:left}
+.pe-wrap .pe-color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:2px 2px 5px}
+.pe-wrap .pe-color-op{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:7px;min-width:0;width:100%;height:auto;padding:8px;border:2px solid #5e679d;border-radius:0;background:linear-gradient(145deg,#28365d,#11182f 75%);box-shadow:inset 0 2px #b6b4ff22,0 4px #080b18;color:#e6eaff;font:inherit;line-height:1.4;text-align:center;cursor:pointer;outline:0}
+.pe-wrap .pe-color-op.sel{border-color:#ffcf3f;outline:0;background:linear-gradient(145deg,#383b4b,#191b30 75%);box-shadow:inset 0 0 0 1px #ffcf3f44,0 3px #8c691c;color:#ffdf76}
+.pe-wrap .pe-color-arte{display:grid;place-items:center;height:112px;background:radial-gradient(ellipse at center,#2b4368,#0c132a 72%);border:1px solid #394b75;overflow:hidden;position:relative}
+.pe-wrap .pe-color-arte canvas{display:block;width:64px;height:64px;image-rendering:pixelated;z-index:1}
+.pe-wrap .camisa-op .pe-color-arte canvas{width:66px;height:111px;max-width:100%;object-fit:contain}
+.pe-wrap .pe-color-info{display:flex;align-items:center;justify-content:center;gap:6px;min-height:26px}
+.pe-wrap .pe-muestra{display:block;width:22px;height:22px;flex:none;background:var(--muestra);border:1px solid #fff6;box-shadow:inset 0 3px #ffffff35,inset 0 -3px #0004,0 2px #080b18}
+.pe-wrap .pe-color-nom{font:18px/1 'VT323',monospace;overflow-wrap:anywhere;text-align:left}
+.pe-wrap .pe-color-estado{font-size:7px;line-height:1.4;padding:6px 2px;background:#151e36;border:1px solid #49557a;color:#b8c5e9;overflow-wrap:anywhere}
+.pe-wrap .pe-color-op.sel .pe-color-estado{color:#d8ffbd;background:#1a3725;border-color:#6dbf43}
+.pe-wrap .pe-color-marca{position:absolute;right:4px;top:4px;z-index:2;display:grid;place-items:center;width:22px;height:22px;font:bold 17px/1 monospace;background:#122139;border:1px solid #53678f;color:#e3ffcf}
+.pe-wrap .pe-color-op.sel .pe-color-marca{background:#296223;border-color:#9af45c}
+.pe-wrap .pe-color-op:focus-visible{outline:2px solid #6fd2f0;outline-offset:3px}
+@media(hover:hover){.pe-wrap .pe-color-op:not(.sel):hover{border-color:#a3a0e5;background:linear-gradient(145deg,#374971,#161d37)}}
+@media(min-width:900px){.pe-wrap .pe-color-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+html.legible .pe-wrap .pe-color-cab h3,html.legible .pe-wrap .pe-gratis,html.legible .pe-wrap .pe-color-estado{font:18px/1.15 'VT323',monospace}
+html.hd .pe-wrap .pe-color-op{border-radius:6px}
+@media(max-width:390px){.pe-wrap .pe-color-grid{gap:8px}.pe-wrap .pe-color-op{padding:5px}.pe-wrap .pe-color-arte{height:100px}.pe-wrap .camisa-op .pe-color-arte canvas{width:55px;height:92.5px}.pe-wrap .pe-color-nom{font-size:17px}}
+@media(prefers-reduced-motion:reduce){.pe-wrap .pe-color-op,.pe-wrap .pe-color-arte canvas,.pe-wrap .pe-pum{animation:none!important;transition:none!important}}
+
+/* v40.4 · Probador de accesorios. Solo Mi Avatar. */
+.pe-wrap .accs-tienda{display:block;width:100%;max-width:none;margin:8px 0}
+.pe-wrap .pe-acc-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.pe-wrap .pe-acc-card{display:flex;flex-direction:column;justify-content:center;gap:5px;width:100%;height:auto;min-height:100px;padding:8px 3px;background:linear-gradient(180deg,#293456,#141b35);border:2px solid #50628e;box-shadow:inset 0 2px #ffffff18,0 3px #090e20;opacity:1;min-width:0;text-align:center}
+.pe-wrap .pe-acc-card canvas{width:36px;height:36px;image-rendering:pixelated;max-width:100%}
+.pe-wrap .pe-acc-nom{font-size:8px;line-height:1.6;color:#e4edff;overflow-wrap:anywhere}
+.pe-wrap .pe-acc-estado{font-size:7px;color:#a5b6db;line-height:1.4;overflow-wrap:anywhere}
+.pe-wrap .pe-acc-costo{font-size:8px;color:#ffcf3f;line-height:1.4}
+.pe-wrap .pe-acc-card.sel{border-color:#ffcf3f;box-shadow:inset 0 0 0 1px #ffcf3f,0 3px #76501b;background:linear-gradient(#493b50,#25243c)}
+.pe-wrap .pe-acc-card.comprado .pe-acc-estado{color:#9ce96b}
+.pe-wrap .pe-acc-card:focus-visible{outline:2px dashed #6fd2f0;outline-offset:2px}
+.pe-wrap .pe-probador{margin-top:9px;padding:10px;border-color:#536ba2;background:#111b33}
+.pe-wrap .pe-prueba-tit{color:#ffcf3f;line-height:1.6}
+.pe-wrap .pe-probador button:disabled{opacity:.5;cursor:default}
+@media(max-width:750px){.pe-wrap .pe-acc-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:390px){.pe-wrap .pe-acc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+html.legible .pe-wrap .pe-acc-nom,html.legible .pe-wrap .pe-acc-estado,html.legible .pe-wrap .pe-acc-costo{font-size:14px}
+
+/* Tienda: el mismo arte del probador, sin cambiar su lógica de compra. */
+.tienda-acc-arte{display:block;width:32px;height:32px;image-rendering:pixelated;max-width:100%}
+.tienda-probar{display:block;margin:8px auto;max-width:100%;font-size:9px}
+
+/* v40.5 · Vestidor RPG. Exclusivo de Mi Avatar: no altera el HUD ni el resto de pantallas. */
+.pe-wrap.pe-definitivo{container-type:inline-size;max-width:1090px;gap:13px;padding:8px 5px 12px;--pe-borde:#7866b4;--pe-oro:#ffcf3f;--pe-verde:#9aea63;--pe-cian:#6fd2f0;text-align:left}
+.pe-definitivo .pe-cab{padding:2px 2px 8px;border-bottom:1px solid #544a8066}
+.pe-definitivo .pe-cab-titulo{display:grid;gap:7px;min-width:0}
+.pe-definitivo .pe-cab-kicker{color:#b3a8ea;font:14px/1 'VT323',monospace;letter-spacing:2px}
+.pe-definitivo .pe-cab h2{font-size:clamp(15px,3.4cqi,25px);line-height:1.35;color:var(--pe-oro);text-shadow:2px 2px #8a4b18,3px 4px #080b17;overflow-wrap:anywhere}
+.pe-definitivo .pe-cab .moneda{background:#161d37;border:2px solid #8e73ca;color:var(--pe-oro);padding:10px;box-shadow:inset 0 2px #c6b1fa22,0 3px #080b18;white-space:nowrap}
+.pe-definitivo .pe-cuerpo{grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
+.pe-definitivo .pe-lado,.pe-definitivo .pe-custom{min-width:0;border:2px solid var(--pe-borde);background:linear-gradient(145deg,#1d294b,#10162e 65%);box-shadow:inset 0 0 0 2px #0c1126,inset 0 3px #ad9de133,0 4px #070b17;padding:12px;gap:10px}
+.pe-definitivo .pe-lado{align-items:stretch}
+.pe-definitivo .pe-lado-cab{display:flex;justify-content:space-between;align-items:center;gap:5px;flex-wrap:wrap;padding:0 0 4px}
+.pe-definitivo .pe-lado-cab .pe-cap{font-size:9px;color:var(--pe-verde);letter-spacing:1px}
+.pe-definitivo #pe-etiqueta-apariencia{font:16px/1 'VT323',monospace;color:#c8b9f6}
+/* Stage: fixed baseline, actual 44x74 canvas, no fake raster UI. */
+.pe-definitivo .pe-visor{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:10px;min-height:210px;align-items:center;position:relative;isolation:isolate;padding:16px 12px 33px;border:1px solid #4a5e88;background:radial-gradient(ellipse at 70% 75%,#253b63 0%,#141f3e 42%,#0a1025 82%);overflow:hidden}
+.pe-definitivo .pe-visor::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(0deg,#101830 0%,transparent 30%),repeating-linear-gradient(90deg,transparent 0 29px,#7998de0b 29px 30px),repeating-linear-gradient(0deg,transparent 0 29px,#7998de0b 29px 30px);mask-image:linear-gradient(0deg,#000,transparent 96%)}
+.pe-definitivo .pe-mini-retrato{position:relative;align-self:center;gap:5px;padding:6px 5px;border:1px solid #6388ae;background:#0a1229;box-shadow:inset 0 0 0 3px #17294b,0 3px #080b19}
+.pe-definitivo .pe-mini-retrato::before,.pe-definitivo .pe-mini-retrato::after{content:'';position:absolute;width:12px;height:12px;border:2px solid var(--pe-cian);pointer-events:none}
+.pe-definitivo .pe-mini-retrato::before{left:3px;top:3px;border-bottom:0;border-right:0}.pe-definitivo .pe-mini-retrato::after{right:3px;bottom:3px;border-top:0;border-left:0}
+.pe-definitivo .pe-mini-retrato .pe-av{width:100%;max-width:128px;image-rendering:pixelated;animation:none}
+.pe-definitivo .pe-mini-retrato>span{font:13px/1 'VT323',monospace;color:#b5c8eb;letter-spacing:.5px}
+.pe-definitivo .pe-plataforma{padding:3px 0 12px;isolation:isolate}
+.pe-definitivo #pe-cuerpo-av{width:min(100%,132px);max-width:none;display:block;filter:none}
+.pe-definitivo .pe-plataforma::before{width:93%;height:19px;bottom:5px;border:2px dashed #6fd2f0;border-radius:50%;background:#1b4262;box-shadow:0 0 0 4px #203b5a,0 0 12px #5cd5f139;animation:pe-plataforma-luz 3.8s ease-in-out infinite;z-index:-1}
+@keyframes pe-plataforma-luz{0%,100%{opacity:.8}50%{opacity:1;box-shadow:0 0 0 4px #203b5a,0 0 16px #6fd2f060}}
+.pe-definitivo .pe-escena-tag{position:absolute;bottom:7px;left:8px;right:8px;font:14px/1 'VT323',monospace;text-align:center;color:#9ce96b;letter-spacing:.5px}
+.pe-definitivo .pe-visor.pe-en-prueba{border-color:var(--pe-oro)}.pe-definitivo .pe-en-prueba .pe-escena-tag{color:var(--pe-oro)}
+.pe-definitivo .pe-visor[data-vista='retrato'],.pe-definitivo .pe-visor[data-vista='cuerpo']{grid-template-columns:minmax(0,1fr);justify-items:center}
+.pe-definitivo .pe-visor[data-vista='retrato'] .pe-plataforma,.pe-definitivo .pe-visor[data-vista='cuerpo'] .pe-mini-retrato{display:none}
+.pe-definitivo .pe-visor[data-vista='retrato'] .pe-mini-retrato{width:min(80%,174px)}
+.pe-definitivo .pe-visor[data-vista='retrato'] .pe-mini-retrato .pe-av{max-width:160px}
+.pe-definitivo .pe-visor[data-vista='cuerpo'] .pe-plataforma{width:min(100%,170px)}
+.pe-definitivo .pe-visor[data-vista='cuerpo'] #pe-cuerpo-av{width:min(100%,132px)}
+.pe-definitivo .pe-vistas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.pe-definitivo .rec-chip{min-height:33px;min-width:0;padding:5px 4px;letter-spacing:0;font:15px/1.1 'VT323',monospace;background:#1a2444;border:1px solid #6273a0;box-shadow:0 2px #0a1022;color:#e1e8fa;text-align:center;overflow-wrap:anywhere}
+.pe-definitivo .rec-chip.act,.pe-definitivo .rec-chip[aria-pressed='true']{color:#d7ffb9;background:#1c3c25;border-color:#8fdb53;box-shadow:inset 0 -2px #4a9c30,0 2px #0a1022}
+.pe-definitivo .rec-chip:disabled{opacity:.55;cursor:default}
+.pe-definitivo .pe-visor-controles{display:grid;grid-template-columns:33px minmax(0,1fr) 33px minmax(65px,1.1fr);align-items:stretch;gap:4px}
+.pe-definitivo .pe-direccion{display:grid;place-items:center;font:14px/1.1 'VT323',monospace;color:#c6d6f0;min-width:0;text-align:center;background:#0d162d;border:1px solid #3f507b;padding:3px;overflow-wrap:anywhere}
+.pe-definitivo .pe-detalle{display:flex;flex-wrap:wrap;align-items:center;gap:5px}.pe-definitivo .pe-detalle>span{flex:1 1 70px;font:14px/1.1 'VT323',monospace;color:#b8c6e4}.pe-definitivo .pe-detalle button{min-width:55px}
+.pe-definitivo [hidden]{display:none!important}
+.pe-definitivo .pe-identidad{border-top:1px solid #65558f;padding-top:11px;display:grid;text-align:center;gap:5px;min-width:0}
+.pe-definitivo .pe-nombre{font-size:13px;line-height:1.5;color:#f4f5ff;overflow-wrap:anywhere;margin:0}
+.pe-definitivo .pe-rango{font-size:9px;line-height:1.4;color:var(--pe-oro)}
+.pe-definitivo .pe-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:0}
+.pe-definitivo .pe-stats>div{display:grid;justify-items:center;align-content:center;gap:6px;padding:8px 2px;background:#10182f;border:1px solid #3e4d77;min-width:0}
+.pe-definitivo .pe-stats dt{font:14px/1 'VT323',monospace;color:#b5c3e5;overflow-wrap:anywhere;text-align:center}.pe-definitivo .pe-stats dd{font:18px/1 'VT323',monospace;color:#f0f2ff;overflow-wrap:anywhere;text-align:center;max-width:100%}
+.pe-definitivo .pe-coleccion-bar{height:9px;background:#080f23;border:1px solid #54658d;padding:1px;overflow:hidden}.pe-definitivo .pe-coleccion-bar>span{display:block;width:var(--pe-coleccion);height:100%;background:linear-gradient(#acf56f,#49ad24);box-shadow:inset 0 1px #c5ffa2}
+.pe-definitivo .pe-custom{gap:9px}
+.pe-definitivo .pe-tabs{gap:5px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.pe-definitivo .pe-tab{font:17px/1.15 'VT323',monospace;color:#d8e0fb;min-height:41px;padding:8px 3px;border:1px solid #7772a7;background:linear-gradient(#343c65,#171f3c);box-shadow:inset 0 2px #d0c1ff22,0 2px #090d1c}
+.pe-definitivo .pe-tab.act{color:#d8ffbe;background:linear-gradient(#28452a,#162e22);border-color:#9ade60;box-shadow:inset 0 -3px #73c83e,0 2px #0b1420}
+.pe-definitivo .pe-panel{min-width:0;min-height:0;padding:11px;background:linear-gradient(150deg,#141e3b,#0c1329 80%);border:1px solid #4f5d8a}
+.pe-definitivo .pe-apariencia-cab{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;border-bottom:1px solid #5d568b;padding:0 0 10px;margin-bottom:11px}
+.pe-definitivo .pe-apariencia-cab h3{font:10px/1.5 'Press Start 2P',monospace;color:var(--pe-verde);margin:0;overflow-wrap:anywhere}
+.pe-definitivo .pe-overview{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:stretch}
+.pe-definitivo .pe-apariencia-grid{gap:8px;align-items:stretch}
+.pe-definitivo .pe-apariencia-op{position:relative;justify-content:flex-end;min-width:0;min-height:174px;gap:9px;padding:16px 5px 8px;border-color:#756bb3;background:radial-gradient(ellipse at 50% 60%,#303c66,#161e3a 76%);box-shadow:inset 0 0 0 2px #151d36,0 3px #080b18}
+.pe-definitivo .pe-apariencia-op canvas{width:min(100%,88px);max-height:160px;object-fit:contain}
+.pe-definitivo .pe-apariencia-op .pe-apariencia-nom{display:block;width:100%;padding:8px 2px;border:1px solid #6b72a4;background:#111a32;font:16px/1 'VT323',monospace;color:#f0eaff;text-align:center}
+.pe-definitivo .pe-apariencia-op .pe-apariencia-marca{position:absolute;top:5px;right:5px;display:grid;place-items:center;width:22px;height:22px;background:#10182f;border:1px solid #5c638d;color:#dcffba;font:18px/1 'VT323',monospace;z-index:2}
+.pe-definitivo .pe-apariencia-op.sel{border-color:var(--pe-oro);background:radial-gradient(ellipse at 50% 60%,#3e3f52,#1b2038 78%);box-shadow:inset 0 0 0 1px #ffcf3f66,0 3px #786027}
+.pe-definitivo .pe-apariencia-op.sel .pe-apariencia-marca{background:#28652e;border-color:#a2e971}.pe-definitivo .pe-apariencia-op.sel .pe-apariencia-nom{color:var(--pe-oro);border-color:#9b7f32}
+.pe-definitivo .pe-resumen{display:grid;gap:7px;min-width:0;align-content:start}
+.pe-definitivo .pe-resumen-bloque{border:1px solid #495980;background:#111b33;padding:8px;min-width:0;display:grid;gap:7px}
+.pe-definitivo .pe-resumen-bloque h4{font:16px/1.1 'VT323',monospace;color:var(--pe-verde);margin:0}
+.pe-definitivo .pe-rapidos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.pe-definitivo .pe-rapido{display:grid;place-items:center;min-height:33px;width:100%;border:2px solid #9ca9c3;background:var(--muestra);box-shadow:inset 0 3px #fff3,inset 0 -3px #0003,0 2px #0a1021;color:white;cursor:pointer;padding:0}
+.pe-definitivo .pe-rapido[aria-pressed='true']{border-color:#ffdf63;outline:1px solid #ffdf63;outline-offset:1px}.pe-definitivo .pe-rapido span{font:20px/1 monospace;text-shadow:1px 1px #10182e,-1px -1px #10182e}
+.pe-definitivo .pe-resumen-nom{font:15px/1 'VT323',monospace;color:#d4e0f9;margin:0}
+.pe-definitivo .pe-atajo-acc{display:grid;grid-template-columns:32px minmax(0,1fr) 12px;gap:8px;align-items:center;width:100%;padding:7px;background:#202d4b;border:1px solid #65739e;color:#e7ecff;text-align:left;cursor:pointer;min-height:47px}
+.pe-definitivo .pe-atajo-acc canvas{width:32px;height:32px;image-rendering:pixelated}.pe-definitivo .pe-atajo-acc strong,.pe-definitivo .pe-atajo-acc small{display:block;font:16px/1.05 'VT323',monospace;overflow-wrap:anywhere}.pe-definitivo .pe-atajo-acc small{font-size:13px;color:#adc3e8;margin-top:3px}
+.pe-definitivo .pe-color-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.pe-definitivo .pe-color-op{min-width:0}.pe-definitivo .pe-color-op.sel{border-color:var(--pe-oro)}
+.pe-definitivo .pe-color-arte{height:118px}.pe-definitivo .pe-color-arte canvas{width:88px;height:88px;max-width:100%;object-fit:contain}.pe-definitivo .camisa-op .pe-color-arte canvas{width:66px;height:111px}
+.pe-definitivo .pe-color-estado,.pe-definitivo .pe-acc-estado,.pe-definitivo .pe-acc-nom,.pe-definitivo .pe-acc-costo{font:15px/1.1 'VT323',monospace}
+.pe-definitivo .pe-acc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.pe-definitivo .pe-acc-card{padding:8px 5px;min-height:98px}.pe-definitivo .pe-acc-card canvas{width:40px;height:40px}
+.pe-definitivo .pe-acc-card.sel{border-color:var(--pe-oro);box-shadow:inset 0 0 0 1px #ffcf3f66,0 3px #806027}.pe-definitivo .pe-probador{border:1px solid #6865a4;background:#171f3b;padding:12px}.pe-definitivo .pe-probador p{font:17px/1.15 'VT323',monospace;overflow-wrap:anywhere}.pe-definitivo .pe-probador .pe-prueba-tit{color:var(--pe-oro);font-size:19px}.pe-definitivo .pe-confirma-btns .btn{min-height:39px;font-size:8px;line-height:1.6}
+.pe-definitivo .pe-pie{padding:9px 0 0;gap:8px;border-top:1px solid #504d7d}.pe-definitivo .pe-estado{font:16px/1.1 'VT323',monospace;color:#a3eb77;letter-spacing:0;flex:1 1 120px}.pe-definitivo .pe-estado.rojo{color:#ff8297}.pe-definitivo .pe-volver{min-height:40px;font-size:9px;padding:10px 12px;line-height:1.5}
+.pe-definitivo button:focus-visible{outline:2px solid var(--pe-cian);outline-offset:2px}
+@media(hover:hover){.pe-definitivo .pe-apariencia-op:not(.sel):hover,.pe-definitivo .pe-atajo-acc:hover,.pe-definitivo .pe-tab:not(.act):hover{border-color:#bcacf4;background:#30385a}.pe-definitivo .pe-rapido:hover{outline:1px solid #fff;outline-offset:1px}}
+@container (min-width:720px){.pe-definitivo .pe-cuerpo{grid-template-columns:minmax(0, .9fr) minmax(0,1.7fr)}.pe-definitivo .pe-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}.pe-definitivo .pe-overview{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}.pe-definitivo .pe-apariencia-op{min-height:230px}.pe-definitivo .pe-apariencia-op canvas{width:min(100%,88px)}.pe-definitivo .pe-color-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.pe-definitivo .pe-acc-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@container (max-width:390px){.pe-definitivo .pe-lado,.pe-definitivo .pe-custom{padding:8px}.pe-definitivo .pe-panel{padding:8px}.pe-definitivo .pe-visor{min-height:178px;padding:10px 7px 26px}.pe-definitivo #pe-cuerpo-av,.pe-definitivo .pe-visor[data-vista='cuerpo'] #pe-cuerpo-av{width:min(100%,88px);max-width:none}.pe-definitivo .pe-visor[data-vista='retrato'] .pe-mini-retrato .pe-av{max-width:110px}.pe-definitivo .pe-escena-tag{font-size:13px}.pe-definitivo .pe-visor-controles{grid-template-columns:30px minmax(0,1fr) 30px minmax(54px,1fr)}.pe-definitivo .pe-nombre{font-size:11px}.pe-definitivo .pe-apariencia-op canvas{width:min(100%,77px)}.pe-definitivo .pe-apariencia-op{min-height:155px}.pe-definitivo .pe-color-arte{height:100px}.pe-definitivo .camisa-op .pe-color-arte canvas{height:92px;width:55px}.pe-definitivo .pe-cab .moneda{padding:7px;font-size:8px}}
+html.legible .pe-definitivo .pe-apariencia-cab h3,html.legible .pe-definitivo .pe-rango,html.legible .pe-definitivo .pe-nombre{font:20px/1.15 'VT323',monospace}html.hd .pe-definitivo .pe-lado,html.hd .pe-definitivo .pe-custom,html.hd .pe-definitivo .pe-panel{border-radius:8px}
+html.pestana-oculta .pe-definitivo .pe-plataforma::before{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.pe-definitivo .pe-plataforma::before,.pe-definitivo .pe-pum,.pe-definitivo.pe-pum{animation:none!important;transition:none!important}}
+/* El visor va primero en móvil, seguido por las opciones; el perfil no
+   ocupa el primer pliegue. En monitor se mantiene como una ficha única. */
+.pe-definitivo .pe-lado-preview,.pe-definitivo .pe-perfil{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pe-definitivo .pe-apariencia-op{justify-content:center}
+.pe-definitivo .pe-pie{margin:0;border:1px solid #7061aa;padding:9px 12px;background:#141c35;box-shadow:0 3px #080b18}
+@container (min-width:720px){
+  .pe-definitivo .pe-cuerpo{grid-template-areas:'visor opciones' 'visor pie';grid-template-rows:auto minmax(0,1fr);align-items:start;gap:10px}
+  .pe-definitivo .pe-lado{grid-area:visor;gap:8px;padding:10px}.pe-definitivo .pe-custom{grid-area:opciones}.pe-definitivo .pe-pie{grid-area:pie}
+  .pe-definitivo .pe-visor{min-height:185px;padding:10px 10px 25px}.pe-definitivo #pe-cuerpo-av,.pe-definitivo .pe-visor[data-vista='cuerpo'] #pe-cuerpo-av{width:min(100%,110px)}
+  .pe-definitivo .pe-apariencia-op canvas{width:min(100%,110px);max-height:185px}
+  .pe-definitivo .pe-apariencia-op{min-height:210px}
+  .pe-definitivo .pe-lado-preview,.pe-definitivo .pe-perfil{gap:6px}
+  .pe-definitivo .pe-identidad{padding-top:7px}.pe-definitivo .pe-stats>div{padding:5px 2px;gap:4px}
+  .pe-definitivo .pe-cab{padding-bottom:4px}.pe-definitivo .pe-cab-titulo{gap:4px}
+}
+@container (max-width:719px){
+  .pe-definitivo .pe-lado{display:contents}
+  .pe-definitivo .pe-lado-preview,.pe-definitivo .pe-perfil{border:2px solid var(--pe-borde);background:linear-gradient(145deg,#1d294b,#10162e 65%);box-shadow:inset 0 0 0 2px #0c1126,0 3px #070b17;padding:9px}
+  .pe-definitivo .pe-lado-preview{order:1}.pe-definitivo .pe-custom{order:2}.pe-definitivo .pe-perfil{order:3}.pe-definitivo .pe-pie{order:4}
+  .pe-definitivo .pe-perfil .pe-identidad{border:0;padding-top:0}
+}
+@container (max-width:390px){
+  .pe-definitivo .pe-visor{min-height:155px;padding:5px 6px 23px}.pe-definitivo #pe-cuerpo-av,.pe-definitivo .pe-visor[data-vista='cuerpo'] #pe-cuerpo-av{width:min(100%,75px)}
+  .pe-definitivo .pe-lado-preview{gap:5px;padding:7px}.pe-definitivo .rec-chip{min-height:30px}.pe-definitivo .pe-visor-controles{gap:3px}.pe-definitivo .pe-cab-kicker{font-size:12px}
+}
+/* Confirmación localizada: sin escalar el lienzo ni hacer saltar el diseño. */
+.pe-definitivo .pe-visor.pe-pum{animation:pe-vestidor-confirmacion .28s ease-out}
+@keyframes pe-vestidor-confirmacion{0%,100%{box-shadow:none}45%{box-shadow:inset 0 0 0 2px #a1e66b,0 0 8px #8de85a44}}
+@media(prefers-reduced-motion:reduce){.pe-definitivo .pe-visor.pe-pum{animation:none!important}}
+
+
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}
 body{display:block!important;padding:26px!important;background:var(--void)!important;align-items:stretch!important;justify-content:flex-start!important}
@@ -3170,6 +3368,204 @@ html.legible .cine .cine-nombre,html.legible .cine .cine-titulo,html.legible .ci
 .cine-simbolo-jefe .cine-jefe{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 14px #a86bff55)}
 .cine-simbolo-jefe:has(.cine-jefe)>:not(.cine-jefe){visibility:hidden}
 .cine-simbolo-jefe .cine-jefe{transform:translateY(-22%) scale(2);image-rendering:pixelated}
+
+
+/* v40 RC · identidad del protagonista y probador de cuerpo entero.
+   Acotado a Mi Avatar; no cambia los paneles ni los botones de otros menús. */
+.pe-wrap .pe-lado{justify-content:flex-start;border-color:#7061aa;background:linear-gradient(160deg,#1d2850,#0d1229 75%);box-shadow:inset 0 1px #9f8ee055,0 3px #080b18}
+.pe-wrap .pe-visor{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px;padding:12px 5px;min-height:132px;background:radial-gradient(ellipse at 70% 75%,#1e4670 0%,#182541 38%,#0b1028 80%)}
+.pe-wrap .pe-mini-retrato{width:100%;border:1px solid #52749a;background:#0b0e22;display:grid;place-items:center;padding:3px}
+.pe-wrap .pe-mini-retrato .pe-av{width:100%;max-width:96px;animation:none}
+.pe-wrap .pe-plataforma{position:relative;display:grid;justify-items:center;align-items:end;min-width:0;width:100%;padding:6px 0 9px}
+.pe-wrap .pe-plataforma::before{content:'';position:absolute;bottom:4px;width:90%;height:14px;border:2px solid #6fd2f0;border-radius:50%;background:#193f61;box-shadow:0 0 7px #6fd2f055;pointer-events:none}
+.pe-wrap #pe-cuerpo-av{width:min(100%,88px);height:auto;aspect-ratio:44/74;image-rendering:pixelated;position:relative;z-index:1}
+.pe-wrap .pe-visor-controles{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+.pe-wrap .pe-custom{padding:9px;border:2px solid #7061aa;background:linear-gradient(150deg,#141e3bdf,#10142bea);box-shadow:0 3px #080b18}
+.pe-wrap .pe-tabs{gap:3px;border:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.pe-wrap .pe-tab{border:1px solid #6c659e;letter-spacing:0;line-height:1.5;padding:9px 2px;background:linear-gradient(#303458,#181d3b);font-size:7px}
+.pe-wrap .pe-tab.act{color:#d7ffb6;border-color:#74d431;background:linear-gradient(#245325,#123819);box-shadow:inset 0 -2px #72e626}
+.pe-wrap .pe-panel{border:1px solid #4b507e;background:#0c1229b8;padding:11px;min-height:150px}
+.pe-wrap .pe-panel[hidden]{display:none!important}
+.pe-wrap .pe-apariencias .pe-cap{letter-spacing:0;margin-bottom:10px;color:#8ce65a;line-height:1.6}
+.pe-wrap .pe-apariencia-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pe-wrap .pe-apariencia-op{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-width:0;padding:8px 3px;border:2px solid #6e62b1;background:linear-gradient(145deg,#24365d,#12182f);font:inherit;color:var(--tx1);cursor:pointer;box-shadow:0 3px #080b18}
+.pe-wrap .pe-apariencia-op canvas{width:min(100%,66px);height:auto;aspect-ratio:44/74;image-rendering:pixelated}
+.pe-wrap .pe-apariencia-op span{font-size:7px;overflow-wrap:anywhere;line-height:1.5}
+.pe-wrap .pe-apariencia-op.sel{border-color:#ffcf3f;color:#ffcf3f;box-shadow:0 0 0 1px #ffcf3f66,inset 0 0 12px #ffcf3f15}
+.pe-wrap .pe-apariencia-op:focus-visible,.pe-wrap .pe-tab:focus-visible,.pe-wrap .rec-chip:focus-visible{outline:2px solid #6fd2f0;outline-offset:2px}
+.pe-wrap .pe-panel .custom-fila{padding:12px 0;gap:12px}
+.pe-wrap .skin-op,.pe-wrap .camisa-op{box-shadow:inset 0 3px #ffffff28,0 3px #090c20;border-width:2px;border-radius:2px}
+.pe-wrap .skin-op.sel,.pe-wrap .camisa-op.sel{outline:2px solid #ffcf3f;outline-offset:2px}
+.pe-wrap .pe-pie{padding-top:9px}
+html.legible .pe-wrap .pe-apariencia-op span{font-family:'VT323',monospace;font-size:16px}
+@media(max-width:390px){.pe-wrap .pe-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.pe-wrap .pe-visor{min-height:110px}.pe-wrap .pe-plataforma canvas{max-width:64px}}
+@media(prefers-reduced-motion:reduce){.pe-wrap .pe-visor canvas,.pe-wrap .pe-apariencia-op{animation:none;transition:none}}
+
+/* Busto del protagonista con alpha real: mantiene la escala de escena. */
+.cine .cine-retrato canvas.cine-protagonista{width:100%;height:100%;left:0;top:0;border:0;background:none;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 5px 5px #080c20)}
+
+/* v40.3 · Vestidor RPG: las muestras son controles reales, no imágenes del menú. */
+.pe-wrap .pe-color-cab{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #5c5794;padding:3px 0 10px;flex-wrap:wrap}
+.pe-wrap .pe-color-cab h3{font:inherit;font-size:11px;line-height:1.5;color:#a4f373;margin:0}
+.pe-wrap .pe-gratis{font-size:8px;color:#bdf59d;background:#152d24;border:1px solid #4a8950;padding:5px 8px;line-height:1.4}
+.pe-wrap .pe-color-ayuda{font:18px/1.15 'VT323',monospace;color:#b8c6eb;margin:10px 0 14px;text-align:left}
+.pe-wrap .pe-color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:2px 2px 5px}
+.pe-wrap .pe-color-op{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:7px;min-width:0;width:100%;height:auto;padding:8px;border:2px solid #5e679d;border-radius:0;background:linear-gradient(145deg,#28365d,#11182f 75%);box-shadow:inset 0 2px #b6b4ff22,0 4px #080b18;color:#e6eaff;font:inherit;line-height:1.4;text-align:center;cursor:pointer;outline:0}
+.pe-wrap .pe-color-op.sel{border-color:#ffcf3f;outline:0;background:linear-gradient(145deg,#383b4b,#191b30 75%);box-shadow:inset 0 0 0 1px #ffcf3f44,0 3px #8c691c;color:#ffdf76}
+.pe-wrap .pe-color-arte{display:grid;place-items:center;height:112px;background:radial-gradient(ellipse at center,#2b4368,#0c132a 72%);border:1px solid #394b75;overflow:hidden;position:relative}
+.pe-wrap .pe-color-arte canvas{display:block;width:64px;height:64px;image-rendering:pixelated;z-index:1}
+.pe-wrap .camisa-op .pe-color-arte canvas{width:66px;height:111px;max-width:100%;object-fit:contain}
+.pe-wrap .pe-color-info{display:flex;align-items:center;justify-content:center;gap:6px;min-height:26px}
+.pe-wrap .pe-muestra{display:block;width:22px;height:22px;flex:none;background:var(--muestra);border:1px solid #fff6;box-shadow:inset 0 3px #ffffff35,inset 0 -3px #0004,0 2px #080b18}
+.pe-wrap .pe-color-nom{font:18px/1 'VT323',monospace;overflow-wrap:anywhere;text-align:left}
+.pe-wrap .pe-color-estado{font-size:7px;line-height:1.4;padding:6px 2px;background:#151e36;border:1px solid #49557a;color:#b8c5e9;overflow-wrap:anywhere}
+.pe-wrap .pe-color-op.sel .pe-color-estado{color:#d8ffbd;background:#1a3725;border-color:#6dbf43}
+.pe-wrap .pe-color-marca{position:absolute;right:4px;top:4px;z-index:2;display:grid;place-items:center;width:22px;height:22px;font:bold 17px/1 monospace;background:#122139;border:1px solid #53678f;color:#e3ffcf}
+.pe-wrap .pe-color-op.sel .pe-color-marca{background:#296223;border-color:#9af45c}
+.pe-wrap .pe-color-op:focus-visible{outline:2px solid #6fd2f0;outline-offset:3px}
+@media(hover:hover){.pe-wrap .pe-color-op:not(.sel):hover{border-color:#a3a0e5;background:linear-gradient(145deg,#374971,#161d37)}}
+@media(min-width:900px){.pe-wrap .pe-color-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+html.legible .pe-wrap .pe-color-cab h3,html.legible .pe-wrap .pe-gratis,html.legible .pe-wrap .pe-color-estado{font:18px/1.15 'VT323',monospace}
+.oled-scope .pe-wrap .pe-color-op{border-radius:6px}
+@media(max-width:390px){.pe-wrap .pe-color-grid{gap:8px}.pe-wrap .pe-color-op{padding:5px}.pe-wrap .pe-color-arte{height:100px}.pe-wrap .camisa-op .pe-color-arte canvas{width:55px;height:92.5px}.pe-wrap .pe-color-nom{font-size:17px}}
+@media(prefers-reduced-motion:reduce){.pe-wrap .pe-color-op,.pe-wrap .pe-color-arte canvas,.pe-wrap .pe-pum{animation:none!important;transition:none!important}}
+
+/* v40.4 · Probador de accesorios. Solo Mi Avatar. */
+.pe-wrap .accs-tienda{display:block;width:100%;max-width:none;margin:8px 0}
+.pe-wrap .pe-acc-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.pe-wrap .pe-acc-card{display:flex;flex-direction:column;justify-content:center;gap:5px;width:100%;height:auto;min-height:100px;padding:8px 3px;background:linear-gradient(180deg,#293456,#141b35);border:2px solid #50628e;box-shadow:inset 0 2px #ffffff18,0 3px #090e20;opacity:1;min-width:0;text-align:center}
+.pe-wrap .pe-acc-card canvas{width:36px;height:36px;image-rendering:pixelated;max-width:100%}
+.pe-wrap .pe-acc-nom{font-size:8px;line-height:1.6;color:#e4edff;overflow-wrap:anywhere}
+.pe-wrap .pe-acc-estado{font-size:7px;color:#a5b6db;line-height:1.4;overflow-wrap:anywhere}
+.pe-wrap .pe-acc-costo{font-size:8px;color:#ffcf3f;line-height:1.4}
+.pe-wrap .pe-acc-card.sel{border-color:#ffcf3f;box-shadow:inset 0 0 0 1px #ffcf3f,0 3px #76501b;background:linear-gradient(#493b50,#25243c)}
+.pe-wrap .pe-acc-card.comprado .pe-acc-estado{color:#9ce96b}
+.pe-wrap .pe-acc-card:focus-visible{outline:2px dashed #6fd2f0;outline-offset:2px}
+.pe-wrap .pe-probador{margin-top:9px;padding:10px;border-color:#536ba2;background:#111b33}
+.pe-wrap .pe-prueba-tit{color:#ffcf3f;line-height:1.6}
+.pe-wrap .pe-probador button:disabled{opacity:.5;cursor:default}
+@media(max-width:750px){.pe-wrap .pe-acc-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:390px){.pe-wrap .pe-acc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+html.legible .pe-wrap .pe-acc-nom,html.legible .pe-wrap .pe-acc-estado,html.legible .pe-wrap .pe-acc-costo{font-size:14px}
+
+/* Tienda: el mismo arte del probador, sin cambiar su lógica de compra. */
+.tienda-acc-arte{display:block;width:32px;height:32px;image-rendering:pixelated;max-width:100%}
+.tienda-probar{display:block;margin:8px auto;max-width:100%;font-size:9px}
+
+/* v40.5 · Vestidor RPG. Exclusivo de Mi Avatar: no altera el HUD ni el resto de pantallas. */
+.pe-wrap.pe-definitivo{container-type:inline-size;max-width:1090px;gap:13px;padding:8px 5px 12px;--pe-borde:#7866b4;--pe-oro:#ffcf3f;--pe-verde:#9aea63;--pe-cian:#6fd2f0;text-align:left}
+.pe-definitivo .pe-cab{padding:2px 2px 8px;border-bottom:1px solid #544a8066}
+.pe-definitivo .pe-cab-titulo{display:grid;gap:7px;min-width:0}
+.pe-definitivo .pe-cab-kicker{color:#b3a8ea;font:14px/1 'VT323',monospace;letter-spacing:2px}
+.pe-definitivo .pe-cab h2{font-size:clamp(15px,3.4cqi,25px);line-height:1.35;color:var(--pe-oro);text-shadow:2px 2px #8a4b18,3px 4px #080b17;overflow-wrap:anywhere}
+.pe-definitivo .pe-cab .moneda{background:#161d37;border:2px solid #8e73ca;color:var(--pe-oro);padding:10px;box-shadow:inset 0 2px #c6b1fa22,0 3px #080b18;white-space:nowrap}
+.pe-definitivo .pe-cuerpo{grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
+.pe-definitivo .pe-lado,.pe-definitivo .pe-custom{min-width:0;border:2px solid var(--pe-borde);background:linear-gradient(145deg,#1d294b,#10162e 65%);box-shadow:inset 0 0 0 2px #0c1126,inset 0 3px #ad9de133,0 4px #070b17;padding:12px;gap:10px}
+.pe-definitivo .pe-lado{align-items:stretch}
+.pe-definitivo .pe-lado-cab{display:flex;justify-content:space-between;align-items:center;gap:5px;flex-wrap:wrap;padding:0 0 4px}
+.pe-definitivo .pe-lado-cab .pe-cap{font-size:9px;color:var(--pe-verde);letter-spacing:1px}
+.pe-definitivo #pe-etiqueta-apariencia{font:16px/1 'VT323',monospace;color:#c8b9f6}
+/* Stage: fixed baseline, actual 44x74 canvas, no fake raster UI. */
+.pe-definitivo .pe-visor{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:10px;min-height:210px;align-items:center;position:relative;isolation:isolate;padding:16px 12px 33px;border:1px solid #4a5e88;background:radial-gradient(ellipse at 70% 75%,#253b63 0%,#141f3e 42%,#0a1025 82%);overflow:hidden}
+.pe-definitivo .pe-visor::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(0deg,#101830 0%,transparent 30%),repeating-linear-gradient(90deg,transparent 0 29px,#7998de0b 29px 30px),repeating-linear-gradient(0deg,transparent 0 29px,#7998de0b 29px 30px);mask-image:linear-gradient(0deg,#000,transparent 96%)}
+.pe-definitivo .pe-mini-retrato{position:relative;align-self:center;gap:5px;padding:6px 5px;border:1px solid #6388ae;background:#0a1229;box-shadow:inset 0 0 0 3px #17294b,0 3px #080b19}
+.pe-definitivo .pe-mini-retrato::before,.pe-definitivo .pe-mini-retrato::after{content:'';position:absolute;width:12px;height:12px;border:2px solid var(--pe-cian);pointer-events:none}
+.pe-definitivo .pe-mini-retrato::before{left:3px;top:3px;border-bottom:0;border-right:0}.pe-definitivo .pe-mini-retrato::after{right:3px;bottom:3px;border-top:0;border-left:0}
+.pe-definitivo .pe-mini-retrato .pe-av{width:100%;max-width:128px;image-rendering:pixelated;animation:none}
+.pe-definitivo .pe-mini-retrato>span{font:13px/1 'VT323',monospace;color:#b5c8eb;letter-spacing:.5px}
+.pe-definitivo .pe-plataforma{padding:3px 0 12px;isolation:isolate}
+.pe-definitivo #pe-cuerpo-av{width:min(100%,132px);max-width:none;display:block;filter:none}
+.pe-definitivo .pe-plataforma::before{width:93%;height:19px;bottom:5px;border:2px dashed #6fd2f0;border-radius:50%;background:#1b4262;box-shadow:0 0 0 4px #203b5a,0 0 12px #5cd5f139;animation:pe-plataforma-luz 3.8s ease-in-out infinite;z-index:-1}
+@keyframes pe-plataforma-luz{0%,100%{opacity:.8}50%{opacity:1;box-shadow:0 0 0 4px #203b5a,0 0 16px #6fd2f060}}
+.pe-definitivo .pe-escena-tag{position:absolute;bottom:7px;left:8px;right:8px;font:14px/1 'VT323',monospace;text-align:center;color:#9ce96b;letter-spacing:.5px}
+.pe-definitivo .pe-visor.pe-en-prueba{border-color:var(--pe-oro)}.pe-definitivo .pe-en-prueba .pe-escena-tag{color:var(--pe-oro)}
+.pe-definitivo .pe-visor[data-vista='retrato'],.pe-definitivo .pe-visor[data-vista='cuerpo']{grid-template-columns:minmax(0,1fr);justify-items:center}
+.pe-definitivo .pe-visor[data-vista='retrato'] .pe-plataforma,.pe-definitivo .pe-visor[data-vista='cuerpo'] .pe-mini-retrato{display:none}
+.pe-definitivo .pe-visor[data-vista='retrato'] .pe-mini-retrato{width:min(80%,174px)}
+.pe-definitivo .pe-visor[data-vista='retrato'] .pe-mini-retrato .pe-av{max-width:160px}
+.pe-definitivo .pe-visor[data-vista='cuerpo'] .pe-plataforma{width:min(100%,170px)}
+.pe-definitivo .pe-visor[data-vista='cuerpo'] #pe-cuerpo-av{width:min(100%,132px)}
+.pe-definitivo .pe-vistas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.pe-definitivo .rec-chip{min-height:33px;min-width:0;padding:5px 4px;letter-spacing:0;font:15px/1.1 'VT323',monospace;background:#1a2444;border:1px solid #6273a0;box-shadow:0 2px #0a1022;color:#e1e8fa;text-align:center;overflow-wrap:anywhere}
+.pe-definitivo .rec-chip.act,.pe-definitivo .rec-chip[aria-pressed='true']{color:#d7ffb9;background:#1c3c25;border-color:#8fdb53;box-shadow:inset 0 -2px #4a9c30,0 2px #0a1022}
+.pe-definitivo .rec-chip:disabled{opacity:.55;cursor:default}
+.pe-definitivo .pe-visor-controles{display:grid;grid-template-columns:33px minmax(0,1fr) 33px minmax(65px,1.1fr);align-items:stretch;gap:4px}
+.pe-definitivo .pe-direccion{display:grid;place-items:center;font:14px/1.1 'VT323',monospace;color:#c6d6f0;min-width:0;text-align:center;background:#0d162d;border:1px solid #3f507b;padding:3px;overflow-wrap:anywhere}
+.pe-definitivo .pe-detalle{display:flex;flex-wrap:wrap;align-items:center;gap:5px}.pe-definitivo .pe-detalle>span{flex:1 1 70px;font:14px/1.1 'VT323',monospace;color:#b8c6e4}.pe-definitivo .pe-detalle button{min-width:55px}
+.pe-definitivo [hidden]{display:none!important}
+.pe-definitivo .pe-identidad{border-top:1px solid #65558f;padding-top:11px;display:grid;text-align:center;gap:5px;min-width:0}
+.pe-definitivo .pe-nombre{font-size:13px;line-height:1.5;color:#f4f5ff;overflow-wrap:anywhere;margin:0}
+.pe-definitivo .pe-rango{font-size:9px;line-height:1.4;color:var(--pe-oro)}
+.pe-definitivo .pe-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:0}
+.pe-definitivo .pe-stats>div{display:grid;justify-items:center;align-content:center;gap:6px;padding:8px 2px;background:#10182f;border:1px solid #3e4d77;min-width:0}
+.pe-definitivo .pe-stats dt{font:14px/1 'VT323',monospace;color:#b5c3e5;overflow-wrap:anywhere;text-align:center}.pe-definitivo .pe-stats dd{font:18px/1 'VT323',monospace;color:#f0f2ff;overflow-wrap:anywhere;text-align:center;max-width:100%}
+.pe-definitivo .pe-coleccion-bar{height:9px;background:#080f23;border:1px solid #54658d;padding:1px;overflow:hidden}.pe-definitivo .pe-coleccion-bar>span{display:block;width:var(--pe-coleccion);height:100%;background:linear-gradient(#acf56f,#49ad24);box-shadow:inset 0 1px #c5ffa2}
+.pe-definitivo .pe-custom{gap:9px}
+.pe-definitivo .pe-tabs{gap:5px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.pe-definitivo .pe-tab{font:17px/1.15 'VT323',monospace;color:#d8e0fb;min-height:41px;padding:8px 3px;border:1px solid #7772a7;background:linear-gradient(#343c65,#171f3c);box-shadow:inset 0 2px #d0c1ff22,0 2px #090d1c}
+.pe-definitivo .pe-tab.act{color:#d8ffbe;background:linear-gradient(#28452a,#162e22);border-color:#9ade60;box-shadow:inset 0 -3px #73c83e,0 2px #0b1420}
+.pe-definitivo .pe-panel{min-width:0;min-height:0;padding:11px;background:linear-gradient(150deg,#141e3b,#0c1329 80%);border:1px solid #4f5d8a}
+.pe-definitivo .pe-apariencia-cab{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;border-bottom:1px solid #5d568b;padding:0 0 10px;margin-bottom:11px}
+.pe-definitivo .pe-apariencia-cab h3{font:10px/1.5 'Press Start 2P',monospace;color:var(--pe-verde);margin:0;overflow-wrap:anywhere}
+.pe-definitivo .pe-overview{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:stretch}
+.pe-definitivo .pe-apariencia-grid{gap:8px;align-items:stretch}
+.pe-definitivo .pe-apariencia-op{position:relative;justify-content:flex-end;min-width:0;min-height:174px;gap:9px;padding:16px 5px 8px;border-color:#756bb3;background:radial-gradient(ellipse at 50% 60%,#303c66,#161e3a 76%);box-shadow:inset 0 0 0 2px #151d36,0 3px #080b18}
+.pe-definitivo .pe-apariencia-op canvas{width:min(100%,88px);max-height:160px;object-fit:contain}
+.pe-definitivo .pe-apariencia-op .pe-apariencia-nom{display:block;width:100%;padding:8px 2px;border:1px solid #6b72a4;background:#111a32;font:16px/1 'VT323',monospace;color:#f0eaff;text-align:center}
+.pe-definitivo .pe-apariencia-op .pe-apariencia-marca{position:absolute;top:5px;right:5px;display:grid;place-items:center;width:22px;height:22px;background:#10182f;border:1px solid #5c638d;color:#dcffba;font:18px/1 'VT323',monospace;z-index:2}
+.pe-definitivo .pe-apariencia-op.sel{border-color:var(--pe-oro);background:radial-gradient(ellipse at 50% 60%,#3e3f52,#1b2038 78%);box-shadow:inset 0 0 0 1px #ffcf3f66,0 3px #786027}
+.pe-definitivo .pe-apariencia-op.sel .pe-apariencia-marca{background:#28652e;border-color:#a2e971}.pe-definitivo .pe-apariencia-op.sel .pe-apariencia-nom{color:var(--pe-oro);border-color:#9b7f32}
+.pe-definitivo .pe-resumen{display:grid;gap:7px;min-width:0;align-content:start}
+.pe-definitivo .pe-resumen-bloque{border:1px solid #495980;background:#111b33;padding:8px;min-width:0;display:grid;gap:7px}
+.pe-definitivo .pe-resumen-bloque h4{font:16px/1.1 'VT323',monospace;color:var(--pe-verde);margin:0}
+.pe-definitivo .pe-rapidos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.pe-definitivo .pe-rapido{display:grid;place-items:center;min-height:33px;width:100%;border:2px solid #9ca9c3;background:var(--muestra);box-shadow:inset 0 3px #fff3,inset 0 -3px #0003,0 2px #0a1021;color:white;cursor:pointer;padding:0}
+.pe-definitivo .pe-rapido[aria-pressed='true']{border-color:#ffdf63;outline:1px solid #ffdf63;outline-offset:1px}.pe-definitivo .pe-rapido span{font:20px/1 monospace;text-shadow:1px 1px #10182e,-1px -1px #10182e}
+.pe-definitivo .pe-resumen-nom{font:15px/1 'VT323',monospace;color:#d4e0f9;margin:0}
+.pe-definitivo .pe-atajo-acc{display:grid;grid-template-columns:32px minmax(0,1fr) 12px;gap:8px;align-items:center;width:100%;padding:7px;background:#202d4b;border:1px solid #65739e;color:#e7ecff;text-align:left;cursor:pointer;min-height:47px}
+.pe-definitivo .pe-atajo-acc canvas{width:32px;height:32px;image-rendering:pixelated}.pe-definitivo .pe-atajo-acc strong,.pe-definitivo .pe-atajo-acc small{display:block;font:16px/1.05 'VT323',monospace;overflow-wrap:anywhere}.pe-definitivo .pe-atajo-acc small{font-size:13px;color:#adc3e8;margin-top:3px}
+.pe-definitivo .pe-color-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.pe-definitivo .pe-color-op{min-width:0}.pe-definitivo .pe-color-op.sel{border-color:var(--pe-oro)}
+.pe-definitivo .pe-color-arte{height:118px}.pe-definitivo .pe-color-arte canvas{width:88px;height:88px;max-width:100%;object-fit:contain}.pe-definitivo .camisa-op .pe-color-arte canvas{width:66px;height:111px}
+.pe-definitivo .pe-color-estado,.pe-definitivo .pe-acc-estado,.pe-definitivo .pe-acc-nom,.pe-definitivo .pe-acc-costo{font:15px/1.1 'VT323',monospace}
+.pe-definitivo .pe-acc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.pe-definitivo .pe-acc-card{padding:8px 5px;min-height:98px}.pe-definitivo .pe-acc-card canvas{width:40px;height:40px}
+.pe-definitivo .pe-acc-card.sel{border-color:var(--pe-oro);box-shadow:inset 0 0 0 1px #ffcf3f66,0 3px #806027}.pe-definitivo .pe-probador{border:1px solid #6865a4;background:#171f3b;padding:12px}.pe-definitivo .pe-probador p{font:17px/1.15 'VT323',monospace;overflow-wrap:anywhere}.pe-definitivo .pe-probador .pe-prueba-tit{color:var(--pe-oro);font-size:19px}.pe-definitivo .pe-confirma-btns .btn{min-height:39px;font-size:8px;line-height:1.6}
+.pe-definitivo .pe-pie{padding:9px 0 0;gap:8px;border-top:1px solid #504d7d}.pe-definitivo .pe-estado{font:16px/1.1 'VT323',monospace;color:#a3eb77;letter-spacing:0;flex:1 1 120px}.pe-definitivo .pe-estado.rojo{color:#ff8297}.pe-definitivo .pe-volver{min-height:40px;font-size:9px;padding:10px 12px;line-height:1.5}
+.pe-definitivo button:focus-visible{outline:2px solid var(--pe-cian);outline-offset:2px}
+@media(hover:hover){.pe-definitivo .pe-apariencia-op:not(.sel):hover,.pe-definitivo .pe-atajo-acc:hover,.pe-definitivo .pe-tab:not(.act):hover{border-color:#bcacf4;background:#30385a}.pe-definitivo .pe-rapido:hover{outline:1px solid #fff;outline-offset:1px}}
+@container (min-width:720px){.pe-definitivo .pe-cuerpo{grid-template-columns:minmax(0, .9fr) minmax(0,1.7fr)}.pe-definitivo .pe-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}.pe-definitivo .pe-overview{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}.pe-definitivo .pe-apariencia-op{min-height:230px}.pe-definitivo .pe-apariencia-op canvas{width:min(100%,88px)}.pe-definitivo .pe-color-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.pe-definitivo .pe-acc-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@container (max-width:390px){.pe-definitivo .pe-lado,.pe-definitivo .pe-custom{padding:8px}.pe-definitivo .pe-panel{padding:8px}.pe-definitivo .pe-visor{min-height:178px;padding:10px 7px 26px}.pe-definitivo #pe-cuerpo-av,.pe-definitivo .pe-visor[data-vista='cuerpo'] #pe-cuerpo-av{width:min(100%,88px);max-width:none}.pe-definitivo .pe-visor[data-vista='retrato'] .pe-mini-retrato .pe-av{max-width:110px}.pe-definitivo .pe-escena-tag{font-size:13px}.pe-definitivo .pe-visor-controles{grid-template-columns:30px minmax(0,1fr) 30px minmax(54px,1fr)}.pe-definitivo .pe-nombre{font-size:11px}.pe-definitivo .pe-apariencia-op canvas{width:min(100%,77px)}.pe-definitivo .pe-apariencia-op{min-height:155px}.pe-definitivo .pe-color-arte{height:100px}.pe-definitivo .camisa-op .pe-color-arte canvas{height:92px;width:55px}.pe-definitivo .pe-cab .moneda{padding:7px;font-size:8px}}
+html.legible .pe-definitivo .pe-apariencia-cab h3,html.legible .pe-definitivo .pe-rango,html.legible .pe-definitivo .pe-nombre{font:20px/1.15 'VT323',monospace}.oled-scope .pe-definitivo .pe-lado,.oled-scope .pe-definitivo .pe-custom,.oled-scope .pe-definitivo .pe-panel{border-radius:8px}
+html.pestana-oculta .pe-definitivo .pe-plataforma::before{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.pe-definitivo .pe-plataforma::before,.pe-definitivo .pe-pum,.pe-definitivo.pe-pum{animation:none!important;transition:none!important}}
+/* El visor va primero en móvil, seguido por las opciones; el perfil no
+   ocupa el primer pliegue. En monitor se mantiene como una ficha única. */
+.pe-definitivo .pe-lado-preview,.pe-definitivo .pe-perfil{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pe-definitivo .pe-apariencia-op{justify-content:center}
+.pe-definitivo .pe-pie{margin:0;border:1px solid #7061aa;padding:9px 12px;background:#141c35;box-shadow:0 3px #080b18}
+@container (min-width:720px){
+  .pe-definitivo .pe-cuerpo{grid-template-areas:'visor opciones' 'visor pie';grid-template-rows:auto minmax(0,1fr);align-items:start;gap:10px}
+  .pe-definitivo .pe-lado{grid-area:visor;gap:8px;padding:10px}.pe-definitivo .pe-custom{grid-area:opciones}.pe-definitivo .pe-pie{grid-area:pie}
+  .pe-definitivo .pe-visor{min-height:185px;padding:10px 10px 25px}.pe-definitivo #pe-cuerpo-av,.pe-definitivo .pe-visor[data-vista='cuerpo'] #pe-cuerpo-av{width:min(100%,110px)}
+  .pe-definitivo .pe-apariencia-op canvas{width:min(100%,110px);max-height:185px}
+  .pe-definitivo .pe-apariencia-op{min-height:210px}
+  .pe-definitivo .pe-lado-preview,.pe-definitivo .pe-perfil{gap:6px}
+  .pe-definitivo .pe-identidad{padding-top:7px}.pe-definitivo .pe-stats>div{padding:5px 2px;gap:4px}
+  .pe-definitivo .pe-cab{padding-bottom:4px}.pe-definitivo .pe-cab-titulo{gap:4px}
+}
+@container (max-width:719px){
+  .pe-definitivo .pe-lado{display:contents}
+  .pe-definitivo .pe-lado-preview,.pe-definitivo .pe-perfil{border:2px solid var(--pe-borde);background:linear-gradient(145deg,#1d294b,#10162e 65%);box-shadow:inset 0 0 0 2px #0c1126,0 3px #070b17;padding:9px}
+  .pe-definitivo .pe-lado-preview{order:1}.pe-definitivo .pe-custom{order:2}.pe-definitivo .pe-perfil{order:3}.pe-definitivo .pe-pie{order:4}
+  .pe-definitivo .pe-perfil .pe-identidad{border:0;padding-top:0}
+}
+@container (max-width:390px){
+  .pe-definitivo .pe-visor{min-height:155px;padding:5px 6px 23px}.pe-definitivo #pe-cuerpo-av,.pe-definitivo .pe-visor[data-vista='cuerpo'] #pe-cuerpo-av{width:min(100%,75px)}
+  .pe-definitivo .pe-lado-preview{gap:5px;padding:7px}.pe-definitivo .rec-chip{min-height:30px}.pe-definitivo .pe-visor-controles{gap:3px}.pe-definitivo .pe-cab-kicker{font-size:12px}
+}
+/* Confirmación localizada: sin escalar el lienzo ni hacer saltar el diseño. */
+.pe-definitivo .pe-visor.pe-pum{animation:pe-vestidor-confirmacion .28s ease-out}
+@keyframes pe-vestidor-confirmacion{0%,100%{box-shadow:none}45%{box-shadow:inset 0 0 0 2px #a1e66b,0 0 8px #8de85a44}}
+@media(prefers-reduced-motion:reduce){.pe-definitivo .pe-visor.pe-pum{animation:none!important}}
 
 </style>
 </head>

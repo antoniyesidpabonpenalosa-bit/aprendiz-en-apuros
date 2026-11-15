@@ -4,7 +4,7 @@
 /* Va a la par con VERSION de js/datos.js: scripts/validar.mjs falla si se
    separan, porque entonces el juego enseñaría unas novedades y la caché
    serviría otra versión. */
-const CACHE = 'pa4-v39';
+const CACHE = 'pa4-v40.5';
 /* Cuánto se espera a la red antes de servir la copia guardada. Con "red
    primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
    archivo colgado hasta que el navegador se rindiera, aunque estuviera en
@@ -12,7 +12,7 @@ const CACHE = 'pa4-v39';
 const TOPE_RED = 3500;
 const BASE = [
   './', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png',
-  './css/estilos.css', './img/aprendiz-caminar.png', './img/npc/pasillo.png', './img/cine/formacion.webp', './img/cine/empresa.webp', './img/aprendiz-caminar-hd.png', './img/aprendiz-portada-hd.png',
+  './css/estilos.css', './img/aprendiz-caminar.png', './img/npc/pasillo.png', './img/cine/formacion.webp', './img/cine/empresa.webp', './img/aprendiz-caminar-hd.png', './img/aprendiz-portada-hd.png', './img/aprendiz-femenina-caminar.png', './img/aprendiz-femenina-portada.png', './img/aprendiz-masculino-premium-caminar.png', './img/aprendiz-masculino-premium-portada.png',
   /* los 20 retratos dibujados (4 personajes × 5 gestos): son su único estilo,
      así que tienen que estar también sin conexión */
   './img/retratos/instructor-normal.webp', './img/retratos/instructor-feliz.webp', './img/retratos/instructor-enojado.webp', './img/retratos/instructor-sorprendido.webp', './img/retratos/instructor-preocupado.webp',
@@ -27,7 +27,7 @@ const BASE = [
   './img/pasillo-hd/formacion-techo.webp', './img/pasillo-hd/formacion-muro.webp', './img/pasillo-hd/formacion-suelo.webp', './img/pasillo-hd/formacion-puerta.png',
   './img/pasillo-hd/empresa-techo.webp', './img/pasillo-hd/empresa-muro.webp', './img/pasillo-hd/empresa-suelo.webp', './img/pasillo-hd/empresa-puerta.png',
   './fuentes/press-start-2p.woff2', './fuentes/vt323.woff2',
-  './js/datos.js', './js/iconos.js', './js/estado.js', './js/consola.js', './js/reto.js', './js/ranking.js', './js/audio.js', './js/graficos.js', './js/fondo.js', './js/efectos.js', './js/pixelfx.js', './js/pxefectos.js',
+  './js/datos.js', './js/iconos.js', './js/estado.js', './js/consola.js', './js/reto.js', './js/ranking.js', './js/audio.js', './js/retratos-aprendiz-arte.js', './js/retratos-aprendiz.js', './js/graficos.js', './js/fondo.js', './js/efectos.js', './js/pixelfx.js', './js/pxefectos.js',
   './js/entrada.js', './js/nucleo.js', './js/cinematica.js', './js/menus.js', './js/consejos.js', './js/npc-sprites.js', './js/pasillo.js', './js/certificados.js', './js/tienda.js', './js/records.js', './js/retoui.js',
   './js/minijuegos.js', './js/minijuegos-codigo.js', './js/minijuegos-runner.js', './js/minijuegos-avanzados.js',
   './js/jefe-sprites.js', './js/jefe.js', './js/modos.js', './js/sala.js', './js/salaui.js', './js/salavivo.js', './js/sprite.js', './js/consolaui.js', './js/principal.js',
