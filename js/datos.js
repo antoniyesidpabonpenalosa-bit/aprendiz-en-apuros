@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v39';
+const VERSION='v40';
 const NOVEDADES=[
+  {v:'v40', fecha:'2026-11-15',
+   es:['Mi Avatar permite elegir apariencia masculina o femenina, cambiar piel y camisa, girar y probar la caminata del personaje. Las partidas anteriores conservan su progreso.'],
+   en:['My Avatar lets you choose masculine or feminine appearance, change skin and shirt, rotate and preview the walking character. Existing saves keep their progress.']},
   {v:'v39', fecha:'2026-11-14',
    es:['Las escenas de la historia y las charlas antes de cada día se ven ahora como en el cine: retrato grande del personaje que habla, el lugar de fondo (el centro de formación, la empresa o el servidor), el nombre con su color y botones claros para continuar o saltar. La historia es la misma de siempre.'],
    en:['Story scenes and the talks before each day now look cinematic: a large portrait of whoever is speaking, the place in the background (the training center, the company or the server), the name in its color and clear buttons to continue or skip. The story is the same as always.']},
@@ -932,6 +935,7 @@ const TXT={
  lab_ensayo:'ENSAYO',lab_ensayo_ay:'partida de prueba: no da puntos ni sube al marcador',
  lab_no_sala:'La consola no se abre dentro de una sala: ahí se juega derecho',
  lab_sala_ensayo:'Estás en un ENSAYO. Abre la consola y escribe "normal" antes de entrar a una sala.',
+ pe_apariencia:'APARIENCIA',pe_masculina:'MASCULINA',pe_femenina:'FEMENINA',pe_cuerpo:'CUERPO ENTERO',pe_retrato:'RETRATO',pe_girar:'GIRAR',pe_caminar:'CAMINAR',pe_detener:'DETENER',pe_vista:'VISTA PREVIA',
  personaje:'PERSONAJE',pe_guardado:'CAMBIOS GUARDADOS',pe_comprado:'COMPRADO',
  pe_bloqueado:'BLOQUEADO',pe_ninguno:'SIN ACCESORIO',pe_comprar:'COMPRAR',
  pe_confirma:'¿Comprar {n} por ⛁{p}?',pe_faltan:'Te faltan ⛁{p}',
@@ -1066,6 +1070,7 @@ const TXT={
   lab_ensayo:'REHEARSAL',lab_ensayo_ay:'practice run: no points, nothing published',
   lab_no_sala:'The console does not open inside a room: there you play straight',
   lab_sala_ensayo:'You are in a REHEARSAL. Open the console and type "reset" before joining a room.',
+  pe_apariencia:'APPEARANCE',pe_masculina:'MASCULINE',pe_femenina:'FEMININE',pe_cuerpo:'FULL BODY',pe_retrato:'PORTRAIT',pe_girar:'ROTATE',pe_caminar:'WALK',pe_detener:'STOP',pe_vista:'PREVIEW',
   personaje:'CHARACTER',pe_guardado:'CHANGES SAVED',pe_comprado:'OWNED',
   pe_bloqueado:'LOCKED',pe_ninguno:'NO ACCESSORY',pe_comprar:'BUY',
   pe_confirma:'Buy {n} for ⛁{p}?',pe_faltan:'You need ⛁{p} more',

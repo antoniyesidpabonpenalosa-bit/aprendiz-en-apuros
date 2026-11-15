@@ -151,6 +151,7 @@ function cara(cv,o){
   R(4,3,8,8,o.skin);
   if(o.pelo){R(4,2,8,2,o.pelo);R(4,4,1,2,o.pelo);R(11,4,1,2,o.pelo);}
   if(o.largo&&o.pelo){R(3,3,1,7,o.pelo);R(12,3,1,7,o.pelo);}
+  if(o.femenina){R(4,2,7,1,o.pelo);R(4,3,4,1,o.pelo);R(4,4,3,1,o.pelo);R(4,5,1,1,o.pelo);R(11,5,2,6,o.pelo);R(12,10,2,3,o.pelo);}
   /* o.parpadeo: un instante con los ojos cerrados (lo pide retratoVivo). El
      párpado es la piel un poco más oscura, no un hueco: sin nada, la cara
      se quedaba sin ojos y leía como un fallo de dibujo, no como un parpadeo. */
@@ -217,6 +218,7 @@ function cara32(cv,o){
     R(6,6,1,14,claro(o.pelo));R(25,6,1,14,osc(o.pelo));
   }
 
+  if(o.femenina){R(8,4,14,2,o.pelo);R(8,6,8,2,o.pelo);R(8,8,6,2,o.pelo);R(8,10,3,2,o.pelo);R(23,10,3,12,o.pelo);R(24,21,3,4,o.pelo);R(9,5,9,1,claro(o.pelo));}
   /* ojos con un brillo de un píxel, para que no queden dos puntos muertos;
      parpadeando, una raya de párpado en la mitad de abajo del ojo */
   if(o.parpadeo){
@@ -302,7 +304,7 @@ function retratoVivo(cv,o){
   tvez(parpadea,1200+Math.random()*3600);
 }
 const CARAS={
-  yo:(f)=>({skin:SKINS[S.skin],camisa:CAMISAS[S.camisa],pelo:'#2a1c10',feliz:f,
+  yo:(f)=>({skin:SKINS[S.skin],camisa:CAMISAS[S.camisa],pelo:S.apariencia==='femenina'?'#67391f':'#2a1c10',femenina:S.apariencia==='femenina',feliz:f,
     gafas:S.acc==='gafas',gorra:S.acc==='gorra',cafe:S.acc==='cafe',
     audifonos:S.acc==='audifonos',corbata:S.acc==='corbata',medalla:S.acc==='medalla',
     capa:S.acc==='capa',corona:S.acc==='corona',gato:S.acc==='gato'}),

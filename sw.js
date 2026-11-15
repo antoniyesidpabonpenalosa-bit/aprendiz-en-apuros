@@ -4,7 +4,7 @@
 /* Va a la par con VERSION de js/datos.js: scripts/validar.mjs falla si se
    separan, porque entonces el juego enseñaría unas novedades y la caché
    serviría otra versión. */
-const CACHE = 'pa4-v39';
+const CACHE = 'pa4-v40';
 /* Cuánto se espera a la red antes de servir la copia guardada. Con "red
    primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
    archivo colgado hasta que el navegador se rindiera, aunque estuviera en
@@ -12,7 +12,7 @@ const CACHE = 'pa4-v39';
 const TOPE_RED = 3500;
 const BASE = [
   './', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png',
-  './css/estilos.css', './img/aprendiz-caminar.png', './img/npc/pasillo.png', './img/cine/formacion.webp', './img/cine/empresa.webp', './img/aprendiz-caminar-hd.png', './img/aprendiz-portada-hd.png',
+  './css/estilos.css', './img/aprendiz-caminar.png', './img/npc/pasillo.png', './img/cine/formacion.webp', './img/cine/empresa.webp', './img/aprendiz-caminar-hd.png', './img/aprendiz-portada-hd.png', './img/aprendiz-femenina-caminar.png', './img/aprendiz-femenina-portada.png',
   /* los 20 retratos dibujados (4 personajes × 5 gestos): son su único estilo,
      así que tienen que estar también sin conexión */
   './img/retratos/instructor-normal.webp', './img/retratos/instructor-feliz.webp', './img/retratos/instructor-enojado.webp', './img/retratos/instructor-sorprendido.webp', './img/retratos/instructor-preocupado.webp',

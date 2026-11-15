@@ -79,11 +79,11 @@ function rTienda(){
 /* Pestaña abierta. Vive fuera de rPerso() porque la pantalla se repinta al
    comprar, y volver siempre a PIEL después de comprar un accesorio sería
    exasperante. */
-let pePestana='piel';
+let pePestana='apariencia';
 
 function rPerso(){
   const nAcc=id=>t('acc_'+id);
-  const pestanas=[['piel',t('piel')],['camisa',t('camisa')],['acc',t('accesorio')]];
+  const pestanas=[['apariencia',t('pe_apariencia')],['piel',t('piel')],['camisa',t('camisa')],['acc',t('accesorio')]];
   /* Accesorio pendiente de confirmar la compra. Se compra aquí y no solo en
      la tienda: tocar uno bloqueado y que se sacudiera sin decir nada ni
      ofrecerte comprarlo era un callejón sin salida. */
@@ -122,8 +122,13 @@ function rPerso(){
     <div class="pe-cuerpo">
       <section class="pe-lado">
         <p class="pe-cap">${t('personaje')}</p>
-        <div class="pe-escena">
-          <canvas class="pe-av" id="pe-cara" width="64" height="64"></canvas>
+        <div class="pe-escena pe-visor">
+          <div class="pe-mini-retrato"><canvas class="pe-av" id="pe-cara" width="64" height="64" aria-label="${t('pe_retrato')}"></canvas></div>
+          <div class="pe-plataforma"><canvas id="pe-cuerpo-av" width="44" height="74" aria-label="${t('pe_cuerpo')}"></canvas></div>
+        </div>
+        <div class="pe-visor-controles" role="group" aria-label="${t('pe_vista')}">
+          <button class="rec-chip" id="pe-girar" type="button">↻ ${t('pe_girar')}</button>
+          <button class="rec-chip" id="pe-caminar" type="button" aria-pressed="false">▶ ${t('pe_caminar')}</button>
         </div>
         <div class="pe-detalle" role="group" aria-label="${t('pe_detalle')}">
           <button class="rec-chip ${!S.av32?'act':''}" id="pe-d16" type="button">${t('pe_detalle16')}</button>
@@ -145,17 +150,26 @@ function rPerso(){
             aria-selected="${pePestana===id}" tabindex="${pePestana===id?0:-1}">${txt}</button>`).join('')}
         </div>
 
+        <div class="pe-panel pe-apariencias" id="pe-p-apariencia" role="tabpanel" aria-labelledby="pe-t-apariencia" ${pePestana==='apariencia'?'':'hidden'}>
+          <p class="pe-cap">${t('pe_apariencia')}</p>
+          <div class="pe-apariencia-grid">
+            ${['masculina','femenina'].map(id=>`<button type="button" class="pe-apariencia-op ${S.apariencia===id?'sel':''}" data-apariencia="${id}" aria-pressed="${S.apariencia===id}">
+              <canvas width="44" height="74" aria-hidden="true"></canvas><span>${t('pe_'+id)}</span>
+            </button>`).join('')}
+          </div>
+        </div>
+
         <div class="pe-panel" id="pe-p-piel" role="tabpanel" aria-labelledby="pe-t-piel" ${pePestana==='piel'?'':'hidden'}>
           <div class="custom-fila">
             ${SKINS.map((c,i)=>`<button class="skin-op ${S.skin===i?'sel':''}" data-s="${i}"
-              style="background:${c}" type="button" aria-label="${t('piel')} ${i+1}"></button>`).join('')}
+              style="background:${c}" type="button" aria-label="${t('piel')} ${i+1}" aria-pressed="${S.skin===i}"></button>`).join('')}
           </div>
         </div>
 
         <div class="pe-panel" id="pe-p-camisa" role="tabpanel" aria-labelledby="pe-t-camisa" ${pePestana==='camisa'?'':'hidden'}>
           <div class="custom-fila">
             ${CAMISAS.map((c,i)=>`<button class="camisa-op ${S.camisa===i?'sel':''}" data-c="${i}"
-              style="background:${c}" type="button" aria-label="${t('camisa')} ${i+1}"></button>`).join('')}
+              style="background:${c}" type="button" aria-label="${t('camisa')} ${i+1}" aria-pressed="${S.camisa===i}"></button>`).join('')}
           </div>
         </div>
 
@@ -172,7 +186,39 @@ function rPerso(){
     </div>
   </div>`,rPerso);
 
-  const pinta=()=>retratoVivo($('#pe-cara'),CARAS.yo(true));
+  let orientacion=0, andando=false, ultimoVisor='';
+  const pintaCuerpo=()=>{
+    const cv=$('#pe-cuerpo-av');if(!cv||pantallaId!=='perso')return;
+    const paso=APRENDIZ.pasoDe(andando&&!quieto()), clave=[S.apariencia,S.skin,S.camisa,orientacion,paso,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPortada].join('|');
+    if(clave===ultimoVisor)return;
+    const c=cv.getContext('2d');c.clearRect(0,0,44,74);
+    if(!APRENDIZ.dibujar(c,22,74,74,orientacion,paso))return;
+    ultimoVisor=clave;
+  };
+  const pintaOpciones=()=>$$('.pe-apariencia-op').forEach(b=>{
+    const id=b.dataset.apariencia,cv=b.querySelector('canvas'),c=cv.getContext('2d');
+    c.clearRect(0,0,44,74);
+    b.classList.toggle('sel',S.apariencia===id);b.setAttribute('aria-pressed',String(S.apariencia===id));
+    if(id==='femenina'&&!APRENDIZ.listaFemenina)return;
+    APRENDIZ.dibujar(c,22,74,74,0,0,S.skin,S.camisa,id);
+  });
+  const pinta=()=>{retratoVivo($('#pe-cara'),CARAS.yo(true));ultimoVisor='';pintaCuerpo();pintaOpciones()};
+  $$('.pe-apariencia-op').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.apariencia;if(id!=='masculina'&&id!=='femenina')return;
+    S.apariencia=id;guardar();SFX.click();pinta();avisar(t('pe_guardado'));
+  });
+  $('#pe-girar').onclick=()=>{orientacion=(orientacion+1)%8;SFX.click();pintaCuerpo()};
+  const botonCaminar=$('#pe-caminar');
+  botonCaminar.disabled=quieto();
+  botonCaminar.onclick=()=>{andando=!andando&&!quieto();botonCaminar.setAttribute('aria-pressed',String(andando));botonCaminar.textContent=andando?'■ '+t('pe_detener'):'▶ '+t('pe_caminar');pintaCuerpo()};
+  // Solo durante esta pantalla. limpiarT() elimina el intervalo al navegar.
+  let cargaAnterior='';
+  tcada(()=>{
+    if(document.hidden||pausado)return;
+    const carga=[APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPortada].join('|');
+    if(carga!==cargaAnterior){cargaAnterior=carga;pintaOpciones()}
+    pintaCuerpo();
+  },135);
   const avisar=(txt,cls)=>{const e=$('#pe-estado');if(!e)return;e.textContent=txt;e.className='pe-estado'+(cls?' '+cls:'')};
   const latido=()=>{const a=$('#pe-escena-av')||$('#pe-cara');a.classList.remove('pe-pum');void a.offsetWidth;a.classList.add('pe-pum')};
 
@@ -216,12 +262,12 @@ function rPerso(){
   /* ── piel y camisa ── */
   $$('.skin-op').forEach(b=>b.onclick=()=>{
     S.skin=+b.dataset.s;guardar();SFX.click();
-    $$('.skin-op').forEach(x=>x.classList.toggle('sel',x===b));
+    $$('.skin-op').forEach(x=>{x.classList.toggle('sel',x===b);x.setAttribute('aria-pressed',String(x===b))});
     pinta();latido();avisar(t('pe_guardado'));
   });
   $$('.camisa-op').forEach(b=>b.onclick=()=>{
     S.camisa=+b.dataset.c;guardar();SFX.click();
-    $$('.camisa-op').forEach(x=>x.classList.toggle('sel',x===b));
+    $$('.camisa-op').forEach(x=>{x.classList.toggle('sel',x===b);x.setAttribute('aria-pressed',String(x===b))});
     pinta();latido();avisar(t('pe_guardado'));
   });
 
@@ -237,7 +283,7 @@ function rPerso(){
   }
   function comprar(){
     const a=pendiente;pendiente=null;
-    if(!a||S.pts<a.precio)return refrescar();
+    if(!a||S.accs.includes(a.id)||S.pts<a.precio)return refrescar();
     S.pts-=a.precio;S.accs.push(a.id);S.acc=a.id;guardar();compraReciente=Date.now();
     SFX.moneda();darLogro('comprador');
     if(ACCS.every(x=>S.accs.includes(x.id)))darLogro('coleccionista');

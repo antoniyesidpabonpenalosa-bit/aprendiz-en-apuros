@@ -2459,6 +2459,131 @@ await caso('diálogos cine · caben en 6 tamaños y con HD y texto legible: retr
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '2 modos × 6 tamaños × día y escena: todo dentro, sin desbordar'];
 });
 
+/* ── IDENTIDAD, PARTE 1 (v40) ──
+   Apariencia masculina/femenina en Mi Avatar. Lo que no puede romperse: que elegir guarde y
+   sobreviva a recargar sin tocar puntos, accesorios ni progreso; que la apariencia elegida sea
+   la que se pinta en la portada, el mapa, el pasillo, el runner y el jefe; que los NPC sigan
+   con su propio sprite; que girar y caminar no dejen nada corriendo al salir; y que quepa. */
+const ID_J = { intro: true, nombre: 'R', pts: 900, xp: 6200, version: 'v40', t2: true, skin: 1, camisa: 2, accs: ['gafas'], acc: 'gafas',
+  dias: [3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 1, 0, 0, 0], logros: ['comprador'],
+  vistos: ['escribir', 'bugs', 'memoria', 'simon', 'quiz', 'review', 'merge', 'runner', 'sql', 'regex', 'terminal', 'orden', 'jefe'] };
+/* Marca los dos atlas recoloreados del jugador (masculino y femenino) y anota cuál se pinta. */
+const espiaAtlasId = pg => pg.evaluate(() => {
+  const s = S.apariencia;
+  S.apariencia = 'femenina'; const F = APRENDIZ.atlasDe(S.skin, S.camisa);
+  S.apariencia = 'masculina'; const M = APRENDIZ.atlasDe(S.skin, S.camisa);
+  S.apariencia = s;
+  window.__atlas = new Set();
+  const o = CanvasRenderingContext2D.prototype.drawImage;
+  CanvasRenderingContext2D.prototype.drawImage = function (src, ...a) { if (src === F) __atlas.add('F'); if (src === M) __atlas.add('M'); return o.call(this, src, ...a); };
+  return F !== M;
+});
+
+await caso('identidad · Mi Avatar abre en APARIENCIA; elegir FEMENINA guarda, marca aria-pressed y sobrevive a recargar sin tocar puntos, accesorios ni progreso', ID_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listaFemenina, null, { timeout: 5000 });
+  const r = await pg.evaluate(() => { rPerso();
+    const o = { tab: $('.pe-tab.act')?.id, panel: !$('#pe-p-apariencia').hidden, antes: S.apariencia };
+    $('.pe-apariencia-op[data-apariencia="femenina"]').click();
+    o.despues = S.apariencia; o.guardado = JSON.parse(localStorage.getItem('pa3')).apariencia;
+    o.aria = $$('.pe-apariencia-op').map(b => b.dataset.apariencia + ':' + b.getAttribute('aria-pressed')).join(',');
+    o.sel = $('.pe-apariencia-op.sel')?.dataset.apariencia; return o; });
+  await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => typeof pantallaId !== 'undefined'); await pausa(300);
+  const tras = await pg.evaluate(() => ({ ap: S.apariencia, pts: S.pts, xp: S.xp, accs: S.accs.join(), acc: S.acc, skin: S.skin, camisa: S.camisa, dias: S.dias.slice(0, 12).join(''), logros: S.logros.join() }));
+  const ok = r.tab === 'pe-t-apariencia' && r.panel && r.antes === 'masculina' && r.despues === 'femenina' && r.guardado === 'femenina' && r.aria === 'masculina:false,femenina:true' && r.sel === 'femenina'
+    && tras.ap === 'femenina' && tras.pts === 900 && tras.xp === 6200 && tras.accs === 'gafas' && tras.acc === 'gafas' && tras.skin === 1 && tras.camisa === 2 && tras.dias === '333233333331' && tras.logros === 'comprador';
+  return [ok, JSON.stringify({ r, tras })];
+});
+
+await caso('identidad · la apariencia elegida es la que se pinta en el mapa, el pasillo, el runner y el jefe (y los NPC del pasillo siguen con su sprite)', ID_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listaFemenina && APRENDIZ.listoHD && NPC_PASILLO.listo, null, { timeout: 5000 });
+  if (!await espiaAtlasId(pg)) return [false, 'los dos atlas son el mismo lienzo'];
+  const r = {};
+  for (const ap of ['masculina', 'femenina']) {
+    const pantallas = { mapa: () => rMapaLista(), pasillo: () => rPasillo(0), runner: () => { diaAct = 9; vidas = 3; nvRunner(9); }, jefe: () => { diaAct = 9; vidas = 3; nvJefe(9, 0); } };
+    for (const [n, f] of Object.entries(pantallas)) {
+      await pg.evaluate(ap => { S.apariencia = ap; __atlas.clear(); }, ap);
+      await pg.evaluate(`(${f})()`); await pausa(n === 'mapa' || n === 'pasillo' ? 500 : 900);
+      r[ap[0] + ':' + n] = await pg.evaluate(() => [...__atlas].sort().join(''));
+    }
+  }
+  await pg.evaluate(() => rTitulo());
+  const ok = Object.entries(r).every(([k, v]) => v === (k[0] === 'f' ? 'F' : 'M'));
+  return [ok, JSON.stringify(r)];
+});
+
+await caso('identidad · la portada pinta a la aprendiz con su atlas de portada (y vuelve al masculino al cambiar)', ID_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listaFemenina && APRENDIZ.listoHD, null, { timeout: 5000 }); await pausa(600);
+  const r = await pg.evaluate(async () => {
+    const huella = () => $('#t-aprendiz').toDataURL();
+    const ref = ap => { const s = S.apariencia; S.apariencia = ap; const c = document.createElement('canvas'); c.width = 44; c.height = 74; APRENDIZ.dibujarPortada(c.getContext('2d'), 22, 74, 74, 0); S.apariencia = s; return c.toDataURL(); };
+    const o = { masc: ref('masculina') !== ref('femenina') };
+    S.apariencia = 'femenina'; rTitulo(); await new Promise(r => setTimeout(r, 700)); o.listaPortada = APRENDIZ.listoPortada; const f = huella();
+    S.apariencia = 'masculina'; rTitulo(); await new Promise(r => setTimeout(r, 700)); const m = huella();
+    o.cambia = f !== m; return o; });
+  return [r.masc && r.listaPortada && r.cambia, JSON.stringify(r)];
+}, { reducedMotion: 'reduce' });
+
+await caso('identidad · GIRAR recorre las 8 direcciones y vuelve; CAMINAR alterna (aria-pressed) y anima; al salir no queda nada corriendo', ID_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listaFemenina, null, { timeout: 5000 });
+  const r = await pg.evaluate(async () => { S.apariencia = 'femenina'; rPerso(); await new Promise(r => setTimeout(r, 300));
+    const cv = $('#pe-cuerpo-av'), h = () => cv.toDataURL(), vistas = [h()];
+    for (let k = 0; k < 8; k++) { $('#pe-girar').click(); await new Promise(r => setTimeout(r, 60)); vistas.push(h()); }
+    const o = { distintas: new Set(vistas.slice(0, 8)).size, vuelve: vistas[8] === vistas[0] };
+    const b = $('#pe-caminar'); b.click(); o.aria = b.getAttribute('aria-pressed');
+    const pasos = new Set(); for (let k = 0; k < 12; k++) { await new Promise(r => setTimeout(r, 140)); pasos.add(h()); } o.cuadros = pasos.size;
+    b.click(); o.ariaFin = b.getAttribute('aria-pressed');
+    rTitulo(); await new Promise(r => setTimeout(r, 400)); o.p = pantallaId; o.visor = !!$('#pe-cuerpo-av'); return o; });
+  return [r.distintas === 8 && r.vuelve && r.aria === 'true' && r.cuadros >= 2 && r.ariaFin === 'false' && r.p === 'titulo' && !r.visor, JSON.stringify(r)];
+});
+
+await caso('identidad · con "reducir movimiento" CAMINAR está desactivado y la figura queda quieta', ID_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listaFemenina, null, { timeout: 5000 });
+  const r = await pg.evaluate(async () => { rPerso(); await new Promise(r => setTimeout(r, 300)); const b = $('#pe-caminar'), cv = $('#pe-cuerpo-av');
+    const a = cv.toDataURL(); b.click(); await new Promise(r => setTimeout(r, 600));
+    return { desactivado: b.disabled, aria: b.getAttribute('aria-pressed'), quieta: cv.toDataURL() === a }; });
+  return [r.desactivado && r.aria === 'false' && r.quieta, JSON.stringify(r)];
+}, { reducedMotion: 'reduce' });
+
+await caso('identidad · piel y camisa recolorean a la aprendiz; cambiar de idioma no cambia de pestaña ni de apariencia', ID_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listaFemenina, null, { timeout: 5000 });
+  const r = await pg.evaluate(async () => { S.apariencia = 'femenina'; pePestana = 'apariencia'; rPerso(); await new Promise(r => setTimeout(r, 300));
+    const cv = $('#pe-cuerpo-av'), h0 = cv.toDataURL();
+    $('#pe-t-piel').click(); $('.skin-op[data-s="3"]').click(); await new Promise(r => setTimeout(r, 200)); const h1 = $('#pe-cuerpo-av').toDataURL();
+    $('#pe-t-camisa').click(); $('.camisa-op[data-c="0"]').click(); await new Promise(r => setTimeout(r, 200)); const h2 = $('#pe-cuerpo-av').toDataURL();
+    const o = { colores: new Set([h0, h1, h2]).size, aria: $('.camisa-op[data-c="0"]').getAttribute('aria-pressed') };
+    S.lang = 'en'; rehacerPantalla(); o.tab = $('.pe-tab.act')?.id; o.texto = $('#pe-t-apariencia').textContent.trim(); o.ap = S.apariencia;
+    S.lang = 'es'; rehacerPantalla(); return o; });
+  return [r.colores === 3 && r.aria === 'true' && r.tab === 'pe-t-camisa' && r.texto === 'APPEARANCE' && r.ap === 'femenina', JSON.stringify(r)];
+});
+
+await caso('identidad · comprar un accesorio con la confirmación repetida no cobra dos veces', { ...ID_J, accs: [], acc: '' }, async pg => {
+  const r = await pg.evaluate(async () => { pePestana = 'acc'; rPerso(); await new Promise(r => setTimeout(r, 200));
+    const a = ACCS.find(x => x.precio <= S.pts); const antes = S.pts;
+    $(`.acc-op[data-a="${a.id}"]`).click(); await new Promise(r => setTimeout(r, 100));
+    const si = $('#pe-si'); if (!si) return { sinConfirmar: true };
+    si.click(); si.click();
+    return { cobro: antes - S.pts, precio: a.precio, veces: S.accs.filter(x => x === a.id).length }; });
+  return [!r.sinConfirmar && r.cobro === r.precio && r.veces === 1, JSON.stringify(r)];
+});
+
+await caso('identidad · Mi Avatar con la pestaña APARIENCIA cabe en 6 tamaños, con HD y texto legible, en ES y EN, sin desbordar', ID_J, async pg => {
+  const mal = [];
+  for (const modo of [{}, { hd: true, legible: true }, { lang: 'en', legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
+    for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+      await pg.setViewportSize({ width: w, height: h });
+      await pg.evaluate(() => { pePestana = 'apariencia'; rPerso(); }); await pausa(200);
+      const r = await pg.evaluate(() => { const sc = $('#screen'), w = $('.pe-wrap').getBoundingClientRect();
+        const fuera = [...document.querySelectorAll('.pe-wrap button, .pe-wrap canvas')].filter(e => { const q = e.getBoundingClientRect(); return q.width && (q.left < w.left - 1 || q.right > w.right + 1); }).map(e => e.id || e.className);
+        const corta = [...document.querySelectorAll('.pe-tab, .pe-apariencia-op span, .pe-visor-controles button')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.id || e.textContent.trim());
+        return { scroll: sc.scrollWidth > sc.clientWidth || document.documentElement.scrollWidth > innerWidth, fuera, corta }; });
+      if (r.scroll || r.fuera.length || r.corta.length) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
+    }
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es' }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '3 modos × 6 tamaños: todo dentro, sin desbordar ni cortar'];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

@@ -2,7 +2,7 @@
 /* ── ESTADO ── */
 const STATS0={bugs:0,cafes:0,palabras:0,jefes:0,perfectos:0,racha:0,partidas:0,retos:0};
 const TOT_DIAS=NIVELES.length; /* 15: etapa lectiva (10) + etapa productiva (5) */
-const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',skin:0,camisa:0,
+const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',skin:0,camisa:0,apariencia:'masculina',
   mejoras:[],records:[],lang:'es',snd:true,mus:true,intro:false,t2:false,nombre:'',hd:false,legible:false,grupo:'',dif:1,
   /* av32: el detalle del RETRATO (16×16 de siempre / 32×32 más fino), independiente
      de hd, que es la piel de la interfaz (retro CRT / OLED). Los dos se pueden
@@ -22,6 +22,7 @@ const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',ski
     @property {string} acc         el accesorio puesto ('' = ninguno)
     @property {number} skin
     @property {number} camisa
+    @property {string} apariencia  masculina | femenina (solo apariencia visual)
     @property {string[]} mejoras
     @property {{n:string,p:number,x:number,yo?:number}[]} records   marcas locales
     @property {string} lang        'es' | 'en'
@@ -72,6 +73,7 @@ function sanear(){
   const ent=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
   if(!ent(S.skin,0,SKINS.length-1))S.skin=0;
   if(!ent(S.camisa,0,CAMISAS.length-1))S.camisa=0;
+  if(S.apariencia!=='femenina')S.apariencia='masculina';
   if(!Number.isFinite(S.pts)||S.pts<0)S.pts=0;
   if(!Number.isFinite(S.xp)||S.xp<0)S.xp=0;
   if(typeof S.nombre!=='string')S.nombre=String(S.nombre==null?'':S.nombre);
