@@ -155,7 +155,9 @@ aprendiz-en-apuros/
     ├── fondo.js          → el fondo de la portada: un campus nocturno HD por capas que se activa solo en el menú principal (con las montañas de respaldo)
     ├── jefe-sprites.js   → los dibujos del jefe evolutivo y las cuentas de sus transformaciones (se carga antes que jefe.js)
     ├── jefe.js           → la batalla final contra EL ERROR EVOLUTIVO
-    ├── sprite.js         → sprite del aprendiz: carga, recoloreo por jugador y dibujo
+    ├── sprite.js         → sprite del aprendiz (masculino premium, femenino, HD y clásico de respaldo): carga, recoloreo por jugador y dibujo
+    ├── retratos-aprendiz-arte.js → los retratos de los dos protagonistas como datos (generado; no editar a mano)
+    ├── retratos-aprendiz.js → dibuja el retrato del jugador: 16×16, 32×32 y cine con 5 gestos, colores y accesorios
     ├── sala.js           → salas de clase: datos, red y lógica (sin pantallas)
     ├── salaui.js         → salas de clase: crear, proyector, espera y podio
     ├── salavivo.js       → ronda en vivo (proyector y celular) y panel del instructor
@@ -181,6 +183,7 @@ test/
 ├── cinematica.test.mjs   → pruebas de las escenas cinematográficas: páginas, formatos de guion compatibles y fondos
 ├── identidad.test.mjs    → pruebas de la apariencia masculina/femenina: migración, guardado e importación, atlas femenino y su recoloreo
 ├── aprendiz-masculino-premium.test.mjs → pruebas del masculino premium: tamaños, respaldo HD/clásico, femenina y NPC aparte, recoloreo de las 16 combinaciones
+├── retratos-protagonistas.test.mjs → pruebas de los retratos de los protagonistas: datos íntegros, solo el jugador local y scripts en caché
 ├── titulo.test.mjs       → pruebas del título de la portada: recurso, texto accesible de respaldo y reglas de CSS
 ├── portada.test.mjs      → pruebas del aprendiz animado de la portada: qué hace en cada instante y que quede decorativo
 ├── botones.test.mjs      → pruebas de los botones de la portada: CSS acotado a .portada, iconos pixel y dificultad accesible
@@ -196,6 +199,8 @@ scripts/
 ├── build-ui-kit.mjs      → genera el UI kit de design-system/ (ver abajo)
 ├── build-pixelfx.mjs     → empaqueta la biblioteca pixelfx en js/pixelfx.js (ver LICENCIAS.md)
 ├── build-retratos.mjs    → convierte arte/retratos/ (PNG) en img/retratos/ (WebP)
+├── build-aprendiz-masculino.py → genera el atlas masculino premium desde los HD (Pillow)
+├── build-retratos-protagonistas.py → genera js/retratos-aprendiz-arte.js y arte/retratos-protagonistas/ (Pillow)
 └── build-sprite.py       → genera los atlas del aprendiz en img/ desde arte/aprendiz/
 design-system/            → catálogo de componentes extraído de css/estilos.css
 ├── README.md             → cómo regenerarlo y sincronizarlo con claude.ai/design

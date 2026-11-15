@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40 y v40.1)
+# Plan: identidad y personalización (v40, v40.1 y v40.2)
 
 > Estado: **hecho (v40), primera parte**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -27,13 +27,26 @@
   clásico. Misma paleta exacta de piel y camisa que el femenino. Paquete aplicado limpio; se
   arregló la fila de VERSIONES.md (estaba fuera de la tabla) y se añadió un caso al barrido.
 
+## Parte 3 (v40.2): retratos de los protagonistas
+
+- `js/retratos-aprendiz-arte.js` (datos RLE generados por `scripts/build-retratos-protagonistas.py`,
+  fuentes en `arte/retratos-protagonistas/`) y `js/retratos-aprendiz.js`: retrato del jugador en
+  16×16, 32×32 y busto de cine 48×48 (en un lienzo de 96) con 5 gestos y parpadeo, recoloreo de
+  piel y camisa y los 9 accesorios.
+- `CARAS.yo()` lleva `protagonista:true`; `retrato()` lo dibuja con el módulo nuevo y los demás
+  siguen con `cara`/`cara32`. `CINE.montar()` le pasa el gesto: una página futura
+  `{quien:'APRENDIZ',gesto:'preocupado',t:'…'}` lo enseña. Ninguna escena actual cambia de cara
+  (comprobado en el barrido).
+- Arreglo al integrar: a 16×16 las gafas y los audífonos reducidos desde 48 tapaban los ojos con
+  una franja negra; ahora se pintan con píxeles propios de 16.
+
 ## Fuera de esta parte
 
-- Los retratos (16×16, 32×32 y cine) no cambian; los accesorios no se dibujan sobre el cuerpo entero.
+- Los accesorios no se dibujan sobre el cuerpo entero; no hay diálogos nuevos del protagonista.
 - La sala de clase no sincroniza la apariencia (el proyector sigue con los campos de antes).
 - No hay pantalla de elección al empezar partida: se elige en Mi Avatar.
 
 ## Siguiente
 
-Retratos de los dos protagonistas; después, el probador de accesorios de cuerpo entero
-(paquetes aparte).
+El probador de accesorios de cuerpo entero y el pulido de Mi Avatar (paquetes aparte); los
+diálogos del protagonista, cuando se apruebe la biblia narrativa.

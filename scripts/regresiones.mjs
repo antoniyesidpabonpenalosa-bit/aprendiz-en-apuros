@@ -2603,6 +2603,48 @@ await caso('masculino premium · el jugador masculino se pinta con el atlas prem
   return [r.combos === 16 && r.portadas === 16 && r.poses === 4 && r.npcDistinto && r.listoPortada, JSON.stringify(r)];
 });
 
+/* ── IDENTIDAD, PARTE 3 (v40.2): retratos de los dos protagonistas ──
+   Lo que no puede romperse: que el retrato del jugador siga su apariencia, colores y accesorio en
+   16 y 32; que las escenas de la historia actual sigan exactamente con sus caras (ninguna página
+   cambia a la del protagonista); que una escena futura con el APRENDIZ lo pinte con su gesto y que
+   la página siguiente de un NPC vuelva a su retrato ilustrado. */
+await caso('retratos protagonistas · 2 apariencias × 16 colores × 16/32 son distintos, y cada uno de los 9 accesorios se ve (también a 16×16)', ID_J, async pg => {
+  const r = await pg.evaluate(() => {
+    const A = ['gafas', 'gorra', 'cafe', 'audifonos', 'corbata', 'medalla', 'capa', 'corona', 'gato'];
+    const h = (o, n) => { const k = document.createElement('canvas'); k.width = k.height = 64; retrato(k, Object.assign(CARAS.yo(false), { acc: '' }, ...A.map(a => ({ [a]: false })), { av32: n === 32 }, o)); return k.toDataURL(); };
+    const combos = new Set(); for (const ap of ['masculina', 'femenina']) for (let s = 0; s < 4; s++) for (let c = 0; c < 4; c++) for (const n of [16, 32]) combos.add(h({ apariencia: ap, skin: SKINS[s], camisa: CAMISAS[c] }, n));
+    const sinVer = []; for (const ap of ['masculina', 'femenina']) for (const n of [16, 32]) { const base = h({ apariencia: ap }, n); for (const a of A) if (h({ apariencia: ap, [a]: true }, n) === base) sinVer.push(`${ap} ${n} ${a}`); }
+    /* gafas a 16: los dos ojos (x 6 y 9, y 7) siguen oscuros y el cristal no es negro */
+    const k = document.createElement('canvas'); k.width = k.height = 16; retrato(k, Object.assign(CARAS.yo(false), { apariencia: 'masculina', gafas: true, av32: false }));
+    const px = (x, y) => [...k.getContext('2d').getImageData(x, y, 1, 1).data]; const ojo = px(6, 7), ojo2 = px(9, 7), cristal = px(10, 8), suma = p => p[0] + p[1] + p[2]; return { combos: combos.size, sinVer, ojo: ojo.join(), ojo2: ojo2.join(), cristal: cristal.join(), ojos: suma(ojo) < suma(cristal) - 200 && suma(ojo2) < suma(cristal) - 200 };
+  });
+  return [r.combos === 64 && r.sinVer.length === 0 && r.ojos, JSON.stringify(r)];
+});
+
+await caso('retratos protagonistas · la historia actual no cambia de caras: ninguna página de las 6 escenas ni de los 15 días usa el retrato del protagonista', ID_J, async pg => {
+  const r = await pg.evaluate(() => { const usos = [];
+    for (const lang of ['es', 'en']) { S.lang = lang;
+      for (const g of ['INTRO', 'FINAL', 'T2_INTRO', 'JEFE_INTRO', 'JEFE2_INTRO', 'FINAL2']) { const gu = eval(g); rCutscene(gu, () => {}); for (let k = 0; k < gu[lang].length; k++) { if ($('.cine-protagonista')) usos.push(`${lang} ${g} ${k + 1}`); if (k < gu[lang].length - 1) $('#cut-next').click(); } }
+      for (let i = 0; i < 15; i++) { diaAct = i; rDialogo(i); if ($('.cine-protagonista') || !$('.cine-retrato img.dibujo')) usos.push(`${lang} día ${i + 1}`); } }
+    S.lang = 'es'; return usos; });
+  return [r.length === 0, r.length ? r.slice(0, 5).join(' · ') : '6 escenas y 15 días en ES y EN: las mismas caras de antes'];
+});
+
+await caso('retratos protagonistas · una escena con el APRENDIZ lo pinta con su apariencia y gesto (96×96, sin fondo), y la página siguiente de Gustavo vuelve a su retrato ilustrado', ID_J, async pg => {
+  const r = await pg.evaluate(async () => { const o = {};
+    const gu = { es: [{ quien: 'APRENDIZ', gesto: 'preocupado', fondo: 'empresa', t: 'a' }, { quien: 'GUSTAVO · INSTRUCTOR', gesto: 'feliz', fondo: 'formacion', t: 'b' }], en: [{ quien: 'APRENDIZ', gesto: 'preocupado', t: 'a' }, { quien: 'GUSTAVO · INSTRUCTOR', gesto: 'feliz', t: 'b' }] };
+    const gestos = new Set();
+    for (const ap of ['masculina', 'femenina']) { S.apariencia = ap;
+      for (const g of ['normal', 'feliz', 'enojado', 'sorprendido', 'preocupado']) { rCutscene({ es: [{ quien: 'APRENDIZ', gesto: g, t: 'x' }], en: [{ quien: 'APRENDIZ', gesto: g, t: 'x' }] }, () => {}); gestos.add($('#cut-cara').toDataURL()); } }
+    o.gestos = gestos.size;
+    S.apariencia = 'femenina'; rCutscene(gu, () => {}); const cv = $('#cut-cara');
+    o.p1 = { prot: cv.classList.contains('cine-protagonista'), w: cv.width, fondo: [...cv.getContext('2d').getImageData(0, 0, 1, 1).data][3] === 0, dibujo: !!$('.cine-retrato img.dibujo') };
+    $('#cut-next').click(); const cv2 = $('#cut-cara'), img = $('.cine-retrato img.dibujo');
+    o.p2 = { prot: cv2.classList.contains('cine-protagonista'), dibujo: !!img && /instructor-feliz/.test(img.src) };
+    return o; });
+  return [r.gestos === 10 && r.p1.prot && r.p1.w === 96 && r.p1.fondo && !r.p1.dibujo && !r.p2.prot && r.p2.dibujo, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

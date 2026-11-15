@@ -47,6 +47,13 @@ const RETRATOS_APRENDIZ=(()=>{
     if(o.cafe){R(36,36,9,10,dark);R(37,37,7,8,'#f4f4f8');R(38,37,5,2,'#6b4226');R(44,39,3,4,'#acb2cb');R(45,40,1,2,dark);R(37,45,7,1,'#b0b7ce');R(39,32,1,3,'rgba(255,255,255,.6)');R(42,30,1,4,'rgba(255,255,255,.4)');}
     if(o.gato){R(36,39,10,9,dark);R(36,37,3,4,'#e08030');R(43,37,3,4,'#e08030');R(37,40,8,7,'#e08030');R(38,41,1,2,dark);R(43,41,1,2,dark);R(40,44,2,2,'#f4f4f8');}
   }
+  /* A 16×16, reducir las gafas y los audífonos de 48 los convertía en una franja negra que
+     tapaba los ojos: en ese tamaño se pintan con píxeles propios (ojos en x 6 y 9, y 7-8). */
+  function accesorios16(m,o){
+    const R=(x,y,w,h,col)=>{m.fillStyle=col;m.fillRect(x,y,w,h);},dark='#111426';
+    if(o.gafas){R(5,6,2,1,dark);R(9,6,2,1,dark);R(5,7,2,2,'rgba(111,210,240,.45)');R(9,7,2,2,'rgba(111,210,240,.45)');R(7,7,2,1,dark);R(5,7,1,1,'#c4f6ff');R(10,7,1,1,'#c4f6ff');}
+    if(o.audifonos){R(4,1,8,1,dark);R(3,2,1,4,dark);R(12,2,1,4,dark);R(2,6,2,4,dark);R(12,6,2,4,dark);R(2,7,1,2,'#6fd2f0');R(13,7,1,2,'#6fd2f0');}
+  }
   function dibujar(cv,o){
     const sexo=o.apariencia==='femenina'?'femenina':'masculina';
     const solicitado=o.gesto||(o.feliz?'feliz':'normal');
@@ -63,8 +70,9 @@ const RETRATOS_APRENDIZ=(()=>{
         m.fillStyle=o.parpadeo?color('#bb7448',piel,'#facc99'):'#171420';m.fillRect(x,8,1,1);
       }
     }
-    const overlay=lienzo(N);accesorios(overlay.getContext('2d'),o,sexo);
+    const overlay=lienzo(N);accesorios(overlay.getContext('2d'),n===16?Object.assign({},o,{gafas:false,audifonos:false}):o,sexo);
     m.drawImage(overlay,0,0,n,n);
+    if(n===16)accesorios16(m,o);
     const smooth=ctx.imageSmoothingEnabled;ctx.imageSmoothingEnabled=false;
     ctx.clearRect(0,0,cv.width,cv.height);
     if(!o.cine){ctx.fillStyle='#0b0e22';ctx.fillRect(0,0,cv.width,cv.height);}
