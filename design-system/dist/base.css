@@ -2073,6 +2073,9 @@ html.legible .pe-wrap .pe-apariencia-op span{font-family:'VT323',monospace;font-
 @media(max-width:390px){.pe-wrap .pe-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.pe-wrap .pe-visor{min-height:110px}.pe-wrap .pe-plataforma canvas{max-width:64px}}
 @media(prefers-reduced-motion:reduce){.pe-wrap .pe-visor canvas,.pe-wrap .pe-apariencia-op{animation:none;transition:none}}
 
+/* Busto del protagonista con alpha real: mantiene la escala de escena. */
+.cine .cine-retrato canvas.cine-protagonista{width:100%;height:100%;left:0;top:0;border:0;background:none;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 5px 5px #080c20)}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}

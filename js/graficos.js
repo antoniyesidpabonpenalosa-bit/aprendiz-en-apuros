@@ -276,7 +276,10 @@ function cara32(cv,o){
    jurado del quiz, los diálogos, el certificado, no solo "tu" retrato. */
 /* o.av32, si viene, manda sobre la preferencia: en una sala cada personaje
    sale con el detalle que eligió SU dueño, no el de quien mira. */
-const retrato=(cv,o)=>((o.av32??S.av32)?cara32:cara)(cv,o);
+const retrato=(cv,o)=>{
+  if(o.protagonista&&typeof RETRATOS_APRENDIZ!=='undefined'&&RETRATOS_APRENDIZ.dibujar(cv,o))return;
+  ((o.av32??S.av32)?cara32:cara)(cv,o);
+};
 /* ── RETRATO VIVO: el mismo retrato, pero parpadea ──
    Para las caras que están "en escena" (título, diálogo, jurado, el avatar
    grande), no para las que son un recuerdo fijo (certificado, ascenso).
@@ -304,7 +307,7 @@ function retratoVivo(cv,o){
   tvez(parpadea,1200+Math.random()*3600);
 }
 const CARAS={
-  yo:(f)=>({skin:SKINS[S.skin],camisa:CAMISAS[S.camisa],pelo:S.apariencia==='femenina'?'#67391f':'#2a1c10',femenina:S.apariencia==='femenina',feliz:f,
+  yo:(f)=>({protagonista:true,apariencia:S.apariencia,skin:SKINS[S.skin],camisa:CAMISAS[S.camisa],pelo:S.apariencia==='femenina'?'#67391f':'#2a1c10',femenina:S.apariencia==='femenina',feliz:f,
     gafas:S.acc==='gafas',gorra:S.acc==='gorra',cafe:S.acc==='cafe',
     audifonos:S.acc==='audifonos',corbata:S.acc==='corbata',medalla:S.acc==='medalla',
     capa:S.acc==='capa',corona:S.acc==='corona',gato:S.acc==='gato'}),

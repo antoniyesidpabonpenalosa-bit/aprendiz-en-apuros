@@ -94,6 +94,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v39** | — | 2026-11-14 | Diálogos cinematográficos (`js/cinematica.js`, `img/cine/`): retrato grande, fondo del lugar, narrador, texto animado, continuar/saltar y páginas con hablante y gesto; los textos de la historia no cambian |
 | **v40** | — | 2026-11-15 | Primera fase de identidad: apariencia masculina/femenina guardada, atlas femenino y visor de cuerpo entero en Mi Avatar, con giro y caminata de prueba |
 | **v40.1** | — | 2026-11-15 | Identidad, parte 2: atlas masculino premium (`img/aprendiz-masculino-premium-*.png`) con cabello, ojos, cuello, cinturón, botas y saludo articulado; el HD anterior queda de respaldo |
+| **v40.2** | — | 2026-11-15 | Identidad, parte 3: retratos de los dos protagonistas en 16×16 y 32×32 y cinco expresiones de cine con parpadeo (`js/retratos-aprendiz*.js`), recoloreables y con los 9 accesorios; la historia no cambia |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

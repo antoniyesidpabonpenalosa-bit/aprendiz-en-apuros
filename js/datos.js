@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.1';
+const VERSION='v40.2';
 const NOVEDADES=[
+  {v:'v40.2', fecha:'2026-11-15',
+   es:['Los retratos del Aprendiz se adaptan a ambas apariencias con más detalle, colores personalizados y cinco expresiones para futuras escenas de historia.'],
+   en:['Apprentice portraits match both appearances, with more detail, custom colors and five expressions for future story scenes.']},
   {v:'v40.1', fecha:'2026-11-15',
    es:['La apariencia masculina del Aprendiz estrena detalles de pixel art: cabello, ojos, camisa, cinturón, botas y saludo. Mantiene los colores personalizados y las ocho direcciones.'],
    en:['The masculine apprentice has refined pixel art details: hair, eyes, shirt, belt, boots and wave. Custom colors and all eight directions remain unchanged.']},
