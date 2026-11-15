@@ -72,6 +72,13 @@
   red (`pa4-v40.5`) y migración de una partida de v39. Cuatro casos nuevos en el barrido; uno de
   v40.1 ajustado (las gafas de v40.4 tapan el parpadeo de la portada).
 
+## Retoques al integrar (v40.5, pedidos por el autor)
+
+- La gorra del retrato del protagonista usa los azules de la del cuerpo y la tienda (antes verde).
+  El dibujo antiguo de `cara`/`cara32` sigue verde: es también la gorra del vigilante.
+- A 16×16, el ojo izquierdo de la aprendiz quedaba pegado a la sombra del flequillo; ahora tiene
+  piel a los dos lados.
+
 ## Fuera de esta parte
 
 - No hay diálogos nuevos del protagonista.

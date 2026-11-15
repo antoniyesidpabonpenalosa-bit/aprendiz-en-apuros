@@ -2855,6 +2855,25 @@ await caso('vestidor · Mi Avatar entero cabe en 7 tamaños × 4 pestañas × 3 
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '3 modos × 7 tamaños × 4 pestañas × 3 vistas: todo dentro, sin cortar'];
 });
 
+/* ── Retoques al integrar las seis partes (v40.5) ── */
+await caso('retratos protagonistas · la gorra del retrato es azul como la del cuerpo y la tienda, y a 16×16 el ojo izquierdo de la aprendiz no queda tapado por el flequillo', ID_J, async pg => {
+  const r = await pg.evaluate(() => {
+    const sin = Object.fromEntries(ACC_ARTE.ids.map(i => [i, false]));
+    const lienzo = (o, n) => { const k = document.createElement('canvas'); k.width = k.height = n; retrato(k, Object.assign(CARAS.yo(false), sin, o)); return k.getContext('2d'); };
+    /* la gorra: el color dominante de la franja de arriba, a 32 */
+    const c = lienzo({ apariencia: 'masculina', av32: true, gorra: true }, 32), d = c.getImageData(8, 1, 16, 3).data; let azul = 0, verde = 0;
+    for (let i = 0; i < d.length; i += 4) { if (d[i + 2] > d[i + 1] + 30 && d[i + 2] > d[i] + 60) azul++; if (d[i + 1] > d[i] + 40 && d[i + 1] > d[i + 2] + 40) verde++; }
+    /* el ojo izquierdo a 16: oscuro en x 6 y con piel a los dos lados (x 5 y x 7), con y sin parpadeo */
+    const o = { azul, verde };
+    for (const parpadeo of [false, true]) { const k = lienzo({ apariencia: 'femenina', av32: false, skin: SKINS[0], parpadeo }, 16);
+      const px = x => [...k.getImageData(x, 7, 1, 1).data], lum = p => .3 * p[0] + .59 * p[1] + .11 * p[2];
+      o[parpadeo ? 'parpadeo' : 'abierto'] = { ojo: Math.round(lum(px(6))), izq: Math.round(lum(px(5))), der: Math.round(lum(px(7))) }; }
+    return o; });
+  const a = r.abierto, p = r.parpadeo;
+  const ok = r.azul > 10 && r.verde === 0 && a.ojo < 60 && a.izq > 120 && a.der > 120 && p.izq > 120;
+  return [ok, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

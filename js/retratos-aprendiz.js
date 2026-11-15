@@ -42,7 +42,8 @@ const RETRATOS_APRENDIZ=(()=>{
     }
     if(o.audifonos){R(12,5,24,3,dark);R(9,8,4,7,dark);R(35,8,4,7,dark);R(13,5,22,1,'#69728f');
       for(const x of [8,35]){R(x,ey-3,5,10,dark);R(x+1,ey-2,3,8,'#525e7b');R(x+1,ey-2,2,2,'#6fd2f0');}}
-    if(o.gorra){R(10,3,28,8,dark);R(12,3,24,6,'#28791d');R(14,3,19,2,'#54c41a');R(9,9,30,3,'#1c5400');R(9,11,23,2,dark);R(22,4,4,3,'#b7eb9b');}
+    /* la gorra con los azules de la del cuerpo y la tienda (ACC_ARTE) */
+    if(o.gorra){R(10,3,28,8,dark);R(12,3,24,6,'#4678c2');R(14,3,19,2,'#78a7e2');R(9,9,30,3,'#27477e');R(9,11,23,2,dark);R(22,4,4,3,'#91c9f4');}
     if(o.corona){R(11,2,26,10,'#713e14');R(12,3,24,7,gold);for(const x of [12,23,34]){R(x,0,2,4,'#ffed93');R(x,4,2,3,'#f6a52c');}R(15,6,3,3,'#ff5468');R(23,6,3,3,'#6fd2f0');R(30,6,3,3,'#ff5468');R(12,10,24,1,'#fff0a0');}
     if(o.cafe){R(36,36,9,10,dark);R(37,37,7,8,'#f4f4f8');R(38,37,5,2,'#6b4226');R(44,39,3,4,'#acb2cb');R(45,40,1,2,dark);R(37,45,7,1,'#b0b7ce');R(39,32,1,3,'rgba(255,255,255,.6)');R(42,30,1,4,'rgba(255,255,255,.4)');}
     if(o.gato){R(36,39,10,9,dark);R(36,37,3,4,'#e08030');R(43,37,3,4,'#e08030');R(37,40,8,7,'#e08030');R(38,41,1,2,dark);R(43,41,1,2,dark);R(40,44,2,2,'#f4f4f8');}
@@ -69,6 +70,8 @@ const RETRATOS_APRENDIZ=(()=>{
         m.fillStyle=o.parpadeo?piel:'#171420';m.fillRect(x,7,1,1);
         m.fillStyle=o.parpadeo?color('#bb7448',piel,'#facc99'):'#171420';m.fillRect(x,8,1,1);
       }
+      /* en la femenina, la sombra del flequillo (x 5) se pegaba al ojo izquierdo y lo tapaba */
+      if(sexo==='femenina'){m.fillStyle=piel;m.fillRect(5,7,1,2);}
     }
     const overlay=lienzo(N);accesorios(overlay.getContext('2d'),n===16?Object.assign({},o,{gafas:false,audifonos:false}):o,sexo);
     m.drawImage(overlay,0,0,n,n);
