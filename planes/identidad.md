@@ -1,6 +1,6 @@
-# Plan: identidad y personalización (v40 a v40.4)
+# Plan: identidad y personalización (v40 a v40.5)
 
-> Estado: **hecho (v40), primera parte**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
+> Estado: **hecho (v40 a v40.5), las seis partes**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
 
 ## Qué hay
@@ -62,6 +62,16 @@
   toca y confirma. Seis casos nuevos. La campaña de 15 días jugada por el robot con un accesorio
   distinto cada día y las dos apariencias termina sin errores y sin cambiar accesorio ni inventario.
 
+## Parte 6 (v40.5): Mi Avatar definitivo
+
+- Vestidor en `rPerso()`: vistas ambos/retrato/cuerpo (solo en memoria, `peVista`), giro en los
+  dos sentidos con el nombre de la dirección, caminar, detalle 16/32; selectores rápidos de piel
+  y camisa que pulsan las mismas tarjetas; atajo al probador; colección con barra; el HUD se
+  refresca al comprar. Sin campos nuevos en el guardado.
+- Comprobado al integrar las seis partes: barrido completo, caché real del service worker sin
+  red (`pa4-v40.5`) y migración de una partida de v39. Cuatro casos nuevos en el barrido; uno de
+  v40.1 ajustado (las gafas de v40.4 tapan el parpadeo de la portada).
+
 ## Fuera de esta parte
 
 - No hay diálogos nuevos del protagonista.
@@ -70,5 +80,5 @@
 
 ## Siguiente
 
-El rediseño definitivo de Mi Avatar (paquete aparte); los diálogos del protagonista, cuando se
-apruebe la biblia narrativa.
+Los diálogos del protagonista, cuando se apruebe la biblia narrativa; la apariencia en la sala
+de clase si se pide.
