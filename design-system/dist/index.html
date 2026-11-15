@@ -2083,6 +2083,32 @@ html.legible .pe-wrap .pe-apariencia-op span{font-family:'VT323',monospace;font-
 /* Busto del protagonista con alpha real: mantiene la escala de escena. */
 .cine .cine-retrato canvas.cine-protagonista{width:100%;height:100%;left:0;top:0;border:0;background:none;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 5px 5px #080c20)}
 
+/* v40.3 · Vestidor RPG: las muestras son controles reales, no imágenes del menú. */
+.pe-wrap .pe-color-cab{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #5c5794;padding:3px 0 10px;flex-wrap:wrap}
+.pe-wrap .pe-color-cab h3{font:inherit;font-size:11px;line-height:1.5;color:#a4f373;margin:0}
+.pe-wrap .pe-gratis{font-size:8px;color:#bdf59d;background:#152d24;border:1px solid #4a8950;padding:5px 8px;line-height:1.4}
+.pe-wrap .pe-color-ayuda{font:18px/1.15 'VT323',monospace;color:#b8c6eb;margin:10px 0 14px;text-align:left}
+.pe-wrap .pe-color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:2px 2px 5px}
+.pe-wrap .pe-color-op{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:7px;min-width:0;width:100%;height:auto;padding:8px;border:2px solid #5e679d;border-radius:0;background:linear-gradient(145deg,#28365d,#11182f 75%);box-shadow:inset 0 2px #b6b4ff22,0 4px #080b18;color:#e6eaff;font:inherit;line-height:1.4;text-align:center;cursor:pointer;outline:0}
+.pe-wrap .pe-color-op.sel{border-color:#ffcf3f;outline:0;background:linear-gradient(145deg,#383b4b,#191b30 75%);box-shadow:inset 0 0 0 1px #ffcf3f44,0 3px #8c691c;color:#ffdf76}
+.pe-wrap .pe-color-arte{display:grid;place-items:center;height:112px;background:radial-gradient(ellipse at center,#2b4368,#0c132a 72%);border:1px solid #394b75;overflow:hidden;position:relative}
+.pe-wrap .pe-color-arte canvas{display:block;width:64px;height:64px;image-rendering:pixelated;z-index:1}
+.pe-wrap .camisa-op .pe-color-arte canvas{width:66px;height:111px;max-width:100%;object-fit:contain}
+.pe-wrap .pe-color-info{display:flex;align-items:center;justify-content:center;gap:6px;min-height:26px}
+.pe-wrap .pe-muestra{display:block;width:22px;height:22px;flex:none;background:var(--muestra);border:1px solid #fff6;box-shadow:inset 0 3px #ffffff35,inset 0 -3px #0004,0 2px #080b18}
+.pe-wrap .pe-color-nom{font:18px/1 'VT323',monospace;overflow-wrap:anywhere;text-align:left}
+.pe-wrap .pe-color-estado{font-size:7px;line-height:1.4;padding:6px 2px;background:#151e36;border:1px solid #49557a;color:#b8c5e9;overflow-wrap:anywhere}
+.pe-wrap .pe-color-op.sel .pe-color-estado{color:#d8ffbd;background:#1a3725;border-color:#6dbf43}
+.pe-wrap .pe-color-marca{position:absolute;right:4px;top:4px;z-index:2;display:grid;place-items:center;width:22px;height:22px;font:bold 17px/1 monospace;background:#122139;border:1px solid #53678f;color:#e3ffcf}
+.pe-wrap .pe-color-op.sel .pe-color-marca{background:#296223;border-color:#9af45c}
+.pe-wrap .pe-color-op:focus-visible{outline:2px solid #6fd2f0;outline-offset:3px}
+@media(hover:hover){.pe-wrap .pe-color-op:not(.sel):hover{border-color:#a3a0e5;background:linear-gradient(145deg,#374971,#161d37)}}
+@media(min-width:900px){.pe-wrap .pe-color-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+html.legible .pe-wrap .pe-color-cab h3,html.legible .pe-wrap .pe-gratis,html.legible .pe-wrap .pe-color-estado{font:18px/1.15 'VT323',monospace}
+html.hd .pe-wrap .pe-color-op{border-radius:6px}
+@media(max-width:390px){.pe-wrap .pe-color-grid{gap:8px}.pe-wrap .pe-color-op{padding:5px}.pe-wrap .pe-color-arte{height:100px}.pe-wrap .camisa-op .pe-color-arte canvas{width:55px;height:92.5px}.pe-wrap .pe-color-nom{font-size:17px}}
+@media(prefers-reduced-motion:reduce){.pe-wrap .pe-color-op,.pe-wrap .pe-color-arte canvas,.pe-wrap .pe-pum{animation:none!important;transition:none!important}}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}
@@ -3240,6 +3266,32 @@ html.legible .pe-wrap .pe-apariencia-op span{font-family:'VT323',monospace;font-
 
 /* Busto del protagonista con alpha real: mantiene la escala de escena. */
 .cine .cine-retrato canvas.cine-protagonista{width:100%;height:100%;left:0;top:0;border:0;background:none;image-rendering:pixelated;object-fit:contain;filter:drop-shadow(0 5px 5px #080c20)}
+
+/* v40.3 · Vestidor RPG: las muestras son controles reales, no imágenes del menú. */
+.pe-wrap .pe-color-cab{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #5c5794;padding:3px 0 10px;flex-wrap:wrap}
+.pe-wrap .pe-color-cab h3{font:inherit;font-size:11px;line-height:1.5;color:#a4f373;margin:0}
+.pe-wrap .pe-gratis{font-size:8px;color:#bdf59d;background:#152d24;border:1px solid #4a8950;padding:5px 8px;line-height:1.4}
+.pe-wrap .pe-color-ayuda{font:18px/1.15 'VT323',monospace;color:#b8c6eb;margin:10px 0 14px;text-align:left}
+.pe-wrap .pe-color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:2px 2px 5px}
+.pe-wrap .pe-color-op{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:7px;min-width:0;width:100%;height:auto;padding:8px;border:2px solid #5e679d;border-radius:0;background:linear-gradient(145deg,#28365d,#11182f 75%);box-shadow:inset 0 2px #b6b4ff22,0 4px #080b18;color:#e6eaff;font:inherit;line-height:1.4;text-align:center;cursor:pointer;outline:0}
+.pe-wrap .pe-color-op.sel{border-color:#ffcf3f;outline:0;background:linear-gradient(145deg,#383b4b,#191b30 75%);box-shadow:inset 0 0 0 1px #ffcf3f44,0 3px #8c691c;color:#ffdf76}
+.pe-wrap .pe-color-arte{display:grid;place-items:center;height:112px;background:radial-gradient(ellipse at center,#2b4368,#0c132a 72%);border:1px solid #394b75;overflow:hidden;position:relative}
+.pe-wrap .pe-color-arte canvas{display:block;width:64px;height:64px;image-rendering:pixelated;z-index:1}
+.pe-wrap .camisa-op .pe-color-arte canvas{width:66px;height:111px;max-width:100%;object-fit:contain}
+.pe-wrap .pe-color-info{display:flex;align-items:center;justify-content:center;gap:6px;min-height:26px}
+.pe-wrap .pe-muestra{display:block;width:22px;height:22px;flex:none;background:var(--muestra);border:1px solid #fff6;box-shadow:inset 0 3px #ffffff35,inset 0 -3px #0004,0 2px #080b18}
+.pe-wrap .pe-color-nom{font:18px/1 'VT323',monospace;overflow-wrap:anywhere;text-align:left}
+.pe-wrap .pe-color-estado{font-size:7px;line-height:1.4;padding:6px 2px;background:#151e36;border:1px solid #49557a;color:#b8c5e9;overflow-wrap:anywhere}
+.pe-wrap .pe-color-op.sel .pe-color-estado{color:#d8ffbd;background:#1a3725;border-color:#6dbf43}
+.pe-wrap .pe-color-marca{position:absolute;right:4px;top:4px;z-index:2;display:grid;place-items:center;width:22px;height:22px;font:bold 17px/1 monospace;background:#122139;border:1px solid #53678f;color:#e3ffcf}
+.pe-wrap .pe-color-op.sel .pe-color-marca{background:#296223;border-color:#9af45c}
+.pe-wrap .pe-color-op:focus-visible{outline:2px solid #6fd2f0;outline-offset:3px}
+@media(hover:hover){.pe-wrap .pe-color-op:not(.sel):hover{border-color:#a3a0e5;background:linear-gradient(145deg,#374971,#161d37)}}
+@media(min-width:900px){.pe-wrap .pe-color-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+html.legible .pe-wrap .pe-color-cab h3,html.legible .pe-wrap .pe-gratis,html.legible .pe-wrap .pe-color-estado{font:18px/1.15 'VT323',monospace}
+.oled-scope .pe-wrap .pe-color-op{border-radius:6px}
+@media(max-width:390px){.pe-wrap .pe-color-grid{gap:8px}.pe-wrap .pe-color-op{padding:5px}.pe-wrap .pe-color-arte{height:100px}.pe-wrap .camisa-op .pe-color-arte canvas{width:55px;height:92.5px}.pe-wrap .pe-color-nom{font-size:17px}}
+@media(prefers-reduced-motion:reduce){.pe-wrap .pe-color-op,.pe-wrap .pe-color-arte canvas,.pe-wrap .pe-pum{animation:none!important;transition:none!important}}
 
 </style>
 </head>

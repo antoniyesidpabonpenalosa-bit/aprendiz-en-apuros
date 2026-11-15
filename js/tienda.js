@@ -81,6 +81,23 @@ function rTienda(){
    exasperante. */
 let pePestana='apariencia';
 
+/* Las muestras conservan los índices de las paletas originales: nunca crean
+   una segunda preferencia ni alteran inventario. El color es una pista extra,
+   no el único identificador de cada tarjeta. */
+function peTarjetasColor(tipo){
+  const piel=tipo==='piel', paleta=piel?SKINS:CAMISAS, elegido=piel?S.skin:S.camisa;
+  return `<div class="pe-color-cab"><h3>${t(piel?'pe_tonos':'pe_colores')}</h3><span class="pe-gratis">${t('pe_gratis')}</span></div>
+    <p class="pe-color-ayuda">${t(piel?'pe_ayuda_piel':'pe_ayuda_camisa')}</p>
+    <div class="pe-color-grid" role="group" aria-label="${t(piel?'pe_tonos':'pe_colores')}">
+      ${paleta.map((color,i)=>`<button type="button" class="pe-color-op ${piel?'skin-op':'camisa-op'} ${elegido===i?'sel':''}" ${piel?'data-s':'data-c'}="${i}" aria-pressed="${elegido===i}" aria-label="${t('pe_'+tipo+'_'+i)}" style="--muestra:${color}">
+        <span class="pe-color-arte"><canvas width="${piel?32:44}" height="${piel?32:74}" aria-hidden="true"></canvas></span>
+        <span class="pe-color-info"><i class="pe-muestra" aria-hidden="true"></i><span class="pe-color-nom">${t('pe_'+tipo+'_'+i)}</span></span>
+        <span class="pe-color-marca" aria-hidden="true">${elegido===i?'✓':''}</span>
+        <span class="pe-color-estado" aria-hidden="true">${t(elegido===i?'pe_elegido':'pe_elegir')}</span>
+      </button>`).join('')}
+    </div>`;
+}
+
 function rPerso(){
   const nAcc=id=>t('acc_'+id);
   const pestanas=[['apariencia',t('pe_apariencia')],['piel',t('piel')],['camisa',t('camisa')],['acc',t('accesorio')]];
@@ -160,17 +177,11 @@ function rPerso(){
         </div>
 
         <div class="pe-panel" id="pe-p-piel" role="tabpanel" aria-labelledby="pe-t-piel" ${pePestana==='piel'?'':'hidden'}>
-          <div class="custom-fila">
-            ${SKINS.map((c,i)=>`<button class="skin-op ${S.skin===i?'sel':''}" data-s="${i}"
-              style="background:${c}" type="button" aria-label="${t('piel')} ${i+1}" aria-pressed="${S.skin===i}"></button>`).join('')}
-          </div>
+          ${peTarjetasColor('piel')}
         </div>
 
         <div class="pe-panel" id="pe-p-camisa" role="tabpanel" aria-labelledby="pe-t-camisa" ${pePestana==='camisa'?'':'hidden'}>
-          <div class="custom-fila">
-            ${CAMISAS.map((c,i)=>`<button class="camisa-op ${S.camisa===i?'sel':''}" data-c="${i}"
-              style="background:${c}" type="button" aria-label="${t('camisa')} ${i+1}" aria-pressed="${S.camisa===i}"></button>`).join('')}
-          </div>
+          ${peTarjetasColor('camisa')}
         </div>
 
         <div class="pe-panel" id="pe-p-acc" role="tabpanel" aria-labelledby="pe-t-acc" ${pePestana==='acc'?'':'hidden'}>
@@ -202,7 +213,17 @@ function rPerso(){
     if(id==='femenina'&&!APRENDIZ.listaFemenina)return;
     APRENDIZ.dibujar(c,22,74,74,0,0,S.skin,S.camisa,id);
   });
-  const pinta=()=>{retratoVivo($('#pe-cara'),CARAS.yo(true));ultimoVisor='';pintaCuerpo();pintaOpciones()};
+  const pintaColores=()=>$$('.pe-color-op').forEach(b=>{
+    const piel=b.dataset.s!==undefined, i=Number(piel?b.dataset.s:b.dataset.c),
+      cv=b.querySelector('canvas'), elegido=(piel?S.skin:S.camisa)===i;
+    b.classList.toggle('sel',elegido);b.setAttribute('aria-pressed',String(elegido));
+    b.querySelector('.pe-color-marca').textContent=elegido?'✓':'';
+    b.querySelector('.pe-color-estado').textContent=t(elegido?'pe_elegido':'pe_elegir');
+    if(piel){retrato(cv,{...CARAS.yo(false),skin:SKINS[i],av32:true});return}
+    const c=cv.getContext('2d');c.clearRect(0,0,44,74);
+    APRENDIZ.dibujar(c,22,74,74,0,0,S.skin,i,S.apariencia);
+  });
+  const pinta=()=>{retratoVivo($('#pe-cara'),CARAS.yo(true));ultimoVisor='';pintaCuerpo();pintaOpciones();pintaColores()};
   $$('.pe-apariencia-op').forEach(b=>b.onclick=()=>{
     const id=b.dataset.apariencia;if(id!=='masculina'&&id!=='femenina')return;
     S.apariencia=id;guardar();SFX.click();pinta();avisar(t('pe_guardado'));
@@ -216,7 +237,7 @@ function rPerso(){
   tcada(()=>{
     if(document.hidden||pausado)return;
     const carga=[APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');
-    if(carga!==cargaAnterior){cargaAnterior=carga;pintaOpciones()}
+    if(carga!==cargaAnterior){cargaAnterior=carga;pintaOpciones();pintaColores()}
     pintaCuerpo();
   },135);
   const avisar=(txt,cls)=>{const e=$('#pe-estado');if(!e)return;e.textContent=txt;e.className='pe-estado'+(cls?' '+cls:'')};
@@ -260,15 +281,12 @@ function rPerso(){
   });
 
   /* ── piel y camisa ── */
-  $$('.skin-op').forEach(b=>b.onclick=()=>{
-    S.skin=+b.dataset.s;guardar();SFX.click();
-    $$('.skin-op').forEach(x=>{x.classList.toggle('sel',x===b);x.setAttribute('aria-pressed',String(x===b))});
-    pinta();latido();avisar(t('pe_guardado'));
-  });
-  $$('.camisa-op').forEach(b=>b.onclick=()=>{
-    S.camisa=+b.dataset.c;guardar();SFX.click();
-    $$('.camisa-op').forEach(x=>{x.classList.toggle('sel',x===b);x.setAttribute('aria-pressed',String(x===b))});
-    pinta();latido();avisar(t('pe_guardado'));
+  $$('.pe-color-op').forEach(b=>b.onclick=()=>{
+    const piel=b.dataset.s!==undefined, i=Number(piel?b.dataset.s:b.dataset.c),
+      paleta=piel?SKINS:CAMISAS, campo=piel?'skin':'camisa';
+    if(!Number.isInteger(i)||i<0||i>=paleta.length||S[campo]===i)return;
+    S[campo]=i;guardar();SFX.click();
+    pinta();if(!quieto())latido();avisar(t('pe_guardado'),'verde');
   });
 
   /* ── accesorios ── */

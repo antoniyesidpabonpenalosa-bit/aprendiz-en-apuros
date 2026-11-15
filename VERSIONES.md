@@ -95,6 +95,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v40** | — | 2026-11-15 | Primera fase de identidad: apariencia masculina/femenina guardada, atlas femenino y visor de cuerpo entero en Mi Avatar, con giro y caminata de prueba |
 | **v40.1** | — | 2026-11-15 | Identidad, parte 2: atlas masculino premium (`img/aprendiz-masculino-premium-*.png`) con cabello, ojos, cuello, cinturón, botas y saludo articulado; el HD anterior queda de respaldo |
 | **v40.2** | — | 2026-11-15 | Identidad, parte 3: retratos de los dos protagonistas en 16×16 y 32×32 y cinco expresiones de cine con parpadeo (`js/retratos-aprendiz*.js`), recoloreables y con los 9 accesorios; la historia no cambia |
+| **v40.3** | — | 2026-11-15 | Identidad, parte 4: tarjetas de piel (retrato) y camisa (cuerpo entero) en Mi Avatar con nombre del color, selección dorada y guardado al instante; las paletas no cambian |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

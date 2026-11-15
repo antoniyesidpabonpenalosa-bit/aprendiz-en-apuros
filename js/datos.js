@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.2';
+const VERSION='v40.3';
 const NOVEDADES=[
+  {v:'v40.3', fecha:'2026-11-15',
+   es:['Mi Avatar muestra tarjetas de piel y camisa con vistas previas reales, nombres de colores y selección clara para ambas apariencias. Los colores siguen siendo gratuitos.'],
+   en:['My Avatar shows skin and shirt cards with live previews, color names and clear selection for both appearances. Colors remain free.']},
   {v:'v40.2', fecha:'2026-11-15',
    es:['Los retratos del Aprendiz se adaptan a ambas apariencias con más detalle, colores personalizados y cinco expresiones para futuras escenas de historia.'],
    en:['Apprentice portraits match both appearances, with more detail, custom colors and five expressions for future story scenes.']},
@@ -942,6 +945,9 @@ const TXT={
  lab_no_sala:'La consola no se abre dentro de una sala: ahí se juega derecho',
  lab_sala_ensayo:'Estás en un ENSAYO. Abre la consola y escribe "normal" antes de entrar a una sala.',
  pe_apariencia:'APARIENCIA',pe_masculina:'MASCULINA',pe_femenina:'FEMENINA',pe_cuerpo:'CUERPO ENTERO',pe_retrato:'RETRATO',pe_girar:'GIRAR',pe_caminar:'CAMINAR',pe_detener:'DETENER',pe_vista:'VISTA PREVIA',
+ pe_tonos:'TONO DE PIEL',pe_colores:'COLOR DE CAMISA',pe_gratis:'GRATIS',pe_elegido:'EQUIPADO',pe_elegir:'ELEGIR',
+ pe_ayuda_piel:'Elige un tono. Tu retrato y personaje se actualizan al instante.',pe_ayuda_camisa:'Elige el color de tu camisa. Puedes cambiarlo cuando quieras.',
+ pe_piel_0:'Claro',pe_piel_1:'Medio claro',pe_piel_2:'Medio oscuro',pe_piel_3:'Oscuro',pe_camisa_0:'Verde',pe_camisa_1:'Azul',pe_camisa_2:'Morado',pe_camisa_3:'Rojo',
  personaje:'PERSONAJE',pe_guardado:'CAMBIOS GUARDADOS',pe_comprado:'COMPRADO',
  pe_bloqueado:'BLOQUEADO',pe_ninguno:'SIN ACCESORIO',pe_comprar:'COMPRAR',
  pe_confirma:'¿Comprar {n} por ⛁{p}?',pe_faltan:'Te faltan ⛁{p}',
@@ -1077,6 +1083,9 @@ const TXT={
   lab_no_sala:'The console does not open inside a room: there you play straight',
   lab_sala_ensayo:'You are in a REHEARSAL. Open the console and type "reset" before joining a room.',
   pe_apariencia:'APPEARANCE',pe_masculina:'MASCULINE',pe_femenina:'FEMININE',pe_cuerpo:'FULL BODY',pe_retrato:'PORTRAIT',pe_girar:'ROTATE',pe_caminar:'WALK',pe_detener:'STOP',pe_vista:'PREVIEW',
+  pe_tonos:'SKIN TONE',pe_colores:'SHIRT COLOR',pe_gratis:'FREE',pe_elegido:'SELECTED',pe_elegir:'SELECT',
+  pe_ayuda_piel:'Choose a tone. Your portrait and character update instantly.',pe_ayuda_camisa:'Choose your shirt color. You can change it anytime.',
+  pe_piel_0:'Light',pe_piel_1:'Medium light',pe_piel_2:'Medium dark',pe_piel_3:'Dark',pe_camisa_0:'Green',pe_camisa_1:'Blue',pe_camisa_2:'Purple',pe_camisa_3:'Red',
   personaje:'CHARACTER',pe_guardado:'CHANGES SAVED',pe_comprado:'OWNED',
   pe_bloqueado:'LOCKED',pe_ninguno:'NO ACCESSORY',pe_comprar:'BUY',
   pe_confirma:'Buy {n} for ⛁{p}?',pe_faltan:'You need ⛁{p} more',
