@@ -1523,7 +1523,7 @@ await caso('aprendiz de la portada · lleva la piel y la camisa del jugador (y c
   const casos = [[0, 0], [1, 2], [3, 3]], vistos = [];
   for (const [skin, camisa] of casos) {
     await pg.evaluate(([s, c]) => { S.skin = s; S.camisa = c; rTitulo(); }, [skin, camisa]); await listoAprendiz(pg); await pausa(400);
-    const cam = await color(pg, 36), piel = await color(pg, 12);
+    const cam = await color(pg, 42), piel = await color(pg, 12);   /* 42: el pecho; desde v40.1 en el 36 está el cuello */
     const hexes = await pg.evaluate(([s, c]) => [SKINS[s], CAMISAS[c]], [skin, camisa]);
     vistos.push({ skin, camisa, cam, piel, hexes });
   }
@@ -1934,11 +1934,12 @@ const HD_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v33', t2:
   vistos: ['escribir', 'bugs', 'memoria', 'simon', 'quiz', 'review', 'merge', 'runner', 'sql', 'regex', 'terminal', 'orden', 'jefe'] };
 /* Marca cada lienzo recoloreado con el atlas del que salió, y anota qué atlas (y qué columna)
    se pinta en pantalla: window.__atlas = [{o:'hd'|'clasico'|'portada', sx}] */
+/* 'hd' y 'portada' = el atlas del jugador: el HD de v33 o, desde v40.1, el masculino premium que lo sustituye */
 const espiaAtlas = () => {
   const d = CanvasRenderingContext2D.prototype.drawImage;
   CanvasRenderingContext2D.prototype.drawImage = function (src, ...a) {
     if (src && src.src && /npc\/pasillo\.png/.test(src.src) && a.length >= 8) (window.__atlas = window.__atlas || []).push({ o: 'npc', sx: a[0] });
-    else if (src && src.src) { const o = /portada-hd/.test(src.src) ? 'portada' : /caminar-hd/.test(src.src) ? 'hd' : /aprendiz-caminar\.png/.test(src.src) ? 'clasico' : null; if (o && this.canvas) this.canvas.__origen = o; }
+    else if (src && src.src) { const o = /portada-hd|masculino-premium-portada/.test(src.src) ? 'portada' : /caminar-hd|masculino-premium-caminar/.test(src.src) ? 'hd' : /aprendiz-caminar\.png/.test(src.src) ? 'clasico' : null; if (o && this.canvas) this.canvas.__origen = o; }
     else if (src && src.__origen && a.length >= 8) (window.__atlas = window.__atlas || []).push({ o: src.__origen, sx: a[0] });
     return d.call(this, src, ...a);
   };
@@ -1975,7 +1976,7 @@ await caso('aprendiz nuevo · en el pasillo, el jugador con su atlas y los perso
 });
 
 await caso('aprendiz nuevo · si el atlas nuevo no carga, el jugador sale con el clásico (y la portada con su reposo)', HD_J, async pg => {
-  await pg.route(/aprendiz-(caminar|portada)-hd\.png/, r => r.abort());
+  await pg.route(/aprendiz-(caminar|portada)-hd\.png|aprendiz-masculino-premium-/, r => r.abort());
   await conEspia(pg); await pg.waitForFunction(() => APRENDIZ.listo); await pausa(300);
   const portada = await atlasEn(pg, () => rTitulo(), 900);
   const mapa = await atlasEn(pg, () => rMapaLista());
