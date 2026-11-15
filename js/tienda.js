@@ -14,6 +14,7 @@ function rTienda(){
   <div class="centro">
     <h2>🛒 ${t('tienda')}</h2>
     <span class="moneda">⛁ ${S.pts} PTS</span>
+    <button type="button" class="btn btn2 tienda-probar" id="ti-probar">${t('pe_probar_acc')}</button>
    <div class="col2">
     <div class="col">
     <div class="tienda-grid">
@@ -25,7 +26,7 @@ function rTienda(){
            `disabled`, que además lo saca del recorrido del teclado. */
         return `<button class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')}" data-id="${a.id}"
           type="button" ${tiene||puede?'':'disabled'}>
-          <span class="ico-t">${a.ico}</span>
+          <span class="ico-t"><canvas class="tienda-acc-arte" width="32" height="32" aria-hidden="true"></canvas></span>
           <span class="nom-t">${nAcc(a.id)}</span>
           <span class="precio">${tiene?(S.acc===a.id?'✔ '+t('equipado'):'✔'):'⛁'+a.precio}</span>
         </button>`}).join('')}
@@ -54,6 +55,8 @@ function rTienda(){
    </div>
     <button class="btn btn2" id="ti-volver" type="button">${t('volver')}</button>
   </div>`,rTienda);
+  $$('[data-id]').forEach(el=>ACC_ARTE.icono(el.querySelector('canvas'),el.dataset.id));
+  $('#ti-probar').onclick=()=>{SFX.click();pePestana='acc';rPerso()};
   $$('[data-id]').forEach(el=>el.onclick=()=>{
     if(!aTiempo())return;
     const a=ACCS.find(x=>x.id===el.dataset.id);
@@ -101,33 +104,27 @@ function peTarjetasColor(tipo){
 function rPerso(){
   const nAcc=id=>t('acc_'+id);
   const pestanas=[['apariencia',t('pe_apariencia')],['piel',t('piel')],['camisa',t('camisa')],['acc',t('accesorio')]];
-  /* Accesorio pendiente de confirmar la compra. Se compra aquí y no solo en
-     la tienda: tocar uno bloqueado y que se sacudiera sin decir nada ni
-     ofrecerte comprarlo era un callejón sin salida. */
-  let pendiente=null;
-
-  const htmlAccs=()=>`
-    <button class="acc-op ${S.acc===''?'sel':''}" data-a="" type="button"
-      title="${t('pe_ninguno')}" aria-label="${t('pe_ninguno')}"><span class="acc-ico">🚫</span></button>
-    ${ACCS.map(a=>{
-      const tiene=S.accs.includes(a.id);
-      const puesto=S.acc===a.id;
+  // La prueba vive solo en esta pantalla; nunca se escribe en S ni en localStorage.
+  let prueba=S.acc;
+  const htmlAccs=()=>`<div class="pe-acc-grid" role="group" aria-label="${t('accesorio')}">
+    ${[{id:'',precio:0},...ACCS].map(a=>{
+      const tiene=!a.id||S.accs.includes(a.id),puesto=S.acc===a.id,seleccion=prueba===a.id;
+      const nombre=a.id?nAcc(a.id):t('pe_ninguno');
       const estado=puesto?t('equipado'):tiene?t('pe_comprado'):t('pe_bloqueado');
-      return `<button class="acc-op ${puesto?'sel':''} ${tiene?'comprado':'bloq'}" data-a="${a.id}"
-        type="button" title="${nAcc(a.id)} · ${estado}" aria-label="${nAcc(a.id)}, ${estado}">
-        <span class="acc-ico">${a.ico}</span>
-        ${puesto?'<span class="acc-eq">✔</span>':''}
-        ${tiene?'':`<span class="acc-precio">⛁${a.precio}</span>`}
-      </button>`}).join('')}`;
-
-  const htmlConfirma=()=>pendiente?`
-    <div class="pe-confirma" role="group">
-      <p>${t('pe_confirma').replace('{n}',nAcc(pendiente.id)).replace('{p}',pendiente.precio)}</p>
+      return `<button class="acc-op pe-acc-card ${seleccion?'sel':''} ${tiene?'comprado':'bloq'}" data-a="${a.id}" type="button" aria-pressed="${seleccion}" aria-label="${nombre}, ${estado}${tiene?'':', '+a.precio+' PTS'}">
+        <canvas width="32" height="32" aria-hidden="true"></canvas><span class="pe-acc-nom">${nombre}</span>
+        <span class="pe-acc-estado">${puesto?'✓ ':''}${estado}</span>${tiene?'':`<span class="pe-acc-costo">⛁ ${a.precio} PTS</span>`}
+      </button>`}).join('')}</div>`;
+  const htmlConfirma=()=>{
+    const a=ACCS.find(x=>x.id===prueba),tiene=!a||S.accs.includes(a.id),puesto=prueba===S.acc,puede=tiene||S.pts>=a.precio;
+    return `<div class="pe-confirma pe-probador" role="group" aria-label="${t('pe_prueba')}">
+      <p class="pe-prueba-tit">${t('pe_prueba')} · ${a?nAcc(a.id):t('pe_ninguno')}</p>
+      <p>${puesto?t('pe_activo'):tiene?t('pe_prueba_gratis'):puede?t('pe_confirma').replace('{n}',nAcc(a.id)).replace('{p}',a.precio):t('pe_faltan').replace('{p}',a.precio-S.pts)}</p>
       <div class="pe-confirma-btns">
-        <button class="btn" id="pe-si" type="button">${t('pe_comprar')}</button>
-        <button class="btn btn2" id="pe-no" type="button">${t('cancelar')}</button>
-      </div>
-    </div>`:'';
+        <button class="btn" id="pe-si" type="button" ${puesto||!puede?'disabled':''}>${t(tiene?'pe_equipar':'pe_comprar_equipar')}</button>
+        <button class="btn btn2" id="pe-no" type="button" ${puesto?'disabled':''}>${t('cancelar')}</button>
+      </div></div>`;
+  };
 
   pantalla('perso',`
   <div class="pe-wrap">
@@ -200,10 +197,10 @@ function rPerso(){
   let orientacion=0, andando=false, ultimoVisor='';
   const pintaCuerpo=()=>{
     const cv=$('#pe-cuerpo-av');if(!cv||pantallaId!=='perso')return;
-    const paso=APRENDIZ.pasoDe(andando&&!quieto()), clave=[S.apariencia,S.skin,S.camisa,orientacion,paso,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');
+    const paso=APRENDIZ.pasoDe(andando&&!quieto()), clave=[S.apariencia,S.skin,S.camisa,prueba,orientacion,paso,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');
     if(clave===ultimoVisor)return;
     const c=cv.getContext('2d');c.clearRect(0,0,44,74);
-    if(!APRENDIZ.dibujar(c,22,74,74,orientacion,paso))return;
+    if(!APRENDIZ.dibujar(c,22,74,74,orientacion,paso,S.skin,S.camisa,S.apariencia,prueba))return;
     ultimoVisor=clave;
   };
   const pintaOpciones=()=>$$('.pe-apariencia-op').forEach(b=>{
@@ -223,7 +220,7 @@ function rPerso(){
     const c=cv.getContext('2d');c.clearRect(0,0,44,74);
     APRENDIZ.dibujar(c,22,74,74,0,0,S.skin,i,S.apariencia);
   });
-  const pinta=()=>{retratoVivo($('#pe-cara'),CARAS.yo(true));ultimoVisor='';pintaCuerpo();pintaOpciones();pintaColores()};
+  const pinta=()=>{const cara=CARAS.yo(true);for(const id of ACC_ARTE.ids)cara[id]=prueba===id;retratoVivo($('#pe-cara'),cara);ultimoVisor='';pintaCuerpo();pintaOpciones();pintaColores()};
   $$('.pe-apariencia-op').forEach(b=>b.onclick=()=>{
     const id=b.dataset.apariencia;if(id!=='masculina'&&id!=='femenina')return;
     S.apariencia=id;guardar();SFX.click();pinta();avisar(t('pe_guardado'));
@@ -262,6 +259,7 @@ function rPerso(){
 
   /* ── pestañas ── */
   const abrir=id=>{
+    if(id!=='acc'&&prueba!==S.acc){prueba=S.acc;refrescar();avisar(t('pe_guardado'))}
     pePestana=id;
     $$('.pe-tab').forEach(x=>{const on=x.dataset.tab===id;
       x.classList.toggle('act',on);x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1});
@@ -300,36 +298,31 @@ function rPerso(){
     pinta();
   }
   function comprar(){
-    const a=pendiente;pendiente=null;
-    if(!a||S.accs.includes(a.id)||S.pts<a.precio)return refrescar();
-    S.pts-=a.precio;S.accs.push(a.id);S.acc=a.id;guardar();compraReciente=Date.now();
-    SFX.moneda();darLogro('comprador');
-    if(ACCS.every(x=>S.accs.includes(x.id)))darLogro('coleccionista');
-    refrescar();latido();confeti();
-    avisar(t('pe_comprado')+': '+nAcc(a.id),'verde');
+    if(prueba===S.acc||!aTiempo())return;
+    const a=ACCS.find(x=>x.id===prueba);
+    if(!a&&prueba!=='')return;
+    const nueva=!!a&&!S.accs.includes(a.id);
+    if(nueva&&S.pts<a.precio){avisar(t('pe_faltan').replace('{p}',a.precio-S.pts),'rojo');refrescar();return}
+    if(nueva){S.pts-=a.precio;S.accs.push(a.id);compraReciente=Date.now()}
+    S.acc=prueba;guardar();
+    if(nueva){SFX.moneda();darLogro('comprador');if(ACCS.every(x=>S.accs.includes(x.id)))darLogro('coleccionista');if(!quieto())confeti()}
+    else SFX.click();
+    refrescar();if(!quieto())latido();avisar(t('pe_guardado'),'verde');
+    $('#pe-accs .acc-op.sel')?.focus();
   }
   function enlazarAccs(){
-    $$('#pe-accs .acc-op').forEach(b=>b.onclick=()=>{
-      if(!aTiempo())return;
-      const id=b.dataset.a;
-      if(!id){S.acc='';guardar();SFX.click();pendiente=null;refrescar();latido();avisar(t('pe_guardado'));return}
-      const a=ACCS.find(x=>x.id===id);
-      if(S.accs.includes(id)){
-        S.acc=S.acc===id?'':id;guardar();SFX.click();pendiente=null;refrescar();latido();
-        avisar(S.acc===id?t('equipado')+': '+nAcc(id):t('pe_guardado'));
-        return;
-      }
-      if(S.pts<a.precio){
-        SFX.mal();b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),320);
-        avisar(t('pe_faltan').replace('{p}',a.precio-S.pts),'rojo');
-        return;
-      }
-      pendiente=a;SFX.click();refrescar();
-      avisar(t('pe_confirma').replace('{n}',nAcc(a.id)).replace('{p}',a.precio));
+    $$('#pe-accs .acc-op').forEach(b=>{
+      const id=b.dataset.a;ACC_ARTE.icono(b.querySelector('canvas'),id);
+      b.onclick=()=>{
+        if(!aTiempo()|| (id!==''&&!ACCS.some(a=>a.id===id)))return;
+        prueba=id;SFX.click();refrescar();
+        avisar(prueba===S.acc?t('pe_guardado'):t('pe_prueba_gratis'));
+        $('#pe-accs .acc-op.sel')?.focus();
+      };
     });
     const si=$('#pe-si'),no=$('#pe-no');
-    if(si)si.onclick=()=>{SFX.click();comprar()};
-    if(no)no.onclick=()=>{SFX.click();pendiente=null;refrescar();avisar(t('pe_guardado'))};
+    if(si)si.onclick=comprar;
+    if(no)no.onclick=()=>{SFX.click();prueba=S.acc;refrescar();avisar(t('pe_guardado'));$('#pe-accs .acc-op.sel')?.focus()};
   }
   enlazarAccs();
   pinta();

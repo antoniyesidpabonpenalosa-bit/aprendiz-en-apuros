@@ -20,8 +20,9 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.3';
+const VERSION='v40.4';
 const NOVEDADES=[
+  {v:'v40.4', fecha:'2026-11-15', es:['Prueba los nueve accesorios sin gastar puntos y equípalos también en el cuerpo del Aprendiz.'], en:['Try all nine accessories for free and equip them on the full-body Apprentice.']},
   {v:'v40.3', fecha:'2026-11-15',
    es:['Mi Avatar muestra tarjetas de piel y camisa con vistas previas reales, nombres de colores y selección clara para ambas apariencias. Los colores siguen siendo gratuitos.'],
    en:['My Avatar shows skin and shirt cards with live previews, color names and clear selection for both appearances. Colors remain free.']},
@@ -949,6 +950,7 @@ const TXT={
  pe_ayuda_piel:'Elige un tono. Tu retrato y personaje se actualizan al instante.',pe_ayuda_camisa:'Elige el color de tu camisa. Puedes cambiarlo cuando quieras.',
  pe_piel_0:'Claro',pe_piel_1:'Medio claro',pe_piel_2:'Medio oscuro',pe_piel_3:'Oscuro',pe_camisa_0:'Verde',pe_camisa_1:'Azul',pe_camisa_2:'Morado',pe_camisa_3:'Rojo',
  personaje:'PERSONAJE',pe_guardado:'CAMBIOS GUARDADOS',pe_comprado:'COMPRADO',
+ pe_probar_acc:'PROBAR ACCESORIOS',pe_prueba:'PROBADOR',pe_prueba_gratis:'Vista previa gratuita. No cambia tu inventario.',pe_activo:'Accesorio equipado. Cambios guardados.',pe_equipar:'EQUIPAR',pe_comprar_equipar:'COMPRAR Y EQUIPAR',
  pe_bloqueado:'BLOQUEADO',pe_ninguno:'SIN ACCESORIO',pe_comprar:'COMPRAR',
  pe_confirma:'¿Comprar {n} por ⛁{p}?',pe_faltan:'Te faltan ⛁{p}',
   pe_detalle:'DETALLE DEL RETRATO',pe_detalle16:'🕹 16×16',pe_detalle32:'🔍 32×32',
@@ -1087,6 +1089,7 @@ const TXT={
   pe_ayuda_piel:'Choose a tone. Your portrait and character update instantly.',pe_ayuda_camisa:'Choose your shirt color. You can change it anytime.',
   pe_piel_0:'Light',pe_piel_1:'Medium light',pe_piel_2:'Medium dark',pe_piel_3:'Dark',pe_camisa_0:'Green',pe_camisa_1:'Blue',pe_camisa_2:'Purple',pe_camisa_3:'Red',
   personaje:'CHARACTER',pe_guardado:'CHANGES SAVED',pe_comprado:'OWNED',
+  pe_probar_acc:'TRY ON ACCESSORIES',pe_prueba:'TRY ON',pe_prueba_gratis:'Free preview. Your inventory is unchanged.',pe_activo:'Accessory equipped. Changes saved.',pe_equipar:'EQUIP',pe_comprar_equipar:'BUY AND EQUIP',
   pe_bloqueado:'LOCKED',pe_ninguno:'NO ACCESSORY',pe_comprar:'BUY',
   pe_confirma:'Buy {n} for ⛁{p}?',pe_faltan:'You need ⛁{p} more',
   pe_detalle:'PORTRAIT DETAIL',pe_detalle16:'🕹 16×16',pe_detalle32:'🔍 32×32',

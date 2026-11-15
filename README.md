@@ -185,6 +185,7 @@ test/
 ├── aprendiz-masculino-premium.test.mjs → pruebas del masculino premium: tamaños, respaldo HD/clásico, femenina y NPC aparte, recoloreo de las 16 combinaciones
 ├── retratos-protagonistas.test.mjs → pruebas de los retratos de los protagonistas: datos íntegros, solo el jugador local y scripts en caché
 ├── colores-avatar.test.mjs → pruebas de las tarjetas de piel y camisa: índices de las paletas, nombres ES/EN y guardado de las 32 combinaciones
+├── accesorios-cuerpo.test.mjs → pruebas de los accesorios sobre el cuerpo: cobertura por dirección, paso y apariencia, y que se guardan
 ├── titulo.test.mjs       → pruebas del título de la portada: recurso, texto accesible de respaldo y reglas de CSS
 ├── portada.test.mjs      → pruebas del aprendiz animado de la portada: qué hace en cada instante y que quede decorativo
 ├── botones.test.mjs      → pruebas de los botones de la portada: CSS acotado a .portada, iconos pixel y dificultad accesible

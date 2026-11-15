@@ -58,7 +58,7 @@ function aprendizPortada(cv,boton){
        (img/aprendiz-portada-hd.png: 0 reposo, 1 parpadeo, 2-3 saludo), no píxeles pintados
        encima. Si ese atlas no cargó, dibujarPortada pinta el reposo de la caminata. */
     const pose=e.saludo?2+e.brazo:e.parpadeo?1:0;
-    const clave=[pose,e.respira?'r':'',S.skin,S.camisa,S.apariencia,APRENDIZ.listaFemenina,APRENDIZ.listoPremium,APRENDIZ.listoPortadaPremium,APRENDIZ.listoPortada?'hd':''].join('|');
+    const clave=[pose,e.respira?'r':'',S.skin,S.camisa,S.apariencia,S.acc,APRENDIZ.listaFemenina,APRENDIZ.listoPremium,APRENDIZ.listoPortadaPremium,APRENDIZ.listoPortada?'hd':''].join('|');
     if(clave===ultimo)return;
     b.clearRect(0,0,44,74);
     if(!APRENDIZ.dibujarPortada(b,22,74,74,pose))return;     /* el atlas aún no cargó: se reintenta */

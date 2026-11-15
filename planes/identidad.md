@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40 a v40.3)
+# Plan: identidad y personalización (v40 a v40.4)
 
 > Estado: **hecho (v40), primera parte**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -49,13 +49,26 @@
 - Mismas paletas `SKINS`/`CAMISAS` e índices; ni compras ni accesorios cambian. Paquete aplicado
   limpio (salvo la fila de VERSIONES.md); dos casos nuevos en el barrido.
 
+## Parte 5 (v40.4): accesorios sobre el cuerpo y probador
+
+- `ACC_ARTE` (js/sprite.js): los 9 accesorios en pixel art dibujados sobre el cuadro del jugador
+  (8 direcciones, 4 pasos, las dos apariencias); `APRENDIZ.dibujar/dibujarPortada` reciben `acc`
+  (por defecto `S.acc`), así salen en portada, mapa, pasillo, runner y jefe. Los NPC no los
+  llevan; el ancla, la caja de choque y la velocidad no cambian.
+- Mi Avatar: tocar un accesorio solo lo PRUEBA (no toca `S` ni el guardado); EQUIPAR o COMPRAR Y
+  EQUIPAR lo confirman. Cancelar o cambiar de pestaña descartan la prueba. Un solo accesorio.
+- Tienda: iconos pixel y botón PROBAR ACCESORIOS; su compra directa no cambia. Precios iguales.
+- Al integrar: la prueba del barrido de la ficha de la portada (v31) equipaba con un toque; ahora
+  toca y confirma. Seis casos nuevos. La campaña de 15 días jugada por el robot con un accesorio
+  distinto cada día y las dos apariencias termina sin errores y sin cambiar accesorio ni inventario.
+
 ## Fuera de esta parte
 
-- Los accesorios no se dibujan sobre el cuerpo entero; no hay diálogos nuevos del protagonista.
+- No hay diálogos nuevos del protagonista.
 - La sala de clase no sincroniza la apariencia (el proyector sigue con los campos de antes).
 - No hay pantalla de elección al empezar partida: se elige en Mi Avatar.
 
 ## Siguiente
 
-El probador de accesorios de cuerpo entero y el pulido de Mi Avatar (paquetes aparte); los
-diálogos del protagonista, cuando se apruebe la biblia narrativa.
+El rediseño definitivo de Mi Avatar (paquete aparte); los diálogos del protagonista, cuando se
+apruebe la biblia narrativa.

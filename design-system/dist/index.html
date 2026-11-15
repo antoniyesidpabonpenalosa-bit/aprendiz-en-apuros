@@ -2109,6 +2109,28 @@ html.hd .pe-wrap .pe-color-op{border-radius:6px}
 @media(max-width:390px){.pe-wrap .pe-color-grid{gap:8px}.pe-wrap .pe-color-op{padding:5px}.pe-wrap .pe-color-arte{height:100px}.pe-wrap .camisa-op .pe-color-arte canvas{width:55px;height:92.5px}.pe-wrap .pe-color-nom{font-size:17px}}
 @media(prefers-reduced-motion:reduce){.pe-wrap .pe-color-op,.pe-wrap .pe-color-arte canvas,.pe-wrap .pe-pum{animation:none!important;transition:none!important}}
 
+/* v40.4 · Probador de accesorios. Solo Mi Avatar. */
+.pe-wrap .accs-tienda{display:block;width:100%;max-width:none;margin:8px 0}
+.pe-wrap .pe-acc-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.pe-wrap .pe-acc-card{display:flex;flex-direction:column;justify-content:center;gap:5px;width:100%;height:auto;min-height:100px;padding:8px 3px;background:linear-gradient(180deg,#293456,#141b35);border:2px solid #50628e;box-shadow:inset 0 2px #ffffff18,0 3px #090e20;opacity:1;min-width:0;text-align:center}
+.pe-wrap .pe-acc-card canvas{width:36px;height:36px;image-rendering:pixelated;max-width:100%}
+.pe-wrap .pe-acc-nom{font-size:8px;line-height:1.6;color:#e4edff;overflow-wrap:anywhere}
+.pe-wrap .pe-acc-estado{font-size:7px;color:#a5b6db;line-height:1.4;overflow-wrap:anywhere}
+.pe-wrap .pe-acc-costo{font-size:8px;color:#ffcf3f;line-height:1.4}
+.pe-wrap .pe-acc-card.sel{border-color:#ffcf3f;box-shadow:inset 0 0 0 1px #ffcf3f,0 3px #76501b;background:linear-gradient(#493b50,#25243c)}
+.pe-wrap .pe-acc-card.comprado .pe-acc-estado{color:#9ce96b}
+.pe-wrap .pe-acc-card:focus-visible{outline:2px dashed #6fd2f0;outline-offset:2px}
+.pe-wrap .pe-probador{margin-top:9px;padding:10px;border-color:#536ba2;background:#111b33}
+.pe-wrap .pe-prueba-tit{color:#ffcf3f;line-height:1.6}
+.pe-wrap .pe-probador button:disabled{opacity:.5;cursor:default}
+@media(max-width:750px){.pe-wrap .pe-acc-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:390px){.pe-wrap .pe-acc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+html.legible .pe-wrap .pe-acc-nom,html.legible .pe-wrap .pe-acc-estado,html.legible .pe-wrap .pe-acc-costo{font-size:14px}
+
+/* Tienda: el mismo arte del probador, sin cambiar su lógica de compra. */
+.tienda-acc-arte{display:block;width:32px;height:32px;image-rendering:pixelated;max-width:100%}
+.tienda-probar{display:block;margin:8px auto;max-width:100%;font-size:9px}
+
 
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}
@@ -3292,6 +3314,28 @@ html.legible .pe-wrap .pe-color-cab h3,html.legible .pe-wrap .pe-gratis,html.leg
 .oled-scope .pe-wrap .pe-color-op{border-radius:6px}
 @media(max-width:390px){.pe-wrap .pe-color-grid{gap:8px}.pe-wrap .pe-color-op{padding:5px}.pe-wrap .pe-color-arte{height:100px}.pe-wrap .camisa-op .pe-color-arte canvas{width:55px;height:92.5px}.pe-wrap .pe-color-nom{font-size:17px}}
 @media(prefers-reduced-motion:reduce){.pe-wrap .pe-color-op,.pe-wrap .pe-color-arte canvas,.pe-wrap .pe-pum{animation:none!important;transition:none!important}}
+
+/* v40.4 · Probador de accesorios. Solo Mi Avatar. */
+.pe-wrap .accs-tienda{display:block;width:100%;max-width:none;margin:8px 0}
+.pe-wrap .pe-acc-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.pe-wrap .pe-acc-card{display:flex;flex-direction:column;justify-content:center;gap:5px;width:100%;height:auto;min-height:100px;padding:8px 3px;background:linear-gradient(180deg,#293456,#141b35);border:2px solid #50628e;box-shadow:inset 0 2px #ffffff18,0 3px #090e20;opacity:1;min-width:0;text-align:center}
+.pe-wrap .pe-acc-card canvas{width:36px;height:36px;image-rendering:pixelated;max-width:100%}
+.pe-wrap .pe-acc-nom{font-size:8px;line-height:1.6;color:#e4edff;overflow-wrap:anywhere}
+.pe-wrap .pe-acc-estado{font-size:7px;color:#a5b6db;line-height:1.4;overflow-wrap:anywhere}
+.pe-wrap .pe-acc-costo{font-size:8px;color:#ffcf3f;line-height:1.4}
+.pe-wrap .pe-acc-card.sel{border-color:#ffcf3f;box-shadow:inset 0 0 0 1px #ffcf3f,0 3px #76501b;background:linear-gradient(#493b50,#25243c)}
+.pe-wrap .pe-acc-card.comprado .pe-acc-estado{color:#9ce96b}
+.pe-wrap .pe-acc-card:focus-visible{outline:2px dashed #6fd2f0;outline-offset:2px}
+.pe-wrap .pe-probador{margin-top:9px;padding:10px;border-color:#536ba2;background:#111b33}
+.pe-wrap .pe-prueba-tit{color:#ffcf3f;line-height:1.6}
+.pe-wrap .pe-probador button:disabled{opacity:.5;cursor:default}
+@media(max-width:750px){.pe-wrap .pe-acc-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:390px){.pe-wrap .pe-acc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+html.legible .pe-wrap .pe-acc-nom,html.legible .pe-wrap .pe-acc-estado,html.legible .pe-wrap .pe-acc-costo{font-size:14px}
+
+/* Tienda: el mismo arte del probador, sin cambiar su lógica de compra. */
+.tienda-acc-arte{display:block;width:32px;height:32px;image-rendering:pixelated;max-width:100%}
+.tienda-probar{display:block;margin:8px auto;max-width:100%;font-size:9px}
 
 </style>
 </head>

@@ -1772,7 +1772,7 @@ await caso('ficha de la portada · el retrato lleva lo que eliges en Mi Avatar: 
   };
   const h1 = await vuelta(() => document.querySelector('.skin-op[data-s="2"]').click(), 'piel');
   const h2 = await vuelta(() => document.querySelector('.camisa-op[data-c="3"]').click(), 'camisa');
-  const h3 = await vuelta(() => document.querySelector('.acc-op[data-a="gafas"]').click(), 'gafas');
+  const h3 = await vuelta(() => { document.querySelector('.acc-op[data-a="gafas"]').click(); document.getElementById('pe-si').click(); }, 'gafas');   /* v40.4: tocar prueba; EQUIPAR lo pone */
   const h4 = await vuelta(() => document.getElementById('pe-d32').click(), 'detalle 32');
   const s = await pg.evaluate(() => ({ skin: S.skin, camisa: S.camisa, acc: S.acc, av32: S.av32, ancho: document.querySelector('#t-av').width }));
   const distintas = new Set([h0, h1, h2, h3, h4]).size === 5;
@@ -2683,6 +2683,112 @@ await caso('colores del avatar · las pestañas PIEL y CAMISA caben en 6 tamaño
   }
   await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es' }); aplicarModo(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '3 modos × 6 tamaños × 2 pestañas: todo dentro, sin cortar'];
+});
+
+/* ── IDENTIDAD, PARTE 5 (v40.4): accesorios sobre el cuerpo y probador ──
+   Lo que no puede romperse: probar es gratis y no toca ni S ni el guardado; solo EQUIPAR o
+   COMPRAR Y EQUIPAR cambian algo, y cobran el precio exacto una vez; sigue habiendo un único
+   accesorio puesto; el accesorio se ve sobre el jugador en la portada, el mapa, el pasillo, el
+   runner y el jefe, nunca sobre los NPC; y la pestaña cabe. */
+const ACC_J = { ...ID_J, pts: 400, accs: ['gafas'], acc: 'gafas' };
+
+await caso('accesorios · el probador es gratis: probar uno no comprado lo enseña en el visor sin tocar S ni el guardado; CANCELAR y cambiar de pestaña lo descartan', ACC_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listoPremium, null, { timeout: 5000 });
+  const r = await pg.evaluate(async () => { pePestana = 'acc'; rPerso(); await new Promise(r => setTimeout(r, 300));
+    const visor = () => $('#pe-cuerpo-av').toDataURL(), guardado = () => localStorage.getItem('pa3');
+    const v0 = visor(), g0 = guardado(), o = {};
+    $('.acc-op[data-a="capa"]').click(); await new Promise(r => setTimeout(r, 300));
+    o.prueba = { visorCambia: visor() !== v0, acc: S.acc, pts: S.pts, accs: S.accs.join(), guardadoIgual: guardado() === g0, boton: $('#pe-si').textContent.trim(), aria: $('.acc-op[data-a="capa"]').getAttribute('aria-pressed') };
+    $('#pe-no').click(); await new Promise(r => setTimeout(r, 300)); o.cancelar = { visorVuelve: visor() === v0, sel: $('.acc-op.sel')?.dataset.a };
+    $('.acc-op[data-a="corona"]').click(); $('#pe-t-piel').click(); $('#pe-t-acc').click(); await new Promise(r => setTimeout(r, 300));
+    o.pestana = { sel: $('.acc-op.sel')?.dataset.a, visorVuelve: visor() === v0, acc: S.acc, guardadoIgual: guardado() === g0 };
+    return o; });
+  const p = r.prueba;
+  const ok = p.visorCambia && p.acc === 'gafas' && p.pts === 400 && p.accs === 'gafas' && p.guardadoIgual && p.aria === 'true' && r.cancelar.visorVuelve && r.cancelar.sel === 'gafas' && r.pestana.sel === 'gafas' && r.pestana.visorVuelve && r.pestana.acc === 'gafas' && r.pestana.guardadoIgual;
+  return [ok, JSON.stringify(r)];
+});
+
+await caso('accesorios · COMPRAR Y EQUIPAR cobra el precio exacto una vez (doble clic incluido); sin puntos no deja; EQUIPAR uno comprado y SIN ACCESORIO no cobran; nunca hay dos puestos', ACC_J, async pg => {
+  const r = await pg.evaluate(async () => { pePestana = 'acc'; rPerso(); await new Promise(r => setTimeout(r, 200)); const o = {};
+    const precio = id => ACCS.find(a => a.id === id).precio;
+    const barato = ACCS.filter(a => a.id !== 'gafas' && a.precio <= S.pts).sort((a, b) => a.precio - b.precio)[0].id;
+    const caro = ACCS.filter(a => a.precio > S.pts)[0]?.id;
+    let antes = S.pts; $(`.acc-op[data-a="${barato}"]`).click(); const si = $('#pe-si'); si.click(); si.click(); $('#pe-si')?.click();
+    o.compra = { id: barato, cobro: antes - S.pts, precio: precio(barato), acc: S.acc, veces: S.accs.filter(x => x === barato).length, guardado: JSON.parse(localStorage.getItem('pa3')).acc };
+    await new Promise(r => setTimeout(r, 500));
+    if (caro) { antes = S.pts; $(`.acc-op[data-a="${caro}"]`).click(); o.caro = { id: caro, desactivado: $('#pe-si').disabled }; $('#pe-si').click(); o.caro.cobro = antes - S.pts; o.caro.acc = S.acc; $('#pe-no').click(); }
+    antes = S.pts; $('.acc-op[data-a="gafas"]').click(); $('#pe-si').click(); o.equipar = { cobro: antes - S.pts, acc: S.acc };
+    await new Promise(r => setTimeout(r, 500));
+    antes = S.pts; $('.acc-op[data-a=""]').click(); $('#pe-si').click(); o.quitar = { cobro: antes - S.pts, acc: S.acc, guardado: JSON.parse(localStorage.getItem('pa3')).acc };
+    o.unico = typeof S.acc === 'string';
+    return o; });
+  const ok = r.compra.cobro === r.compra.precio && r.compra.acc === r.compra.id && r.compra.veces === 1 && r.compra.guardado === r.compra.id
+    && (!r.caro || (r.caro.desactivado && r.caro.cobro === 0 && r.caro.acc === r.compra.id))
+    && r.equipar.cobro === 0 && r.equipar.acc === 'gafas' && r.quitar.cobro === 0 && r.quitar.acc === '' && r.quitar.guardado === '' && r.unico;
+  return [ok, JSON.stringify(r)];
+});
+
+await caso('accesorios · el accesorio puesto se pinta sobre el jugador en la portada, el mapa, el pasillo, el runner y el jefe, con las dos apariencias; los NPC no lo llevan', ACC_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listoPremium && APRENDIZ.listaFemenina && NPC_PASILLO.listo, null, { timeout: 5000 });
+  const r = {};
+  await pg.evaluate(() => { window.__acc = []; const o = ACC_ARTE.encima; ACC_ARTE.encima = function (k, id, ...a) { window.__acc.push(id); return o.call(this, k, id, ...a); }; });
+  for (const [ap, acc] of [['masculina', 'corona'], ['femenina', 'gato']]) {
+    for (const [n, f, ms] of [['portada', 'rTitulo()', 600], ['mapa', 'rMapaLista()', 500], ['pasillo', 'rPasillo(0)', 600], ['runner', 'diaAct = 9; vidas = 3; nvRunner(9)', 900], ['jefe', 'diaAct = 9; vidas = 3; nvJefe(9, 0)', 1200]]) {
+      await pg.evaluate(([ap, acc]) => { S.apariencia = ap; S.acc = acc; window.__acc = []; }, [ap, acc]);
+      await pg.evaluate(f); await pausa(ms);
+      r[`${ap[0]}:${n}`] = await pg.evaluate(() => [...new Set(window.__acc)].join());
+    }
+  }
+  const npc = await pg.evaluate(() => { const h = acc => { const c = document.createElement('canvas'); c.width = 44; c.height = 74; APRENDIZ.dibujar(c.getContext('2d'), 22, 74, 74, 0, 0, PERSONAJES.lider.piel, PERSONAJES.lider.camisa, 'masculina', acc); return c.toDataURL(); }; return h('corona') === h(''); });
+  await pg.evaluate(() => rTitulo());
+  const ok = Object.entries(r).every(([k, v]) => v === (k[0] === 'm' ? 'corona' : 'gato')) && npc;
+  return [ok, JSON.stringify({ ...r, npcSinAccesorio: npc })];
+});
+
+await caso('accesorios · los 9 sobre el cuerpo: cada uno cambia el dibujo en 8 direcciones × 4 pasos × 2 apariencias (las gafas, la corbata y la medalla se esconden de espaldas) y los pies no se mueven', ACC_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listoPremium && APRENDIZ.listaFemenina, null, { timeout: 5000 });
+  const r = await pg.evaluate(() => {
+    const k = document.createElement('canvas'); k.width = 44; k.height = 74; const c = k.getContext('2d', { willReadFrequently: true });
+    const pinta = (d, p, ap, acc) => { c.clearRect(0, 0, 44, 74); APRENDIZ.dibujar(c, 22, 74, 74, d, p, 1, 1, ap, acc); return c.getImageData(0, 0, 44, 74).data; };
+    const igual = (a, b) => a.every((v, i) => v === b[i]);
+    const pie = d => { for (let y = 73; y >= 0; y--) for (let x = 0; x < 44; x++) if (d[(y * 44 + x) * 4 + 3]) return y; return -1; };
+    const mal = [], ocultos = { gafas: [3, 4, 5], corbata: [3, 4, 5], medalla: [3, 4, 5] };
+    for (const ap of ['masculina', 'femenina']) for (let d = 0; d < 8; d++) for (let p = 0; p < 4; p++) { const base = pinta(d, p, ap, ''), piso = pie(base);
+      for (const id of ACC_ARTE.ids) { const con = pinta(d, p, ap, id), oculto = (ocultos[id] || []).includes(d);
+        if (oculto !== igual(base, con)) mal.push(`${ap} ${id} dir ${d} paso ${p}: ${oculto ? 'se ve de espaldas' : 'no se ve'}`);
+        if (pie(con) !== piso && id !== 'gato') mal.push(`${ap} ${id} dir ${d} paso ${p}: pie ${pie(con)} vs ${piso}`); } }
+    return mal; });
+  return [r.length === 0, r.length ? r.slice(0, 4).join(' · ') : '9 accesorios × 64 cuadros × 2 apariencias: se ven donde toca y los pies no se mueven'];
+});
+
+await caso('accesorios · la tienda pinta los 9 iconos pixel (distintos) y PROBAR ACCESORIOS abre Mi Avatar en la pestaña de accesorios; la compra de la tienda sigue igual', ACC_J, async pg => {
+  const r = await pg.evaluate(async () => { rTienda(); await new Promise(r => setTimeout(r, 200));
+    const iconos = [...document.querySelectorAll('.item-tienda canvas.tienda-acc-arte')].map(c => c.toDataURL());
+    const vacio = (() => { const c = document.createElement('canvas'); c.width = c.height = 32; return c.toDataURL(); })();
+    const o = { iconos: iconos.length, distintos: new Set(iconos).size, vacios: iconos.filter(u => u === vacio).length };
+    const barato = ACCS.filter(a => !S.accs.includes(a.id) && a.precio <= S.pts)[0]; const antes = S.pts;
+    if (barato) { document.querySelector(`.item-tienda[data-id="${barato.id}"]`).click(); await new Promise(r => setTimeout(r, 100)); o.tiendaCobra = antes - S.pts === barato.precio || !!document.querySelector('#screen [data-id]'); }
+    rTienda(); $('#ti-probar').click(); o.pantalla = pantallaId; o.tab = $('.pe-tab.act')?.dataset.tab;
+    return o; });
+  return [r.iconos === 9 && r.distintos === 9 && r.vacios === 0 && r.pantalla === 'perso' && r.tab === 'acc', JSON.stringify(r)];
+});
+
+await caso('accesorios · la pestaña de accesorios cabe en 6 tamaños, con HD y texto legible, en ES y EN, sin desbordar ni cortar', ACC_J, async pg => {
+  const mal = [];
+  for (const modo of [{}, { hd: true, legible: true }, { lang: 'en', legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
+    for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+      await pg.setViewportSize({ width: w, height: h });
+      await pg.evaluate(() => { pePestana = 'acc'; rPerso(); $('.acc-op[data-a="capa"]').click(); }); await pausa(150);
+      const r = await pg.evaluate(() => { const sc = $('#screen'), p = $('#pe-p-acc').getBoundingClientRect();
+        const fuera = [...document.querySelectorAll('#pe-p-acc button')].filter(e => { const q = e.getBoundingClientRect(); return q.width && (q.left < p.left - 1 || q.right > p.right + 1); }).map(e => e.id || e.dataset.a);
+        const corta = [...document.querySelectorAll('#pe-p-acc .pe-acc-nom, #pe-p-acc .pe-acc-estado, #pe-p-acc .pe-acc-costo, #pe-p-acc .btn')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.textContent.trim());
+        return { scroll: sc.scrollWidth > sc.clientWidth || document.documentElement.scrollWidth > innerWidth, fuera, corta }; });
+      if (r.scroll || r.fuera.length || r.corta.length) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
+    }
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es' }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '3 modos × 6 tamaños: todo dentro, sin cortar'];
 });
 
 await nav.close();
