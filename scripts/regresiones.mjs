@@ -2584,6 +2584,24 @@ await caso('identidad · Mi Avatar con la pestaña APARIENCIA cabe en 6 tamaños
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '3 modos × 6 tamaños: todo dentro, sin desbordar ni cortar'];
 });
 
+/* ── IDENTIDAD, PARTE 2 (v40.1): el protagonista masculino premium ── */
+await caso('masculino premium · el jugador masculino se pinta con el atlas premium (caminata y portada) en las 16 combinaciones, y los NPC no lo usan', ID_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listoPremium && APRENDIZ.listoPortadaPremium && APRENDIZ.listoHD && NPC_PASILLO.listo, null, { timeout: 5000 });
+  const r = await pg.evaluate(() => {
+    S.apariencia = 'masculina';
+    const lienzo = (f) => { const c = document.createElement('canvas'); c.width = 44; c.height = 74; f(c.getContext('2d')); return c.toDataURL(); };
+    const combos = new Set(), portadas = new Set();
+    for (let s = 0; s < 4; s++) for (let c = 0; c < 4; c++) {
+      combos.add(lienzo(x => APRENDIZ.dibujar(x, 22, 74, 74, 0, 0, s, c)));
+      portadas.add(lienzo(x => APRENDIZ.dibujarPortada(x, 22, 74, 74, 2, s, c)));
+    }
+    const poses = new Set([0, 1, 2, 3].map(p => lienzo(x => APRENDIZ.dibujarPortada(x, 22, 74, 74, p))));
+    const npc = lienzo(x => APRENDIZ.dibujar(x, 22, 74, 74, 0, 0, PERSONAJES.companera.piel, PERSONAJES.companera.camisa));
+    return { combos: combos.size, portadas: portadas.size, poses: poses.size, npcDistinto: !combos.has(npc), listoPortada: APRENDIZ.listoPortada };
+  });
+  return [r.combos === 16 && r.portadas === 16 && r.poses === 4 && r.npcDistinto && r.listoPortada, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

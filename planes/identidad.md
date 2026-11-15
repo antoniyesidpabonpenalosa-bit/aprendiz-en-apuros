@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40, parte 1)
+# Plan: identidad y personalización (v40 y v40.1)
 
 > Estado: **hecho (v40), primera parte**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -18,13 +18,22 @@
 - Retrato 16×16 y 32×32 con peinado femenino; los accesorios siguen igual.
 - Comprar un accesorio con una confirmación vieja ya no cobra dos veces.
 
+## Parte 2 (v40.1): masculino premium
+
+- `img/aprendiz-masculino-premium-caminar.png` (176×592) y `-portada.png` (176×74: reposo,
+  parpadeo, saludo A y B), refinados desde los HD de v33 con `scripts/build-aprendiz-masculino.py`
+  (Pillow); contrato en `arte/aprendiz-masculino-premium/`.
+- `APRENDIZ` prefiere el premium para el jugador masculino; si no carga, el HD anterior y luego el
+  clásico. Misma paleta exacta de piel y camisa que el femenino. Paquete aplicado limpio; se
+  arregló la fila de VERSIONES.md (estaba fuera de la tabla) y se añadió un caso al barrido.
+
 ## Fuera de esta parte
 
-- El protagonista masculino no se rediseña; los accesorios no se dibujan sobre el cuerpo entero.
+- Los retratos (16×16, 32×32 y cine) no cambian; los accesorios no se dibujan sobre el cuerpo entero.
 - La sala de clase no sincroniza la apariencia (el proyector sigue con los campos de antes).
 - No hay pantalla de elección al empezar partida: se elige en Mi Avatar.
 
 ## Siguiente
 
-Rediseño del protagonista masculino y sus retratos; después, el probador de accesorios de
-cuerpo entero (paquetes aparte).
+Retratos de los dos protagonistas; después, el probador de accesorios de cuerpo entero
+(paquetes aparte).

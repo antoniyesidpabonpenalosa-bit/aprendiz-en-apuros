@@ -117,6 +117,7 @@ aprendiz-en-apuros/
 ├── img/
 │   ├── aprendiz-caminar.png → sprite del aprendiz: caminata de 4 cuadros en 8 direcciones
 │   ├── aprendiz-femenina-caminar.png / -portada.png → la apariencia femenina: caminata 4×8 y 4 poses de portada (celdas de 44×74)
+│   ├── aprendiz-masculino-premium-caminar.png / -portada.png → el protagonista masculino premium (se genera con scripts/build-aprendiz-masculino.py desde los HD)
 │   ├── titulo/           → el título de la portada (PNG transparente, 920×360)
 │   ├── portada/          → el campus nocturno HD del menú principal: el escenario (WebP) y 5 capas animadas (PNG), de 1600×900
 │   ├── pasillo-hd/       → el pasillo HD: techo, muro y suelo (WebP) y la hoja de la puerta (PNG) de formación y de empresa
@@ -179,6 +180,7 @@ test/
 ├── npc-sprites.test.mjs  → pruebas de los sprites de los personajes del pasillo: atlas propio, ancla de los pies y respaldo si no carga
 ├── cinematica.test.mjs   → pruebas de las escenas cinematográficas: páginas, formatos de guion compatibles y fondos
 ├── identidad.test.mjs    → pruebas de la apariencia masculina/femenina: migración, guardado e importación, atlas femenino y su recoloreo
+├── aprendiz-masculino-premium.test.mjs → pruebas del masculino premium: tamaños, respaldo HD/clásico, femenina y NPC aparte, recoloreo de las 16 combinaciones
 ├── titulo.test.mjs       → pruebas del título de la portada: recurso, texto accesible de respaldo y reglas de CSS
 ├── portada.test.mjs      → pruebas del aprendiz animado de la portada: qué hace en cada instante y que quede decorativo
 ├── botones.test.mjs      → pruebas de los botones de la portada: CSS acotado a .portada, iconos pixel y dificultad accesible
