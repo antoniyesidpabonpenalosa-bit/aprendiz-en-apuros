@@ -2645,6 +2645,46 @@ await caso('retratos protagonistas · una escena con el APRENDIZ lo pinta con su
   return [r.gestos === 10 && r.p1.prot && r.p1.w === 96 && r.p1.fondo && !r.p1.dibujo && !r.p2.prot && r.p2.dibujo, JSON.stringify(r)];
 });
 
+/* ── IDENTIDAD, PARTE 4 (v40.3): tarjetas de piel y camisa ── */
+await caso('colores del avatar · 4 tarjetas de piel (retrato) y 4 de camisa (cuerpo), distintas en las dos apariencias; elegir guarda una vez, marca EQUIPADO y no toca puntos ni accesorio', ID_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listaFemenina && APRENDIZ.listoPremium, null, { timeout: 5000 });
+  const r = await pg.evaluate(async () => { const o = { distintas: {} };
+    for (const ap of ['masculina', 'femenina']) { S.apariencia = ap;
+      for (const tab of ['piel', 'camisa']) { pePestana = tab; rPerso(); await new Promise(r => setTimeout(r, 250));
+        o.distintas[ap + ' ' + tab] = new Set($$(`#pe-p-${tab} .pe-color-op canvas`).map(c => c.toDataURL())).size; } }
+    pePestana = 'camisa'; rPerso(); await new Promise(r => setTimeout(r, 200));
+    let guardados = 0; const g = Storage.prototype.setItem; Storage.prototype.setItem = function (k, v) { if (k === 'pa3') guardados++; return g.call(this, k, v); };
+    const b = $('.camisa-op[data-c="0"]'); b.click(); b.click(); $('.camisa-op[data-c="0"]').click(); Storage.prototype.setItem = g;
+    const sel = $('.camisa-op.sel');
+    o.tras = { camisa: S.camisa, guardados, guardado: JSON.parse(localStorage.getItem('pa3')).camisa, sel: sel?.dataset.c, aria: $$('.camisa-op').map(x => x.getAttribute('aria-pressed')).join(),
+      estado: sel?.querySelector('.pe-color-estado').textContent, marca: sel?.querySelector('.pe-color-marca').textContent, pts: S.pts, acc: S.acc, accs: S.accs.join() };
+    S.lang = 'en'; rehacerPantalla(); o.en = $('.camisa-op[data-c="0"]').getAttribute('aria-label'); S.lang = 'es';
+    return o; });
+  const d = Object.values(r.distintas), t = r.tras;
+  const ok = d.length === 4 && d.every(n => n === 4) && t.camisa === 0 && t.guardados === 1 && t.guardado === 0 && t.sel === '0' && t.aria === 'true,false,false,false' && t.estado === 'EQUIPADO' && t.marca === '✓' && t.pts === 900 && t.acc === 'gafas' && t.accs === 'gafas' && r.en === 'Green';
+  return [ok, JSON.stringify(r)];
+});
+
+await caso('colores del avatar · las pestañas PIEL y CAMISA caben en 6 tamaños, con HD y texto legible, en ES y EN, sin desbordar ni cortar', ID_J, async pg => {
+  const mal = [];
+  for (const modo of [{}, { hd: true, legible: true }, { lang: 'en', legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
+    for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
+      await pg.setViewportSize({ width: w, height: h });
+      for (const tab of ['piel', 'camisa']) {
+        await pg.evaluate(t => { pePestana = t; rPerso(); }, tab); await pausa(150);
+        const r = await pg.evaluate(t => { const sc = $('#screen'), p = $(`#pe-p-${t}`).getBoundingClientRect();
+          const fuera = [...document.querySelectorAll(`#pe-p-${t} .pe-color-op`)].filter(e => { const q = e.getBoundingClientRect(); return q.left < p.left - 1 || q.right > p.right + 1; }).length;
+          const corta = [...document.querySelectorAll(`#pe-p-${t} .pe-color-nom, #pe-p-${t} .pe-color-estado, #pe-p-${t} h3`)].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.textContent.trim());
+          return { scroll: sc.scrollWidth > sc.clientWidth || document.documentElement.scrollWidth > innerWidth, fuera, corta }; }, tab);
+        if (r.scroll || r.fuera || r.corta.length) mal.push(`${JSON.stringify(modo)} ${w}×${h} ${tab}: ${JSON.stringify(r)}`);
+      }
+    }
+  }
+  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es' }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '3 modos × 6 tamaños × 2 pestañas: todo dentro, sin cortar'];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

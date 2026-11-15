@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40, v40.1 y v40.2)
+# Plan: identidad y personalización (v40 a v40.3)
 
 > Estado: **hecho (v40), primera parte**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -39,6 +39,15 @@
   (comprobado en el barrido).
 - Arreglo al integrar: a 16×16 las gafas y los audífonos reducidos desde 48 tapaban los ojos con
   una franja negra; ahora se pintan con píxeles propios de 16.
+
+## Parte 4 (v40.3): tarjetas de piel y camisa
+
+- `peTarjetasColor()` en `js/tienda.js`: 4 tarjetas de piel con el retrato real (32×32) y 4 de
+  camisa con el cuerpo entero de la apariencia actual, nombre del color en ES/EN, muestra,
+  selección dorada con ✓ y estado EQUIPADO/ELEGIR, `aria-pressed`. Elegir guarda al instante y
+  no vuelve a guardar si ya estaba. Se repintan al cambiar apariencia o color y al cargar atlas.
+- Mismas paletas `SKINS`/`CAMISAS` e índices; ni compras ni accesorios cambian. Paquete aplicado
+  limpio (salvo la fila de VERSIONES.md); dos casos nuevos en el barrido.
 
 ## Fuera de esta parte
 
