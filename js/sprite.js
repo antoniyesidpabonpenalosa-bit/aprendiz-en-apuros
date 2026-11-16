@@ -23,6 +23,118 @@
    el atlas clásico, que además es el respaldo si el nuevo no carga. Fuentes y notas en
    arte/aprendiz-hd/. */
 
+/* Fase 1 · composición de cabeza calibrada contra los atlas de 44×74.
+   DIRS: S, SE, E, NE, N, NO, O, SO. No hay volteo de arte.
+   Lentes [x,y,w,h], patilla [[x,y],...], almohadillas [cx,cy,w,h],
+   diadema [[x,y],...]. Coordenadas de píxel nativas, no relativas al CSS.
+   El atlas femenino cambia la escala de la cabeza entre reposo y marcha:
+   cada cuadro tiene calibración propia. Las poses de portada son otra fuente. */
+const ACC_CABEZA = (()=>{
+  const oscuro='#111526', borde='#303e5d', metal='#718bad', brillo='#b4d6eb', cian='#69c9e9';
+  // Lentes y patillas explícitos. Las vistas posteriores no muestran cristales.
+  // Masculino: marcos medidos sobre los ojos reales del atlas v40.6 (cuadro de 6×4 px por ojo, ver scripts/build-caras-cuerpo.mjs),
+  // con un píxel de margen; así el aro rodea los ojos y se apoya sobre la barba, sin taparla. La cabeza es idéntica en los 4 cuadros.
+  const mL=[
+    [[13,16,8,6],[24,16,8,6]], [[19,16,7,6],[26,16,7,6]], [[27,16,6,6]], [], [], [], [[11,16,6,6]], [[11,16,7,6],[18,16,7,6]]
+  ];
+  const fL=[
+    [[[14,17,7,8],[25,17,6,8]],[[14,19,8,9],[26,19,7,9]],[[13,19,8,9],[25,19,7,9]],[[14,19,8,9],[25,19,7,9]]],
+    [[[19,17,7,8],[29,17,5,8]],[[19,20,8,8],[31,20,6,8]],[[18,20,8,8],[30,20,6,8]],[[19,20,8,8],[31,20,6,8]]],
+    [[[25,18,6,7]],[[26,19,7,9]],[[25,19,8,9]],[[25,19,7,9]]],
+    [[],[],[],[]],[[],[],[],[]],[[],[],[],[]],
+    [[[13,18,6,7]],[[12,19,7,9]],[[12,19,7,9]],[[12,19,7,9]]],
+    [[[11,17,6,8],[21,17,7,8]],[[9,20,6,8],[22,20,8,8]],[[10,20,6,8],[22,20,7,8]],[[10,20,6,8],[22,20,7,8]]]
+  ];
+  // Puntos de apoyo de cada dirección; en perfil una sola almohadilla visible.
+  // [copa(s), recorrido de la diadema]. No se dibuja la copa oculta. Los arcos de mH y fHM son semielipses que calcula
+  // scripts/calcula-arcos-cabeza.mjs: del borde superior de la copa al vértice, un píxel por dentro del borde del pelo de cada atlas.
+  const mH=[
+    [[[8,20,5,10],[35,20,5,10]],[[8,15],[8,13],[9,11],[10,9],[11,7],[13,5],[15,4],[17,3],[19,2],[22,2],[24,2],[26,3],[28,4],[30,5],[32,7],[33,9],[34,11],[35,13],[35,15]]],
+    [[[12,21,7,10]],[[12,16],[12,14],[13,11],[13,9],[14,7],[16,5],[17,4],[19,3],[20,2],[22,2],[24,2],[25,3],[27,4],[28,5],[30,7],[31,9],[31,11]]],
+    [[[18,21,7,10]],[[18,16],[18,14],[18,11],[19,9],[19,7],[19,5],[20,4],[21,3],[21,2],[22,2],[23,2],[23,3],[24,4],[25,5]]],
+    [[[29,21,7,10]],[[29,16],[29,14],[28,11],[28,9],[27,7],[25,5],[24,4],[22,3],[21,2],[19,2],[17,2],[16,3],[14,4],[13,5],[11,7],[10,9],[10,11]]],
+    [[[8,21,5,10],[35,21,5,10]],[[8,16],[8,14],[9,11],[10,9],[11,7],[13,5],[15,4],[17,3],[19,2],[22,2],[24,2],[26,3],[28,4],[30,5],[32,7],[33,9],[34,11],[35,14],[35,16]]],
+    [[[14,21,7,10]],[[14,16],[14,14],[15,11],[15,9],[16,7],[17,5],[19,4],[20,3],[22,2],[24,2],[25,2],[27,3],[28,4],[30,5],[31,7],[32,9],[32,11]]],
+    [[[26,21,7,10]],[[26,16],[26,14],[26,11],[25,9],[25,7],[25,5],[24,4],[23,3],[23,2],[22,2],[21,2],[21,3],[20,4],[19,5]]],
+    [[[32,21,7,10]],[[32,16],[32,14],[31,11],[31,9],[29,7],[28,5],[27,4],[25,3],[23,2],[21,2],[19,2],[17,3],[15,4],[14,5],[13,7],[11,9],[11,11]]]
+  ];
+  const fH0=[
+    [[[10,22,5,9],[33,22,5,9]],[[10,18],[10,12],[14,7],[19,3],[25,3],[30,6],[33,12],[33,18]]],
+    [[[13,22,6,9]],[[13,18],[12,12],[16,6],[22,3],[29,4],[33,8]]],
+    [[[20,22,6,9]],[[20,18],[19,12],[21,7],[26,3],[30,5]]],
+    [[[30,23,6,9]],[[30,19],[31,12],[28,6],[23,3],[17,5]]],
+    [[[11,22,5,9],[32,22,5,9]],[[11,18],[11,12],[15,6],[20,3],[26,3],[31,7],[32,12],[32,18]]],
+    [[[13,23,6,9]],[[13,19],[12,12],[15,6],[20,3],[26,5]]],
+    [[[25,22,6,9]],[[25,18],[26,12],[23,7],[18,3],[14,5]]],
+    [[[32,22,6,9]],[[32,18],[33,12],[29,6],[23,3],[16,4],[11,8]]]
+  ];
+  // Caminata femenina: medidas individuales para las cabezas más anchas.
+  // Las copas y el arco siguen la cabeza, no el centro fijo del personaje.
+  const fHM=[
+    [[[9,25,6,10],[35,25,6,10]],[[9,20],[9,17],[10,15],[11,12],[12,10],[14,8],[16,6],[18,5],[20,4],[22,4],[24,4],[26,5],[29,6],[30,8],[32,10],[33,12],[34,15],[35,17],[35,20]]],
+    [[[12,25,7,10]],[[12,20],[12,17],[13,15],[14,12],[15,10],[16,8],[18,6],[20,5],[22,4],[24,4],[26,4],[28,5],[30,6],[32,8],[33,10],[34,12]]],
+    [[[19,25,7,10]],[[19,20],[19,17],[19,15],[20,12],[20,10],[20,8],[21,6],[22,5],[22,4],[23,4],[24,4],[24,5],[25,6],[26,8]]],
+    [[[29,26,7,10]],[[29,21],[29,18],[28,15],[28,13],[27,10],[25,8],[24,6],[22,5],[21,4],[19,4],[17,4],[16,5],[14,6],[13,8],[11,10],[10,13],[10,15]]],
+    [[[9,25,6,10],[34,25,6,10]],[[9,20],[9,17],[10,15],[11,12],[12,10],[13,8],[15,6],[17,5],[19,4],[22,4],[24,4],[26,5],[28,6],[30,8],[31,10],[32,12],[33,15],[34,17],[34,20]]],
+    [[[14,26,7,10]],[[14,21],[14,18],[15,15],[15,13],[16,10],[18,8],[19,6],[21,5],[22,4],[24,4],[26,4],[27,5],[29,6],[30,8],[32,10],[33,13],[33,15]]],
+    [[[25,25,7,10]],[[25,20],[25,17],[25,15],[24,12],[24,10],[24,8],[23,6],[22,5],[22,4],[21,4],[20,4],[20,5],[19,6],[18,8]]],
+    [[[33,25,7,10]],[[33,20],[33,17],[32,15],[31,12],[30,10],[29,8],[27,6],[25,5],[23,4],[21,4],[18,4],[16,5],[14,6],[12,8],[11,10],[10,12]]]
+  ];
+  // Portada femenina: el saludo gira la cabeza hacia la izquierda del lienzo.
+  const fPL=[[[15,18,7,8],[26,18,6,8]],[[15,18,7,8],[26,18,6,8]],[[15,16,7,8],[25,16,7,8]],[[12,17,7,8],[22,17,7,8]]];
+  const fPH=[fH0[0],fH0[0],fH0[0],[[[9,22,5,9],[31,22,5,9]],[[9,18],[9,12],[13,7],[18,3],[24,3],[29,6],[31,12],[31,18]]]];
+  const temple=(dir,lenses)=>{
+    if(!lenses.length)return [];
+    const [x,y,,h]=lenses[0], yy=y+Math.floor(h/2);
+    if(dir===1||dir===2)return [[x,yy],[x-4,yy],[dir===2?18:13,yy+2]];
+    if(dir===6||dir===7){const [a,b,c,d]=lenses[lenses.length-1],v=b+Math.floor(d/2);return [[a+c-1,v],[a+c+3,v],[dir===6?26:32,v+2]];}
+    return [];
+  };
+  function ancla(apariencia,dir,paso=0,pose=-1){
+    const p=((pose%4)+4)%4,d=((dir%8)+8)%8;
+    const fem=apariencia==='femenina';
+    // Femenina: desde v40.6 el cuadro 0 (reposo) es la misma pose que el cuadro 2 (reparación del salto de cabeza): comparten anclaje.
+    let f=((paso%4)+4)%4;if(fem&&f===0)f=2;
+    const lentes=fem?(pose>=0?fPL[p]:fL[d][f]):mL[pose>=0?0:d];
+    const [copas,arco]=fem?(pose>=0?fPH[p]:fHM[d]):mH[pose>=0?0:d];
+    return {lentes,copas,arco,patilla:temple(pose>=0?0:d,lentes)};
+  }
+  function rect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(x,y,w,h)}
+  // Bresenham entero para que los arcos sean verdaderos escalones de píxel.
+  function trazo(c,pts,g,col){
+    const radio=Math.floor(g/2);
+    for(let i=1;i<pts.length;i++){
+      let [x,y]=pts[i-1];const [xf,yf]=pts[i],dx=Math.abs(xf-x),dy=-Math.abs(yf-y),sx=x<xf?1:-1,sy=y<yf?1:-1;let e=dx+dy;
+      while(true){rect(c,x-radio,y-radio,g,g,col);if(x===xf&&y===yf)break;const e2=2*e;if(e2>=dy){e+=dy;x+=sx}if(e2<=dx){e+=dx;y+=sy}}
+    }
+  }
+  function lente(c,x,y,w,h){
+    rect(c,x+1,y,w-2,1,oscuro);rect(c,x,y+1,1,h-2,oscuro);rect(c,x+w-1,y+1,1,h-2,oscuro);rect(c,x+1,y+h-1,w-2,1,oscuro);
+    // Cristal translúcido: conserva los ojos y su expresión; nunca un bloque opaco.
+    rect(c,x+1,y+1,w-2,h-2,'rgba(80,186,215,0.24)');rect(c,x+1,y+1,1,1,brillo);rect(c,x+1,y+h-2,w-2,1,'rgba(105,201,233,0.30)');
+  }
+  function copa(c,cx,cy,w,h){
+    const x=cx-Math.floor(w/2),y=cy-Math.floor(h/2);
+    rect(c,x+1,y,w-2,h,oscuro);rect(c,x,y+1,w,h-2,oscuro);
+    rect(c,x+1,y+2,w-2,h-4,borde);rect(c,x+1,y+2,1,h-4,metal);rect(c,x+w-2,y+2,1,h-4,'#24324e');
+    if(w>=6){rect(c,x+2,y+2,w-4,1,brillo);rect(c,x+2,y+3,1,h-6,cian)}
+    else rect(c,x+1,y+3,1,h-6,cian);
+  }
+  function dibujar(c,id,apariencia,dir,paso,pose=-1){
+    const a=ancla(apariencia,dir,paso,pose);
+    if(id==='gafas'){
+      if(!a.lentes.length)return;
+      trazo(c,a.patilla,1,oscuro);
+      if(a.lentes.length===2){const [x,y,w,h]=a.lentes[0],q=a.lentes[1];rect(c,x+w-1,y+Math.floor(h/2)-1,q[0]-x-w+2,1,oscuro);}
+      for(const l of a.lentes)lente(c,...l);
+    }else if(id==='audifonos'){
+      trazo(c,a.arco,3,oscuro);trazo(c,a.arco,1,metal);
+      for(const [x,y,w,h] of a.copas)copa(c,x,y,w,h);
+    }
+  }
+  return {ancla,dibujar};
+})();
+
 /* Accesorios pixel art: un solo catálogo de arte para las tarjetas y el cuerpo.
    Coordenadas nativas 44×74; no modifican ancla ni caja de colisión. */
 const ACC_ARTE = (()=>{
@@ -82,8 +194,9 @@ const ACC_ARTE = (()=>{
     ctx.fillStyle='#9c183e';ctx.fillRect(10,34,24,8);ctx.fillRect(7+d,42,30,10);ctx.fillRect(4+d,53,36,9);
     ctx.fillStyle='#e24863';ctx.fillRect(7+d,48,3,14);ctx.fillStyle='#641736';ctx.fillRect(34+d,48,4,14);
   }
-  function encima(ctx,id,dir,paso,apariencia,pose=-1){
+  function encima(ctx,id,dir,paso,apariencia,pose=-1,calibrado=true){
     if(!ids.includes(id))return;
+    if(calibrado&&(id==='gafas'||id==='audifonos')){ACC_CABEZA.dibujar(ctx,id,apariencia,dir,paso,pose);return;}
     const frente=[0,1,7].includes(dir), perfil=dir===2||dir===6, espalda=[3,4,5].includes(dir), izq=[5,6,7].includes(dir), der=[1,2,3].includes(dir);
     const dx=der?4:izq?-4:0, femenino=apariencia==='femenina', cuello=femenino?31:32;
     // Ajustes pequeños según orientación; el pie siempre queda en 74.
@@ -107,7 +220,9 @@ const ACC_ARTE = (()=>{
   function icono(cv,id){
     const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);ctx.save();ctx.imageSmoothingEnabled=false;
     // Icono nativo 32×32; capa en miniatura para caber sin recortar.
-    if(id==='capa'){ctx.translate(7,4);ctx.scale(.7,.7);pieza(ctx,id,0,0)}
+    if(id==='gafas'){ctx.translate(-6,-5);ACC_CABEZA.dibujar(ctx,id,'masculina',0,0)}
+    else if(id==='audifonos'){ctx.translate(-6,3);ACC_CABEZA.dibujar(ctx,id,'masculina',0,0)}
+    else if(id==='capa'){ctx.translate(7,4);ctx.scale(.7,.7);pieza(ctx,id,0,0)}
     else if(id===''){ctx.strokeStyle='#ff5468';ctx.lineWidth=3;ctx.beginPath();ctx.arc(16,16,10,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(9,9);ctx.lineTo(23,23);ctx.stroke()}
     else {const dims={cafe:[12,13],gafas:[19,6],corbata:[11,17],gorra:[21,13],audifonos:[26,19],medalla:[10,15],gato:[14,13],corona:[20,11]};const d=dims[id];if(d){const k=Math.min(2,Math.floor(28/Math.max(...d)));ctx.translate(Math.floor((32-d[0]*k)/2),Math.floor((32-d[1]*k)/2));ctx.scale(k,k);pieza(ctx,id,0,0,id==='gafas'||id==='gato'?2:0)}}
     ctx.restore();
@@ -217,11 +332,11 @@ const APRENDIZ = (() => {
      respaldo). */
   // Lienzo reutilizado: las capas se componen a resolución nativa antes de escalar.
   let compuesto;
-  function cuadro(cv, sx, sy, acc, dir, paso, apariencia, pose=-1){
+  function cuadro(cv, sx, sy, acc, dir, paso, apariencia, pose=-1, calibrado=true){
     if(!ACC_ARTE.ids.includes(acc))return null;
     if(!compuesto){compuesto=document.createElement('canvas');compuesto.width=FW;compuesto.height=FH}
     const k=compuesto.getContext('2d');k.clearRect(0,0,FW,FH);k.imageSmoothingEnabled=false;
-    ACC_ARTE.detras(k,acc,dir,paso);k.drawImage(cv,sx,sy,FW,FH,0,0,FW,FH);ACC_ARTE.encima(k,acc,dir,paso,apariencia,pose);
+    ACC_ARTE.detras(k,acc,dir,paso);k.drawImage(cv,sx,sy,FW,FH,0,0,FW,FH);ACC_ARTE.encima(k,acc,dir,paso,apariencia,pose,calibrado);
     return compuesto;
   }
   function dibujar(ctx, x, yPie, alto, dir, paso = 0, s = S.skin, c = S.camisa, apariencia = S.apariencia, acc = S.acc) {
@@ -231,7 +346,7 @@ const APRENDIZ = (() => {
     const w = Math.round(alto * FW / FH);
     const antes = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
-    const sx=(paso % PASOS)*FW,sy=dir*FH, extra=esJugador(s,c)?cuadro(cv,sx,sy,acc,dir,paso,apariencia):null;
+    const sx=(paso % PASOS)*FW,sy=dir*FH, extra=esJugador(s,c)?cuadro(cv,sx,sy,acc,dir,paso,origen===imgFemenina?'femenina':'masculina',-1,paletaExacta(origen)):null;
     ctx.drawImage(extra||cv,extra?0:sx,extra?0:sy,FW,FH,Math.round(x-w/2),Math.round(yPie-alto),w,alto);
     ctx.imageSmoothingEnabled = antes;
     return true;
@@ -244,7 +359,7 @@ const APRENDIZ = (() => {
     const cv = atlasDe(s,c,origen), w = Math.round(alto * FW / FH);
     const antes = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
-    const sx=(pose%4)*FW, extra=esJugador(s,c)?cuadro(cv,sx,0,acc,0,0,apariencia,pose):null;
+    const sx=(pose%4)*FW, extra=esJugador(s,c)?cuadro(cv,sx,0,acc,0,0,origen===imgPortadaFemenina?'femenina':'masculina',pose,paletaExacta(origen)):null;
     ctx.drawImage(extra||cv,extra?0:sx,0,FW,FH,Math.round(x-w/2),Math.round(yPie-alto),w,alto);
     ctx.imageSmoothingEnabled = antes;
     return true;

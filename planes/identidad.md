@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40 a v40.6)
+# Plan: identidad y personalización (v40 a v40.7)
 
 > Estado: **hecho (v40 a v40.5), las seis partes**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -98,6 +98,22 @@ y no eran dibujos propios de cada tamaño (se recortaba el atlas del cuerpo y se
 - **Gato** nuevo (frente y espalda, con cola) en cuerpo, retrato (3 tamaños) e icono; **gafas** de cristal transparente
   alineadas con los ojos de cada personaje; los 9 accesorios comparten colores entre cuerpo y retrato (lo comprueba una prueba).
 - Expresión neutra en Mi Avatar (`01-expresion-neutra.patch`).
+
+## Reparación de accesorios, fase 1: gafas y audífonos (v40.7)
+
+Paquete `reparacion_accesorios_fase1`: las gafas y los audífonos se dibujaban con una pieza frontal y desplazamientos casi
+fijos para todas las direcciones. Ahora hay un módulo propio, `ACC_CABEZA` (js/sprite.js), con anclajes por dirección
+(S, SE, E, NE, N, NO, O, SO), apariencia, cuadro de marcha y pose de portada. Sin volteo de arte.
+
+- **Gafas:** dos lentes de frente y en diagonal, una en perfil y ninguna de espaldas; marco con cristal translúcido (se ven
+  los ojos y la expresión); patillas hacia la oreja. Las lentes masculinas están medidas sobre los ojos reales del atlas v40.6
+  (una prueba comprueba que ningún ojo queda fuera de una lente).
+- **Audífonos:** una copa en perfil y diagonales (la lejana no se dibuja), dos de frente y de espalda; diadema en semielipse
+  hasta la cabeza (`scripts/calcula-arcos-cabeza.mjs` calcula los arcos; las copas están medidas a mano).
+- **Reconciliación con v40.6:** los atlas ya no coinciden con `SHA256-BASE.txt` del paquete (v40.5): se repintaron los dos
+  masculinos y el de caminata femenino. Las lentes masculinas se recalibraron y la femenina usa los mismos anclajes en el cuadro 0
+  (reposo) que en el 2, porque son la misma pose. Los atlas clásico/HD de respaldo conservan el dibujo antiguo.
+- No cambian: los otros siete accesorios, los retratos, precios, inventario, progreso, colisiones ni velocidad.
 
 ## Fuera de esta parte
 
