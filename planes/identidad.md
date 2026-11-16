@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40 a v40.8)
+# Plan: identidad y personalización (v40 a v40.9)
 
 > Estado: **hecho (v40 a v40.5), las seis partes**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -129,6 +129,22 @@ Misma línea que la fase 1, sin paquete del autor: el diseño sale de las siluet
   portada femenina es menor (torso del reposo antiguo).
 - Iconos de la tienda de los dos artículos con el arte nuevo. Los atlas clásico/HD de respaldo conservan el dibujo antiguo.
 - No cambian: audífonos y gafas (fase 1), medalla, capa, café, gato, corona, retratos, precios, inventario, progreso, colisiones.
+
+## Reparación de accesorios, fase 3: capa y medalla (v40.9)
+
+Mismo método que las fases anteriores: anclajes por dirección y cuadro sobre los atlas v40.6, sin volteo de arte.
+
+- **Capa** (`ACC_CAPA`, js/sprite.js): el manto cuelga por detrás del cuerpo en las vistas de frente, perfil y 3/4 (se ve por los
+  lados y entre las piernas, con el forro más oscuro) y se dibuja por encima de la espalda en NE, N y NO; pliegues, borde ondulado
+  y vuelo distinto en cada paso de la marcha. De frente, 3/4 y perfil hay hombreras y un broche dorado sobre el pecho (siguen el eje
+  de `ACC_CORBATA`). El pelo que cae sobre la espalda (la cola de caballo) se vuelve a pintar por encima de la capa
+  (`ACC_CAPA.pelo`: píxeles de pelo de la imagen base, sin tocar piel ni camisa).
+- **Medalla** (`ACC_MEDALLA`): cinta en V (azul y roja) al cuello y disco dorado con relieve; de frente, estrecha en 3/4 y una tira
+  de perfil; no se dibuja de espaldas.
+- `ACC_ARTE.detras` recibe ahora la apariencia, la pose y si el atlas está calibrado. Iconos de la tienda con el arte nuevo; los
+  atlas clásico/HD de respaldo conservan el dibujo antiguo.
+- No cambian: gafas, audífonos, gorra, corbata (fases 1 y 2), café, gato, corona, retratos, precios, inventario, progreso,
+  colisiones ni velocidad.
 
 ## Fuera de esta parte
 

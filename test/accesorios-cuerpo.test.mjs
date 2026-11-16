@@ -66,3 +66,44 @@ test('gorra y corbata: los scripts están en orden y en la caché sin cambiar el
  assert.ok(html.includes('js/accesorios-cuerpo-arte.js')&&sw.includes('./js/accesorios-cuerpo-arte.js'));
  assert.ok(html.indexOf('js/accesorios-cuerpo-arte.js')<html.indexOf('js/sprite.js'));
 });
+
+/* ───────── fase 3: capa y medalla ───────── */
+const capa=runInContext('ACC_CAPA',vm),medalla=runInContext('ACC_MEDALLA',vm);
+const grab=(fn)=>{const rs=[];const c={set fillStyle(v){this._f=v},get fillStyle(){return this._f},fillRect(x,y,w,h){rs.push([x,y,w,h,this._f])}};fn(c);return rs};
+const huella=rs=>rs.map(r=>r.join(',')).join('|');
+test('capa: por detrás de frente, perfil y 3/4; por encima en las tres vistas de espaldas; hombreras y broche solo delante',()=>{
+ for(const ap of ['masculina','femenina'])for(let d=0;d<8;d++){
+  const atras=grab(c=>capa.detras(c,ap,d,0)),encima=grab(c=>capa.encima(c,ap,d,0)),espalda=[3,4,5].includes(d);
+  assert.equal(atras.length>0,!espalda,`${ap} ${d}: manto por detrás`);
+  assert.ok(encima.length>0,`${ap} ${d}: algo por encima`);
+  for(const [x,y,w,h] of [...atras,...encima]){assert.ok([x,y,w,h].every(Number.isInteger)&&w>0&&h>0,`${ap} ${d}`);assert.ok(x>=0&&x+w<=44&&y>=28&&y+h<=66,`${ap} ${d}: fuera de la celda o sobre la cabeza ${[x,y,w,h]}`)}
+ }
+});
+test('capa: cada dirección tiene su forma y el vuelo cambia con el paso de la marcha (sin arte volteado)',()=>{
+ for(const ap of ['masculina','femenina']){
+  const forma=d=>huella([...grab(c=>capa.detras(c,ap,d,0)),...grab(c=>capa.encima(c,ap,d,0))]);
+  assert.equal(new Set([0,1,2,3,4,5,6,7].map(forma)).size,8,`${ap}: 8 formas distintas`);
+  for(const d of [0,2,4,6])assert.notEqual(huella([...grab(c=>capa.detras(c,ap,d,1)),...grab(c=>capa.encima(c,ap,d,1))]),huella([...grab(c=>capa.detras(c,ap,d,3)),...grab(c=>capa.encima(c,ap,d,3))]),`${ap} ${d}: vuelo distinto en los pasos 1 y 3`);
+ }
+});
+test('capa: el manto llega a la altura del borde y es más ancho abajo que arriba (cae con vuelo)',()=>{
+ for(const ap of ['masculina','femenina'])for(let d=0;d<8;d++){
+  const [y0,y1,xl0,xr0,xl1,xr1]=capa.MA[ap][d];
+  assert.ok(y1-y0>=25,`${ap} ${d}: largo`);assert.ok((xr1-xl1)>=(xr0-xl0),`${ap} ${d}: vuelo`);
+ }
+});
+test('medalla: cinta en V y disco dorado de frente y 3/4, tira estrecha de perfil y nada de espaldas',()=>{
+ for(const ap of ['masculina','femenina'])for(let d=0;d<8;d++){
+  const rs=grab(c=>medalla.dibujar(c,ap,d,1));
+  if([3,4,5].includes(d)){assert.equal(rs.length,0,`${ap} ${d}`);continue}
+  assert.ok(rs.length>10,`${ap} ${d}`);
+  for(const [x,y,w,h] of rs)assert.ok(Number.isInteger(x)&&x>=0&&x+w<=44&&y>=28&&y+h<=52,`${ap} ${d}: ${[x,y,w,h]}`);
+  assert.ok(rs.some(r=>r[4]==='#ffcf3f'),`${ap} ${d}: disco dorado`);
+ }
+ const ancho=(ap,d)=>{const px=new Set();for(const [x,y,w] of grab(c=>medalla.dibujar(c,ap,d,1)))for(let i=0;i<w;i++)px.add(x+i);return px.size};
+ for(const ap of ['masculina','femenina'])assert.ok(ancho(ap,0)>ancho(ap,1)&&ancho(ap,1)>ancho(ap,2),`${ap}: más ancha de frente que de 3/4 y de perfil`);
+});
+test('capa y medalla: la capa se dibuja bajo el cuerpo en la caché del atlas y no hay arte antiguo en las dos',()=>{
+ const src=read('js/sprite.js');
+ assert.ok(src.includes("calibrado&&id==='capa'")&&src.includes("calibrado&&id==='medalla'"));
+});

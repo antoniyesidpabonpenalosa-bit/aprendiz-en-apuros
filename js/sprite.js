@@ -215,6 +215,136 @@ const ACC_CORBATA = (()=>{
   return {ancla,dibujar,filas};
 })();
 
+/* Fase 3 · capa y medalla a medida. Ambas parten del eje del pecho de cada celda (ACC_CORBATA.ancla: eje, y del cuello, inclinación).
+   Capa: el manto cuelga por DETRÁS del cuerpo en las vistas de frente, perfil y 3/4 (se ve por los lados y entre las piernas, con
+   el forro más oscuro) y se dibuja POR ENCIMA de la espalda en las vistas de espaldas; las hombreras y el broche van sobre el
+   pecho. En la marcha el vuelo cambia con el cuadro. Medalla: cinta en V al cuello y disco; de frente, 3/4 y perfil. */
+const ACC_CAPA = (()=>{
+  const K='#101326',C={L:'#ed4763',B:'#bb2450',M:'#9c183e',D:'#741537',E:'#54132f',G:'#ffcf3f',g:'#fff0a1',s:'#ad6a22'};
+  // Manto: [y de arriba, y del borde, x izq. arriba, x der. arriba, x izq. borde, x der. borde]
+  const MA={
+    masculina:{0:[33,61,9,34,3,40],1:[33,61,11,32,4,37],2:[33,61,12,21,2,23],6:[33,61,22,31,20,42],7:[33,61,10,33,7,40],
+               3:[31,61,11,31,5,37],4:[31,61,11,32,4,39],5:[31,61,13,33,7,39]},
+    femenina:{0:[34,60,11,32,4,39],1:[35,60,10,30,3,35],2:[34,60,10,21,2,23],6:[34,60,22,33,20,42],7:[35,60,12,34,8,40],
+              3:[33,60,10,30,4,36],4:[30,60,12,31,5,38],5:[33,60,13,34,7,40]}
+  };
+  const POR=[false,false,false,true,true,true,false,false];            // true: se dibuja por encima (espaldas)
+  const R=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
+  function filas(a,dir,paso,pose){
+    const [y0,y1,xl0,xr0,xl1,xr1]=a,sw=pose>=0?0:paso===1?1:paso===3?-1:0,n=y1-y0,out=[];
+    for(let y=y0;y<=y1;y++){
+      const u=(y-y0)/n,e=Math.pow(u,1.35),s=Math.round(sw*u*u*2);
+      out.push([y,Math.round(xl0+(xl1-xl0)*e)+s,Math.round(xr0+(xr1-xr0)*e)+s]);
+    }
+    return out;
+  }
+  function manto(c,ap,dir,paso,pose,propio){
+    const a=propio||(MA[ap]||MA.masculina)[dir];if(!a)return;
+    const f=filas(a,dir,paso,pose),forro=propio?false:!POR[dir],n=f.length-1;
+    const claro=forro?C.B:C.L,base=forro?C.M:C.B,oscuro=forro?C.D:C.M;
+    f.forEach(([y,xl,xr],i)=>{
+      const v=i/n,ancho=xr-xl;
+      let hasta=xr;if(i===n){/* dobladillo ondulado */}
+      for(let x=xl;x<=hasta;x++){
+        if(i===n&&((x+paso)&2))continue;                                         // ondas del borde
+        const u=(x-xl)/(ancho||1),fase=u+0.035*(paso===1?1:paso===3?-1:0);
+        let col=base;
+        if(u<0.12)col=claro;
+        else if(v>0.08&&(Math.abs(fase-0.36)<0.055||Math.abs(fase-0.68)<0.055))col=oscuro;     // pliegues
+        else if(u>0.84)col=oscuro;
+        else if(fase>0.36&&fase<0.5)col=claro===C.L&&v<0.7?C.L:base;
+        if(v>0.8)col=col===claro?base:col===base?oscuro:C.E;                      // la tela se oscurece hacia el borde
+        R(c,x,y,1,1,col);
+      }
+      R(c,xl-1,y,1,1,K);R(c,xr+1,y,1,1,K);
+    });
+    const [y,xl,xr]=f[0];R(c,xl-1,y-1,xr-xl+3,1,K);                              // borde superior (cuello/hombros)
+    const [yb,bl,br]=f[n];for(let x=bl;x<=br;x++)if(!((x+paso)&2))R(c,x,yb+1,1,1,K);else R(c,x,yb,1,1,K);
+  }
+  // Hombreras y broche sobre el pecho (vistas de frente, 3/4 y perfil)
+  function hombros(c,ap,dir,paso,pose){
+    const t=ACC_CORBATA.ancla(ap,dir,paso,pose);if(!t)return;
+    const [kx,ky]=t.p,tipo=t.tipo,y=ky-1;
+    const pieza=(x0,x1,sig)=>{                                                    // un hombro: tres filas que bajan hacia fuera
+      for(let i=0;i<3;i++){
+        const a=sig>0?x0:x0-i,b=sig>0?x1+i:x1,col=i===0?C.L:i===1?C.B:C.M;
+        R(c,Math.min(a,b),y+i,Math.abs(b-a)+1,1,col);
+        R(c,sig>0?b+1:a-1,y+i,1,1,K);
+      }
+      R(c,Math.min(x0,x1)-(sig>0?0:0),y-1,Math.abs(x1-x0)+1+(sig>0?1:0),1,K);
+    };
+    const cx=Math.round(kx);
+    if(tipo==='frente'){pieza(cx+2,cx+9,1);pieza(cx-3,cx-10,-1)}
+    else if(tipo==='tres'){const s=dir===1?1:-1;pieza(cx+2*s,cx+8*s,s);pieza(cx-2*s,cx-5*s,-s)}
+    else{const s=dir===2?1:-1;pieza(cx-1*s,cx-8*s,-s)}
+    // broche dorado (de frente 4×3; en perfil, 3×3 al borde del pecho)
+    const w=tipo==='perfil'?3:4,x=Math.round(kx-w/2);
+    R(c,x-1,y,w+2,4,K);R(c,x,y+1,w,2,C.G);R(c,x,y+1,1,1,C.g);R(c,x+w-1,y+2,1,1,C.s);
+  }
+  // El pelo que cae sobre la espalda (la cola de caballo) va por encima de la capa: se vuelven a pintar solo los píxeles de pelo
+  // de la imagen BASE (ni piel ni camisa de rampa exacta ni contorno) en las filas del cuello a la cintura.
+  const SK=['915231','bb7448','d99663','efb67d','facc99','ffe1b7'],SH=['102f5b','144374','17578f','206eab','3689c3','56a5d9'],memo=new WeakMap();
+  function pelo(k,base,sx,sy){
+    let m=memo.get(base);if(!m){m=new Map();memo.set(base,m)}
+    const key=sx+','+sy;let tmp=m.get(key);
+    if(tmp===undefined){
+      tmp=null;
+      try{
+        if(!m.lienzo){const c0=base.getContext?base:document.createElement('canvas');if(!base.getContext){c0.width=base.width;c0.height=base.height;c0.getContext('2d').drawImage(base,0,0)}m.lienzo=c0}   // el atlas base, una sola vez
+        const d=m.lienzo.getContext('2d').getImageData(sx,sy+26,44,15);
+        const o=document.createElement('canvas');o.width=44;o.height=15;const g=o.getContext('2d'),out=g.createImageData(44,15);let n=0;
+        for(let i=0;i<44*15;i++){
+          const r=d.data[i*4],gg=d.data[i*4+1],b=d.data[i*4+2],a=d.data[i*4+3];if(!a)continue;
+          const hx=[r,gg,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+          if(SK.includes(hx)||SH.includes(hx))continue;
+          if(r>b+24&&r>=gg&&r+gg+b>150){out.data[i*4]=r;out.data[i*4+1]=gg;out.data[i*4+2]=b;out.data[i*4+3]=255;n++}
+        }
+        if(n){g.putImageData(out,0,0);tmp=o}
+      }catch(e){tmp=null}
+      m.set(key,tmp);
+    }
+    if(tmp)k.drawImage(tmp,0,26);
+  }
+  // icono de la tienda (32×32): el manto visto por la espalda con su broche
+  function icono(c){
+    manto(c,'masculina',4,0,-1,[4,28,8,23,3,28]);
+    R(c,12,2,8,1,K);R(c,11,3,10,3,K);R(c,12,3,8,2,C.G);R(c,12,3,3,1,C.g);R(c,18,4,2,1,C.s);
+    return true;
+  }
+  function detras(c,ap,dir,paso,pose=-1){if(POR[dir])return;manto(c,ap,dir,paso,pose)}
+  function encima(c,ap,dir,paso,pose=-1){if(POR[dir])manto(c,ap,dir,paso,pose);else hombros(c,ap,dir,paso,pose)}
+  return {detras,encima,manto,hombros,filas,MA,pelo,icono};
+})();
+
+const ACC_MEDALLA = (()=>{
+  const K='#101326',C={G:'#ffcf3f',g:'#fff0a1',s:'#ad6a22',R:'#e05a76',r:'#9c2f4a',A:'#507bdf',a:'#2e4f9c'};
+  const R=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
+  const DISCO=['..KKKK..','.KggGGK.','KgGGGGsK','KGGssGGK','KGGssGGK','KGGGGGsK','.KsGGsK.','..KKKK..'];
+  const COL={K,g:C.g,G:C.G,s:C.s};
+  function dibujar(c,ap,dir,paso,pose=-1){
+    const t=ACC_CORBATA.ancla(ap,dir,paso,pose);if(!t)return false;
+    const [kx,ky,lean]=t.p,tipo=t.tipo,dx=Math.round(lean*0.7);
+    if(tipo==='perfil'){
+      const x=Math.round(kx);
+      for(let i=0;i<6;i++){R(c,x-1+Math.round(i*0.1),ky-1+i,1,1,K);R(c,x+Math.round(i*0.1),ky-1+i,1,1,i<3?C.A:C.R);R(c,x+1+Math.round(i*0.1),ky-1+i,1,1,K)}
+      R(c,x-1,ky+6,4,1,K);R(c,x-1,ky+7,4,6,K);R(c,x,ky+7,2,5,C.G);R(c,x,ky+7,1,2,C.g);R(c,x+1,ky+10,1,2,C.s);R(c,x-1,ky+13,4,1,K);
+      return true;
+    }
+    const cx=Math.round(kx+dx),w=tipo==='frente'?4:3;                         // cinta: dos bandas que bajan en V hacia el disco
+    for(let i=0;i<6;i++){
+      const a=Math.round(kx-w-1+i*(w-0.2)/5),b=Math.round(kx+w+1-i*(w-0.2)/5)-1;
+      R(c,a-1,ky-1+i,1,1,K);R(c,a,ky-1+i,2,1,i<3?C.A:C.a);R(c,a+2,ky-1+i,1,1,K);
+      R(c,b-2,ky-1+i,1,1,K);R(c,b-1,ky-1+i,2,1,i<3?C.R:C.r);R(c,b+1,ky-1+i,1,1,K);
+    }
+    const x0=cx-4,y0=ky+5;
+    DISCO.forEach((f,j)=>{for(let i=0;i<8;i++)if(f[i]!=='.')R(c,x0+i,y0+j,1,1,COL[f[i]])});
+    // aro del que cuelga: dos píxeles oscuros sobre el disco
+    R(c,cx-1,y0-1,2,1,K);
+    return true;
+  }
+  return {dibujar};
+})();
+
 /* Accesorios pixel art: un solo catálogo de arte para las tarjetas y el cuerpo.
    Coordenadas nativas 44×74; no modifican ancla ni caja de colisión. */
 const ACC_ARTE = (()=>{
@@ -261,7 +391,8 @@ const ACC_ARTE = (()=>{
     }
   }
   // capa frontal por detrás del cuerpo; en vista posterior queda sobre la espalda.
-  function detras(ctx,id,dir,paso){
+  function detras(ctx,id,dir,paso,apariencia='masculina',pose=-1,calibrado=true){
+    if(calibrado&&id==='capa'){ACC_CAPA.detras(ctx,apariencia,dir,paso,pose);return}
     if(id!=='capa'||![0,1,2,6,7].includes(dir))return;
     const d=paso===1?1:paso===3?-1:0;
     // Silueta inclinada en perfil: la tela cae detrás, nunca delante del pecho.
@@ -279,6 +410,8 @@ const ACC_ARTE = (()=>{
     if(calibrado&&(id==='gafas'||id==='audifonos')){ACC_CABEZA.dibujar(ctx,id,apariencia,dir,paso,pose);return;}
     if(calibrado&&id==='gorra'&&ACC_GORRA.dibujar(ctx,apariencia,dir,paso,pose))return;
     if(calibrado&&id==='corbata'){ACC_CORBATA.dibujar(ctx,apariencia,dir,paso,pose);return;}
+    if(calibrado&&id==='capa'){ACC_CAPA.encima(ctx,apariencia,dir,paso,pose);return;}
+    if(calibrado&&id==='medalla'){ACC_MEDALLA.dibujar(ctx,apariencia,dir,paso,pose);return;}
     const frente=[0,1,7].includes(dir), perfil=dir===2||dir===6, espalda=[3,4,5].includes(dir), izq=[5,6,7].includes(dir), der=[1,2,3].includes(dir);
     const dx=der?4:izq?-4:0, femenino=apariencia==='femenina', cuello=femenino?31:32;
     // Ajustes pequeños según orientación; el pie siempre queda en 74.
@@ -306,6 +439,8 @@ const ACC_ARTE = (()=>{
     else if(id==='audifonos'){ctx.translate(-6,3);ACC_CABEZA.dibujar(ctx,id,'masculina',0,0)}
     else if(id==='gorra'&&ACC_GORRA.icono(ctx,-1,9)){}
     else if(id==='corbata'){ctx.translate(16,16);ctx.scale(2,2);ctx.translate(-21.5,-38.5);ACC_CORBATA.dibujar(ctx,'masculina',0,0)}
+    else if(id==='capa'&&ACC_CAPA.icono(ctx)){}
+    else if(id==='medalla'){ctx.translate(16,16);ctx.scale(2,2);ctx.translate(-21.5,-38);ACC_MEDALLA.dibujar(ctx,'masculina',0,0)}
     else if(id==='capa'){ctx.translate(7,4);ctx.scale(.7,.7);pieza(ctx,id,0,0)}
     else if(id===''){ctx.strokeStyle='#ff5468';ctx.lineWidth=3;ctx.beginPath();ctx.arc(16,16,10,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(9,9);ctx.lineTo(23,23);ctx.stroke()}
     else {const dims={cafe:[12,13],gafas:[19,6],corbata:[11,17],gorra:[21,13],audifonos:[26,19],medalla:[10,15],gato:[14,13],corona:[20,11]};const d=dims[id];if(d){const k=Math.min(2,Math.floor(28/Math.max(...d)));ctx.translate(Math.floor((32-d[0]*k)/2),Math.floor((32-d[1]*k)/2));ctx.scale(k,k);pieza(ctx,id,0,0,id==='gafas'||id==='gato'?2:0)}}
@@ -416,11 +551,12 @@ const APRENDIZ = (() => {
      respaldo). */
   // Lienzo reutilizado: las capas se componen a resolución nativa antes de escalar.
   let compuesto;
-  function cuadro(cv, sx, sy, acc, dir, paso, apariencia, pose=-1, calibrado=true){
+  function cuadro(cv, sx, sy, acc, dir, paso, apariencia, pose=-1, calibrado=true, base=null){
     if(!ACC_ARTE.ids.includes(acc))return null;
     if(!compuesto){compuesto=document.createElement('canvas');compuesto.width=FW;compuesto.height=FH}
     const k=compuesto.getContext('2d');k.clearRect(0,0,FW,FH);k.imageSmoothingEnabled=false;
-    ACC_ARTE.detras(k,acc,dir,paso);k.drawImage(cv,sx,sy,FW,FH,0,0,FW,FH);ACC_ARTE.encima(k,acc,dir,paso,apariencia,pose,calibrado);
+    ACC_ARTE.detras(k,acc,dir,paso,apariencia,pose,calibrado);k.drawImage(cv,sx,sy,FW,FH,0,0,FW,FH);ACC_ARTE.encima(k,acc,dir,paso,apariencia,pose,calibrado);
+    if(calibrado&&acc==='capa'&&[3,4,5].includes(dir)&&pose<0&&base)ACC_CAPA.pelo(k,base,sx,sy);
     return compuesto;
   }
   function dibujar(ctx, x, yPie, alto, dir, paso = 0, s = S.skin, c = S.camisa, apariencia = S.apariencia, acc = S.acc) {
@@ -430,7 +566,7 @@ const APRENDIZ = (() => {
     const w = Math.round(alto * FW / FH);
     const antes = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
-    const sx=(paso % PASOS)*FW,sy=dir*FH, extra=esJugador(s,c)?cuadro(cv,sx,sy,acc,dir,paso,origen===imgFemenina?'femenina':'masculina',-1,paletaExacta(origen)):null;
+    const sx=(paso % PASOS)*FW,sy=dir*FH, extra=esJugador(s,c)?cuadro(cv,sx,sy,acc,dir,paso,origen===imgFemenina?'femenina':'masculina',-1,paletaExacta(origen),origen):null;
     ctx.drawImage(extra||cv,extra?0:sx,extra?0:sy,FW,FH,Math.round(x-w/2),Math.round(yPie-alto),w,alto);
     ctx.imageSmoothingEnabled = antes;
     return true;
@@ -443,7 +579,7 @@ const APRENDIZ = (() => {
     const cv = atlasDe(s,c,origen), w = Math.round(alto * FW / FH);
     const antes = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
-    const sx=(pose%4)*FW, extra=esJugador(s,c)?cuadro(cv,sx,0,acc,0,0,origen===imgPortadaFemenina?'femenina':'masculina',pose,paletaExacta(origen)):null;
+    const sx=(pose%4)*FW, extra=esJugador(s,c)?cuadro(cv,sx,0,acc,0,0,origen===imgPortadaFemenina?'femenina':'masculina',pose,paletaExacta(origen),origen):null;
     ctx.drawImage(extra||cv,extra?0:sx,0,FW,FH,Math.round(x-w/2),Math.round(yPie-alto),w,alto);
     ctx.imageSmoothingEnabled = antes;
     return true;
