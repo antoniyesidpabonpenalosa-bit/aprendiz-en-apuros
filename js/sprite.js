@@ -135,6 +135,86 @@ const ACC_CABEZA = (()=>{
   return {ancla,dibujar};
 })();
 
+/* Fase 2 · gorra a medida de cada celda (js/accesorios-cuerpo-arte.js, generado por scripts/build-accesorios-cuerpo.mjs).
+   Cada dirección, cada cuadro de marcha y cada pose de portada tienen su propia copa, visera y banda; la copa sale de la
+   silueta real de la cabeza. Sin volteo de arte. Filas [y, x, texto] con la paleta ARTE_ACC_CUERPO.paleta. */
+const ACC_GORRA = (()=>{
+  /** @type {any} */
+  const A = (typeof ARTE_ACC_CUERPO!=='undefined')?ARTE_ACC_CUERPO:null;
+  function celda(apariencia,dir,paso,pose=-1){
+    if(!A)return null;
+    const g=A.gorra[apariencia==='femenina'?'femenina':'masculina'];
+    if(pose>=0)return g.portada[((pose%4)+4)%4]||null;
+    const d=((dir%8)+8)%8,c=apariencia==='femenina'?((((paso%4)+4)%4)||2):0;
+    return (g.caminar[d]&&g.caminar[d][c])||null;
+  }
+  function dibujar(ctx,apariencia,dir,paso,pose=-1){
+    const f=celda(apariencia,dir,paso,pose);if(!f)return false;
+    const pal=A.paleta;
+    for(const [y,x0,t] of f){
+      for(let i=0;i<t.length;){
+        const ch=t[i];let j=i;while(j<t.length&&t[j]===ch)j++;
+        if(ch!=='.'){ctx.fillStyle=pal[ch];ctx.fillRect(x0+i,y,j-i,1)}
+        i=j;
+      }
+    }
+    return true;
+  }
+  // icono de la tienda (32×32): la misma gorra de perfil sobre una cabeza pequeña
+  function icono(ctx,dx=0,dy=0){
+    if(!A||!A.icono)return false;const pal=A.paleta;
+    for(const [y,x0,tx] of A.icono.gorra){for(let i=0;i<tx.length;){const ch=tx[i];let j=i;while(j<tx.length&&tx[j]===ch)j++;if(ch!=='.'){ctx.fillStyle=pal[ch];ctx.fillRect(x0+i+dx,y+dy,j-i,1)}i=j}}
+    return true;
+  }
+  return {celda,dibujar,icono};
+})();
+
+/* Fase 2 · corbata a medida: sigue el eje del pecho de cada celda (collar, inclinación y largo) en lugar de un desplazamiento fijo.
+   De frente se ve completa; en 3/4 se acorta y se inclina con el cuerpo; en perfil es una banda estrecha al frente del pecho;
+   por detrás no se dibuja. Medidas [x del eje, y del nudo, inclinación, largo] sobre los atlas v40.6; la femenina de marcha
+   usa los mismos valores en los cuadros 0 y 2 (misma pose). */
+const ACC_CORBATA = (()=>{
+  const K='#101326', pal={A:'#ff8c99',R:'#ff5468',D:'#b91d46',E:'#7a1236'};
+  // [x del eje, y del nudo, inclinación en el largo, largo]; null = no se ve
+  const m=[[21.5,32,0,14],[23.5,31,2,14],[25,31,0,14],null,null,null,[19,31,0,14],[19.5,31,-2,14]];
+  const f1=[[22.5,34,0,12],[23.5,36,1,10],[25.5,33,0,12],null,null,null,[19,34,0,12],[19.5,34,-1,12]];
+  const f=[null,f1,f1,f1];
+  const fp=[[22.5,31,0,11],[22.5,31,0,11],[22.5,30,0,11],[22.5,31,0,11]];   // portada femenina (reposo antiguo, torso más corto)
+  const TIPO=['frente','tres','perfil',null,null,null,'perfil','tres'];
+  const ANCHOS={
+    frente:{nudo:[3,4,4,2],pala:[3,4,5,6],punta:[5,4,3,2]},
+    tres:{nudo:[2,3,3,2],pala:[2,3,4,4],punta:[3,3,2,1]},
+    perfil:{nudo:[2,3,3,2],pala:[2,2,3,3],punta:[3,2,2,1]}
+  };
+  function filas(tipo,largo){
+    const a=ANCHOS[tipo],medio=Math.max(0,largo-a.nudo.length-a.pala.length-a.punta.length);
+    const fin=a.pala[a.pala.length-1],w=[...a.nudo,...a.pala,...Array(medio).fill(fin),...a.punta];
+    return w.slice(0,Math.max(6,largo));
+  }
+  function ancla(apariencia,dir,paso,pose=-1){
+    if(pose>=0)return apariencia==='femenina'?{p:fp[((pose%4)+4)%4],tipo:'frente'}:{p:m[0],tipo:'frente'};
+    const d=((dir%8)+8)%8,t=TIPO[d];if(!t)return null;
+    const p=apariencia==='femenina'?(f[((paso%4)+4)%4||2]||f1)[d]:m[d];
+    return p?{p,tipo:t}:null;
+  }
+  function dibujar(c,apariencia,dir,paso,pose=-1){
+    const a=ancla(apariencia,dir,paso,pose);if(!a)return false;
+    const [kx,ky,lean,largo]=a.p,ws=filas(a.tipo,largo);
+    const rect=(x,y,w,col)=>{c.fillStyle=col;c.fillRect(x,y,w,1)};
+    ws.forEach((w,i)=>{
+      const dx=ws.length>1?Math.round(lean*i/(ws.length-1)):0,W=w+2,x0=Math.round(kx+dx-W/2),y=ky+i;
+      rect(x0,y,1,K);rect(x0+W-1,y,1,K);
+      for(let j=0;j<w;j++){const col=w===1?'R':j===0?'A':j===w-1?(w>=5?'E':'D'):(w>=4&&j===w-2)?'D':'R';rect(x0+1+j,y,1,pal[col])}
+      if(i===0||i===ws.length-1){rect(x0,y,W,K)}                                  // tapa del nudo y punta de la pala
+    });
+    // sombra del nudo: una fila más oscura bajo el nudo (la pala sale por debajo)
+    const wn=ws[ANCHOS[a.tipo].nudo.length-1],dn=Math.round(lean*(ANCHOS[a.tipo].nudo.length-1)/Math.max(1,ws.length-1)),Wn=wn+2;
+    rect(Math.round(kx+dn-Wn/2)+1,ky+ANCHOS[a.tipo].nudo.length-1,wn,pal.E);
+    return true;
+  }
+  return {ancla,dibujar,filas};
+})();
+
 /* Accesorios pixel art: un solo catálogo de arte para las tarjetas y el cuerpo.
    Coordenadas nativas 44×74; no modifican ancla ni caja de colisión. */
 const ACC_ARTE = (()=>{
@@ -197,6 +277,8 @@ const ACC_ARTE = (()=>{
   function encima(ctx,id,dir,paso,apariencia,pose=-1,calibrado=true){
     if(!ids.includes(id))return;
     if(calibrado&&(id==='gafas'||id==='audifonos')){ACC_CABEZA.dibujar(ctx,id,apariencia,dir,paso,pose);return;}
+    if(calibrado&&id==='gorra'&&ACC_GORRA.dibujar(ctx,apariencia,dir,paso,pose))return;
+    if(calibrado&&id==='corbata'){ACC_CORBATA.dibujar(ctx,apariencia,dir,paso,pose);return;}
     const frente=[0,1,7].includes(dir), perfil=dir===2||dir===6, espalda=[3,4,5].includes(dir), izq=[5,6,7].includes(dir), der=[1,2,3].includes(dir);
     const dx=der?4:izq?-4:0, femenino=apariencia==='femenina', cuello=femenino?31:32;
     // Ajustes pequeños según orientación; el pie siempre queda en 74.
@@ -222,6 +304,8 @@ const ACC_ARTE = (()=>{
     // Icono nativo 32×32; capa en miniatura para caber sin recortar.
     if(id==='gafas'){ctx.translate(-6,-5);ACC_CABEZA.dibujar(ctx,id,'masculina',0,0)}
     else if(id==='audifonos'){ctx.translate(-6,3);ACC_CABEZA.dibujar(ctx,id,'masculina',0,0)}
+    else if(id==='gorra'&&ACC_GORRA.icono(ctx,-1,9)){}
+    else if(id==='corbata'){ctx.translate(16,16);ctx.scale(2,2);ctx.translate(-21.5,-38.5);ACC_CORBATA.dibujar(ctx,'masculina',0,0)}
     else if(id==='capa'){ctx.translate(7,4);ctx.scale(.7,.7);pieza(ctx,id,0,0)}
     else if(id===''){ctx.strokeStyle='#ff5468';ctx.lineWidth=3;ctx.beginPath();ctx.arc(16,16,10,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(9,9);ctx.lineTo(23,23);ctx.stroke()}
     else {const dims={cafe:[12,13],gafas:[19,6],corbata:[11,17],gorra:[21,13],audifonos:[26,19],medalla:[10,15],gato:[14,13],corona:[20,11]};const d=dims[id];if(d){const k=Math.min(2,Math.floor(28/Math.max(...d)));ctx.translate(Math.floor((32-d[0]*k)/2),Math.floor((32-d[1]*k)/2));ctx.scale(k,k);pieza(ctx,id,0,0,id==='gafas'||id==='gato'?2:0)}}

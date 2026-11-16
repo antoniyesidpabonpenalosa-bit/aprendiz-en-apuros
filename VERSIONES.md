@@ -100,6 +100,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v40.5** | — | 2026-11-15 | Identidad, parte 6: Mi Avatar definitivo (vestidor): vistas ambos/retrato/cuerpo, giro en los dos sentidos con la dirección, selectores rápidos de piel y camisa, atajo al probador y colección; sin cambios de precios ni de guardado |
 | **v40.6** | — | 2026-11-16 | Reparación visual de los protagonistas: retratos dibujados a mano para cada tamaño (16, 32 y 48) con cinco gestos y parpadeo, caras del cuerpo entero repintadas para coincidir con ellos, gato nuevo, gafas de cristal transparente y reposo femenino sin salto de cabeza (`scripts/build-retratos-protagonistas.mjs`, `scripts/build-caras-cuerpo.mjs`) |
 | **v40.7** | — | 2026-11-16 | Reparación de accesorios, fase 1: gafas y audífonos con anclajes propios por dirección, apariencia y cuadro de marcha (`ACC_CABEZA` en `js/sprite.js`, arcos de `scripts/calcula-arcos-cabeza.mjs`); los otros siete accesorios y los retratos no cambian |
+| **v40.8** | — | 2026-11-16 | Reparación de accesorios, fase 2: gorra a medida de cada celda de los atlas (`scripts/build-accesorios-cuerpo.mjs` → `js/accesorios-cuerpo-arte.js`) y corbata que sigue el eje del pecho (`ACC_CORBATA`); iconos nuevos; los otros cinco accesorios y los retratos no cambian |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

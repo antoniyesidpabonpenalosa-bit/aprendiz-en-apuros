@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40 a v40.7)
+# Plan: identidad y personalización (v40 a v40.8)
 
 > Estado: **hecho (v40 a v40.5), las seis partes**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -114,6 +114,21 @@ fijos para todas las direcciones. Ahora hay un módulo propio, `ACC_CABEZA` (js/
   masculinos y el de caminata femenino. Las lentes masculinas se recalibraron y la femenina usa los mismos anclajes en el cuadro 0
   (reposo) que en el 2, porque son la misma pose. Los atlas clásico/HD de respaldo conservan el dibujo antiguo.
 - No cambian: los otros siete accesorios, los retratos, precios, inventario, progreso, colisiones ni velocidad.
+
+## Reparación de accesorios, fase 2: gorra y corbata (v40.8)
+
+Misma línea que la fase 1, sin paquete del autor: el diseño sale de las silueta reales de los atlas v40.6.
+
+- **Gorra:** la copa no es una pieza suelta, se calcula de la silueta de la cabeza de cada celda (8 direcciones; 1 cuadro él, 3
+  cuadros ella; 4 poses de portada por apariencia) con `scripts/build-accesorios-cuerpo.mjs` → `js/accesorios-cuerpo-arte.js`
+  (generado, la prueba comprueba que coincide). Domo redondeado, luz arriba a la izquierda, costuras en arco y botón; la visera
+  es de frente (3 filas más sombra sobre la frente), 3/4 y perfil (cada una con su forma), solo se ve la punta en las diagonales
+  de espaldas y no se ve de espaldas (banda trasera con correa). Nunca tapa los ojos (una prueba lo comprueba en el atlas masculino).
+- **Corbata:** `ACC_CORBATA` en `js/sprite.js` con [eje, nudo, inclinación, largo] por dirección y cuadro: completa de frente,
+  acortada e inclinada hacia donde mira en 3/4, banda estrecha en el frente del pecho en perfil y nada de espaldas. El largo de la
+  portada femenina es menor (torso del reposo antiguo).
+- Iconos de la tienda de los dos artículos con el arte nuevo. Los atlas clásico/HD de respaldo conservan el dibujo antiguo.
+- No cambian: audífonos y gafas (fase 1), medalla, capa, café, gato, corona, retratos, precios, inventario, progreso, colisiones.
 
 ## Fuera de esta parte
 
