@@ -28,14 +28,28 @@
 const ACC_ARTE = (()=>{
   const oscuro='#101326', oro='#ffcf3f', luz='#fff0a1', sombra='#ad6a22', azul='#4678c2', acero='#a9c4e7';
   const ids=['cafe','gafas','corbata','gorra','audifonos','medalla','capa','gato','corona'];
+  /* el gato: sentado de frente (o de espaldas) con la cola en «J». Mismo dibujo, mismos colores y misma cara que en los
+     retratos (scripts/lib-accesorios-retrato.mjs): K contorno, O naranja, o rayas, L luz, W crema, E ojo, e brillo, N nariz */
+  const GATO_COL={K:'#2a150d',O:'#e99443',o:'#c06a26',L:'#f7b765',W:'#ffe5bd',E:'#101326',e:'#ffffff',N:'#e97a8b'};
+  const GATO_COLA=['....','....','....','....','....','.KK.','.KOK','.KOK','.KOK','KOOK','KOK.','KK..','....'];
+  const GATO_F=['.KK........KK.','KOOK......KOOK','KOLOKKKKKKOLOK','KOOOOOOOOOOOOK','KOoOOOOOOOOoOK','KOOEeOOOOEeOOK','KOOOOOWWOOOOOK','.KOOOWNNWOOOK.','.KKOOWWWWOOKK.','..KOOOWWOOOK..','.KOOWWWWWWOOK.','.KWWWWWWWWWWK.','.KKKKKKKKKKKK.'];
+  const GATO_E=['.KK........KK.','KOOK......KOOK','KOOOKKKKKKOOOK','KOoOOOOOOOOoOK','KOOOOoOOoOOOOK','KOoOOOOOOOOoOK','KOOOOoOOoOOOOK','.KOoOOOOOOoOK.','.KOOOOoOOOOOK.','..KOOOOOOOOK..','.KOOoOOOOoOOK.','.KOOOOOOOOOOK.','.KKKKKKKKKKKK.'];
   function pieza(ctx,id,x,y,lado=0){
     const r=(a,b,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x+a,y+b,w,h)};
     switch(id){
       case 'cafe':
         r(2,0,1,3,'#b8d9ed');r(5,1,1,2,'#b8d9ed');r(0,4,9,9,oscuro);r(8,6,4,5,oscuro);r(9,7,2,3,'#d5ac81');r(1,5,7,7,'#d9a66d');r(1,5,7,2,'#74422c');r(2,7,2,4,'#ffead0');r(2,12,6,1,'#9c623d');break;
-      case 'gafas':
-        if(lado){r(0,0,9,6,oscuro);r(1,1,6,4,'#6fd2f0');r(2,1,2,1,'#e8fcff');r(8,1,3,1,oscuro)}
-        else{r(0,0,8,7,oscuro);r(10,0,8,7,oscuro);r(8,2,2,2,oscuro);for(const a of [1,11]){r(a,1,6,5,'#31728b');r(a,1,5,1,'#9deeff');r(a+1,2,1,2,'#d6f8ff')}}break;
+      case 'gafas': {
+        /* marco fino con el cristal TRANSPARENTE (se ven los ojos). lado: 0 frente de él, 3 frente de ella, ±1 perfil (der/izq),
+           4 tres cuartos, 2 icono (con el cristal teñido) */
+        const lente='#d6f8ff',tinte=lado===2?'#31728b':null;
+        const aro=(a,b,w,h)=>{r(a+1,b,w-2,1,oscuro);r(a+1,b+h-1,w-2,1,oscuro);r(a,b+1,1,h-2,oscuro);r(a+w-1,b+1,1,h-2,oscuro);if(tinte)r(a+1,b+1,w-2,h-2,tinte);r(a+1,b+1,2,1,lente)};
+        if(lado===1||lado===-1){aro(0,0,7,6);r(lado>0?-6:7,2,6,1,oscuro)}
+        else if(lado===4){aro(0,0,7,6);aro(7,0,7,6);r(-1,2,1,1,oscuro);r(14,2,1,1,oscuro)}
+        else if(lado===3){aro(0,0,8,7);aro(15,0,8,7);r(8,2,7,1,oscuro);r(-1,2,1,1,oscuro);r(23,2,1,1,oscuro)}
+        else{aro(0,0,8,6);aro(11,0,8,6);r(8,2,3,1,oscuro);r(-1,2,1,1,oscuro);r(19,2,1,1,oscuro)}
+        break;
+      }
       case 'corbata':
         r(3,0,5,4,oscuro);r(4,1,3,2,'#ff7381');r(3,4,5,9,oscuro);r(2,12,7,3,oscuro);r(3,5,4,8,'#b91d46');r(4,5,2,8,'#ff5468');r(4,15,3,2,oscuro);r(5,14,1,2,'#ff5468');break;
       case 'gorra':
@@ -46,8 +60,10 @@ const ACC_ARTE = (()=>{
         r(0,0,3,5,'#e05a76');r(7,0,3,5,'#507bdf');r(2,4,6,3,'#aeb7d8');r(2,7,6,1,oscuro);r(1,8,8,6,oscuro);r(2,9,6,4,oro);r(3,9,2,2,luz);r(4,13,3,1,sombra);break;
       case 'capa':
         r(3,0,20,3,oscuro);r(2,3,22,10,oscuro);r(0,13,26,20,oscuro);r(2,14,22,17,'#9c183e');r(4,3,18,14,'#bb2450');r(5,5,4,25,'#ed4763');r(16,5,5,26,'#741537');r(3,31,20,2,'#54132f');break;
-      case 'gato':
-        r(0,0,4,5,oscuro);r(9,0,4,5,oscuro);r(1,1,2,4,'#f2a24e');r(10,1,2,4,'#f2a24e');r(1,4,11,8,oscuro);r(2,4,9,7,'#e99443');r(3,6,2,2,oscuro);r(8,6,2,2,oscuro);r(5,8,2,1,'#ffe5bd');r(3,11,7,5,oscuro);r(4,11,5,4,'#d87933');r(10,11,3,2,'#b96028');r(12,9,2,4,oscuro);r(13,9,1,3,'#f2a24e');break;
+      case 'gato': {
+        const filas=(lado===1?GATO_E:GATO_F).map((f,j)=>lado===2?f:f+GATO_COLA[j]);   // lado 1: de espaldas, 2: sin cola (icono)
+        filas.forEach((f,j)=>{for(let i=0;i<f.length;i++)if(f[i]!=='.')r(i,j,1,1,GATO_COL[f[i]])});break;
+      }
       case 'corona':
         r(0,0,4,4,oscuro);r(8,0,4,4,oscuro);r(16,0,4,4,oscuro);r(0,4,20,7,oscuro);r(1,1,2,4,oro);r(9,1,2,4,luz);r(17,1,2,4,oro);r(2,4,16,5,oro);r(3,5,14,1,luz);r(3,9,14,1,sombra);r(9,6,2,2,'#e43f72');r(4,6,2,2,'#6fd2f0');r(14,6,2,2,'#6fd2f0');break;
     }
@@ -71,7 +87,13 @@ const ACC_ARTE = (()=>{
     const frente=[0,1,7].includes(dir), perfil=dir===2||dir===6, espalda=[3,4,5].includes(dir), izq=[5,6,7].includes(dir), der=[1,2,3].includes(dir);
     const dx=der?4:izq?-4:0, femenino=apariencia==='femenina', cuello=femenino?31:32;
     // Ajustes pequeños según orientación; el pie siempre queda en 74.
-    if(id==='gafas'&&(frente||perfil))pieza(ctx,id,perfil?(izq?9:25):13+dx, femenino?19:18,perfil?(izq?-1:1):0);
+    if(id==='gafas'&&(frente||perfil)){
+      /* dónde están los ojos en cada dirección (medidos en los atlas; los de ella van más bajos y más separados) */
+      if(perfil)pieza(ctx,id,izq?11:26,femenino?20:16,izq?-1:1);
+      else if(dir===0)femenino?pieza(ctx,id,11,20,3):pieza(ctx,id,13,16,0);
+      else if(femenino)pieza(ctx,id,der?14:8,20,4);
+      else pieza(ctx,id,der?19:11,16,4);
+    }
     if(id==='gorra')pieza(ctx,id,11+dx/2,0,izq?-1:der?1:0);
     if(id==='corona')pieza(ctx,id,12+dx/2,0);
     if(id==='audifonos')pieza(ctx,id,9+dx/2,2);
@@ -80,17 +102,17 @@ const ACC_ARTE = (()=>{
     if(id==='capa'&&espalda)pieza(ctx,id,9+(paso===1?1:paso===3?-1:0),cuello);
     if(id==='capa'&&frente){ctx.fillStyle=oro;ctx.fillRect(11+dx,cuello+2,2,2);ctx.fillRect(30+dx,cuello+2,2,2)}
     if(id==='cafe')pieza(ctx,id,perfil?(izq?5:26):(izq||pose>=2)?3:28,44+(paso===1?-2:paso===3?2:0));
-    if(id==='gato')pieza(ctx,id,izq?0:30,57+(paso===1||paso===3?-1:0));
+    if(id==='gato')pieza(ctx,id,izq?0:26,59+(paso===1||paso===3?-1:0),espalda?1:0);
   }
   function icono(cv,id){
     const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);ctx.save();ctx.imageSmoothingEnabled=false;
     // Icono nativo 32×32; capa en miniatura para caber sin recortar.
     if(id==='capa'){ctx.translate(7,4);ctx.scale(.7,.7);pieza(ctx,id,0,0)}
     else if(id===''){ctx.strokeStyle='#ff5468';ctx.lineWidth=3;ctx.beginPath();ctx.arc(16,16,10,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(9,9);ctx.lineTo(23,23);ctx.stroke()}
-    else {const dims={cafe:[12,13],gafas:[18,7],corbata:[11,17],gorra:[21,13],audifonos:[26,19],medalla:[10,15],gato:[14,16],corona:[20,11]};const d=dims[id];if(d){const k=Math.min(2,Math.floor(28/Math.max(...d)));ctx.translate(Math.floor((32-d[0]*k)/2),Math.floor((32-d[1]*k)/2));ctx.scale(k,k);pieza(ctx,id,0,0)}}
+    else {const dims={cafe:[12,13],gafas:[19,6],corbata:[11,17],gorra:[21,13],audifonos:[26,19],medalla:[10,15],gato:[14,13],corona:[20,11]};const d=dims[id];if(d){const k=Math.min(2,Math.floor(28/Math.max(...d)));ctx.translate(Math.floor((32-d[0]*k)/2),Math.floor((32-d[1]*k)/2));ctx.scale(k,k);pieza(ctx,id,0,0,id==='gafas'||id==='gato'?2:0)}}
     ctx.restore();
   }
-  return {ids,detras,encima,icono};
+  return {ids,detras,encima,icono,colores:{oscuro,oro,luz,sombra,azul,acero,gato:GATO_COL}};
 })();
 
 const APRENDIZ = (() => {

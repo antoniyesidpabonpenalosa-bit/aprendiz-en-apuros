@@ -98,6 +98,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v40.3** | — | 2026-11-15 | Identidad, parte 4: tarjetas de piel (retrato) y camisa (cuerpo entero) en Mi Avatar con nombre del color, selección dorada y guardado al instante; las paletas no cambian |
 | **v40.4** | — | 2026-11-15 | Identidad, parte 5: los 9 accesorios en pixel art sobre el cuerpo entero (`ACC_ARTE`, 8 direcciones y 4 pasos, los dos protagonistas) y probador gratis en Mi Avatar con EQUIPAR / COMPRAR Y EQUIPAR; precios e inventario no cambian |
 | **v40.5** | — | 2026-11-15 | Identidad, parte 6: Mi Avatar definitivo (vestidor): vistas ambos/retrato/cuerpo, giro en los dos sentidos con la dirección, selectores rápidos de piel y camisa, atajo al probador y colección; sin cambios de precios ni de guardado |
+| **v40.6** | — | 2026-11-16 | Reparación visual de los protagonistas: retratos dibujados a mano para cada tamaño (16, 32 y 48) con cinco gestos y parpadeo, caras del cuerpo entero repintadas para coincidir con ellos, gato nuevo, gafas de cristal transparente y reposo femenino sin salto de cabeza (`scripts/build-retratos-protagonistas.mjs`, `scripts/build-caras-cuerpo.mjs`) |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

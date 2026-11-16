@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40 a v40.5)
+# Plan: identidad y personalización (v40 a v40.6)
 
 > Estado: **hecho (v40 a v40.5), las seis partes**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -78,6 +78,26 @@
   El dibujo antiguo de `cara`/`cara32` sigue verde: es también la gorra del vigilante.
 - A 16×16, el ojo izquierdo de la aprendiz quedaba pegado a la sombra del flequillo; ahora tiene
   piel a los dos lados.
+
+## Reparación visual (v40.6)
+
+Paquete `reparacion_visual_avatar` del autor: los retratos tenían ojos, boca y barba mal, no coincidían con el cuerpo
+y no eran dibujos propios de cada tamaño (se recortaba el atlas del cuerpo y se reducía). Lo que se hizo:
+
+- **Retratos nuevos** (`scripts/build-retratos-protagonistas.mjs`, sin dependencias): las formas grandes salen de los
+  mismos polígonos rasterizados a cada tamaño y los rasgos (ojos, cejas, nariz, boca) están dibujados a mano para cada
+  tamaño y gesto; a 16×16 la cabeza entera es un mapa propio. Nuevo esquema de datos (`frames[apariencia][tamaño][gesto]`,
+  `acc[accesorio][apariencia][tamaño]`); `RETRATOS_APRENDIZ.dibujar` y sus consumidores no cambian. Se quitó la
+  sobrescritura genérica de ojos a 16.
+- **Caras del cuerpo** (`scripts/build-caras-cuerpo.mjs`, idempotente): masculino con barba completa, cejas y ojos del
+  retrato en S, SE, E, W y SW y en las 4 poses de portada (la cabeza es idéntica en los 4 cuadros). Solo se repinta el
+  interior de la cara: silueta, pelo, pies, anclaje y los 16 colores no cambian.
+- **Femenina, sin salto de cabeza:** la columna de reposo era otro dibujo (cabeza más pequeña) que las de caminata. El
+  reposo pasa a ser la pose de «paso» (columna 2), así el ciclo es paso, zancada A, paso, zancada B. Consecuencia: parada,
+  ella ya no está perfectamente recta y de frente, sino en mitad de un paso. **Pendiente de la aprobación del autor.**
+- **Gato** nuevo (frente y espalda, con cola) en cuerpo, retrato (3 tamaños) e icono; **gafas** de cristal transparente
+  alineadas con los ojos de cada personaje; los 9 accesorios comparten colores entre cuerpo y retrato (lo comprueba una prueba).
+- Expresión neutra en Mi Avatar (`01-expresion-neutra.patch`).
 
 ## Fuera de esta parte
 
