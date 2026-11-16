@@ -26,8 +26,8 @@ function arco(a,fila,col,copas,d){
     const [L,R]=copas[0][0]<copas[1][0]?[copas[0],copas[1]]:[copas[1],copas[0]];
     pts=elipse(L[0],R[0],sup(L),0);pts.push([R[0],sup(R)]);
   }else{
-    const c=copas[0],s=SIGNO[d],perfil=d===2||d===6,xa=c[0],xf=perfil?xa+s*8:(s>0?x1-3:x0+3);
-    pts=elipse(xa,xf,sup(c),perfil?.7:.35);
+    const c=copas[0],s=SIGNO[d],perfil=d===2||d===6,xa=c[0],xf=perfil?xa-s*6:(s>0?x1-3:x0+3);
+    pts=elipse(xa,xf,sup(c),perfil?.22:.35);
   }
   return pts.filter((p,i)=>!i||p[0]!==pts[i-1][0]||p[1]!==pts[i-1][1]);
 }
