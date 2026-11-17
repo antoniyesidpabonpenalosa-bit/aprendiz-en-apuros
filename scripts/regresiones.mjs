@@ -2763,6 +2763,40 @@ await caso('accesorios · los 8 que van sobre el cuerpo cambian el dibujo en 8 d
   return [r.length === 0, r.length ? r.slice(0, 4).join(' · ') : '8 accesorios × 64 cuadros × 2 apariencias: se ven donde toca, el gato no toca el cuerpo y los pies no se mueven'];
 });
 
+await caso('integración · los 9 accesorios en la portada, Mi Avatar, el pasillo y los diálogos, con las dos apariencias: el personaje y su retrato cambian con cada uno (el gato, con su lienzo propio) y no hay errores', ACC_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listoPremium && APRENDIZ.listaFemenina && APRENDIZ.listoPortadaPremium && NPC_PASILLO.listo, null, { timeout: 8000 });
+  const errs = []; pg.on('pageerror', e => errs.push(e.message));
+  const r = await pg.evaluate(async () => {
+    const esp = ms => new Promise(r => setTimeout(r, ms)), mal = [], huella = id => { const c = document.querySelector(id); return c ? c.toDataURL() : null; };
+    const pantallas = {
+      portada: async () => { rTitulo(); await esp(700); return { cuerpo: huella('#t-aprendiz'), retrato: huella('#t-av') }; },
+      avatar: async () => { pePestana = 'apariencia'; rPerso(); await esp(700); return { cuerpo: huella('#pe-cuerpo-av'), retrato: huella('#pe-cara') }; },
+      pasillo: async () => { rPasillo(0); await esp(700); return { cuerpo: huella('#pasillo-canvas') }; },
+      dialogo: async () => { rCutscene({ es: [{ quien: 'APRENDIZ', gesto: 'normal', fondo: 'empresa', t: 'x' }], en: [{ quien: 'APRENDIZ', gesto: 'normal', t: 'x' }] }, () => {}); await esp(700); return { retrato: huella('#cut-cara') }; },
+    };
+    for (const ap of ['masculina', 'femenina']) {
+      S.apariencia = ap;
+      const base = {}; S.acc = ''; for (const [n, f] of Object.entries(pantallas)) base[n] = await f();
+      for (const acc of ['gafas', 'audifonos', 'gorra', 'corbata', 'medalla', 'capa', 'cafe', 'corona', 'gato']) {
+        S.acc = acc;
+        for (const [n, f] of Object.entries(pantallas)) {
+          const v = await f();
+          for (const [k, h] of Object.entries(v)) {
+            if (h === null) { mal.push(`${ap} ${acc} ${n}: falta el lienzo ${k}`); continue; }
+            /* el gato ya no es una pieza del cuerpo: su cuerpo no cambia, y su lienzo propio es el que aparece (portada, pasillo y avatar) */
+            const cambia = h !== base[n][k];
+            if (acc === 'gato' && k === 'cuerpo') { if (cambia) mal.push(`${ap} gato ${n}: el cuerpo no debería cambiar`); continue; }
+            if (!cambia && !(acc === 'gafas' && k === 'cuerpo' && n === 'portada')) mal.push(`${ap} ${acc} ${n} ${k}: no se ve el accesorio`);
+          }
+          if (acc === 'gato' && n !== 'dialogo' && n !== 'portada' && !([...document.querySelectorAll('.gato-compa')].some(e => e.style.display === 'block'))) mal.push(`${ap} gato ${n}: no aparece el gato acompañante`);
+        }
+      }
+    }
+    S.acc = ''; rTitulo(); return mal;
+  });
+  return [r.length === 0 && errs.length === 0, r.length || errs.length ? r.slice(0, 5).concat(errs.slice(0, 2)).join(' · ') : '2 apariencias × 9 accesorios × 4 pantallas: el personaje y su retrato cambian y no hay errores'];
+});
+
 await caso('accesorios · la tienda pinta los 9 iconos pixel (distintos) y PROBAR ACCESORIOS abre Mi Avatar en la pestaña de accesorios; la compra de la tienda sigue igual', ACC_J, async pg => {
   const r = await pg.evaluate(async () => { rTienda(); await new Promise(r => setTimeout(r, 200));
     const iconos = [...document.querySelectorAll('.item-tienda canvas.tienda-acc-arte')].map(c => c.toDataURL());

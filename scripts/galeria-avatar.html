@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Galería de aceptación · protagonistas</title>
+<!-- Galería de aceptación de los protagonistas (v40.13). Usa EL MISMO RENDERIZADOR que el juego (APRENDIZ.dibujar, APRENDIZ.dibujarPortada,
+     retrato(), GATO.cuadro) y sus mismos datos: nada de aquí es una imagen aparte. Se abre desde la raíz del proyecto con un servidor local
+     (por ejemplo `python3 -m http.server` y /scripts/galeria-avatar.html). No forma parte del juego ni de su caché. -->
+<style>
+:root{color-scheme:dark}
+body{margin:0;background:#0b0e22;color:#cfe0ff;font:14px/1.4 ui-monospace,monospace}
+header{background:#0f1530;border-bottom:1px solid #2c3a6b;padding:8px 12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+header h1{font-size:15px;margin:0 12px 0 0;color:#ffcf3f}
+label{display:flex;gap:4px;align-items:center}
+select,button{background:#16203f;color:#cfe0ff;border:1px solid #3a4c8a;padding:4px 6px;font:inherit}
+main{padding:12px;display:grid;gap:22px}
+section h2{font-size:14px;color:#6fd2f0;margin:0 0 6px}
+section p{margin:0 0 8px;color:#8c9ccc}
+.rejilla{display:grid;gap:4px;align-items:end;justify-items:center;width:max-content;max-width:100%}
+.celda{background:#16203f;display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px}
+.celda:nth-child(2n){background:#1b2750}
+.celda span{font-size:10px;color:#8c9ccc}
+canvas{image-rendering:pixelated;display:block}
+.fila{display:flex;flex-wrap:wrap;gap:4px}
+.cab{color:#ffcf3f;font-size:11px;align-self:center;min-width:34px}
+</style>
+</head>
+<body>
+<header>
+  <h1>GALERÍA DE ACEPTACIÓN</h1>
+  <label>apariencia <select id="g-ap"><option value="masculina">masculina</option><option value="femenina">femenina</option></select></label>
+  <label>accesorio <select id="g-acc"></select></label>
+  <label>piel <select id="g-piel"></select></label>
+  <label>camisa <select id="g-cam"></select></label>
+  <label>ampliación <select id="g-z"><option value="1">1× (tamaño de juego)</option><option value="3" selected>3×</option><option value="6">6×</option></select></label>
+  <button id="g-ver">repintar</button>
+</header>
+<main id="g-main"></main>
+
+<script src="js/datos.js"></script>
+<script src="js/iconos.js"></script>
+<script src="js/estado.js"></script>
+<script src="js/accesorios-cuerpo-arte.js"></script>
+<script src="js/sprite.js"></script>
+<script src="js/gato-arte.js"></script>
+<script src="js/gato.js"></script>
+<script src="js/retratos-aprendiz-arte.js"></script>
+<script src="js/retratos-aprendiz.js"></script>
+<script src="js/graficos.js"></script>
+<script>
+'use strict';
+const $g=s=>document.querySelector(s);
+const DIRS=['S','SE','E','NE','N','NO','O','SO'],ACCS_G=['','gafas','audifonos','gorra','corbata','medalla','capa','cafe','corona','gato'];
+const NOM_ACC={'':'sin accesorio',gafas:'gafas',audifonos:'audífonos',gorra:'gorra',corbata:'corbata',medalla:'medalla',capa:'capa',cafe:'café',corona:'corona',gato:'gato'};
+const GESTOS_G=['normal','feliz','enojado','sorprendido','preocupado'];
+$g('#g-acc').innerHTML=ACCS_G.map(a=>`<option value="${a}">${NOM_ACC[a]}</option>`).join('');
+$g('#g-piel').innerHTML=SKINS.map((c,i)=>`<option value="${i}">piel ${i+1} ${c}</option>`).join('');
+$g('#g-cam').innerHTML=CAMISAS.map((c,i)=>`<option value="${i}">camisa ${i+1} ${c}</option>`).join('');
+$g('#g-piel').value='1';$g('#g-cam').value='1';
+
+function lienzo(w,h,z){const c=document.createElement('canvas');c.width=w;c.height=h;c.style.width=w*z+'px';c.style.height=h*z+'px';return c}
+function celda(c,txt){const d=document.createElement('div');d.className='celda';d.append(c);if(txt!==undefined){const s=document.createElement('span');s.textContent=txt;d.append(s)}return d}
+function seccion(titulo,desc,cuerpo){const s=document.createElement('section');s.innerHTML=`<h2>${titulo}</h2><p>${desc}</p>`;s.append(cuerpo);return s}
+function rejilla(cols){const g=document.createElement('div');g.className='rejilla';g.style.gridTemplateColumns=`repeat(${cols},max-content)`;return g}
+const cuerpo=(ap,acc,piel,cam,dir,paso,z)=>{const c=lienzo(44,74,z),x=c.getContext('2d');APRENDIZ.dibujar(x,22,74,74,dir,paso,piel,cam,ap,acc);return c};
+const retr=(ap,acc,piel,cam,gesto,n,blink,z)=>{
+  const o=Object.assign(CARAS.yo(false),{apariencia:ap,skin:SKINS[piel],camisa:CAMISAS[cam],gesto,parpadeo:!!blink,av32:n===32,cine:n===48});
+  for(const id of ACC_ARTE.ids)o[id]=id===acc;
+  const lado=n===48?96:64,c=lienzo(lado,lado,z/2>=1?z/2:0.5);retrato(c,o);return c};
+
+function pinta(){
+  const ap=$g('#g-ap').value,acc=$g('#g-acc').value,piel=+$g('#g-piel').value,cam=+$g('#g-cam').value,z=+$g('#g-z').value,main=$g('#g-main');
+  S.apariencia=ap;S.skin=piel;S.camisa=cam;S.acc=acc;main.innerHTML='';
+  // 1 caminata
+  {const g=rejilla(5);g.append(celda(document.createTextNode('')));for(let p=0;p<4;p++)g.append(celda(document.createTextNode('cuadro '+p)));
+   DIRS.forEach((n,d)=>{const t=document.createElement('div');t.className='cab';t.textContent=n;g.append(t);for(let p=0;p<4;p++)g.append(celda(cuerpo(ap,acc,piel,cam,d,p,z)))});
+   main.append(seccion('Caminata · 8 orientaciones × 4 cuadros',`${ap}, ${NOM_ACC[acc]}, piel ${piel+1}, camisa ${cam+1}. APRENDIZ.dibujar.`,g))}
+  // 2 portada
+  {const g=rejilla(4);for(let p=0;p<4;p++){const c=lienzo(44,74,z),x=c.getContext('2d');APRENDIZ.dibujarPortada(x,22,74,74,p,piel,cam,ap,acc);g.append(celda(c,['reposo','parpadeo','saludo 1','saludo 2'][p]))}
+   main.append(seccion('Poses de la portada','APRENDIZ.dibujarPortada (menú principal).',g))}
+  // 3 los nueve accesorios
+  {const g=rejilla(9);g.append(celda(document.createTextNode('')));DIRS.forEach(n=>g.append(celda(document.createTextNode(n))));
+   for(const a of ACCS_G.slice(1)){const t=document.createElement('div');t.className='cab';t.textContent=NOM_ACC[a];g.append(t);for(let d=0;d<8;d++)g.append(celda(cuerpo(ap,a,piel,cam,d,1,z)))}
+   main.append(seccion('Los nueve accesorios · 8 orientaciones','Cuadro de marcha 1. El gato es un acompañante aparte: en su fila el cuerpo va sin él (mira la última sección).',g))}
+  // 4 piel × camisa
+  {const g=rejilla(5);g.append(celda(document.createTextNode('')));for(let c=0;c<4;c++)g.append(celda(document.createTextNode('camisa '+(c+1))));
+   for(let s=0;s<4;s++){const t=document.createElement('div');t.className='cab';t.textContent='piel '+(s+1);g.append(t);for(let c=0;c<4;c++){const d=document.createElement('div');d.className='fila';d.append(cuerpo(ap,acc,s,c,0,0,z),retr(ap,acc,s,c,'normal',16,false,z),retr(ap,acc,s,c,'normal',32,false,z));g.append(celda(d))}}
+   main.append(seccion('Combinaciones de piel y camisa','Cuerpo de frente y retratos de 16 y 32 de cada una de las 16 combinaciones.',g))}
+  // 5 retratos × gestos
+  {const g=rejilla(6);g.append(celda(document.createTextNode('')));GESTOS_G.forEach(x=>g.append(celda(document.createTextNode(x))));
+   for(const [n,b] of [[16,0],[16,1],[32,0],[32,1],[48,0],[48,1]]){const t=document.createElement('div');t.className='cab';t.textContent=n+(b?' parp.':'');g.append(t);for(const gs of GESTOS_G)g.append(celda(retr(ap,acc,piel,cam,gs,n,b,z)))}
+   main.append(seccion('Retratos · 3 resoluciones × 5 expresiones × parpadeo','retrato(): 16×16, 32×32 y el cinematográfico de 48 (se pinta a 96).',g))}
+  // 6 retratos de los accesorios
+  {const g=rejilla(10);g.append(celda(document.createTextNode('')));ACCS_G.slice(1).forEach(a=>g.append(celda(document.createTextNode(NOM_ACC[a]))));
+   for(const n of [16,32,48]){const t=document.createElement('div');t.className='cab';t.textContent=String(n);g.append(t);for(const a of ACCS_G.slice(1))g.append(celda(retr(ap,a,piel,cam,'normal',n,false,z)))}
+   main.append(seccion('Retratos de los nueve accesorios','Cada accesorio dibujado específicamente para cada resolución.',g))}
+  // 7 el gato
+  {const g=rejilla(10);g.append(celda(document.createTextNode('')));['camina 0','camina 1','camina 2','camina 3','reposo 0','reposo 1','reposo 2','reposo 3','parpadeo'].forEach(x=>g.append(celda(document.createTextNode(x))));
+   DIRS.forEach((n,d)=>{const t=document.createElement('div');t.className='cab';t.textContent=n;g.append(t);
+     for(let i=0;i<9;i++){const c=lienzo(GATO.ARTE.w,GATO.ARTE.h,z),x=c.getContext('2d');x.imageSmoothingEnabled=false;
+       x.drawImage(i<4?GATO.cuadro('camina',d,i):i<8?GATO.cuadro('reposo',d,i-4,false):GATO.cuadro('reposo',d,0,true),0,0);g.append(celda(c))}});
+   main.append(seccion('El gato de oficina · acompañante','GATO.cuadro: reposo, caminata, 8 orientaciones, parpadeo y cola.',g))}
+  // 8 tamaño de juego: el aprendiz con su gato en el pasillo
+  {const g=document.createElement('div');g.className='fila';
+   for(const [d,p] of [[0,0],[2,2],[4,0],[6,1]]){const c=lienzo(120,90,Math.max(1,z/3|0||1)),x=c.getContext('2d');x.imageSmoothingEnabled=false;
+     APRENDIZ.dibujar(x,40,84,71,d,p,piel,cam,ap,'');const st=GATO.nuevo();GATO.avanza(st,40,84,71/74,d,false,0);GATO.pinta(x,st.x,st.y,71/74,[2,6].includes(d)?'camina':'reposo',d,[2,6].includes(d)?p:0,false);g.append(celda(c,DIRS[d]))}
+   main.append(seccion('Tamaño de juego (pasillo)','El aprendiz (71 px) con su gato: sentado a su lado de frente y de espaldas, detrás cuando camina de lado.',g))}
+}
+['g-ap','g-acc','g-piel','g-cam','g-z'].forEach(i=>$g('#'+i).addEventListener('change',pinta));
+$g('#g-ver').onclick=pinta;
+const esperar=()=>{if(APRENDIZ.listoPremium&&APRENDIZ.listaFemenina&&APRENDIZ.listoPortadaPremium&&APRENDIZ.listoPortada)pinta();else setTimeout(esperar,120)};
+esperar();
+</script>
+</body>
+</html>

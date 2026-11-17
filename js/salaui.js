@@ -240,7 +240,7 @@ function pintarLista(caja, est, { modo, yo = '', mando = false }) {
       /* La animación de entrada se quita al acabar: si no, cada vez que la
          fila se mueve de sitio el navegador la vuelve a arrancar. */
       if (animar) { el.classList.add('entra'); el.addEventListener('animationend', () => el.classList.remove('entra'), { once: true }); }
-      retratoVivo(el.querySelector('canvas'), SALA.caraDe(j));
+      retratoVivo(el.querySelector('canvas'), SALA.caraDe(j, yo));
       const fuera = el.querySelector('.sj-fuera');
       if (fuera) fuera.onclick = () => expulsar(est.codigo, j.id, fuera);
       els.set(j.id, el);
@@ -306,7 +306,8 @@ function pintarPodio(caja, est) {
       <span class="pd-pts">${top[i].puntos}</span>
       <div class="pd-base"><span>${['🥇', '🥈', '🥉'][i]}</span><b>${i + 1}</b></div>
     </div>`).join('')}</div>`;
-  $$('#' + caja.id + ' .pd-col').forEach((col, k) => retratoVivo(col.querySelector('canvas'), SALA.caraDe(top[sitio[k]])));
+  const yo = SALA.miId(est.codigo);
+  $$('#' + caja.id + ' .pd-col').forEach((col, k) => retratoVivo(col.querySelector('canvas'), SALA.caraDe(top[sitio[k]], yo)));
 }
 
 /* ══════════ PROYECTOR (instructor) ══════════ */
