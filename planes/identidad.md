@@ -192,6 +192,16 @@ el arte anterior. Ahora siguen el del cuerpo (`scripts/lib-accesorios-retrato.mj
   dibujada a mano a 16, para que se reconozca como el gato y no como una mancha.
 - Audífonos y corbata conservan su dibujo. No cambian: la historia, los diálogos, los precios ni las mecánicas.
 
+## Integración completa, fase 7: el mismo aprendiz en todas las pantallas (v40.13)
+
+Revisión de cada lugar donde aparece el protagonista o un accesorio, con las dos apariencias y los nueve accesorios (capturas de escritorio y móvil, 8 pantallas):
+
+- **Portada, Mi Avatar, tienda, pasillo, runner, jefe, diálogos, certificados:** ya usan el renderizador común (`APRENDIZ.dibujar`, `APRENDIZ.dibujarPortada`, `retrato()` y `GATO`); sin cambios de dibujo. El gato es un lienzo propio en las pantallas con DOM y se pinta aparte en los lienzos del juego.
+- **Sala de clase:** el retrato propio de la lista y del podio usaba el dibujo antiguo (pelo fijo, accesorio plano). Ahora `SALA.caraDe(j, yo)` devuelve `CARAS.yo(true)` cuando la fila es la tuya, con tus accesorios nuevos.
+- **Prueba nueva:** «integración · los 9 accesorios…» recorre 2 apariencias × 9 accesorios × portada, Mi Avatar, pasillo y diálogos y comprueba que el cuerpo y el retrato cambian (el gato, su lienzo propio) sin errores.
+- **Herramienta:** `scripts/galeria-avatar.html` (se abre con un servidor local) pinta con el renderizador real las 8 orientaciones × 4 cuadros, los 9 accesorios, las 16 combinaciones de piel y camisa, los retratos a 16/32/48 con 5 expresiones y el gato. No forma parte del juego ni de la caché.
+- **Límite conocido:** el servidor de la sala no guarda la apariencia, así que los demás jugadores se ven con el dibujo de siempre; mostrarla exige un cambio en la base de datos, que no se hace sin confirmación expresa.
+
 ## Fuera de esta parte
 
 - No hay diálogos nuevos del protagonista.

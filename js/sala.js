@@ -231,8 +231,11 @@ const SALA = (() => {
   /* El personaje de otro jugador, en el formato de cara()/cara32(). Los
      índices vienen de otro dispositivo: si no existen se cae al primero, y un
      accesorio desconocido simplemente no se dibuja. */
-  /** @param {Jugador} j */
-  function caraDe(j) {
+  /** @param {Jugador} j @param {string} [yo] mi id de jugador: mi retrato es el del protagonista, con mi apariencia y mi accesorio */
+  function caraDe(j, yo = '') {
+    /* Yo me veo igual que en el resto del juego (apariencia, colores y accesorio de mi partida). Los demás siguen con el dibujo de siempre:
+       el servidor no guarda su apariencia y no se toca (no hace falta cambiar la base). */
+    if (yo && j.id === yo && typeof CARAS !== 'undefined' && typeof S !== 'undefined') return Object.assign(CARAS.yo(true), { av32: !!j.av32, feliz: true });
     const o = { skin: SKINS[j.skin] || SKINS[0], camisa: CAMISAS[j.camisa] || CAMISAS[0],
                 pelo: '#2a1c10', feliz: true, av32: !!j.av32 };
     if (ACCS.some(a => a.id === j.acc)) o[j.acc] = true;
