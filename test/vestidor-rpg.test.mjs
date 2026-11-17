@@ -19,6 +19,9 @@ test('vestidor: el frente quieto usa la pose de portada; la marcha y demás dire
  const ctx=createContext({APRENDIZ});runInContext(tienda,ctx);
  for(const ap of ['masculina','femenina'])for(const dir of Array.from({length:8},(_,i)=>i))for(const mueve of [false,true]){
   calls.length=0;assert.equal(runInContext(`peDibujaCuerpo(null,${dir},2,${mueve},1,3,'${ap}','audifonos')`,ctx),true);
-  assert.equal(calls.length,1);assert.equal(calls[0][0],dir===0&&!mueve?'portada':'marcha');assert.deepEqual(calls[0].slice(-4),[1,3,ap,'audifonos']);
+  assert.equal(calls.length,1);assert.equal(calls[0][0],dir===0&&!mueve?'portada':'marcha');assert.deepEqual(calls[0].slice(-5),[1,3,ap,'audifonos',0],'sin alza por defecto');
+  /* v40.16: el alza (balanceo y respiración) llega hasta el dibujo */
+  calls.length=0;runInContext(`peDibujaCuerpo(null,${dir},2,${mueve},1,3,'${ap}','audifonos',1)`,ctx);
+  assert.deepEqual(calls[0].slice(-5),[1,3,ap,'audifonos',1],'con alza 1');
  }
 });

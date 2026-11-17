@@ -639,6 +639,26 @@ const APRENDIZ = (() => {
      (135 ms ≈ 7 pasos por segundo, lo que pide el arte). Quieto, el 0. */
   const pasoDe = (mueve, ms = performance.now(), cada = 135) => mueve ? Math.floor(ms / cada) % PASOS : 0;
 
+  /* Alza (v40.16): el balanceo al caminar y la respiración parado. El tronco y la cabeza suben 1 px de la celda (con lo que lleve
+     encima: gafas, gorra, corona, corbata, medalla...) y los pies y las manos se quedan donde están; el hueco que deja se tapa
+     repitiendo una fila. CORTE_ALZA[apariencia] dice en qué fila se corta, por dirección al caminar y para las poses de portada
+     (lo calcula scripts/calcula-corte-alza.mjs; la prueba comprueba que la tabla es la de los atlas). Solo cambia CÓMO se dibuja:
+     no mueve a nadie ni toca colisiones, velocidad ni puntos. Con prefers-reduced-motion no hay alza. */
+  const CORTE_ALZA={"masculina":{"caminar":[43,43,43,43,43,43,43,43],"portada":43},"femenina":{"caminar":[41,41,44,44,42,43,45,41],"portada":42}};
+  const RESPIRA = 2400;                          // ms de un ciclo de respiración: 1,2 s arriba y 1,2 s abajo
+  /* 1 si el tronco va alzado: caminando, en los cuadros 1 y 3 (el pie levantado); parado, la mitad de cada respiración. */
+  const alzaDe = (mueve, paso = 0, ms = performance.now()) =>
+    (typeof quieto === 'function' && quieto()) ? 0 : mueve ? (((paso % PASOS) + PASOS) % PASOS) & 1 : (Math.floor(ms / (RESPIRA / 2)) % 2);
+  /* Una celda del atlas en (x, yPie) con ese alto; con alza y un corte, en dos trozos (ver arriba). Sin alza, un solo drawImage
+     igual que siempre. Se pinta primero el de abajo y encima el de arriba: así un redondeo no deja nunca un hueco. */
+  function pinta(ctx, fuente, fx, fy, x, yPie, alto, w, alza, corte) {
+    const dx = Math.round(x - w / 2), top = Math.round(yPie - alto);
+    const e = alto / FH, yd = r => Math.round(top + r * e), L = corte && alza ? Math.min(Math.round(alza * e), yd(corte) - yd(corte - 1)) : 0;
+    if (L < 1) { ctx.drawImage(fuente, fx, fy, FW, FH, dx, top, w, alto); return; }
+    ctx.drawImage(fuente, fx, fy + corte - 1, FW, FH - corte + 1, dx, yd(corte - 1), w, yd(FH) - yd(corte - 1));
+    ctx.drawImage(fuente, fx, fy, FW, corte, dx, top - L, w, yd(corte) - top);
+  }
+
   /* Pinta el cuadro (dir, paso) centrado en x, con el PIE en yPie y ese alto
      lógico. Devuelve false si el atlas aún no cargó (quien llama pinta su
      respaldo). */
@@ -652,7 +672,7 @@ const APRENDIZ = (() => {
     if(calibrado&&acc==='capa'&&[3,4,5].includes(dir)&&pose<0&&base)ACC_CAPA.pelo(k,base,sx,sy);
     return compuesto;
   }
-  function dibujar(ctx, x, yPie, alto, dir, paso = 0, s = S.skin, c = S.camisa, apariencia = S.apariencia, acc = S.acc) {
+  function dibujar(ctx, x, yPie, alto, dir, paso = 0, s = S.skin, c = S.camisa, apariencia = S.apariencia, acc = S.acc, alza = 0) {
     const origen = origenDe(s,c,apariencia);
     if (!listaOrigen(origen)) return false;
     const cv = atlasDe(s, c, origen);
@@ -660,22 +680,24 @@ const APRENDIZ = (() => {
     const antes = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
     const sx=(paso % PASOS)*FW,sy=dir*FH, extra=esJugador(s,c)?cuadro(cv,sx,sy,acc,dir,paso,origen===imgFemenina?'femenina':'masculina',-1,paletaExacta(origen),origen):null;
-    ctx.drawImage(extra||cv,extra?0:sx,extra?0:sy,FW,FH,Math.round(x-w/2),Math.round(yPie-alto),w,alto);
+    const ap=origen===imgFemenina?'femenina':origen===imgPremium?'masculina':null;
+    pinta(ctx,extra||cv,extra?0:sx,extra?0:sy,x,yPie,alto,w,alza,ap?CORTE_ALZA[ap].caminar[((dir%8)+8)%8]:0);
     ctx.imageSmoothingEnabled = antes;
     return true;
   }
 
   // Poses de portada: 0 reposo, 1 parpadeo, 2 y 3 saludo.
-  function dibujarPortada(ctx, x, yPie, alto, pose = 0, s = S.skin, c = S.camisa, apariencia = S.apariencia, acc = S.acc) {
+  function dibujarPortada(ctx, x, yPie, alto, pose = 0, s = S.skin, c = S.camisa, apariencia = S.apariencia, acc = S.acc, alza = 0) {
     const origen=esJugador(s,c)&&apariencia==='femenina'?imgPortadaFemenina:esJugador(s,c)&&listoPortadaPremium?imgPortadaPremium:imgPortada;
-    if (!listaOrigen(origen)) return dibujar(ctx,x,yPie,alto,idx.south,0,s,c,apariencia,acc);
+    if (!listaOrigen(origen)) return dibujar(ctx,x,yPie,alto,idx.south,0,s,c,apariencia,acc,alza);
     const cv = atlasDe(s,c,origen), w = Math.round(alto * FW / FH);
     const antes = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
     const sx=(pose%4)*FW, extra=esJugador(s,c)?cuadro(cv,sx,0,acc,0,0,origen===imgPortadaFemenina?'femenina':'masculina',pose,paletaExacta(origen),origen):null;
-    ctx.drawImage(extra||cv,extra?0:sx,0,FW,FH,Math.round(x-w/2),Math.round(yPie-alto),w,alto);
+    const ap=origen===imgPortadaFemenina?'femenina':origen===imgPortadaPremium?'masculina':null;
+    pinta(ctx,extra||cv,extra?0:sx,0,x,yPie,alto,w,alza,ap?CORTE_ALZA[ap].portada:0);
     ctx.imageSmoothingEnabled = antes;
     return true;
   }
-  return { DIRS, idx, FW, FH, PASOS, dirDe, pasoDe, dibujar, dibujarPortada, atlasDe, get listo() { return listo || listoHD || listaFemenina || listoPremium; }, get listoHD(){return listoHD}, get listoPremium(){return listoPremium}, get listoPortadaPremium(){return listoPortadaPremium}, get listaFemenina(){return listaFemenina}, get listoPortada() { return S.apariencia==='femenina'?listaPortadaFemenina:(listoPortadaPremium||listoPortada); } };
+  return { DIRS, idx, FW, FH, PASOS, dirDe, pasoDe, alzaDe, CORTE_ALZA, pintaCelda: pinta, dibujar, dibujarPortada, atlasDe, get listo() { return listo || listoHD || listaFemenina || listoPremium; }, get listoHD(){return listoHD}, get listoPremium(){return listoPremium}, get listoPortadaPremium(){return listoPortadaPremium}, get listaFemenina(){return listaFemenina}, get listoPortada() { return S.apariencia==='femenina'?listaPortadaFemenina:(listoPortadaPremium||listoPortada); } };
 })();

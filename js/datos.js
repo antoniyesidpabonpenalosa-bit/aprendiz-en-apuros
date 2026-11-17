@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.15';
+const VERSION='v40.16';
 const NOVEDADES=[
+  {v:'v40.16', fecha:'2026-11-17',
+   es:['El aprendiz y la aprendiz se mueven con más vida: al caminar el cuerpo sube un poquito en cada paso, y parados respiran. Cambia solo cómo se dibujan, con sus accesorios puestos; no cambia nada del juego. Con "reducir movimiento" se quedan quietos como antes.'],
+   en:['The apprentice, both of them, move with more life: the body rises slightly with each step when walking, and breathes when standing. Only how they are drawn changes, accessories included; nothing in the game changes. With "reduce motion" they stay still as before.']},
   {v:'v40.15', fecha:'2026-11-17',
    es:['La aprendiz camina mejor: de frente, de espaldas y en diagonal el paso del cuadro 0 y la zancada de frente usan ahora el otro pie, así que ya no cojea y el ciclo alterna de verdad. Ella, sus accesorios y el café se ven igual que antes.'],
    en:['The female apprentice walks better: facing front, back and on the diagonals, frame 0 now steps with the other foot, and the front stride swaps feet, so she no longer limps and the cycle really alternates. Her look, accessories and mug stay the same.']},

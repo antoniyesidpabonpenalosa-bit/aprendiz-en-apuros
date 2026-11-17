@@ -90,7 +90,9 @@ function rPasillo(zona=pasilloZonaAuto()){
   };
   const paint=(mueve=false,ms=performance.now())=>{
     cx.clearRect(0,0,cv.width,cv.height);
-    if(!APRENDIZ.dibujar(cx,22,73,71,orientacion,APRENDIZ.pasoDe(mueve,ms))){
+    const paso=APRENDIZ.pasoDe(mueve,ms);
+    /* el tronco sube 1 px en los pasos y respira parado (ver APRENDIZ.alzaDe): solo cambia cómo se dibuja */
+    if(!APRENDIZ.dibujar(cx,22,73,71,orientacion,paso,S.skin,S.camisa,S.apariencia,S.acc,APRENDIZ.alzaDe(mueve,paso,ms))){
       /* Respaldo sin imágenes si el atlas no ha terminado de cargar. */
       cx.fillStyle='#302019';cx.fillRect(13,6,18,13);
       cx.fillStyle=SKINS[S.skin]||'#f5cb9a';cx.fillRect(14,17,16,12);
@@ -275,5 +277,10 @@ function rPasillo(zona=pasilloZonaAuto()){
   avisos();
   /* Por si el dibujo del aprendiz todavía se está descargando. */
   [200,800].forEach(ms=>tvez(()=>{pintaGente();if(!andando)paint()},ms));
+  /* respirar parado: se repinta solo cuando cambia el alza (cada 1,2 s), no en cada tic */
+  if(!quieto()){let alzaAnt=-1;tcada(()=>{
+    if(document.hidden||andando||entrando||pantallaId!=='pasillo')return;
+    const a=APRENDIZ.alzaDe(false);if(a!==alzaAnt){alzaAnt=a;paint()}
+  },200)}
   escena.focus({preventScroll:true});
 }
