@@ -107,3 +107,50 @@ test('capa y medalla: la capa se dibuja bajo el cuerpo en la caché del atlas y 
  const src=read('js/sprite.js');
  assert.ok(src.includes("calibrado&&id==='capa'")&&src.includes("calibrado&&id==='medalla'"));
 });
+
+/* ───────── fase 4: corona y café ───────── */
+import {execFileSync} from 'node:child_process';
+const corona=runInContext('ACC_CORONA',vm),cafe=runInContext('ACC_CAFE',vm);
+test('corona y café: las tablas de anclaje salen tal cual de scripts/calcula-corona.mjs y scripts/calcula-cafe.mjs',()=>{
+ const sal=f=>JSON.parse(execFileSync(process.execPath,[new URL('../scripts/'+f,import.meta.url).pathname],{encoding:'utf8'}));
+ assert.deepEqual(JSON.parse(JSON.stringify(corona.T)),sal('calcula-corona.mjs'),'ejecuta node scripts/calcula-corona.mjs y pega la tabla en ACC_CORONA');
+ assert.deepEqual(JSON.parse(JSON.stringify(cafe.T)),sal('calcula-cafe.mjs'),'ejecuta node scripts/calcula-cafe.mjs y pega la tabla en ACC_CAFE');
+});
+test('corona: sigue la cabeza de cada celda, queda sobre las cejas y cambia con la dirección (puntas giradas, sin arte volteado)',()=>{
+ for(const ap of ['masculina','femenina']){
+  const huellas=new Set();
+  for(let d=0;d<8;d++){
+   const rs=grab(c=>corona.dibujar(c,ap,d,0));assert.ok(rs.length>40,`${ap} ${d}`);
+   for(const [x,y,w,h] of rs){assert.ok([x,y,w,h].every(Number.isInteger)&&w>0&&h>0&&x>=0&&x+w<=44&&y>=0&&y+h<=24,`${ap} ${d}: ${[x,y,w,h]}`)}
+   assert.ok(Math.max(...rs.map(([,y,,h])=>y+h))<=(ap==='masculina'?15:17),`${ap} ${d}: la corona baja demasiado`);
+   huellas.add(huella(rs));
+  }
+  assert.equal(huellas.size,8,`${ap}: 8 coronas distintas`);
+  for(let p=0;p<4;p++)assert.ok(grab(c=>corona.dibujar(c,ap,0,0,p)).length>40);
+  // la gema delantera solo se ve cuando el frente mira al espectador (S, SE, SO)
+  const gema=d=>grab(c=>corona.dibujar(c,ap,d,0)).some(r=>r[4]==='#e43f72');
+  for(let d=0;d<8;d++)assert.equal(gema(d),[0,1,7].includes(d),`${ap} ${d}: gema`);
+ }
+ for(let d=0;d<8;d++)for(let f=0;f<4;f++){const a=corona.ancla('femenina',d,f);assert.ok(a.rx>10&&a.cx>15&&a.cx<28)}
+});
+test('corona: no tapa los ojos del atlas masculino',async()=>{
+ const {decodificarPNG}=await import('../scripts/lib-pixel.mjs');
+ const {w,rgba}=decodificarPNG(readFileSync(new URL('../img/aprendiz-masculino-premium-caminar.png',import.meta.url)));
+ for(let d=0;d<8;d++){const px=new Set();for(const [x,y,ww,h] of grab(c=>corona.dibujar(c,'masculina',d,0)))for(let i=0;i<ww;i++)for(let j=0;j<h;j++)px.add(`${x+i}:${y+j}`);
+  for(let y=8;y<30;y++)for(let x=0;x<44;x++){const i=((d*74+y)*w+x)*4;if(rgba[i+3]&&OJOS_M.has([0,1,2].map(k=>rgba[i+k].toString(16).padStart(2,'0')).join('')))assert.ok(!px.has(`${x}:${y}`),`dir ${d}: tapa un ojo en ${x},${y}`)}}
+});
+test('café: la taza la sujeta la mano de cada celda (asa sobre la mano), del lado al que mira, y se mueve con la marcha',()=>{
+ for(const ap of ['masculina','femenina'])for(let d=0;d<8;d++)for(let f=0;f<4;f++){
+  const [lado,hx0,hx1,hy1]=cafe.ancla(ap,d,f),{x,y,lado:l2}=cafe.caja(ap,d,f);
+  assert.equal(l2,lado);
+  if([1,2,3].includes(d))assert.equal(lado,1,`${ap} ${d}: a la derecha`);if([5,6,7].includes(d))assert.equal(lado,-1,`${ap} ${d}: a la izquierda`);
+  const asa=lado>0?x+2:x+8;assert.ok(asa>=hx0-3&&asa<=hx1+3,`${ap} ${d} ${f}: el asa (${asa}) cae sobre la mano ${hx0}-${hx1}`);
+  assert.ok(x>=0&&x+11<=44&&y>=36&&y+10<=66,`${ap} ${d} ${f}: la taza se sale ${x},${y}`);
+  for(const [rx,ry,w,h] of grab(c=>cafe.dibujar(c,ap,d,f)))assert.ok(Number.isInteger(rx)&&rx>=0&&rx+w<=44&&ry>=30&&ry+h<=70);
+ }
+ const pos=new Set([1,2,3].map(f=>JSON.stringify(cafe.caja('femenina',0,f))));assert.ok(pos.size>1,'la taza se mueve con la mano en la marcha');
+ const vap=p=>huella(grab(c=>cafe.dibujar(c,'masculina',0,p)).filter(r=>r[4]==='#cfe6f2'));assert.notEqual(vap(0),vap(1),'el vapor cambia con el paso');
+});
+test('corona y café: no hay arte antiguo en las dos',()=>{
+ const src=read('js/sprite.js');assert.ok(src.includes("calibrado&&id==='corona'")&&src.includes("calibrado&&id==='cafe'"));
+});

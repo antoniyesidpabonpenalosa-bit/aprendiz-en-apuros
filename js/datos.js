@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.9';
+const VERSION='v40.10';
 const NOVEDADES=[
+  {v:'v40.10', fecha:'2026-11-17',
+   es:['La corona y el café se ven bien en cualquier dirección: la corona abraza la cabeza con sus puntas giradas y su gema delantera, y la taza se sujeta de verdad con la mano, sube y baja con ella al andar y suelta su vapor.'],
+   en:['The crown and the coffee look right in every direction: the crown hugs the head with its points turned and its front gem, and the mug is really held by the hand, moves with it while walking and gives off steam.']},
   {v:'v40.9', fecha:'2026-11-16',
    es:['La capa y la medalla se ven bien en cualquier dirección: la capa cae por detrás con su vuelo, se ve entera de espaldas y deja el pelo por encima; la medalla cuelga de su cinta sobre el pecho.'],
    en:['The cape and the medal look right in every direction: the cape falls behind with its flare, shows in full from behind and leaves the hair on top; the medal hangs from its ribbon on the chest.']},

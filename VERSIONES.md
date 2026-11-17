@@ -102,6 +102,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v40.7** | — | 2026-11-16 | Reparación de accesorios, fase 1: gafas y audífonos con anclajes propios por dirección, apariencia y cuadro de marcha (`ACC_CABEZA` en `js/sprite.js`, arcos de `scripts/calcula-arcos-cabeza.mjs`); los otros siete accesorios y los retratos no cambian |
 | **v40.8** | — | 2026-11-16 | Reparación de accesorios, fase 2: gorra a medida de cada celda de los atlas (`scripts/build-accesorios-cuerpo.mjs` → `js/accesorios-cuerpo-arte.js`) y corbata que sigue el eje del pecho (`ACC_CORBATA`); iconos nuevos; los otros cinco accesorios y los retratos no cambian |
 | **v40.9** | — | 2026-11-16 | Reparación de accesorios, fase 3: capa (`ACC_CAPA`: manto por detrás o por encima según la vista, hombreras y broche, vuelo en la marcha, pelo sobre la capa) y medalla (`ACC_MEDALLA`: cinta en V y disco); iconos nuevos; los otros tres accesorios y los retratos no cambian |
+| **v40.10** | — | 2026-11-17 | Reparación de accesorios, fase 4: corona (`ACC_CORONA`: aro y cinco puntas giradas con la dirección sobre la cabeza de cada celda, gema delantera) y café (`ACC_CAFE`: taza sujeta por la mano de cada cuadro con vapor); iconos nuevos; solo queda el gato como accesorio sin rehacer, y los retratos no cambian |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

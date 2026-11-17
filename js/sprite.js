@@ -345,6 +345,89 @@ const ACC_MEDALLA = (()=>{
   return {dibujar};
 })();
 
+/* Fase 4 · corona a medida de la cabeza de cada celda. Un aro elíptico (arco cercano grueso y arco lejano fino) de la anchura de la
+   cabeza a la altura de la frente, con cinco puntas repartidas a 72° y giradas con la dirección del personaje: las cercanas salen del
+   aro cercano y las lejanas asoman por encima, así de frente, 3/4, perfil y espaldas cambian las puntas y la gema delantera.
+   Medidas [centro, radio] por celda en T (las calcula scripts/calcula-corona.mjs sobre los atlas v40.6). */
+const ACC_CORONA = (()=>{
+  const K='#101326',G='#ffcf3f',g='#fff0a1',s='#ad6a22',RJ='#e43f72',rj='#ff9cb5';
+  const YB={masculina:7,femenina:9},YAW=[0,45,90,135,180,-135,-90,-45],RY=2;
+  const T={"masculina":{"caminar":[[[21.5,15]],[[20,15.5]],[[21.5,15]],[[22,14.5]],[[20.5,15]],[[20,14.5]],[[21.5,15]],[[22,15.5]]],"portada":[[21.5,15],[21.5,15],[21.5,15],[21.5,15]]},"femenina":{"caminar":[[[21.5,14],[21,13.5],[21.5,14]],[[23,15.5],[22.5,16],[22.5,16]],[[21.5,15],[21,15.5],[20,15.5]],[[21.5,15],[22.5,15],[21.5,15]],[[21.5,14],[21,13.5],[21.5,14]],[[21.5,16],[20.5,15],[21.5,16]],[[22,15.5],[22,15.5],[23,15.5]],[[22,15.5],[21.5,15],[21,15.5]]],"portada":[[21.5,13],[21.5,13],[21.5,12],[19,12.5]]}};
+  const R=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
+  function ancla(ap,dir,paso,pose=-1){
+    const f=ap==='femenina'?'femenina':'masculina',t=T[f];
+    if(pose>=0){const [cx,rx]=t.portada[((pose%4)+4)%4];return {cx,rx,yb:YB[f],yaw:0}}
+    const d=((dir%8)+8)%8,i=f==='femenina'?((((paso%4)+4)%4)||2)-1:0,[cx,rx]=t.caminar[d][i];
+    return {cx,rx,yb:YB[f],yaw:YAW[d]};
+  }
+  const prof=(u)=>RY*Math.sqrt(Math.max(0,1-u*u));
+  // punta triangular: base de ancho bw (impar) que se estrecha hasta una perla; luz a la izquierda, sombra a la derecha
+  function punta(c,x,base,h,bw){
+    const px=Math.round(x);
+    for(let i=0;i<h;i++){
+      const w=Math.max(1,2*Math.round((bw*(1-i/h)-1)/2)+1),y=base-i,x0=px-(w-1)/2;
+      R(c,x0-1,y,1,1,K);R(c,x0+w,y,1,1,K);
+      for(let j=0;j<w;j++)R(c,x0+j,y,1,1,i===h-1?g:j===0&&w>1?g:j===w-1&&w>1?s:G);
+    }
+    R(c,px-1,base-h,3,1,K);R(c,px,base-h+0,1,1,K);
+  }
+  function dibujar(c,ap,dir,paso,pose=-1,propio=null){
+    const a=propio||ancla(ap,dir,paso,pose),{cx,rx,yb,yaw}=a,rad=Math.PI/180,x0=Math.round(cx-rx),x1=Math.round(cx+rx)-1;
+    const pts=[0,1,2,3,4].map(i=>{const q=(yaw+72*i)*rad;return {x:cx+0.88*rx*Math.sin(q),cos:Math.cos(q)}});
+    const bw=p=>Math.max(3,Math.round(5.5*Math.abs(p.cos)+0.5)|1);
+    // arco lejano: línea fina por dentro de la corona, con sus puntas detrás
+    for(const p of pts)if(p.cos<0){const u=(p.x-cx)/rx;punta(c,p.x,Math.round(yb-prof(u))-1,4,bw(p))}
+    for(let x=x0;x<=x1;x++){const u=(x+0.5-cx)/rx,y=Math.round(yb-prof(u));R(c,x,y-1,1,1,K);R(c,x,y,1,1,s)}
+    // arco cercano: cuatro filas (luz, oro, oro, sombra) con contorno y perlas
+    for(let x=x0;x<=x1;x++){
+      const u=(x+0.5-cx)/rx,y=yb+Math.round(prof(u));
+      R(c,x,y-1,1,1,K);R(c,x,y,1,1,g);R(c,x,y+1,1,1,G);R(c,x,y+2,1,1,G);R(c,x,y+3,1,1,s);R(c,x,y+4,1,1,K);
+      if(((x-x0)%6)===3)R(c,x,y+1,1,2,g);
+    }
+    for(let y=yb-1;y<=yb+RY+4;y++){R(c,x0-1,y,1,1,K);R(c,x1+1,y,1,1,K)}
+    // puntas cercanas sobre el arco cercano
+    for(const p of pts)if(p.cos>=0){const u=(p.x-cx)/rx;punta(c,p.x,yb+Math.round(prof(u))-2,p.cos>0.9?6:5,bw(p))}
+    // gema delantera (solo si el frente mira al espectador)
+    const q=yaw*rad;
+    if(Math.cos(q)>0.3){const xg=Math.round(cx+0.88*rx*Math.sin(q)),u=(xg-cx)/rx,y=yb+Math.round(prof(u));
+      R(c,xg-2,y+1,5,3,K);R(c,xg-1,y+1,3,2,RJ);R(c,xg-1,y+1,1,1,rj);R(c,xg,y+3,1,1,RJ)}
+  }
+  // icono de la tienda: la corona de frente
+  function icono(c){dibujar(c,'masculina',0,0,-1,{cx:16,rx:13,yb:14,yaw:0});return true}
+  return {ancla,dibujar,icono,T};
+})();
+
+/* Fase 4 · taza de café sujeta por la mano de cada celda. La mano (el puño de la piel de la rampa exacta bajo la cintura) sale de
+   scripts/calcula-cafe.mjs: [lado, x izq., x der., y de abajo]; la taza se dibuja POR ENCIMA del cuerpo con el asa sobre la mano y
+   sube y baja con ella en la marcha. Lado +1: la taza queda a la derecha de la mano; -1, a la izquierda. El vapor cambia con el paso. */
+const ACC_CAFE = (()=>{
+  const K='#101326',C={b:'#5a2e1c',h:'#ffead0',c:'#d9a66d',d:'#9c623d',v:'#cfe6f2'};
+  const T={"masculina":{"caminar":[[[1,32,36,51]],[[1,32,35,50]],[[1,17,23,52]],[[1,26,33,52]],[[1,31,36,52]],[[-1,9,16,52]],[[-1,20,26,53]],[[-1,7,11,51]]],"portada":[[1,32,36,51],[1,32,36,51],[-1,6,11,51],[-1,6,11,51]]},"femenina":{"caminar":[[[1,31,34,54],[1,30,34,51],[1,31,33,51]],[[1,30,32,50],[1,30,34,51],[1,30,34,50]],[[1,24,30,54],[1,24,31,52],[1,25,32,54]],[[1,28,34,54],[1,28,33,51],[1,27,33,54]],[[1,30,35,53],[1,30,34,51],[1,30,34,52]],[[-1,9,16,54],[-1,9,15,52],[-1,7,14,54]],[[-1,22,28,54],[-1,14,20,53],[-1,15,21,53]],[[-1,8,14,53],[-1,10,14,51],[-1,6,12,53]]],"portada":[[1,30,34,52],[1,30,34,52],[1,30,32,51],[-1,7,11,51]]}};
+  // taza de 11×10 con el asa a la izquierda (lado +1) y el hueco del asa abierto para que se vea la mano; el lado -1 la dibuja del otro lado
+  const TAZA=['...KKKKKKKK','...KbbbbbbK','...KhccccdK','.KKKhccccdK','.K.KhccccdK','.K.KhccccdK','.K.KhccccdK','.KKKhccccdK','...KccccddK','....KKKKKK.'];
+  const VAPOR=[[[5,-1],[5,-2],[8,-2]],[[6,-1],[6,-2],[5,-3]],[[7,-1],[7,-2],[8,-3]],[[5,-1],[6,-2],[6,-3]]];
+  function ancla(ap,dir,paso,pose=-1){
+    const f=ap==='femenina'?'femenina':'masculina',t=T[f];
+    if(pose>=0)return t.portada[((pose%4)+4)%4];
+    return t.caminar[((dir%8)+8)%8][f==='femenina'?((((paso%4)+4)%4)||2)-1:0];
+  }
+  function caja(ap,dir,paso,pose=-1){
+    const [lado,hx0,hx1,hy1]=ancla(ap,dir,paso,pose),hc=Math.round((hx0+hx1)/2);
+    // el asa (columna 2 de la taza) queda sobre el centro de la mano
+    const x=lado>0?Math.min(hc-2,44-11):Math.max(hc+2-10,0),y=hy1-7;
+    return {lado,x,y};
+  }
+  function taza(c,x,y,lado,paso){
+    const px=(i)=>lado>0?x+i:x+10-i;
+    TAZA.forEach((fila,j)=>{for(let i=0;i<11;i++){const ch=fila[i];if(ch==='.')continue;c.fillStyle=ch==='K'?K:C[ch];c.fillRect(px(i),y+j,1,1)}});
+    c.fillStyle=C.v;for(const [i,dy] of VAPOR[((paso%4)+4)%4])c.fillRect(px(i),y+dy,1,1);
+  }
+  function dibujar(c,ap,dir,paso,pose=-1){const {lado,x,y}=caja(ap,dir,paso,pose);taza(c,x,y,lado,paso);return true}
+  // icono de la tienda (32×32): la taza al doble de tamaño con su vapor
+  function icono(c){c.save();c.translate(5,3);c.scale(2,2);taza(c,0,3,1,0);c.restore();return true}
+  return {ancla,caja,dibujar,icono,T,TAZA};
+})();
+
 /* Accesorios pixel art: un solo catálogo de arte para las tarjetas y el cuerpo.
    Coordenadas nativas 44×74; no modifican ancla ni caja de colisión. */
 const ACC_ARTE = (()=>{
@@ -412,6 +495,8 @@ const ACC_ARTE = (()=>{
     if(calibrado&&id==='corbata'){ACC_CORBATA.dibujar(ctx,apariencia,dir,paso,pose);return;}
     if(calibrado&&id==='capa'){ACC_CAPA.encima(ctx,apariencia,dir,paso,pose);return;}
     if(calibrado&&id==='medalla'){ACC_MEDALLA.dibujar(ctx,apariencia,dir,paso,pose);return;}
+    if(calibrado&&id==='corona'){ACC_CORONA.dibujar(ctx,apariencia,dir,paso,pose);return;}
+    if(calibrado&&id==='cafe'){ACC_CAFE.dibujar(ctx,apariencia,dir,paso,pose);return;}
     const frente=[0,1,7].includes(dir), perfil=dir===2||dir===6, espalda=[3,4,5].includes(dir), izq=[5,6,7].includes(dir), der=[1,2,3].includes(dir);
     const dx=der?4:izq?-4:0, femenino=apariencia==='femenina', cuello=femenino?31:32;
     // Ajustes pequeños según orientación; el pie siempre queda en 74.
@@ -440,6 +525,8 @@ const ACC_ARTE = (()=>{
     else if(id==='gorra'&&ACC_GORRA.icono(ctx,-1,9)){}
     else if(id==='corbata'){ctx.translate(16,16);ctx.scale(2,2);ctx.translate(-21.5,-38.5);ACC_CORBATA.dibujar(ctx,'masculina',0,0)}
     else if(id==='capa'&&ACC_CAPA.icono(ctx)){}
+    else if(id==='corona'&&ACC_CORONA.icono(ctx)){}
+    else if(id==='cafe'&&ACC_CAFE.icono(ctx)){}
     else if(id==='medalla'){ctx.translate(16,16);ctx.scale(2,2);ctx.translate(-21.5,-38);ACC_MEDALLA.dibujar(ctx,'masculina',0,0)}
     else if(id==='capa'){ctx.translate(7,4);ctx.scale(.7,.7);pieza(ctx,id,0,0)}
     else if(id===''){ctx.strokeStyle='#ff5468';ctx.lineWidth=3;ctx.beginPath();ctx.arc(16,16,10,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(9,9);ctx.lineTo(23,23);ctx.stroke()}

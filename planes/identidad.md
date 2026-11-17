@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40 a v40.9)
+# Plan: identidad y personalización (v40 a v40.10)
 
 > Estado: **hecho (v40 a v40.5), las seis partes**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -145,6 +145,21 @@ Mismo método que las fases anteriores: anclajes por dirección y cuadro sobre l
   atlas clásico/HD de respaldo conservan el dibujo antiguo.
 - No cambian: gafas, audífonos, gorra, corbata (fases 1 y 2), café, gato, corona, retratos, precios, inventario, progreso,
   colisiones ni velocidad.
+
+## Reparación de accesorios, fase 4: corona y café (v40.10)
+
+- **Corona** (`ACC_CORONA`, js/sprite.js): un aro elíptico (arco cercano de cuatro filas con contorno y perlas, arco lejano fino) de la
+  anchura de la cabeza a la altura de la frente, con cinco puntas triangulares repartidas a 72° y giradas con la dirección: las cercanas
+  salen del arco cercano y las lejanas asoman por encima, y la gema delantera solo aparece cuando el frente mira al espectador (S, SE,
+  SO). Centro y radio por celda en `ACC_CORONA.T`, que calcula `scripts/calcula-corona.mjs` sobre los atlas (una prueba comprueba que
+  coincide). Queda sobre las cejas y no tapa los ojos.
+- **Café** (`ACC_CAFE`): una taza de 11×10 con el asa abierta, dibujada por encima del cuerpo y con el asa sobre el puño de la celda. La mano
+  (píxeles de piel de la rampa exacta bajo la cintura) sale de `scripts/calcula-cafe.mjs` (`ACC_CAFE.T`, también comprobada): la más a
+  la derecha en S, SE, E, NE y N y la más a la izquierda en NO, O y SO; la taza queda del lado al que mira. Sube y baja con la mano en la
+  marcha y el vapor cambia con el paso.
+- Iconos de la tienda con el arte nuevo. Los atlas clásico/HD de respaldo conservan el dibujo antiguo.
+- Con esto los ocho accesorios con arte corporal propio quedan rehechos; el gato (acompañante independiente) y los retratos son las
+  siguientes fases. No cambian: precios, inventario, progreso, colisiones ni velocidad.
 
 ## Fuera de esta parte
 
