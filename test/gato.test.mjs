@@ -19,7 +19,8 @@ test('gato: reposo, reposo con parpadeo y caminata en las 8 orientaciones con 4 
   for(let d=0;d<8;d++){assert.equal(arte[clave][d].length,4,`${clave} ${d}`);
    for(const f of arte[clave][d]){const fs=filas(f);assert.ok(fs.length<=arte.h&&fs.every(r=>r.length<=arte.w),`${clave} ${d}: cabe en ${arte.w}×${arte.h}`);
     for(const ch of f.replace(/\//g,''))assert.ok(ch==='.'||ch in arte.paleta,`color ${ch}`);
-    assert.ok(cuenta(f,'K')>20&&(cuenta(f,'O')+cuenta(f,'L')+cuenta(f,'o'))>25,`${clave} ${d}: contorno y pelo`)}}
+    assert.ok(cuenta(f,'K')>20&&(cuenta(f,'O')+cuenta(f,'L')+cuenta(f,'o'))>25,`${clave} ${d}: contorno y pelo`);
+    assert.ok(!fs[0].replace(/\./g,'')&&fs.every(r=>r[0]==='.'||r[0]===undefined)&&fs.every(r=>r[arte.w-1]==='.'||r[arte.w-1]===undefined),`${clave} ${d}: no toca el borde de la celda (no se recorta)`)}}
  }
 });
 test('gato: la cara solo se ve cuando la cabeza mira al espectador y el parpadeo cierra los ojos',()=>{

@@ -8,7 +8,7 @@ import { writeFileSync } from 'node:fs';
 
 const RAIZ = new URL('../', import.meta.url);
 export const PALETA = { K: '#2a150d', O: '#e99443', o: '#c06a26', L: '#f7b765', W: '#ffe5bd', w: '#dcb987', E: '#101326', e: '#ffffff', N: '#e97a8b', n: '#b9566a' };
-const W = 26, H = 22, AX = 13, AY = 20;       // celda, y ancla: el centro de las patas
+const W = 30, H = 22, AX = 15, AY = 20;       // celda, y ancla: el centro de las patas
 const PITCH = 35 * Math.PI / 180, ESC = 1.25;  // cámara y tamaño (unidades → píxeles)
 const DIRS = [[0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]].map(([x, y]) => { const n = Math.hypot(x, y); return [x / n, y / n]; });
 const LUZ = (() => { const v = [-0.5, -0.45, 0.75], n = Math.hypot(...v); return v.map(a => a / n); })();
@@ -45,7 +45,7 @@ function caminando(fase, ojos = true) {
 }
 /* el gato sentado (reposo): cola con 4 posiciones */
 function sentado(fase, ojos = true) {
-  const P = [], lev = [0, 0.5, 1.1, 0.5][fase], bal = [0, 0.7, 1.2, 0.7][fase];
+  const P = [], lev = [0, 1.4, 3.0, 1.4][fase], bal = [0, 0.7, 1.2, 0.7][fase];
   P.push(el([0, -1.6, 2.7], [3.0, 3.2, 2.7], 'cuerpo'));                       // ancas
   P.push(el([0, 0.4, 5.8], [2.4, 2.3, 3.5], 'cuerpo'));                        // torso erguido
   P.push(el([0, 1.8, 4.2], [1.6, 1.4, 2.4], 'pecho'));
@@ -57,7 +57,8 @@ function sentado(fase, ojos = true) {
   P.push(el([-1.3, 2.6, 2.4], [0.9, 0.9, 2.4], 'pata'), el([1.3, 2.6, 2.4], [0.9, 0.9, 2.4], 'pata'));
   P.push(el([-1.3, 2.9, 0.9], [1.0, 1.2, 0.9], 'pie'), el([1.3, 2.9, 0.9], [1.0, 1.2, 0.9], 'pie'));
   P.push(el([-3.2, -1.2, 1.2], [0.9, 2.0, 1.0], 'pata'), el([3.2, -1.2, 1.2], [0.9, 2.0, 1.0], 'pata'));   // patas traseras dobladas a los lados
-  P.push(...cola([[-1.6, -4.4, 1.2], [-3.6, -3.4, 1.0], [-4.3, -0.8, 0.9], [-3.5, 1.8, 0.9], [-2.0, 3.4 + bal * 0.3, 0.9 + lev * 0.4], [-0.6, 3.9, 1.0 + lev]], 0.95, 0.75));
+  // la cola descansa hacia atrás y la punta se levanta y se curva: el movimiento de la cola en reposo se ve de lado y en las diagonales
+  P.push(...cola([[0, -4.4, 1.2], [0.5, -6.0, 1.1], [1.1, -7.6, 1.6], [1.7, -8.6, 2.9 + lev * 0.6], [1.9, -8.7, 4.4 + lev]], 0.95, 0.7));
   return { P, h, ojos, cara: { y: 1.9, h, ry: 2.5 } };
 }
 
