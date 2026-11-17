@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.11';
+const VERSION='v40.12';
 const NOVEDADES=[
+  {v:'v40.12', fecha:'2026-11-17',
+   es:['Los retratos del aprendiz llevan ahora los accesorios nuevos: gafas de cristal transparente, gorra con visera, corona con puntas, capa con broche, medalla con cinta, taza de barro con vapor y el gato de oficina, en cada tamaño.'],
+   en:['The apprentice portraits now wear the new accessories: clear-lens glasses, a cap with a brim, a spiked crown, a clasped cape, a ribboned medal, a clay mug with steam and the office cat, at every size.']},
   {v:'v40.11', fecha:'2026-11-17',
    es:['El gato de oficina ahora es un compañero de verdad: camina a tu lado, se sienta cuando te paras, mueve la cola y parpadea, y mira hacia donde vas, en el pasillo, el runner, el jefe, el menú y Mi Avatar.'],
    en:['The office cat is now a real companion: it walks beside you, sits when you stop, swishes its tail and blinks, and looks where you go, in the hallway, the runner, the boss fight, the menu and My Avatar.']},

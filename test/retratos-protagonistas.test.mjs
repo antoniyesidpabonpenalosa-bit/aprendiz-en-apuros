@@ -57,7 +57,12 @@ test('accesorios: el cuerpo (ACC_ARTE) y el retrato usan los mismos colores',asy
  const gato={K:'gContorno',O:'gNaranja',o:'gSombra',L:'gLuz',W:'gCrema',E:'gOjo',N:'gNariz'};
  for(const [letra,clave] of Object.entries(gato))assert.equal(cuerpo.gato[letra],COL[clave],`gato ${clave}`);
  const {GATO_RETRATO}=await import('../scripts/lib-accesorios-retrato.mjs');
- assert.ok(GATO_RETRATO[48].every(f=>f.length===14)&&GATO_RETRATO[32].every(f=>f.length===10)&&GATO_RETRATO[16].every(f=>f.length===6));
+ // el gato del retrato es el del acompañante (reposo de frente): entero a 48, reducido a 32 y una cabecita a 16
+ const {datos}=await import('../scripts/build-gato.mjs'),sin=m=>m.join('').replace(/\./g,'');
+ assert.equal(sin(GATO_RETRATO[48]),sin(datos().reposo[0][0]),'a 48 es el sprite del acompañante, recortado');
+ const ancho=m=>new Set(m.map(f=>f.length)).size===1;
+ assert.ok(ancho(GATO_RETRATO[48])&&ancho(GATO_RETRATO[32])&&ancho(GATO_RETRATO[16]));
+ assert.ok(GATO_RETRATO[48].length>GATO_RETRATO[32].length&&GATO_RETRATO[32].length>=GATO_RETRATO[16].length&&GATO_RETRATO[16].every(f=>f.length===6));
 });
 
 test('retratos: nueve accesorios en cada tamaño y apariencia, y los datos del gato y de la gorra son los acordados',()=>{
