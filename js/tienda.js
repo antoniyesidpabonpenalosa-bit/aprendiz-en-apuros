@@ -220,6 +220,8 @@ function rPerso(){
   </div>`,rPerso);
 
   let orientacion=0, andando=false, ultimoVisor='';
+  /* el gato de oficina del probador (el que se está probando) va junto al personaje: mira y camina como él */
+  {const cuerpo=$('#pe-cuerpo-av');if(cuerpo)GATO.montar({cuerpo,contenedor:cuerpo.parentElement,dir:()=>orientacion,mueve:()=>andando&&!quieto(),activo:()=>prueba==='gato'&&peVista!=='retrato'&&pantallaId==='perso'});}
   const pintaCuerpo=()=>{
     const cv=$('#pe-cuerpo-av');if(!cv||pantallaId!=='perso'||peVista==='retrato')return;
     const paso=APRENDIZ.pasoDe(andando&&!quieto()), clave=[S.apariencia,S.skin,S.camisa,prueba,orientacion,paso,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');

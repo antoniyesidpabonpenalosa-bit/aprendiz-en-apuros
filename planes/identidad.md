@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40 a v40.10)
+# Plan: identidad y personalización (v40 a v40.11)
 
 > Estado: **hecho (v40 a v40.5), las seis partes**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -160,6 +160,23 @@ Mismo método que las fases anteriores: anclajes por dirección y cuadro sobre l
 - Iconos de la tienda con el arte nuevo. Los atlas clásico/HD de respaldo conservan el dibujo antiguo.
 - Con esto los ocho accesorios con arte corporal propio quedan rehechos; el gato (acompañante independiente) y los retratos son las
   siguientes fases. No cambian: precios, inventario, progreso, colisiones ni velocidad.
+
+## Reparación de accesorios, fase 5: el gato de oficina como acompañante (v40.11)
+
+- **Sprites propios** (`scripts/build-gato.mjs` → `js/gato-arte.js`, generado y comprobado): el gato se construye con partes en 3D (cuerpo, pecho,
+  cabeza, hocico, orejas, patas, cola) y se proyecta desde la cámara del juego en las 8 orientaciones, así que cada vista tiene su luz, su cara
+  solo cuando se ve y su cola del lado que toca (no hay volteo de arte). Estados: reposo (sentado, cuatro posiciones de la cola, con y sin
+  parpadeo) y caminata (4 cuadros).
+- **Comportamiento** (`js/gato.js`, `GATO`): una posición propia junto al protagonista (detrás de él cuando camina de lado, a su lado de frente
+  o de espaldas) a la que llega con un pequeño retraso; camina mientras se mueve (o corre en el sitio si él corre en el sitio, como en el runner),
+  mira hacia donde va, se sienta cuando se detiene y entonces mueve la cola y parpadea. Con «reducir movimiento» se queda sentado y quieto.
+- **Solo visual**: no entra en colisiones, velocidades, daño, puntos ni compras (una prueba comprueba que no toca el estado del juego ni usa esas
+  piezas). Ya no se pinta sobre el cuerpo del aprendiz (`ACC_ARTE.encima` no lo dibuja).
+- **Dónde está**: lienzos del juego con `GATO.acompanar` (runner, jefe) y lienzo propio con `GATO.montar` en la página (pasillo, portada, mapa y
+  vestidor de Mi Avatar; en el vestidor sigue al que se está probando y al girar y andar se recoloca y camina). Las tarjetas de apariencia y color
+  de la tienda no llevan gato. Icono de la tienda con el sprite nuevo.
+- Pendiente de la fase de retratos: el retrato del gato a 16, 32 y 48 sigue con el dibujo anterior.
+- No cambian: precio (1500), compra, inventario, progreso, colisiones ni velocidad.
 
 ## Fuera de esta parte
 

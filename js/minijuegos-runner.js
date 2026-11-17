@@ -240,6 +240,8 @@ function nvRunner(dia){
       }
       c.restore();
     }
+    /* acompañante: el gato de oficina corre a su lado (solo visual: no cuenta para colisiones ni puntos) */
+    GATO.acompanar(c,p.x+7,SUELO,30,APRENDIZ.idx.east,true);
     /* obstáculos */
     c.font='16px serif';c.textBaseline='top';
     obs.forEach(o=>{

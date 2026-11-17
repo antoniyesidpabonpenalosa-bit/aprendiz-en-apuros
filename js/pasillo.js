@@ -100,6 +100,8 @@ function rPasillo(zona=pasilloZonaAuto()){
     }
   };
   const moveX=()=>{actor.style.left=pos+'%'};
+  /* el gato de oficina (si lo lleva) va a su lado por el pasillo, con su propio lienzo y su propio paso */
+  GATO.montar({cuerpo:actor,contenedor:escena,dir:()=>orientacion,mueve:()=>andando});
   const ficha=$('#pasillo-ficha');
   /* Abre la puerta y entra al día. Se comprueba todo otra vez: entre pintar el
      botón y pulsarlo puede haber cambiado la puerta elegida. */
