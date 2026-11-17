@@ -86,7 +86,7 @@ test('cuerpo: la cabeza masculina es idéntica en los 4 cuadros de cada direcci�
    assert.equal(pie,72,`${f} fila ${fila} col ${col}: los pies siguen en la fila 72`);
   }
   if(f.includes('masculino'))for(let fila=0;fila<8;fila++)for(let col=1;col<4;col++)for(let y=0;y<31;y++)for(let x=0;x<44;x++)assert.equal(px(fila,col,x,y),px(fila,0,x,y),`masculino fila ${fila} col ${col}: misma cabeza`);
-  else for(let fila=0;fila<8;fila++)for(let y=0;y<74;y++)for(let x=0;x<44;x++)assert.equal(px(fila,0,x,y),px(fila,2,x,y),`femenina fila ${fila}: el reposo es la pose de paso (sin salto de cabeza)`);
+  else for(let fila=0;fila<8;fila++)for(let y=0;y<34;y++)for(let x=0;x<44;x++)assert.equal(px(fila,0,x,y),px(fila,2,x,y),`femenina fila ${fila}: el cuadro 0 y el 2 comparten cabeza y hombros (sin salto de cabeza); de ahí abajo el 0 es el otro paso (v40.15)`);
  }
 });
 

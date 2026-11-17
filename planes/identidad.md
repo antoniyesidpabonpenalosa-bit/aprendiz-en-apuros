@@ -209,7 +209,16 @@ Una revisión independiente de v40.13 (parche aplicado tal cual, con comparativa
 - **Retratos de 32×32:** los mapas de ojos normal, feliz, enojado y preocupado llevan blanco a ambos lados del iris; se retira la pestaña lateral de la versión femenina y se simplifica la boca normal. El arte se regenera siempre con `scripts/build-retratos-protagonistas.mjs`, nunca a mano.
 - **Audífonos de perfil (E/O):** el arco conserva solo la rama visible desde la copa hasta la parte superior; antes se dibujaba una segunda varilla falsa sobre el pelo. Las otras seis direcciones y las poses de portada no cambian.
 - **Reposo frontal:** en Mi Avatar y en las tarjetas de apariencia y camisa, el personaje quieto de frente usa la pose de portada (`peDibujaCuerpo`) y no el cuadro 0 de marcha, que en la aprendiz dejaba una pierna levantada. La clave de repintado incluye el estado de movimiento, así que al detener la caminata el visor vuelve al reposo.
-- **Pendiente, a propósito:** las otras siete direcciones quietas siguen usando el cuadro 0 de marcha (hace falta un atlas de reposo de 8 direcciones), y el atlas femenino sigue con los cuadros 0 y 2 iguales (decisión de v40.6) hasta una entrega específica de animaciones. La pose de portada y la de marcha son dibujos distintos y se nota el cambio al empezar a andar.
+- **Pendiente, a propósito:** las otras siete direcciones quietas siguen usando el cuadro 0 de marcha (hace falta un atlas de reposo de 8 direcciones). La pose de portada y la de marcha son dibujos distintos y se nota el cambio al empezar a andar. Lo del ciclo femenino (cuadros 0 y 2 iguales) se resolvió en v40.15.
+
+## Ciclo de caminata de ella (v40.15)
+
+Desde v40.6 el cuadro 0 de su atlas era una copia del 2 (la pose de paso), así que el ciclo repetía el mismo paso con el mismo pie levantado, y de frente (S) las dos zancadas levantaban también el mismo pie: ella «cojeaba». Sin IA y con el arte del propio atlas (`scripts/build-ciclo-femenino.mjs`, idempotente, corre después de `build-caras-cuerpo.mjs`):
+
+- **Qué cambia:** el cuadro 0 pasa a ser el paso del otro pie en S, SE, NE, N, NO y SO, y de frente el cuadro 3 es la zancada del otro lado. El perfil (E, O) no se toca: allí las dos piernas son del mismo color y el ciclo ya se lee; en los tres cuartos las zancadas ya alternaban lo bastante.
+- **Cómo:** la mitad de arriba (cabeza, pelo, hombros) es la de siempre, así que los anclajes de gafas, audífonos, gorra y corona siguen valiendo; desde una fila de corte del pecho (la que mejor encaja, fija en el script) hacia abajo se usa la mitad de abajo en espejo de su propia vista (S con S, N con N, SE con SO, NE con NO). Nunca se voltea una vista por otra: la espalda no sale de un frente.
+- **Café:** su tabla de anclaje tiene ahora cuatro cuadros por dirección para ella (`scripts/calcula-cafe.mjs`), porque la mano cambia en el 0 y en el 3 de frente. Corbata, medalla, capa, gafas, audífonos, gorra y corona se comprobaron sobre los cuadros nuevos sin cambios.
+- **Pruebas:** `test/ciclo-femenino.test.mjs` (el atlas sale del script y es idempotente, la cabeza del 0 es la del 2, la mitad de abajo es el espejo de su fuente, el pie levantado alterna, la taza cae sobre una mano en cada cuadro).
 
 ## Fuera de esta parte
 

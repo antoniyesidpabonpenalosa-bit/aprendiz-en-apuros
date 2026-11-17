@@ -26,7 +26,7 @@ function elige(bl,dir){
 }
 const A=f=>decodificarPNG(readFileSync(new URL('img/'+f,RAIZ)));
 const out={};
-for(const [ap,cam,por,cols] of [['masculina',A('aprendiz-masculino-premium-caminar.png'),A('aprendiz-masculino-premium-portada.png'),[0]],['femenina',A('aprendiz-femenina-caminar.png'),A('aprendiz-femenina-portada.png'),[1,2,3]]]){
+for(const [ap,cam,por,cols] of [['masculina',A('aprendiz-masculino-premium-caminar.png'),A('aprendiz-masculino-premium-portada.png'),[0]],['femenina',A('aprendiz-femenina-caminar.png'),A('aprendiz-femenina-portada.png'),[0,1,2,3]]]){
   out[ap]={caminar:[...Array(8).keys()].map(d=>cols.map(c=>elige(manos(cam,d,c),d))),portada:[0,1,2,3].map(p=>elige(manos(por,0,p),0))};
 }
 console.log(JSON.stringify(out));

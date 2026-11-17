@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.14';
+const VERSION='v40.15';
 const NOVEDADES=[
+  {v:'v40.15', fecha:'2026-11-17',
+   es:['La aprendiz camina mejor: de frente, de espaldas y en diagonal el paso del cuadro 0 y la zancada de frente usan ahora el otro pie, así que ya no cojea y el ciclo alterna de verdad. Ella, sus accesorios y el café se ven igual que antes.'],
+   en:['The female apprentice walks better: facing front, back and on the diagonals, frame 0 now steps with the other foot, and the front stride swaps feet, so she no longer limps and the cycle really alternates. Her look, accessories and mug stay the same.']},
   {v:'v40.14', fecha:'2026-11-17',
    es:['Retoques visuales del aprendiz: los ojos y la boca de los retratos de 32 se ven más claros, la diadema de los audífonos de perfil es una sola, y en Mi Avatar el personaje se queda quieto de frente (sin pierna levantada) y vuelve a esa pose al detener la caminata.'],
    en:['Visual touch-ups for the apprentice: the eyes and mouth of the 32px portraits read more clearly, the headphone band in profile is a single band, and in My Avatar the character stands still facing front (no raised leg) and returns to that pose when the walk stops.']},
