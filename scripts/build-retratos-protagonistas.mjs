@@ -123,8 +123,8 @@ const OJOS = {
     enojado: ['KKKKKK', 'WIIIIW', '.WIIW.'], sorprendido: ['.KKKK.', 'KWWWWK', 'WWIIWW', 'WWIhWW', '.WWWW.'], preocupado: ['.KKKK.', 'WIhIIW', 'WIIIIW', '.WIIW.'],
   },
   32: {
-    normal: ['.KK.', 'IhII', 'IIII', '.II.'], feliz: ['.KK.', 'IhII', '.SS.'],
-    enojado: ['KKKK', 'IhII', '.II.'], sorprendido: ['.KK.', 'WWWW', 'WIhW', '.II.'], preocupado: ['.KK.', 'IhII', 'IIII', '.II.'],
+    normal: ['.KK.', 'WIhW', 'WIIW', '.II.'], feliz: ['.KK.', 'WIhW', '.II.'],
+    enojado: ['KKKK', 'WIIW', '.II.'], sorprendido: ['.KK.', 'WWWW', 'WIhW', '.II.'], preocupado: ['.KK.', 'WIhW', 'WIIW', '.II.'],
   },
   16: {
     normal: ['II', 'II'], feliz: ['II'], enojado: ['II', 'II'], sorprendido: ['WW', 'II', 'II'], preocupado: ['II', 'II'],
@@ -164,7 +164,7 @@ function ojos(P, sexo, n, e, blink) {
     if (n === 48 && sexo === 'f') { P.p(izq ? x - 1 : x + pos.w, y0, ojoOscuro); }
     if (n === 48 && e === 'preocupado') { P.p(x + (izq ? 3 : 2), y0 + 1, BLANCO); P.p(x + (izq ? 2 : 3), y0 + 1, ojoOscuro); }
     if (n === 48 && e === 'feliz') for (const dx of [1, 2, 3, 4]) P.p(x + dx, y0 + 3, PIEL[3]);
-    if (n === 32 && sexo === 'f' && e !== 'feliz') P.p(izq ? x - 1 : x + pos.w, y0, ojoOscuro);
+    // En 32 px el párpado ya está en el mapa: no sumar una pestaña lateral que engorda el ojo.
   };
   const xi = pos.x, xd = 2 * pos.eje - pos.x - pos.w;
   dibuja(xi, true); dibuja(xd, false);
@@ -201,7 +201,7 @@ function boca(P, sexo, n, e) {
   if (n === 32) {
     if (sexo === 'm') P.poli([[17.5 * 2 / 3, 27.5 * 2 / 3], [21 * 2 / 3, 26 * 2 / 3], [24 * 2 / 3, 27 * 2 / 3], [27 * 2 / 3, 26 * 2 / 3], [30.5 * 2 / 3, 27.5 * 2 / 3], [29 * 2 / 3, 29.2 * 2 / 3], [24 * 2 / 3, 28.4 * 2 / 3], [19 * 2 / 3, 29.2 * 2 / 3]], BA[0]);
     const y = sexo === 'm' ? 19 : 20;
-    if (e === 'normal') { P.rect(14, y, 4, 1, L); P.rect(14, y + 1, 4, 1, B); P.p(13, y, B); P.p(18, y, B); }
+    if (e === 'normal') { P.rect(14, y, 4, 1, B); P.rect(15, y + 1, 2, 1, L); }
     if (e === 'feliz') { P.rect(14, y, 4, 1, D); P.rect(13, y + 1, 6, 1, B); P.p(15, y + 1, T); P.p(16, y + 1, T); }
     if (e === 'enojado') { P.rect(14, y + 1, 4, 1, B); P.p(13, y + 2, B); P.p(18, y + 2, B); }
     if (e === 'sorprendido') { P.rect(14, y, 4, 3, B); P.p(14, y, L); P.p(17, y, L); }

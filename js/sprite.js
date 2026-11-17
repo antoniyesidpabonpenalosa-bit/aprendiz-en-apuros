@@ -97,7 +97,12 @@ const ACC_CABEZA = (()=>{
     let f=((paso%4)+4)%4;if(fem&&f===0)f=2;
     const lentes=fem?(pose>=0?fPL[p]:fL[d][f]):mL[pose>=0?0:d];
     const [copas,arco]=fem?(pose>=0?fPH[p]:fHM[d]):mH[pose>=0?0:d];
-    return {lentes,copas,arco,patilla:temple(pose>=0?0:d,lentes)};
+    // En perfil puro la mitad lejana del arco queda ocluida por el cráneo.
+    // Conservar la rama que sale de la copa hasta el punto superior, sin la falsa segunda varilla.
+    const perfil=pose<0&&(d===2||d===6);
+    const cima=perfil?Math.min(...arco.map(q=>q[1])):0;
+    const visible=perfil?arco.slice(0,arco.map(q=>q[1]).lastIndexOf(cima)+1):arco;
+    return {lentes,copas,arco:visible,patilla:temple(pose>=0?0:d,lentes)};
   }
   function rect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(x,y,w,h)}
   // Bresenham entero para que los arcos sean verdaderos escalones de píxel.
