@@ -48,3 +48,9 @@ test('masculino: cada ojo del atlas queda dentro de una lente y las copas apoyan
   for(const [cx,cy,cw,ch] of a.copas){const i=((d*74+cy)*w+cx)*4;assert.ok(rgba[i+3],`dir ${d}: la copa en ${cx},${cy} cae sobre la cabeza`);}
  }
 });
+
+test('audífonos de perfil: la diadema visible termina arriba, sin una segunda rama sobre el pelo',()=>{
+ for(const s of sexes)for(const d of [2,6])for(let f=0;f<4;f++){
+  const {arco}=art.ancla(s,d,f);assert.equal(arco.at(-1)[1],Math.min(...arco.map(p=>p[1])));
+ }
+});

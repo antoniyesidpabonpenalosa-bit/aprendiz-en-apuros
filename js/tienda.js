@@ -87,6 +87,11 @@ let pePestana='apariencia';
 let peVista='ambos';
 const PE_DIRECCIONES=['sur','sureste','este','noreste','norte','noroeste','oeste','suroeste'];
 
+/* La pose frontal quieta es la del atlas de portada, no un paso de marcha. */
+function peDibujaCuerpo(c,dir,paso,mueve,piel,camisa,apariencia,acc){
+  return !mueve&&dir===0?APRENDIZ.dibujarPortada(c,22,74,74,0,piel,camisa,apariencia,acc):APRENDIZ.dibujar(c,22,74,74,dir,paso,piel,camisa,apariencia,acc);
+}
+
 /* Las muestras conservan los índices de las paletas originales: nunca crean
    una segunda preferencia ni alteran inventario. El color es una pista extra,
    no el único identificador de cada tarjeta. */
@@ -224,10 +229,10 @@ function rPerso(){
   {const cuerpo=$('#pe-cuerpo-av');if(cuerpo)GATO.montar({cuerpo,contenedor:cuerpo.parentElement,dir:()=>orientacion,mueve:()=>andando&&!quieto(),activo:()=>prueba==='gato'&&peVista!=='retrato'&&pantallaId==='perso'});}
   const pintaCuerpo=()=>{
     const cv=$('#pe-cuerpo-av');if(!cv||pantallaId!=='perso'||peVista==='retrato')return;
-    const paso=APRENDIZ.pasoDe(andando&&!quieto()), clave=[S.apariencia,S.skin,S.camisa,prueba,orientacion,paso,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');
+    const mueve=andando&&!quieto(), paso=APRENDIZ.pasoDe(mueve), clave=[mueve,S.apariencia,S.skin,S.camisa,prueba,orientacion,paso,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');
     if(clave===ultimoVisor)return;
     const c=cv.getContext('2d');c.clearRect(0,0,44,74);
-    if(!APRENDIZ.dibujar(c,22,74,74,orientacion,paso,S.skin,S.camisa,S.apariencia,prueba))return;
+    if(!peDibujaCuerpo(c,orientacion,paso,mueve,S.skin,S.camisa,S.apariencia,prueba))return;
     ultimoVisor=clave;
   };
   const pintaOpciones=()=>$$('.pe-apariencia-op').forEach(b=>{
@@ -236,7 +241,7 @@ function rPerso(){
     b.classList.toggle('sel',S.apariencia===id);b.setAttribute('aria-pressed',String(S.apariencia===id));
     b.querySelector('.pe-apariencia-marca').textContent=S.apariencia===id?'✓':'';
     if(id==='femenina'&&!APRENDIZ.listaFemenina)return;
-    APRENDIZ.dibujar(c,22,74,74,0,0,S.skin,S.camisa,id);
+    peDibujaCuerpo(c,0,0,false,S.skin,S.camisa,id,S.acc);
   });
   const pintaColores=()=>$$('.pe-color-op').forEach(b=>{
     const piel=b.dataset.s!==undefined, i=Number(piel?b.dataset.s:b.dataset.c),
@@ -246,7 +251,7 @@ function rPerso(){
     b.querySelector('.pe-color-estado').textContent=t(elegido?'pe_elegido':'pe_elegir');
     if(piel){retrato(cv,{...CARAS.yo(false),skin:SKINS[i],av32:true});return}
     const c=cv.getContext('2d');c.clearRect(0,0,44,74);
-    APRENDIZ.dibujar(c,22,74,74,0,0,S.skin,i,S.apariencia);
+    peDibujaCuerpo(c,0,0,false,S.skin,i,S.apariencia,S.acc);
   });
   const pintaResumen=()=>{
     $('#pe-etiqueta-apariencia').textContent=t('pe_'+S.apariencia);

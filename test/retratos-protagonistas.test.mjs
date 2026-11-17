@@ -106,3 +106,11 @@ test('retratos: los dos scripts están en orden y en la caché',()=>{
  assert.ok(files.every(f=>html.includes(f)&&sw.includes('./'+f)));
  assert.ok(html.indexOf(files[0])<html.indexOf(files[1])&&html.indexOf(files[1])<html.indexOf(files[2]));
 });
+
+test('retrato normal de 32: el blanco de los ojos es visible a ambos lados, no solo un reflejo puntual',()=>{
+ const blanco=art.palette.findIndex(p=>p[0]==='#f7f4e9');
+ for(const sex of ['masculina','femenina']){
+  const px=pixeles(art.frames[sex][32].normal,32);
+  for(const x of [10,13,18,21])for(const y of [13,14])assert.equal(px[y*32+x],blanco,`${sex} blanco ${x},${y}`);
+ }
+});

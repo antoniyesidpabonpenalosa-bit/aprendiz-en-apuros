@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.13';
+const VERSION='v40.14';
 const NOVEDADES=[
+  {v:'v40.14', fecha:'2026-11-17',
+   es:['Retoques visuales del aprendiz: los ojos y la boca de los retratos de 32 se ven más claros, la diadema de los audífonos de perfil es una sola, y en Mi Avatar el personaje se queda quieto de frente (sin pierna levantada) y vuelve a esa pose al detener la caminata.'],
+   en:['Visual touch-ups for the apprentice: the eyes and mouth of the 32px portraits read more clearly, the headphone band in profile is a single band, and in My Avatar the character stands still facing front (no raised leg) and returns to that pose when the walk stops.']},
   {v:'v40.13', fecha:'2026-11-17',
    es:['Integración completa del aprendiz: sus nueve accesorios y su gato se ven igual en el menú, Mi Avatar, la tienda, el pasillo, el runner, el jefe, los diálogos, los certificados y la sala de clase, donde tu retrato del marcador ya es el del juego.'],
    en:['Full apprentice integration: its nine accessories and its cat look the same in the menu, My Avatar, the shop, the hallway, the runner, the boss fight, the dialogues, the certificates and the classroom, where your scoreboard portrait is now the in-game one.']},

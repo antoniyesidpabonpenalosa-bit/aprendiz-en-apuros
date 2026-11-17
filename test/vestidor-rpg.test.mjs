@@ -13,3 +13,12 @@ test('las ocho etiquetas de giro siguen el orden real del motor y tienen traducc
  const g=cargarJuego();
  for(const lang of ['es','en'])for(const k of [...pe.map(d=>'pe_dir_'+d),'pe_vestidor','pe_ambos','pe_elegir_apariencia','pe_equipado_actual','pe_saldo','pe_coleccion','pe_girar_atras'])assert.ok(g.TXT[lang][k],`${lang} ${k}`);
 });
+
+test('vestidor: el frente quieto usa la pose de portada; la marcha y demás direcciones usan el atlas de marcha',()=>{
+ const calls=[],APRENDIZ={dibujarPortada:(...args)=>{calls.push(['portada',...args]);return true},dibujar:(...args)=>{calls.push(['marcha',...args]);return true}};
+ const ctx=createContext({APRENDIZ});runInContext(tienda,ctx);
+ for(const ap of ['masculina','femenina'])for(const dir of Array.from({length:8},(_,i)=>i))for(const mueve of [false,true]){
+  calls.length=0;assert.equal(runInContext(`peDibujaCuerpo(null,${dir},2,${mueve},1,3,'${ap}','audifonos')`,ctx),true);
+  assert.equal(calls.length,1);assert.equal(calls[0][0],dir===0&&!mueve?'portada':'marcha');assert.deepEqual(calls[0].slice(-4),[1,3,ap,'audifonos']);
+ }
+});

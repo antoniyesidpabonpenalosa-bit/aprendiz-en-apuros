@@ -202,6 +202,15 @@ Revisión de cada lugar donde aparece el protagonista o un accesorio, con las do
 - **Herramienta:** `scripts/galeria-avatar.html` (se abre con un servidor local) pinta con el renderizador real las 8 orientaciones × 4 cuadros, los 9 accesorios, las 16 combinaciones de piel y camisa, los retratos a 16/32/48 con 5 expresiones y el gato. No forma parte del juego ni de la caché.
 - **Límite conocido:** el servidor de la sala no guarda la apariencia, así que los demás jugadores se ven con el dibujo de siempre; mostrarla exige un cambio en la base de datos, que no se hace sin confirmación expresa.
 
+## Corrección visual tras la revisión externa (v40.14)
+
+Una revisión independiente de v40.13 (parche aplicado tal cual, con comparativas del renderizador real) corrigió cinco cosas puntuales, sin tocar los atlas ni los demás accesorios:
+
+- **Retratos de 32×32:** los mapas de ojos normal, feliz, enojado y preocupado llevan blanco a ambos lados del iris; se retira la pestaña lateral de la versión femenina y se simplifica la boca normal. El arte se regenera siempre con `scripts/build-retratos-protagonistas.mjs`, nunca a mano.
+- **Audífonos de perfil (E/O):** el arco conserva solo la rama visible desde la copa hasta la parte superior; antes se dibujaba una segunda varilla falsa sobre el pelo. Las otras seis direcciones y las poses de portada no cambian.
+- **Reposo frontal:** en Mi Avatar y en las tarjetas de apariencia y camisa, el personaje quieto de frente usa la pose de portada (`peDibujaCuerpo`) y no el cuadro 0 de marcha, que en la aprendiz dejaba una pierna levantada. La clave de repintado incluye el estado de movimiento, así que al detener la caminata el visor vuelve al reposo.
+- **Pendiente, a propósito:** las otras siete direcciones quietas siguen usando el cuadro 0 de marcha (hace falta un atlas de reposo de 8 direcciones), y el atlas femenino sigue con los cuadros 0 y 2 iguales (decisión de v40.6) hasta una entrega específica de animaciones. La pose de portada y la de marcha son dibujos distintos y se nota el cambio al empezar a andar.
+
 ## Fuera de esta parte
 
 - No hay diálogos nuevos del protagonista.
