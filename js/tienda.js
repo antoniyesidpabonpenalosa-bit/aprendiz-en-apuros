@@ -260,7 +260,7 @@ function rPerso(){
     ACC_ARTE.icono($('#pe-atajo-acc canvas'),S.acc);
     const barra=$('#pe-coleccion-bar');barra.setAttribute('aria-valuenow',String(S.accs.length));barra.style.setProperty('--pe-coleccion',S.accs.length/ACCS.length*100+'%');
   };
-  const pinta=()=>{const cara=CARAS.yo(true);for(const id of ACC_ARTE.ids)cara[id]=prueba===id;retratoVivo($('#pe-cara'),cara);ultimoVisor='';pintaCuerpo();pintaOpciones();pintaColores();pintaResumen()};
+  const pinta=()=>{const cara={...CARAS.yo(false),gesto:'normal'};for(const id of ACC_ARTE.ids)cara[id]=prueba===id;retratoVivo($('#pe-cara'),cara);ultimoVisor='';pintaCuerpo();pintaOpciones();pintaColores();pintaResumen()};
   $$('.pe-apariencia-op').forEach(b=>b.onclick=()=>{
     const id=b.dataset.apariencia;if((id!=='masculina'&&id!=='femenina')||S.apariencia===id)return;
     S.apariencia=id;guardar();SFX.click();pinta();avisar(t('pe_guardado'));

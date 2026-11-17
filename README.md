@@ -203,7 +203,9 @@ scripts/
 ├── build-pixelfx.mjs     → empaqueta la biblioteca pixelfx en js/pixelfx.js (ver LICENCIAS.md)
 ├── build-retratos.mjs    → convierte arte/retratos/ (PNG) en img/retratos/ (WebP)
 ├── build-aprendiz-masculino.py → genera el atlas masculino premium desde los HD (Pillow)
-├── build-retratos-protagonistas.py → genera js/retratos-aprendiz-arte.js y arte/retratos-protagonistas/ (Pillow)
+├── build-retratos-protagonistas.mjs → dibuja los retratos de los protagonistas (16, 32 y 48, 5 gestos + parpadeo, 9 accesorios) y genera js/retratos-aprendiz-arte.js y las hojas de arte/retratos-protagonistas/ (solo Node)
+├── build-caras-cuerpo.mjs → repinta las caras de los atlas de cuerpo entero para que coincidan con los retratos; correr después de build-aprendiz-masculino.py
+├── lib-pixel.mjs / lib-accesorios-retrato.mjs → pincel de pixel art, PNG y accesorios de retrato de esos generadores
 └── build-sprite.py       → genera los atlas del aprendiz en img/ desde arte/aprendiz/
 design-system/            → catálogo de componentes extraído de css/estilos.css
 ├── README.md             → cómo regenerarlo y sincronizarlo con claude.ai/design

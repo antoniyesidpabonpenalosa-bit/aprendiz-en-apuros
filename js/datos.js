@@ -20,8 +20,23 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.5';
+const VERSION='v40.10';
 const NOVEDADES=[
+  {v:'v40.10', fecha:'2026-11-17',
+   es:['La corona y el café se ven bien en cualquier dirección: la corona abraza la cabeza con sus puntas giradas y su gema delantera, y la taza se sujeta de verdad con la mano, sube y baja con ella al andar y suelta su vapor.'],
+   en:['The crown and the coffee look right in every direction: the crown hugs the head with its points turned and its front gem, and the mug is really held by the hand, moves with it while walking and gives off steam.']},
+  {v:'v40.9', fecha:'2026-11-16',
+   es:['La capa y la medalla se ven bien en cualquier dirección: la capa cae por detrás con su vuelo, se ve entera de espaldas y deja el pelo por encima; la medalla cuelga de su cinta sobre el pecho.'],
+   en:['The cape and the medal look right in every direction: the cape falls behind with its flare, shows in full from behind and leaves the hair on top; the medal hangs from its ribbon on the chest.']},
+  {v:'v40.8', fecha:'2026-11-16',
+   es:['La gorra y la corbata se ven bien en cualquier dirección: la gorra abraza la cabeza de cada paso y tiene su visera de frente, de lado y en 3/4, y la corbata sigue el pecho en vez de flotar.'],
+   en:['The cap and the tie look right in every direction: the cap hugs the head at every step with its brim seen from the front, side and three-quarters, and the tie follows the chest instead of floating.']},
+  {v:'v40.7', fecha:'2026-11-16',
+   es:['Gafas y audífonos rehechos: cada uno se dibuja a medida para cada dirección (frente, diagonales, perfil y espalda), para la apariencia masculina y la femenina y para cada paso de la marcha, así que ya no flotan ni tapan la cara.'],
+   en:['Glasses and headphones rebuilt: each one is drawn to fit every direction (front, diagonals, profile and back), for both the masculine and feminine looks and for every walking step, so they no longer float or cover the face.']},
+  {v:'v40.6', fecha:'2026-11-16',
+   es:['Los dos protagonistas se ven mejor: retratos nuevos dibujados a mano en cada tamaño (ojos, boca, barba y expresiones), caras del cuerpo entero que coinciden con ellos, un gato nuevo y gafas con el cristal transparente. La femenina ya no cambia de cabeza al echar a andar.'],
+   en:['Both protagonists look better: new hand-drawn portraits at every size (eyes, mouth, beard and expressions), full-body faces that match them, a new cat and glasses with clear lenses. The feminine apprentice no longer changes head when she starts walking.']},
   {v:'v40.5', fecha:'2026-11-15', es:['Mi Avatar reúne apariencia, colores y accesorios en un vestidor RPG con visor ampliado y controles de giro.'], en:['My Avatar brings appearance, colors and accessories together in an RPG dressing room with an enlarged preview and rotation controls.']},
   {v:'v40.4', fecha:'2026-11-15', es:['Prueba los nueve accesorios sin gastar puntos y equípalos también en el cuerpo del Aprendiz.'], en:['Try all nine accessories for free and equip them on the full-body Apprentice.']},
   {v:'v40.3', fecha:'2026-11-15',

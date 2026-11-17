@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40 a v40.5)
+# Plan: identidad y personalización (v40 a v40.10)
 
 > Estado: **hecho (v40 a v40.5), las seis partes**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -78,6 +78,88 @@
   El dibujo antiguo de `cara`/`cara32` sigue verde: es también la gorra del vigilante.
 - A 16×16, el ojo izquierdo de la aprendiz quedaba pegado a la sombra del flequillo; ahora tiene
   piel a los dos lados.
+
+## Reparación visual (v40.6)
+
+Paquete `reparacion_visual_avatar` del autor: los retratos tenían ojos, boca y barba mal, no coincidían con el cuerpo
+y no eran dibujos propios de cada tamaño (se recortaba el atlas del cuerpo y se reducía). Lo que se hizo:
+
+- **Retratos nuevos** (`scripts/build-retratos-protagonistas.mjs`, sin dependencias): las formas grandes salen de los
+  mismos polígonos rasterizados a cada tamaño y los rasgos (ojos, cejas, nariz, boca) están dibujados a mano para cada
+  tamaño y gesto; a 16×16 la cabeza entera es un mapa propio. Nuevo esquema de datos (`frames[apariencia][tamaño][gesto]`,
+  `acc[accesorio][apariencia][tamaño]`); `RETRATOS_APRENDIZ.dibujar` y sus consumidores no cambian. Se quitó la
+  sobrescritura genérica de ojos a 16.
+- **Caras del cuerpo** (`scripts/build-caras-cuerpo.mjs`, idempotente): masculino con barba completa, cejas y ojos del
+  retrato en S, SE, E, W y SW y en las 4 poses de portada (la cabeza es idéntica en los 4 cuadros). Solo se repinta el
+  interior de la cara: silueta, pelo, pies, anclaje y los 16 colores no cambian.
+- **Femenina, sin salto de cabeza:** la columna de reposo era otro dibujo (cabeza más pequeña) que las de caminata. El
+  reposo pasa a ser la pose de «paso» (columna 2), así el ciclo es paso, zancada A, paso, zancada B. Consecuencia: parada,
+  ella ya no está perfectamente recta y de frente, sino en mitad de un paso. **Pendiente de la aprobación del autor.**
+- **Gato** nuevo (frente y espalda, con cola) en cuerpo, retrato (3 tamaños) e icono; **gafas** de cristal transparente
+  alineadas con los ojos de cada personaje; los 9 accesorios comparten colores entre cuerpo y retrato (lo comprueba una prueba).
+- Expresión neutra en Mi Avatar (`01-expresion-neutra.patch`).
+
+## Reparación de accesorios, fase 1: gafas y audífonos (v40.7)
+
+Paquete `reparacion_accesorios_fase1`: las gafas y los audífonos se dibujaban con una pieza frontal y desplazamientos casi
+fijos para todas las direcciones. Ahora hay un módulo propio, `ACC_CABEZA` (js/sprite.js), con anclajes por dirección
+(S, SE, E, NE, N, NO, O, SO), apariencia, cuadro de marcha y pose de portada. Sin volteo de arte.
+
+- **Gafas:** dos lentes de frente y en diagonal, una en perfil y ninguna de espaldas; marco con cristal translúcido (se ven
+  los ojos y la expresión); patillas hacia la oreja. Las lentes masculinas están medidas sobre los ojos reales del atlas v40.6
+  (una prueba comprueba que ningún ojo queda fuera de una lente).
+- **Audífonos:** una copa en perfil y diagonales (la lejana no se dibuja), dos de frente y de espalda; diadema en semielipse
+  hasta la cabeza (`scripts/calcula-arcos-cabeza.mjs` calcula los arcos; las copas están medidas a mano).
+- **Reconciliación con v40.6:** los atlas ya no coinciden con `SHA256-BASE.txt` del paquete (v40.5): se repintaron los dos
+  masculinos y el de caminata femenino. Las lentes masculinas se recalibraron y la femenina usa los mismos anclajes en el cuadro 0
+  (reposo) que en el 2, porque son la misma pose. Los atlas clásico/HD de respaldo conservan el dibujo antiguo.
+- No cambian: los otros siete accesorios, los retratos, precios, inventario, progreso, colisiones ni velocidad.
+
+## Reparación de accesorios, fase 2: gorra y corbata (v40.8)
+
+Misma línea que la fase 1, sin paquete del autor: el diseño sale de las silueta reales de los atlas v40.6.
+
+- **Gorra:** la copa no es una pieza suelta, se calcula de la silueta de la cabeza de cada celda (8 direcciones; 1 cuadro él, 3
+  cuadros ella; 4 poses de portada por apariencia) con `scripts/build-accesorios-cuerpo.mjs` → `js/accesorios-cuerpo-arte.js`
+  (generado, la prueba comprueba que coincide). Domo redondeado, luz arriba a la izquierda, costuras en arco y botón; la visera
+  es de frente (3 filas más sombra sobre la frente), 3/4 y perfil (cada una con su forma), solo se ve la punta en las diagonales
+  de espaldas y no se ve de espaldas (banda trasera con correa). Nunca tapa los ojos (una prueba lo comprueba en el atlas masculino).
+- **Corbata:** `ACC_CORBATA` en `js/sprite.js` con [eje, nudo, inclinación, largo] por dirección y cuadro: completa de frente,
+  acortada e inclinada hacia donde mira en 3/4, banda estrecha en el frente del pecho en perfil y nada de espaldas. El largo de la
+  portada femenina es menor (torso del reposo antiguo).
+- Iconos de la tienda de los dos artículos con el arte nuevo. Los atlas clásico/HD de respaldo conservan el dibujo antiguo.
+- No cambian: audífonos y gafas (fase 1), medalla, capa, café, gato, corona, retratos, precios, inventario, progreso, colisiones.
+
+## Reparación de accesorios, fase 3: capa y medalla (v40.9)
+
+Mismo método que las fases anteriores: anclajes por dirección y cuadro sobre los atlas v40.6, sin volteo de arte.
+
+- **Capa** (`ACC_CAPA`, js/sprite.js): el manto cuelga por detrás del cuerpo en las vistas de frente, perfil y 3/4 (se ve por los
+  lados y entre las piernas, con el forro más oscuro) y se dibuja por encima de la espalda en NE, N y NO; pliegues, borde ondulado
+  y vuelo distinto en cada paso de la marcha. De frente, 3/4 y perfil hay hombreras y un broche dorado sobre el pecho (siguen el eje
+  de `ACC_CORBATA`). El pelo que cae sobre la espalda (la cola de caballo) se vuelve a pintar por encima de la capa
+  (`ACC_CAPA.pelo`: píxeles de pelo de la imagen base, sin tocar piel ni camisa).
+- **Medalla** (`ACC_MEDALLA`): cinta en V (azul y roja) al cuello y disco dorado con relieve; de frente, estrecha en 3/4 y una tira
+  de perfil; no se dibuja de espaldas.
+- `ACC_ARTE.detras` recibe ahora la apariencia, la pose y si el atlas está calibrado. Iconos de la tienda con el arte nuevo; los
+  atlas clásico/HD de respaldo conservan el dibujo antiguo.
+- No cambian: gafas, audífonos, gorra, corbata (fases 1 y 2), café, gato, corona, retratos, precios, inventario, progreso,
+  colisiones ni velocidad.
+
+## Reparación de accesorios, fase 4: corona y café (v40.10)
+
+- **Corona** (`ACC_CORONA`, js/sprite.js): un aro elíptico (arco cercano de cuatro filas con contorno y perlas, arco lejano fino) de la
+  anchura de la cabeza a la altura de la frente, con cinco puntas triangulares repartidas a 72° y giradas con la dirección: las cercanas
+  salen del arco cercano y las lejanas asoman por encima, y la gema delantera solo aparece cuando el frente mira al espectador (S, SE,
+  SO). Centro y radio por celda en `ACC_CORONA.T`, que calcula `scripts/calcula-corona.mjs` sobre los atlas (una prueba comprueba que
+  coincide). Queda sobre las cejas y no tapa los ojos.
+- **Café** (`ACC_CAFE`): una taza de 11×10 con el asa abierta, dibujada por encima del cuerpo y con el asa sobre el puño de la celda. La mano
+  (píxeles de piel de la rampa exacta bajo la cintura) sale de `scripts/calcula-cafe.mjs` (`ACC_CAFE.T`, también comprobada): la más a
+  la derecha en S, SE, E, NE y N y la más a la izquierda en NO, O y SO; la taza queda del lado al que mira. Sube y baja con la mano en la
+  marcha y el vapor cambia con el paso.
+- Iconos de la tienda con el arte nuevo. Los atlas clásico/HD de respaldo conservan el dibujo antiguo.
+- Con esto los ocho accesorios con arte corporal propio quedan rehechos; el gato (acompañante independiente) y los retratos son las
+  siguientes fases. No cambian: precios, inventario, progreso, colisiones ni velocidad.
 
 ## Fuera de esta parte
 

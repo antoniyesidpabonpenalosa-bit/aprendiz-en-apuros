@@ -1,85 +1,63 @@
 'use strict';
-/* Retratos del jugador derivados de los atlas premium (48×48 nativos).
-   Se pintan desde datos embebidos: sin carga asíncrona, sin tocar los NPC.
-   El 16 y 32 se rasterizan en su propia cuadrícula antes de ampliar. */
+/* Retratos del jugador (v40.6): dibujados a mano para cada tamaño (16, 32 y 48) y para cada apariencia.
+   Los datos (js/retratos-aprendiz-arte.js) los genera scripts/build-retratos-protagonistas.mjs; aquí solo se
+   decodifican, se recolorean la piel y la camisa y se componen con el accesorio. No hay reducciones en
+   ejecución: cada tamaño tiene su propio dibujo, así que ojos, boca y barba son nítidos y no cambian de
+   sitio entre tamaños. Sin carga asíncrona y sin tocar los retratos de los NPC. */
 const RETRATOS_APRENDIZ=(()=>{
-  const arte=ARTE_RETRATOS_APRENDIZ, N=arte.size;
+  const arte=ARTE_RETRATOS_APRENDIZ;
   const hex=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
   const lum=rgb=>.3*rgb[0]+.59*rgb[1]+.11*rgb[2];
   const seguro=(v,base)=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v)?v:base;
+  /* la piel y la camisa guardan el sombreado: el tono elegido se multiplica por la luz de cada píxel */
   const color=(h,base,ref)=>{
     const k=lum(hex(h))/lum(hex(ref));
     return '#'+hex(base).map(x=>Math.min(255,Math.round(x*k)).toString(16).padStart(2,'0')).join('');
   };
   const lienzo=n=>{const cv=document.createElement('canvas');cv.width=cv.height=n;return cv;};
-  const cache=new Map();
-  function baseDe(o,sexo,gesto){
-    const piel=seguro(o.skin,'#f4c898'),camisa=seguro(o.camisa,'#13648c');
-    const key=[sexo,gesto,piel,camisa].join(':');
-    if(cache.has(key))return cache.get(key);
-    const cv=lienzo(N),c=cv.getContext('2d');
-    const colores=arte.palette.map(([h,rol])=>rol===1?color(String(h),piel,'#facc99'):rol===2?color(String(h),camisa,'#206eab'):String(h));
-    const seq=arte.frames[sexo][gesto];let pos=0;
-    for(let k=0;k<seq.length;k+=2){let n=seq[k];const i=seq[k+1];
+  /* lista [repeticiones, color, …] → lienzo n×n; colores[i] = color CSS del índice i */
+  function decodifica(seq,n,colores){
+    const cv=lienzo(n),c=cv.getContext('2d');let pos=0;
+    for(let k=0;k<seq.length;k+=2){let m=seq[k];const i=seq[k+1];
       if(i)c.fillStyle=colores[i];
-      while(n){const x=pos%N,y=Math.floor(pos/N),w=Math.min(n,N-x);if(i)c.fillRect(x,y,w,1);pos+=w;n-=w;}
+      while(m){const x=pos%n,y=Math.floor(pos/n),w=Math.min(m,n-x);if(i)c.fillRect(x,y,w,1);pos+=w;m-=w;}
     }
+    return cv;
+  }
+  const sinRol=arte.palette.map(([h])=>String(h));
+  const capas=new Map();           // accesorios: no se recolorean, se decodifican una vez
+  function capaAcc(id,sexo,n,cual){
+    const d=arte.acc[id]&&arte.acc[id][sexo]&&arte.acc[id][sexo][n];if(!d||!d[cual])return null;
+    const key=[id,sexo,n,cual].join(':');
+    if(!capas.has(key))capas.set(key,decodifica(d[cual],n,sinRol));
+    return capas.get(key);
+  }
+  const cache=new Map();           // retratos ya compuestos
+  function compuesto(o,sexo,n,gesto,ids){
+    const piel=seguro(o.skin,'#f4c898'),camisa=seguro(o.camisa,'#13648c');
+    const key=[sexo,n,gesto,piel,camisa,ids.join()].join(':');
+    if(cache.has(key))return cache.get(key);
+    const colores=arte.palette.map(([h,rol])=>rol===1?color(String(h),piel,'#facc99'):rol===2?color(String(h),camisa,'#206eab'):String(h));
+    const cv=lienzo(n),c=cv.getContext('2d');
+    for(const id of ids){const d=capaAcc(id,sexo,n,'d');if(d)c.drawImage(d,0,0)}      // lo que va detrás de la cara
+    c.drawImage(decodifica(arte.frames[sexo][n][gesto],n,colores),0,0);
+    for(const id of ids){const e=capaAcc(id,sexo,n,'e');if(e)c.drawImage(e,0,0)}      // lo que va encima
     if(cache.size>=96)cache.delete(cache.keys().next().value);
     cache.set(key,cv);return cv;
   }
-  /* Una sola capa de accesorios para los tres tamaños, ajustada a la cara
-     nueva. Se conserva la semántica de todos los nueve artículos. */
-  function accesorios(c,o,sexo){
-    const R=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h);};
-    const dark='#111426', gold='#ffcf3f', red='#c22e44';
-    const fem=sexo==='femenina',ey=fem?23:22;
-    if(o.capa){R(4,39,5,9,'#731c32');R(6,38,4,10,red);R(39,39,5,9,'#731c32');R(38,38,4,10,red);R(9,38,2,3,'#ff5468');R(37,38,2,3,'#ff5468');}
-    if(o.corbata){R(22,37,4,3,dark);R(23,37,2,3,red);R(22,40,4,6,red);R(23,46,2,2,'#842037');R(22,40,1,5,'#ff5468');}
-    if(o.medalla){R(19,36,2,3,red);R(21,39,2,2,red);R(27,36,2,3,'#6fd2f0');R(25,39,2,2,'#6fd2f0');R(21,41,6,6,'#9d5815');R(22,41,4,5,gold);R(23,42,2,2,'#fff4a8');}
-    if(o.gafas){
-      for(const x of [14,25]){R(x,ey-1,9,1,dark);R(x,ey+6,9,1,dark);R(x,ey,1,6,dark);R(x+8,ey,1,6,dark);R(x+1,ey,7,6,'rgba(111,210,240,.28)');R(x+1,ey,2,1,'#c4f6ff');R(x+1,ey+5,7,1,'#37607a');}
-      R(23,ey+2,2,2,dark);R(11,ey+1,3,2,dark);R(34,ey+1,3,2,dark);
-    }
-    if(o.audifonos){R(12,5,24,3,dark);R(9,8,4,7,dark);R(35,8,4,7,dark);R(13,5,22,1,'#69728f');
-      for(const x of [8,35]){R(x,ey-3,5,10,dark);R(x+1,ey-2,3,8,'#525e7b');R(x+1,ey-2,2,2,'#6fd2f0');}}
-    /* la gorra con los azules de la del cuerpo y la tienda (ACC_ARTE) */
-    if(o.gorra){R(10,3,28,8,dark);R(12,3,24,6,'#4678c2');R(14,3,19,2,'#78a7e2');R(9,9,30,3,'#27477e');R(9,11,23,2,dark);R(22,4,4,3,'#91c9f4');}
-    if(o.corona){R(11,2,26,10,'#713e14');R(12,3,24,7,gold);for(const x of [12,23,34]){R(x,0,2,4,'#ffed93');R(x,4,2,3,'#f6a52c');}R(15,6,3,3,'#ff5468');R(23,6,3,3,'#6fd2f0');R(30,6,3,3,'#ff5468');R(12,10,24,1,'#fff0a0');}
-    if(o.cafe){R(36,36,9,10,dark);R(37,37,7,8,'#f4f4f8');R(38,37,5,2,'#6b4226');R(44,39,3,4,'#acb2cb');R(45,40,1,2,dark);R(37,45,7,1,'#b0b7ce');R(39,32,1,3,'rgba(255,255,255,.6)');R(42,30,1,4,'rgba(255,255,255,.4)');}
-    if(o.gato){R(36,39,10,9,dark);R(36,37,3,4,'#e08030');R(43,37,3,4,'#e08030');R(37,40,8,7,'#e08030');R(38,41,1,2,dark);R(43,41,1,2,dark);R(40,44,2,2,'#f4f4f8');}
-  }
-  /* A 16×16, reducir las gafas y los audífonos de 48 los convertía en una franja negra que
-     tapaba los ojos: en ese tamaño se pintan con píxeles propios (ojos en x 6 y 9, y 7-8). */
-  function accesorios16(m,o){
-    const R=(x,y,w,h,col)=>{m.fillStyle=col;m.fillRect(x,y,w,h);},dark='#111426';
-    if(o.gafas){R(5,6,2,1,dark);R(9,6,2,1,dark);R(5,7,2,2,'rgba(111,210,240,.45)');R(9,7,2,2,'rgba(111,210,240,.45)');R(7,7,2,1,dark);R(5,7,1,1,'#c4f6ff');R(10,7,1,1,'#c4f6ff');}
-    if(o.audifonos){R(4,1,8,1,dark);R(3,2,1,4,dark);R(12,2,1,4,dark);R(2,6,2,4,dark);R(12,6,2,4,dark);R(2,7,1,2,'#6fd2f0');R(13,7,1,2,'#6fd2f0');}
-  }
+  const ACC=Object.keys(arte.acc);
   function dibujar(cv,o){
     const sexo=o.apariencia==='femenina'?'femenina':'masculina';
-    const solicitado=o.gesto||(o.feliz?'feliz':'normal');
-    const gesto=(['normal','feliz','enojado','sorprendido','preocupado'].includes(solicitado)?solicitado:'normal')+(o.parpadeo?'-blink':'');
-    const n=o.cine?N:(o.av32??S.av32)?32:16;
+    const n=o.cine?48:(o.av32??S.av32)?32:16;
+    const pedido=o.gesto||(o.feliz?'feliz':'normal');
+    const gesto=(arte.gestos.includes(pedido)?pedido:'normal')+(o.parpadeo?'-blink':'');
+    const ids=ACC.filter(id=>o[id]);
     const ctx=cv.getContext('2d');if(!ctx)return false;
-    const img=baseDe(o,sexo,gesto),mini=lienzo(n),m=mini.getContext('2d');
-    m.imageSmoothingEnabled=false;m.drawImage(img,0,0,n,n);
-    // El muestreo a 16px puede comerse el ojo bajo el flequillo.
-    if(n===16){
-      const piel=seguro(o.skin,'#f4c898');
-      for(const x of [6,9]){
-        m.fillStyle=o.parpadeo?piel:'#171420';m.fillRect(x,7,1,1);
-        m.fillStyle=o.parpadeo?color('#bb7448',piel,'#facc99'):'#171420';m.fillRect(x,8,1,1);
-      }
-      /* en la femenina, la sombra del flequillo (x 5) se pegaba al ojo izquierdo y lo tapaba */
-      if(sexo==='femenina'){m.fillStyle=piel;m.fillRect(5,7,1,2);}
-    }
-    const overlay=lienzo(N);accesorios(overlay.getContext('2d'),n===16?Object.assign({},o,{gafas:false,audifonos:false}):o,sexo);
-    m.drawImage(overlay,0,0,n,n);
-    if(n===16)accesorios16(m,o);
-    const smooth=ctx.imageSmoothingEnabled;ctx.imageSmoothingEnabled=false;
+    const img=compuesto(o,sexo,n,gesto,ids);
+    const suave=ctx.imageSmoothingEnabled;ctx.imageSmoothingEnabled=false;
     ctx.clearRect(0,0,cv.width,cv.height);
     if(!o.cine){ctx.fillStyle='#0b0e22';ctx.fillRect(0,0,cv.width,cv.height);}
-    ctx.drawImage(mini,0,0,cv.width,cv.height);ctx.imageSmoothingEnabled=smooth;return true;
+    ctx.drawImage(img,0,0,cv.width,cv.height);ctx.imageSmoothingEnabled=suave;return true;
   }
-  return {dibujar};
+  return {dibujar,gestos:arte.gestos,tamanos:arte.tamanos,accesorios:ACC};
 })();
