@@ -104,6 +104,7 @@ deja cambiarlos). Esta tabla es la equivalencia.
 | **v40.9** | — | 2026-11-16 | Reparación de accesorios, fase 3: capa (`ACC_CAPA`: manto por detrás o por encima según la vista, hombreras y broche, vuelo en la marcha, pelo sobre la capa) y medalla (`ACC_MEDALLA`: cinta en V y disco); iconos nuevos; los otros tres accesorios y los retratos no cambian |
 | **v40.10** | — | 2026-11-17 | Reparación de accesorios, fase 4: corona (`ACC_CORONA`: aro y cinco puntas giradas con la dirección sobre la cabeza de cada celda, gema delantera) y café (`ACC_CAFE`: taza sujeta por la mano de cada cuadro con vapor); iconos nuevos; solo queda el gato como accesorio sin rehacer, y los retratos no cambian |
 | **v40.11** | — | 2026-11-17 | Reparación de accesorios, fase 5: el gato de oficina pasa a ser un acompañante visual independiente (`js/gato.js`, sprites de `js/gato-arte.js` generados por `scripts/build-gato.mjs`: reposo, caminata, 8 orientaciones, parpadeo y cola); camina junto al protagonista, se detiene cuando él se detiene y no interviene en colisiones ni mecánicas; icono nuevo; los retratos no cambian |
+| **v40.12** | — | 2026-11-17 | Retratos, fase 6: los nueve accesorios de los retratos de 16, 32 y 48 siguen el arte nuevo del cuerpo (gafas transparentes, gorra con visera, corona con puntas y gema, capa con mantón y broche, medalla con cinta en V, taza de barro con vapor y el gato del acompañante recortado y reducido); `scripts/lib-accesorios-retrato.mjs` |
 
 La v11 vieja no existió: se pasó de la v10 a la v12.
 

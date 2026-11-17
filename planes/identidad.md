@@ -1,4 +1,4 @@
-# Plan: identidad y personalización (v40 a v40.11)
+# Plan: identidad y personalización (v40 a v40.12)
 
 > Estado: **hecho (v40 a v40.5), las seis partes**. Paquete del autor sobre la v39 (`identidad-v40.patch`):
 > aplicó limpio. Se añadieron 8 casos al barrido del navegador y se regeneró el design system.
@@ -177,6 +177,20 @@ Mismo método que las fases anteriores: anclajes por dirección y cuadro sobre l
   de la tienda no llevan gato. Icono de la tienda con el sprite nuevo.
 - Pendiente de la fase de retratos: el retrato del gato a 16, 32 y 48 sigue con el dibujo anterior.
 - No cambian: precio (1500), compra, inventario, progreso, colisiones ni velocidad.
+
+## Retratos, fase 6: los accesorios del retrato al día con el cuerpo (v40.12)
+
+Los retratos de 16, 32 y 48 (el de 48 es el cinematográfico) siguen siendo dibujos propios de cada tamaño, pero sus accesorios se habían quedado con
+el arte anterior. Ahora siguen el del cuerpo (`scripts/lib-accesorios-retrato.mjs`; el arte lo regenera `scripts/build-retratos-protagonistas.mjs`):
+
+- **Gafas:** marco fino con el cristal transparente que rodea cada ojo del retrato de su tamaño (a 32 y 16 el marco es claro para que los ojos oscuros no
+  se fundan con él).
+- **Gorra:** copa con luz, costuras en arco y botón, visera con cara de arriba y de abajo; sube a 32 y 16 para no tapar las cejas.
+- **Corona:** aro de cuatro filas con perlas, cinco puntas triangulares y gema delantera. **Capa:** alas por detrás, mantón sobre los hombros y broche.
+  **Medalla:** cinta en V (azul y roja) y disco con emblema. **Café:** la taza de barro con asa abierta y vapor.
+- **Gato:** el mismo sprite del acompañante (reposo de frente, `scripts/build-gato.mjs`): entero a 48, reducido por votación de color a 32 y una cabecita
+  dibujada a mano a 16, para que se reconozca como el gato y no como una mancha.
+- Audífonos y corbata conservan su dibujo. No cambian: la historia, los diálogos, los precios ni las mecánicas.
 
 ## Fuera de esta parte
 
