@@ -515,7 +515,7 @@ const ACC_ARTE = (()=>{
     if(id==='capa'&&espalda)pieza(ctx,id,9+(paso===1?1:paso===3?-1:0),cuello);
     if(id==='capa'&&frente){ctx.fillStyle=oro;ctx.fillRect(11+dx,cuello+2,2,2);ctx.fillRect(30+dx,cuello+2,2,2)}
     if(id==='cafe')pieza(ctx,id,perfil?(izq?5:26):(izq||pose>=2)?3:28,44+(paso===1?-2:paso===3?2:0));
-    if(id==='gato')pieza(ctx,id,izq?0:26,59+(paso===1||paso===3?-1:0),espalda?1:0);
+    // el gato de oficina ya no se pinta sobre el cuerpo: es un acompañante independiente (js/gato.js)
   }
   function icono(cv,id){
     const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);ctx.save();ctx.imageSmoothingEnabled=false;
@@ -524,6 +524,7 @@ const ACC_ARTE = (()=>{
     else if(id==='audifonos'){ctx.translate(-6,3);ACC_CABEZA.dibujar(ctx,id,'masculina',0,0)}
     else if(id==='gorra'&&ACC_GORRA.icono(ctx,-1,9)){}
     else if(id==='corbata'){ctx.translate(16,16);ctx.scale(2,2);ctx.translate(-21.5,-38.5);ACC_CORBATA.dibujar(ctx,'masculina',0,0)}
+    else if(id==='gato'&&typeof GATO!=='undefined'&&GATO.icono(ctx)){}
     else if(id==='capa'&&ACC_CAPA.icono(ctx)){}
     else if(id==='corona'&&ACC_CORONA.icono(ctx)){}
     else if(id==='cafe'&&ACC_CAFE.icono(ctx)){}

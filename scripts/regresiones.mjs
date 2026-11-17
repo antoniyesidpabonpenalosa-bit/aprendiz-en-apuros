@@ -2731,12 +2731,14 @@ await caso('accesorios · COMPRAR Y EQUIPAR cobra el precio exacto una vez (dobl
 await caso('accesorios · el accesorio puesto se pinta sobre el jugador en la portada, el mapa, el pasillo, el runner y el jefe, con las dos apariencias; los NPC no lo llevan', ACC_J, async pg => {
   await pg.waitForFunction(() => APRENDIZ.listoPremium && APRENDIZ.listaFemenina && NPC_PASILLO.listo, null, { timeout: 5000 });
   const r = {};
-  await pg.evaluate(() => { window.__acc = []; const o = ACC_ARTE.encima; ACC_ARTE.encima = function (k, id, ...a) { window.__acc.push(id); return o.call(this, k, id, ...a); }; });
+  await pg.evaluate(() => { window.__acc = []; window.__gato = 0; const o = ACC_ARTE.encima; ACC_ARTE.encima = function (k, id, ...a) { window.__acc.push(id); return o.call(this, k, id, ...a); };
+    const g = GATO.acompanar; GATO.acompanar = function (...a) { const r = g.apply(this, a); if (r) window.__gato++; return r; }; });
   for (const [ap, acc] of [['masculina', 'corona'], ['femenina', 'gato']]) {
     for (const [n, f, ms] of [['portada', 'rTitulo()', 600], ['mapa', 'rMapaLista()', 500], ['pasillo', 'rPasillo(0)', 600], ['runner', 'diaAct = 9; vidas = 3; nvRunner(9)', 900], ['jefe', 'diaAct = 9; vidas = 3; nvJefe(9, 0)', 1200]]) {
-      await pg.evaluate(([ap, acc]) => { S.apariencia = ap; S.acc = acc; window.__acc = []; }, [ap, acc]);
+      await pg.evaluate(([ap, acc]) => { S.apariencia = ap; S.acc = acc; window.__acc = []; window.__gato = 0; }, [ap, acc]);
       await pg.evaluate(f); await pausa(ms);
-      r[`${ap[0]}:${n}`] = await pg.evaluate(() => [...new Set(window.__acc)].join());
+      /* el gato ya no es una pieza del cuerpo: es un acompañante con su lienzo propio (portada, mapa, pasillo) o que se pinta con GATO.acompanar (runner, jefe) */
+      r[`${ap[0]}:${n}`] = await pg.evaluate(() => { const ids = [...new Set(window.__acc.filter(i => i !== 'gato'))].join(); const visibles = [...document.querySelectorAll('.gato-compa')].filter(e => e.style.display === 'block').length; return ids || (window.__gato > 0 || visibles > 0 ? 'gato' : ''); });
     }
   }
   const npc = await pg.evaluate(() => { const h = acc => { const c = document.createElement('canvas'); c.width = 44; c.height = 74; APRENDIZ.dibujar(c.getContext('2d'), 22, 74, 74, 0, 0, PERSONAJES.lider.piel, PERSONAJES.lider.camisa, 'masculina', acc); return c.toDataURL(); }; return h('corona') === h(''); });
@@ -2745,20 +2747,20 @@ await caso('accesorios · el accesorio puesto se pinta sobre el jugador en la po
   return [ok, JSON.stringify({ ...r, npcSinAccesorio: npc })];
 });
 
-await caso('accesorios · los 9 sobre el cuerpo: cada uno cambia el dibujo en 8 direcciones × 4 pasos × 2 apariencias (las gafas, la corbata y la medalla se esconden de espaldas) y los pies no se mueven', ACC_J, async pg => {
+await caso('accesorios · los 8 que van sobre el cuerpo cambian el dibujo en 8 direcciones × 4 pasos × 2 apariencias (las gafas, la corbata y la medalla se esconden de espaldas), el gato es un acompañante aparte y no cambia el cuerpo, y los pies no se mueven', ACC_J, async pg => {
   await pg.waitForFunction(() => APRENDIZ.listoPremium && APRENDIZ.listaFemenina, null, { timeout: 5000 });
   const r = await pg.evaluate(() => {
     const k = document.createElement('canvas'); k.width = 44; k.height = 74; const c = k.getContext('2d', { willReadFrequently: true });
     const pinta = (d, p, ap, acc) => { c.clearRect(0, 0, 44, 74); APRENDIZ.dibujar(c, 22, 74, 74, d, p, 1, 1, ap, acc); return c.getImageData(0, 0, 44, 74).data; };
     const igual = (a, b) => a.every((v, i) => v === b[i]);
     const pie = d => { for (let y = 73; y >= 0; y--) for (let x = 0; x < 44; x++) if (d[(y * 44 + x) * 4 + 3]) return y; return -1; };
-    const mal = [], ocultos = { gafas: [3, 4, 5], corbata: [3, 4, 5], medalla: [3, 4, 5] };
+    const mal = [], ocultos = { gafas: [3, 4, 5], corbata: [3, 4, 5], medalla: [3, 4, 5], gato: [0, 1, 2, 3, 4, 5, 6, 7] };
     for (const ap of ['masculina', 'femenina']) for (let d = 0; d < 8; d++) for (let p = 0; p < 4; p++) { const base = pinta(d, p, ap, ''), piso = pie(base);
       for (const id of ACC_ARTE.ids) { const con = pinta(d, p, ap, id), oculto = (ocultos[id] || []).includes(d);
         if (oculto !== igual(base, con)) mal.push(`${ap} ${id} dir ${d} paso ${p}: ${oculto ? 'se ve de espaldas' : 'no se ve'}`);
         if (pie(con) !== piso && id !== 'gato') mal.push(`${ap} ${id} dir ${d} paso ${p}: pie ${pie(con)} vs ${piso}`); } }
     return mal; });
-  return [r.length === 0, r.length ? r.slice(0, 4).join(' · ') : '9 accesorios × 64 cuadros × 2 apariencias: se ven donde toca y los pies no se mueven'];
+  return [r.length === 0, r.length ? r.slice(0, 4).join(' · ') : '8 accesorios × 64 cuadros × 2 apariencias: se ven donde toca, el gato no toca el cuerpo y los pies no se mueven'];
 });
 
 await caso('accesorios · la tienda pinta los 9 iconos pixel (distintos) y PROBAR ACCESORIOS abre Mi Avatar en la pestaña de accesorios; la compra de la tienda sigue igual', ACC_J, async pg => {

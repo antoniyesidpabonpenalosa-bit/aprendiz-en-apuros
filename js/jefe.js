@@ -201,6 +201,8 @@ function nvJefe(dia,ptsBase){
       }
       c.restore();
     }
+    /* acompañante: el gato de oficina va junto al aprendiz (solo visual: no cuenta para colisiones, disparos ni daño) */
+    GATO.acompanar(c,p.x+8,H-4,30,p.dir??APRENDIZ.idx.south,Math.abs(mov)>.1);
   }
   function terminar(){if(raf){cancelAnimationFrame(raf);raf=0}fin=true}
   function loop(){

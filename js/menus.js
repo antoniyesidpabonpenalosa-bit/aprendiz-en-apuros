@@ -69,6 +69,8 @@ function aprendizPortada(cv,boton){
     else c.drawImage(base,6,3);
   }
   pinta();
+  /* el gato de oficina (si lo lleva) se sienta delante de sus pies, junto a JUGAR; el lienzo mide 80 (74 de sprite + 3 de margen arriba y abajo) */
+  {const fila=cv.parentElement;if(fila)GATO.montar({cuerpo:cv,contenedor:fila,dir:()=>0,mueve:()=>false,fijo:[-12,1],alto:80,dy:-3});}
   if(quieto()){let n=0;const reintenta=()=>{pinta();if((!ultimo||(S.apariencia==='femenina'?!APRENDIZ.listoPortada:!APRENDIZ.listoPortadaPremium))&&++n<8)tvez(reintenta,400)};tvez(reintenta,200)}
   else tcada(pinta,100);
 }
@@ -339,6 +341,8 @@ function aprendizMapa(cv){
     APRENDIZ.dibujar(c,cv.width/2,cv.height-2-(andando?0:bob),APRENDIZ.FH*escala,dir,APRENDIZ.pasoDe(andando));
   };
   pinta();
+  /* el gato de oficina (si lo lleva) se sienta delante de sus pies: en la esquina no hay sitio a los lados */
+  GATO.montar({cuerpo:cv,contenedor:cv.parentElement,dir:()=>dir,mueve:()=>performance.now()<anda,fijo:[-11,3]});
   if(quieto()){                                    // sin animación: unos reintentos por si carga tarde
     [200,600,1200].forEach(ms=>tvez(pinta,ms));
     return;
