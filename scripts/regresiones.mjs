@@ -2694,7 +2694,8 @@ const ACC_J = { ...ID_J, pts: 400, accs: ['gafas'], acc: 'gafas' };
 
 await caso('accesorios · el probador es gratis: probar uno no comprado lo enseña en el visor sin tocar S ni el guardado; CANCELAR y cambiar de pestaña lo descartan', ACC_J, async pg => {
   await pg.waitForFunction(() => APRENDIZ.listoPremium, null, { timeout: 5000 });
-  const r = await pg.evaluate(async () => { pePestana = 'acc'; rPerso(); await new Promise(r => setTimeout(r, 300));
+  /* parado respira (v40.16) y este caso compara el visor en instantes distintos: se congela la respiración */
+  const r = await pg.evaluate(async () => { APRENDIZ.alzaDe = () => 0; pePestana = 'acc'; rPerso(); await new Promise(r => setTimeout(r, 300));
     const visor = () => $('#pe-cuerpo-av').toDataURL(), guardado = () => localStorage.getItem('pa3');
     const v0 = visor(), g0 = guardado(), o = {};
     $('.acc-op[data-a="capa"]').click(); await new Promise(r => setTimeout(r, 300));
@@ -2766,7 +2767,9 @@ await caso('accesorios · los 8 que van sobre el cuerpo cambian el dibujo en 8 d
 await caso('integración · los 9 accesorios en la portada, Mi Avatar, el pasillo y los diálogos, con las dos apariencias: el personaje y su retrato cambian con cada uno (el gato, con su lienzo propio) y no hay errores', ACC_J, async pg => {
   await pg.waitForFunction(() => APRENDIZ.listoPremium && APRENDIZ.listaFemenina && APRENDIZ.listoPortadaPremium && NPC_PASILLO.listo, null, { timeout: 8000 });
   const errs = []; pg.on('pageerror', e => errs.push(e.message));
+  /* parado respira (v40.16): el caso compara el cuerpo en instantes distintos, así que se congela la respiración */
   const r = await pg.evaluate(async () => {
+    APRENDIZ.alzaDe = () => 0;
     const esp = ms => new Promise(r => setTimeout(r, ms)), mal = [], huella = id => { const c = document.querySelector(id); return c ? c.toDataURL() : null; };
     const pantallas = {
       portada: async () => { rTitulo(); await esp(700); return { cuerpo: huella('#t-aprendiz'), retrato: huella('#t-av') }; },
@@ -2908,6 +2911,36 @@ await caso('retratos protagonistas · la gorra del retrato es azul como la del c
     return o; });
   const ojosBien = Object.entries(r).filter(([k]) => k !== 'azul' && k !== 'verde').every(([, v]) => v.ojos && v.piel);
   return [r.azul > 10 && r.verde === 0 && ojosBien, JSON.stringify(r)];
+});
+
+/* v40.16 · balanceo al caminar y respiración parado, en el juego real */
+const ALZA_J = { ...ID_J, accs: ['gafas', 'capa', 'corona'], acc: 'capa' };
+const huellaAlza = (pg, sel) => pg.evaluate(s => { const c = document.querySelector(s), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let h = 0, top = -1; for (let i = 0; i < d.length; i += 4) { if (d[i + 3] && top < 0) top = Math.floor(i / 4 / c.width); h = (h * 31 + d[i] + d[i + 3] * 7) | 0; } return h + ':' + top; }, sel);
+await caso('movimiento · parado respira (dos dibujos que se alternan, el de arriba 1 px más alto) en el pasillo y en Mi Avatar, y caminando el tronco sube en cada paso, con sus accesorios; ella y él', ALZA_J, async pg => {
+  await pg.waitForFunction(() => APRENDIZ.listoPremium && APRENDIZ.listaFemenina, null, { timeout: 5000 });
+  const o = {};
+  for (const ap of ['masculina', 'femenina']) {
+    await pg.evaluate(a => { S.apariencia = a; rPasillo(0); }, ap); await pg.waitForTimeout(500);
+    const idle = []; for (let i = 0; i < 9; i++) { idle.push(await huellaAlza(pg, '#pasillo-canvas')); await pg.waitForTimeout(400); }
+    const tops = [...new Set(idle.map(x => +x.split(':')[1]))].sort((a, b) => a - b);
+    await pg.evaluate(() => { pePestana = 'acc'; rPerso(); }); await pg.waitForTimeout(500); await pg.click('[data-pe-vista="cuerpo"]'); await pg.waitForTimeout(300);
+    const av = []; for (let i = 0; i < 9; i++) { av.push(await huellaAlza(pg, '#pe-cuerpo-av')); await pg.waitForTimeout(400); }
+    const topsAv = [...new Set(av.map(x => +x.split(':')[1]))].sort((a, b) => a - b);
+    await pg.click('#pe-caminar'); await pg.waitForTimeout(200);
+    const an = []; for (let i = 0; i < 16; i++) { an.push(await huellaAlza(pg, '#pe-cuerpo-av')); await pg.waitForTimeout(70); }
+    await pg.click('#pe-caminar');
+    o[ap] = { pasillo: { distintos: new Set(idle).size, topes: tops }, avatar: { distintos: new Set(av).size, topes: topsAv }, andando: { distintos: new Set(an).size, topes: [...new Set(an.map(x => +x.split(':')[1]))].sort((a, b) => a - b) } };
+  }
+  const bien = x => x.pasillo.distintos === 2 && x.pasillo.topes.length === 2 && x.pasillo.topes[1] - x.pasillo.topes[0] === 1
+    && x.avatar.distintos === 2 && x.avatar.topes.length === 2 && x.avatar.topes[1] - x.avatar.topes[0] === 1
+    && x.andando.distintos >= 3 && x.andando.topes.length === 2 && x.andando.topes[1] - x.andando.topes[0] === 1;
+  return [bien(o.masculina) && bien(o.femenina), JSON.stringify(o)];
+});
+await caso('movimiento · con «reducir movimiento» el aprendiz parado no respira: el dibujo no cambia nunca', ALZA_J, async pg => {
+  await pg.emulateMedia({ reducedMotion: 'reduce' });
+  await pg.evaluate(() => rPasillo(0)); await pg.waitForTimeout(500);
+  const v = []; for (let i = 0; i < 8; i++) { v.push(await huellaAlza(pg, '#pasillo-canvas')); await pg.waitForTimeout(400); }
+  return [new Set(v).size === 1, `${new Set(v).size} dibujo(s) distinto(s) en 3 s`];
 });
 
 await nav.close();
