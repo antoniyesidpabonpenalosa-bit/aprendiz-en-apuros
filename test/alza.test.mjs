@@ -31,12 +31,12 @@ test('alza: la tabla de cortes del juego es la que sale de los atlas (node scrip
   assert.deepEqual(JSON.parse(JSON.stringify(A.CORTE_ALZA)), calcula());
 });
 
-test('alza: caminando sube en los cuadros 1 y 3 (el pie levantado); parado respira, 1,2 s arriba y 1,2 s abajo; quieto() la apaga', () => {
+test('alza: caminando sube en los cuadros 1 y 3 (el pie levantado); parado respira, 1 s arriba y 2 s abajo (ciclo de 3 s); quieto() la apaga', () => {
   assert.deepEqual([0, 1, 2, 3, 4, 5].map(p => A.alzaDe(true, p, 0)), [0, 1, 0, 1, 0, 1]);
-  assert.deepEqual([0, 600, 1199, 1200, 1800, 2399, 2400, 3600].map(ms => A.alzaDe(false, 0, ms)), [0, 0, 0, 1, 1, 1, 0, 1]);
+  assert.deepEqual([0, 500, 999, 1000, 2000, 2999, 3000, 3999, 4000].map(ms => A.alzaDe(false, 0, ms)), [1, 1, 1, 0, 0, 0, 1, 1, 0]);
   const mudo = createContext({ ...ctx, quieto: () => true });
   runInContext(readFileSync(new URL('js/sprite.js', RAIZ), 'utf8'), mudo, { filename: 'js/sprite.js' });
-  assert.equal(runInContext('APRENDIZ.alzaDe(true,1,0)+APRENDIZ.alzaDe(false,0,1300)', mudo), 0, 'con prefers-reduced-motion no hay alza');
+  assert.equal(runInContext('APRENDIZ.alzaDe(true,1,0)+APRENDIZ.alzaDe(false,0,300)', mudo), 0, 'con prefers-reduced-motion no hay alza');
 });
 
 test('alza: sin alza se pinta con un solo drawImage, igual que antes de v40.16', () => {

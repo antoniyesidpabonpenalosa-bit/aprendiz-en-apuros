@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.16';
+const VERSION='v40.17';
 const NOVEDADES=[
+  {v:'v40.17', fecha:'2026-11-18',
+   es:['La respiración del aprendiz y de la aprendiz parados es más natural: sube rápido y baja con una pausa, en un ciclo de 3 segundos. No cambia nada más del juego.'],
+   en:['The apprentice, both of them, breathe more naturally when standing: a quick rise and a slower fall with a pause, in a 3-second cycle. Nothing else in the game changes.']},
   {v:'v40.16', fecha:'2026-11-17',
    es:['El aprendiz y la aprendiz se mueven con más vida: al caminar el cuerpo sube un poquito en cada paso, y parados respiran. Cambia solo cómo se dibujan, con sus accesorios puestos; no cambia nada del juego. Con "reducir movimiento" se quedan quietos como antes.'],
    en:['The apprentice, both of them, move with more life: the body rises slightly with each step when walking, and breathes when standing. Only how they are drawn changes, accessories included; nothing in the game changes. With "reduce motion" they stay still as before.']},
