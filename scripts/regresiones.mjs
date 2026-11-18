@@ -48,6 +48,9 @@ async function caso(nombre, guardado, fn, opciones = {}) {
   const pg = await ctx.newPage();
   const errs = [];
   pg.on('pageerror', e => errs.push(e.message));
+  /* v40.16: parado, el aprendiz respira (cambia 1 px cada 1,2 s) y muchos casos comparan el dibujo del visor en instantes
+     distintos, así que se congela la respiración en todos menos en los de «movimiento ·», que son los que la prueban. */
+  if (!nombre.startsWith('movimiento ·')) pg.on('load', () => pg.evaluate(() => { if (typeof APRENDIZ !== 'undefined') APRENDIZ.alzaDe = () => 0; }).catch(() => {}));
   let ok = false, det = '';
   try {
     await pg.goto(`http://127.0.0.1:${PUERTO}/index.html`, { waitUntil: 'load' });
