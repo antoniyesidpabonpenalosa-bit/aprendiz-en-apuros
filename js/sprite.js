@@ -645,10 +645,10 @@ const APRENDIZ = (() => {
      (lo calcula scripts/calcula-corte-alza.mjs; la prueba comprueba que la tabla es la de los atlas). Solo cambia CÓMO se dibuja:
      no mueve a nadie ni toca colisiones, velocidad ni puntos. Con prefers-reduced-motion no hay alza. */
   const CORTE_ALZA={"masculina":{"caminar":[43,43,43,43,43,43,43,43],"portada":43},"femenina":{"caminar":[41,41,44,44,42,43,45,41],"portada":42}};
-  const RESPIRA = 2400;                          // ms de un ciclo de respiración: 1,2 s arriba y 1,2 s abajo
-  /* 1 si el tronco va alzado: caminando, en los cuadros 1 y 3 (el pie levantado); parado, la mitad de cada respiración. */
+  const RESP_ARRIBA = 1000, RESP_ABAJO = 2000;   // ms de cada respiración: sube rápido (1 s) y baja con pausa (2 s)
+  /* 1 si el tronco va alzado: caminando, en los cuadros 1 y 3 (el pie levantado); parado, el primer segundo de cada respiración de 3 s. */
   const alzaDe = (mueve, paso = 0, ms = performance.now()) =>
-    (typeof quieto === 'function' && quieto()) ? 0 : mueve ? (((paso % PASOS) + PASOS) % PASOS) & 1 : (Math.floor(ms / (RESPIRA / 2)) % 2);
+    (typeof quieto === 'function' && quieto()) ? 0 : mueve ? (((paso % PASOS) + PASOS) % PASOS) & 1 : ((ms % (RESP_ARRIBA + RESP_ABAJO)) < RESP_ARRIBA ? 1 : 0);
   /* Una celda del atlas en (x, yPie) con ese alto; con alza y un corte, en dos trozos (ver arriba). Sin alza, un solo drawImage
      igual que siempre. Se pinta primero el de abajo y encima el de arriba: así un redondeo no deja nunca un hueco. */
   function pinta(ctx, fuente, fx, fy, x, yPie, alto, w, alza, corte) {
