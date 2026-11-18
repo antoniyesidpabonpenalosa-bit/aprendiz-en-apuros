@@ -3,11 +3,13 @@
    2) Verifica que todo archivo local referenciado por index.html exista.
    3) Revisa el anidamiento y los id de cada .html (juego y design system).
    4) Comprueba que sw.js precargue todo lo que index.html necesita.
+   5) Vigila los nombres globales: ninguno repetido entre scripts ni igual a uno del navegador, y cada js/ en index.html.
    Uso:  node scripts/validar.mjs   (se ejecuta desde la raíz del repo) */
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { analiza } from './lib-globales.mjs';
 
 const raiz = join(dirname(fileURLToPath(import.meta.url)), '..');
 let errores = 0;
@@ -222,6 +224,29 @@ else {
       else ok(`NOVEDADES cubre ${entradas.length} versión(es) en los dos idiomas, la última es ${version}`);
     }
   }
+}
+
+/* 6 · nombres globales (v40.18, scripts/lib-globales.mjs)
+   Los scripts de index.html comparten un mismo espacio de nombres. Un const/let/class repetido deja un archivo entero sin cargar y
+   una function/var repetida SOBRESCRIBE a la anterior sin avisar; un nombre del navegador (name, status, open...) también da problemas.
+   Para que un nombre repetido sea a propósito, se pone en PERMITIDOS con su porqué (hoy no hay ninguno). */
+const PERMITIDOS = [];
+{
+  const sinHttp = u => !/^https?:|^\/\//.test(u);
+  const enHtml = [...html.matchAll(/<script\b[^>]*\ssrc\s*=\s*"([^"]+)"[^>]*>/g)].map(m => m[1]).filter(sinHttp)
+    .map(r => r.replace(/^\.?\//, '').split(/[?#]/)[0]);
+  const enLinea = [...html.matchAll(/<script\b(?![^>]*\ssrc\s*=)[^>]*>([\s\S]*?)<\/script>/g)].map((m, i) => ({ archivo: `index.html (script en línea ${i + 1})`, src: m[1] }));
+  const scripts = [...enHtml.filter(f => existsSync(join(raiz, f))).map(f => ({ archivo: f, src: readFileSync(join(raiz, f), 'utf8') })), ...enLinea];
+  const r = analiza(scripts, { permitidos: PERMITIDOS });
+  for (const d of r.repetidos)
+    fallo(`el nombre global «${d.nombre}» está declarado en más de un script (${d.efecto}): ` + d.sitios.map(s => `${s.archivo}:${s.linea} (${s.tipo})`).join(', '));
+  for (const d of r.delNavegador)
+    fallo(`${d.archivo}:${d.linea} declara «${d.nombre}», que el navegador ya trae como global: usa otro nombre`);
+  /* el sentido contrario a la comprobación 2/4: un .js nuevo de js/ que se olvidó en index.html (y por tanto en sw.js) */
+  const sueltos = readdirSync(join(raiz, 'js')).filter(f => f.endsWith('.js')).map(f => 'js/' + f).filter(f => !enHtml.includes(f));
+  if (sueltos.length) fallo(`js/ tiene archivos que index.html no carga: ${sueltos.join(', ')}\n    Agrégalos a index.html y al arreglo BASE de sw.js, o bórralos.`);
+  if (!r.repetidos.length && !r.delNavegador.length && !sueltos.length)
+    ok(`nombres globales: ${r.total} declaraciones en ${scripts.length} scripts, ninguna repetida ni del navegador, y todo js/ está en index.html`);
 }
 
 if (errores) { console.error(`\n${errores} problema(s) encontrado(s).`); process.exit(1); }
