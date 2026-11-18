@@ -88,8 +88,8 @@ let peVista='ambos';
 const PE_DIRECCIONES=['sur','sureste','este','noreste','norte','noroeste','oeste','suroeste'];
 
 /* La pose frontal quieta es la del atlas de portada, no un paso de marcha. */
-function peDibujaCuerpo(c,dir,paso,mueve,piel,camisa,apariencia,acc){
-  return !mueve&&dir===0?APRENDIZ.dibujarPortada(c,22,74,74,0,piel,camisa,apariencia,acc):APRENDIZ.dibujar(c,22,74,74,dir,paso,piel,camisa,apariencia,acc);
+function peDibujaCuerpo(c,dir,paso,mueve,piel,camisa,apariencia,acc,alza=0){
+  return !mueve&&dir===0?APRENDIZ.dibujarPortada(c,22,74,74,0,piel,camisa,apariencia,acc,alza):APRENDIZ.dibujar(c,22,74,74,dir,paso,piel,camisa,apariencia,acc,alza);
 }
 
 /* Las muestras conservan los índices de las paletas originales: nunca crean
@@ -229,10 +229,10 @@ function rPerso(){
   {const cuerpo=$('#pe-cuerpo-av');if(cuerpo)GATO.montar({cuerpo,contenedor:cuerpo.parentElement,dir:()=>orientacion,mueve:()=>andando&&!quieto(),activo:()=>prueba==='gato'&&peVista!=='retrato'&&pantallaId==='perso'});}
   const pintaCuerpo=()=>{
     const cv=$('#pe-cuerpo-av');if(!cv||pantallaId!=='perso'||peVista==='retrato')return;
-    const mueve=andando&&!quieto(), paso=APRENDIZ.pasoDe(mueve), clave=[mueve,S.apariencia,S.skin,S.camisa,prueba,orientacion,paso,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');
+    const mueve=andando&&!quieto(), paso=APRENDIZ.pasoDe(mueve), alza=APRENDIZ.alzaDe(mueve,paso), clave=[mueve,S.apariencia,S.skin,S.camisa,prueba,orientacion,paso,alza,APRENDIZ.listaFemenina,APRENDIZ.listo,APRENDIZ.listoHD,APRENDIZ.listoPremium,APRENDIZ.listoPortada].join('|');
     if(clave===ultimoVisor)return;
     const c=cv.getContext('2d');c.clearRect(0,0,44,74);
-    if(!peDibujaCuerpo(c,orientacion,paso,mueve,S.skin,S.camisa,S.apariencia,prueba))return;
+    if(!peDibujaCuerpo(c,orientacion,paso,mueve,S.skin,S.camisa,S.apariencia,prueba,alza))return;
     ultimoVisor=clave;
   };
   const pintaOpciones=()=>$$('.pe-apariencia-op').forEach(b=>{

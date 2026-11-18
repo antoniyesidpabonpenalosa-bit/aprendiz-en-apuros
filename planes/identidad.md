@@ -220,6 +220,17 @@ Desde v40.6 el cuadro 0 de su atlas era una copia del 2 (la pose de paso), así 
 - **Café:** su tabla de anclaje tiene ahora cuatro cuadros por dirección para ella (`scripts/calcula-cafe.mjs`), porque la mano cambia en el 0 y en el 3 de frente. Corbata, medalla, capa, gafas, audífonos, gorra y corona se comprobaron sobre los cuadros nuevos sin cambios.
 - **Pruebas:** `test/ciclo-femenino.test.mjs` (el atlas sale del script y es idempotente, la cabeza del 0 es la del 2, la mitad de abajo es el espejo de su fuente, el pie levantado alterna, la taza cae sobre una mano en cada cuadro).
 
+## Movimiento de los protagonistas: balanceo y respiración (v40.16)
+
+Medido en el atlas de él (v40.15): entre los cuatro cuadros de marcha cambian 0 píxeles de la cabeza a la cintura en las ocho direcciones, así que el cuerpo se deslizaba sin balanceo, y parado era una foto. En vez de tocar atlas (el arte de ella y el de él quedan idénticos) se añadió un **alza**: el tronco y la cabeza suben 1 px de la celda mientras los pies y las manos se quedan donde están.
+
+- **Cómo:** `APRENDIZ.dibujar(..., alza)` y `dibujarPortada(..., alza)` pintan la celda ya compuesta (cuerpo y accesorio) en dos trozos: de la fila de corte hacia abajo, tal cual, y de la fila de corte hacia arriba, 1 px más arriba; la fila de corte se repite una vez, sin hueco. Sin alza, un solo `drawImage` igual que antes. Gafas, audífonos, gorra, corona, corbata, medalla y capa suben con el cuerpo; la taza se queda en la mano; el gato es independiente.
+- **Dónde se corta:** `CORTE_ALZA` en `js/sprite.js` (por dirección al caminar y para la portada), calculada por `scripts/calcula-corte-alza.mjs`: la fila de cadera, entre 40 y 46, donde la repetición de una fila se nota menos. Él: la 43 en las ocho direcciones; ella entre la 41 y la 45.
+- **Cuándo:** `APRENDIZ.alzaDe(mueve, paso, ms)`: caminando, 1 en los cuadros 1 y 3 (los del pie levantado); parado, respira 1,2 s arriba y 1,2 s abajo. Con prefers-reduced-motion es siempre 0.
+- **Dónde se ve:** el pasillo (andando y parado; parado se repinta solo cuando cambia el alza) y el probador de Mi Avatar (la clave de repintado incluye el alza). El runner, el jefe y el mapa clásico no cambian: sprites de 30 px donde 1 px no se aprecia, y el mapa ya tiene su propio rebote.
+- **No cambia:** atlas, accesorios, colisiones, velocidad, puntos, XP, dificultad ni nada guardado.
+- **Pruebas:** `test/alza.test.mjs` (la tabla sale de los atlas; el alza de la marcha y de la respiración; sin alza el dibujo es el de antes; con alza de 1 px, de la fila de corte hacia abajo no cambia ni un píxel, de ahí hacia arriba todo sube 1 y no se pierde nada; sin huecos con cualquier alto) y el caso del vestidor.
+
 ## Fuera de esta parte
 
 - No hay diálogos nuevos del protagonista.
