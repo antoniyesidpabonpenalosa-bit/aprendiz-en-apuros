@@ -216,11 +216,13 @@ design-system/            → catálogo de componentes extraído de css/estilos.
 Los módulos se cargan en orden como scripts clásicos (sin `type="module"`)
 para que el juego siga funcionando al abrir `index.html` con doble clic.
 
-**Validación:** `node scripts/validar.mjs` comprueba cuatro cosas: la sintaxis
+**Validación:** `node scripts/validar.mjs` comprueba cinco cosas: la sintaxis
 de todos los `.js`, que `index.html` no referencie archivos inexistentes, que
 todo el HTML del repo esté bien anidado y sin `id` repetidos (el juego y las
-tarjetas del UI kit se escriben a mano), y que `sw.js` precargue todo lo que
-`index.html` necesita para funcionar sin conexión. Se ejecuta
+tarjetas del UI kit se escriben a mano), que `sw.js` precargue todo lo que
+`index.html` necesita para funcionar sin conexión, y que ningún nombre global
+se repita entre los scripts ni choque con uno del navegador (los scripts no son
+módulos y comparten un mismo espacio de nombres; ver `scripts/lib-globales.mjs`). Se ejecuta
 automáticamente en cada push mediante GitHub Actions (`.github/workflows/validar.yml`),
 que también corre `node scripts/build-ui-kit.mjs --check` para asegurar que
 el UI kit no quede desincronizado del CSS real.
@@ -229,7 +231,9 @@ el UI kit no quede desincronizado del CSS real.
 jugar un rato — sobre todo el **código de guardado**, que es lo que puede hacer
 que alguien pierda su partida al cambiar de dispositivo sin que nadie se entere.
 Cubre la ida y vuelta del código (con tildes y emoji), el rechazo de códigos
-manipulados, la migración de partidas viejas de 10 días a 15, los umbrales de
+manipulados, la revisión campo a campo de lo que trae un código ajeno (un
+texto donde van números no se pinta nunca, y una partida real pasa intacta),
+la migración de partidas viejas de 10 días a 15, los umbrales de
 cada rango, las vidas por dificultad, el escape de los nombres del marcador,
 los límites de lo que se publica, y toda la lógica del reto diario (semilla,
 racha con perdón y sesgo por fallos). Usa `node:test`, que viene incluido en Node:

@@ -107,7 +107,7 @@ function rLibre() {
         return `<button class="btn btn2 menu-fila" data-tipo="${tipo}" type="button">
           <span class="m-ico">${pxi(ICO_TIPO[tipo] || '🎮')}</span>
           <span class="m-txt">${t('tipo_' + tipo)}</span>
-          <span class="m-marca">${m ? '★ ' + m : t('sin_marca')}</span>
+          <span class="m-marca">${m ? '★ ' + esc(m) : t('sin_marca')}</span>
         </button>`;
       }).join('')}
     </div>
@@ -152,7 +152,7 @@ function libreFin(stars, pts) {
     ${starsHtml(Math.max(0, stars))}
     <p class="pts-final">${ganados} ${t('rec_pts')}</p>
     ${nueva ? `<p class="mini verde">${t('marca_nueva')}</p>`
-            : `<p class="mini">${t('libre_mejor')}: ${marcaDe(tipo)}</p>`}
+            : `<p class="mini">${t('libre_mejor')}: ${esc(marcaDe(tipo))}</p>`}
     ${repaso ? `<p class="mini ${quedan ? '' : 'verde'}">🎯 ${quedan ? t('repaso_quedan').replace('{n}', quedan) : t('repaso_limpio')}</p>` : ''}
     ${repaso && !quedan ? '' : `<button class="btn" id="lf-otra" type="button">${t('libre_otra')}</button>`}
     <button class="btn btn2" id="lf-volver" type="button">${t('volver')}</button>

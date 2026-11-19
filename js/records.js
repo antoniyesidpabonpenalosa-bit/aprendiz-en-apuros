@@ -191,7 +191,7 @@ function rStats(){
    <div class="col2">
     <div class="col">
     <div class="stats-grid">
-      ${filas.map(f=>`<div><span style="font-size:16px">${f[0]}</span><b>${f[1]}</b><span>${t(f[2])}</span></div>`).join('')}
+      ${filas.map(f=>`<div><span style="font-size:16px">${f[0]}</span><b>${esc(f[1])}</b><span>${t(f[2])}</span></div>`).join('')}
     </div>
     <h3>${t('flojo_tit')}</h3>
     ${repaso.length
@@ -233,7 +233,16 @@ function rStats(){
     else aviso('💾',t('guardado'));
     SFX.moneda();
   };
+  /* Importar REEMPLAZA toda la partida: un código ajeno o viejo borra el progreso de quien lo pega. Primero se comprueba el código
+     (uno inválido se rechaza al momento) y luego hace falta un segundo toque para confirmar, como al terminar una sala. */
   $('#es-imp').onclick=()=>{
+    const b=$('#es-imp');
+    if(!leerCodigo($('#es-code').value)){SFX.mal();aviso('❌',t('impmal'));return}
+    if(!b.classList.contains('armado')){
+      b.classList.add('armado');b.textContent=t('imp_seguro');SFX.click();
+      tvez(()=>{if(b.isConnected){b.classList.remove('armado');b.textContent=t('importar')}},4000);
+      return;
+    }
     if(importarCodigo($('#es-code').value)){SFX.win();aviso('✅',t('impok'));rTitulo()}
     else{SFX.mal();aviso('❌',t('impmal'))}
   };
