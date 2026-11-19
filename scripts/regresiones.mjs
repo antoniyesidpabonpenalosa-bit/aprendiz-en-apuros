@@ -2946,6 +2946,36 @@ await caso('movimiento · con «reducir movimiento» el aprendiz parado no respi
   return [new Set(v).size === 1, `${new Set(v).size} dibujo(s) distinto(s) en 3 s`];
 });
 
+/* v40.18 · seguridad del código de guardado */
+await caso('seguridad · un código de guardado con texto en stats y en las marcas del modo libre no ejecuta nada ni deja etiquetas en Estadísticas ni en Modo libre', ID_J, async pg => {
+  const r = await pg.evaluate(async () => {
+    const espera = ms => new Promise(r => setTimeout(r, ms)), o = {};
+    const d = { dias: Array(15).fill(-1), stats: { bugs: '<img src=x onerror="window.__xss1=1">' }, mejores: { 'terminal:1': '<img src=x onerror="window.__xss2=1">' } };
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(d))));
+    o.importo = importarCodigo('PA4.' + sumaCod(b64) + '.' + b64);
+    rStats(); await espera(500); o.estadisticas = { ejecuto: window.__xss1 === 1, etiquetas: document.querySelectorAll('img[src="x"]').length, bugs: S.stats.bugs };
+    rLibre(); await espera(500); o.libre = { ejecuto: window.__xss2 === 1, etiquetas: document.querySelectorAll('img[src="x"]').length, marca: Object.keys(S.mejores).length };
+    return o; });
+  return [r.importo && !r.estadisticas.ejecuto && r.estadisticas.etiquetas === 0 && r.estadisticas.bugs === 0 && !r.libre.ejecuto && r.libre.etiquetas === 0 && r.libre.marca === 0, JSON.stringify(r)];
+});
+await caso('seguridad · importar pide un segundo toque (el primero solo arma el botón y no cambia la partida), un código inválido se rechaza al momento, y la confirmación se desarma sola', ID_J, async pg => {
+  const r = await pg.evaluate(async () => {
+    const espera = ms => new Promise(r => setTimeout(r, ms)), o = {};
+    const ptsAntes = S.pts;
+    const otro = { ...JSON.parse(JSON.stringify(S)), pts: 777 }; const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(otro)))); const cod = 'PA4.' + sumaCod(b64) + '.' + b64;
+    rStats(); await espera(300);
+    const ta = $('#es-code'), b = $('#es-imp');
+    ta.value = 'basura'; b.click(); o.invalido = { armado: b.classList.contains('armado'), pts: S.pts === ptsAntes };
+    ta.value = cod; b.click(); o.primero = { armado: b.classList.contains('armado'), texto: b.textContent.trim(), pts: S.pts === ptsAntes, pantalla: pantallaId };
+    b.click(); await espera(300); o.segundo = { pts: S.pts, pantalla: pantallaId };
+    rStats(); await espera(300); const b2 = $('#es-imp'); $('#es-code').value = cod; b2.click(); const armado = b2.classList.contains('armado'); await espera(4300);
+    o.desarma = { armado, despues: b2.classList.contains('armado'), texto: b2.textContent.trim() };
+    return o; });
+  const ok = !r.invalido.armado && r.invalido.pts && r.primero.armado && /SEGURO|SURE/.test(r.primero.texto) && r.primero.pts && r.primero.pantalla === 'stats'
+    && r.segundo.pts === 777 && r.segundo.pantalla === 'titulo' && r.desarma.armado && !r.desarma.despues && !/SEGURO|SURE/.test(r.desarma.texto);
+  return [ok, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

@@ -62,27 +62,53 @@ function ajeno(o){
   for(const k of Object.keys(o))if(k!=='__proto__')r[k]=o[k];
   return r;
 }
+/* v40.18 · lo que entra por un código de guardado o por un localStorage editado a mano no se pinta ni se usa sin revisar. Un código
+   ajeno traía texto en stats y mejores y se pintaba con innerHTML en Estadísticas y Modo libre (inyección). Aquí cada campo se deja
+   del tipo y del rango que el juego usa de verdad, y lo que no cuadra se descarta. Ninguna partida real se toca: nada de esto
+   puede salir de jugar. */
+const TOPE_NUM=1e9;                 // más de mil millones no sale de jugar: lo de arriba es una partida inventada
+const PESO_MAX=3;                   // a la par con TOPE de js/reto.js: un ítem no pesa más de 4 veces lo normal
+const ID_OK=/^[a-z0-9_-]{1,24}$/;   // los ids de logros, accesorios, mejoras y ayudas
+/** una lista de ids: solo textos con forma de id, sin repetidos y con un máximo */
+const listaIds=(v,max=64)=>{
+  /** @type {string[]} */
+  const r=[];
+  if(Array.isArray(v))for(const x of v)if(typeof x==='string'&&ID_OK.test(x)&&!r.includes(x)&&r.length<max)r.push(x);
+  return r;
+};
+/** un objeto de contadores: solo claves cortas con un número finito de 0 al tope (o hasta `max`) */
+const mapaNum=(o,max=TOPE_NUM,enteros=false,min=0)=>{
+  /** @type {Object<string,number>} */
+  const r={};
+  const x=ajeno(o);
+  for(const k of Object.keys(x)){
+    const v=x[k];
+    if(k.length<=40&&Number.isFinite(v)&&v>=min&&(!enteros||Number.isInteger(v)))r[k]=Math.min(v,max);
+  }
+  return r;
+};
 function sanear(){
   /* Lo que viene de fuera puede traer cualquier cosa (un código escrito a
      mano, una versión muy vieja): cada campo se deja de un tipo que el resto del
      juego pueda usar. Un idioma desconocido dejaba el juego en BLANCO y, como se
      guarda, también al recargar: ni siquiera se llegaba a "borrar partida". */
   if(S.lang!=='es'&&S.lang!=='en')S.lang='es';
-  for(const k of ['logros','accs','mejoras'])
-    S[k]=(Array.isArray(S[k])?S[k]:[]).filter(x=>typeof x==='string');
+  for(const k of ['logros','accs','mejoras'])S[k]=listaIds(S[k]);
   const ent=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
   if(!ent(S.skin,0,SKINS.length-1))S.skin=0;
   if(!ent(S.camisa,0,CAMISAS.length-1))S.camisa=0;
   if(S.apariencia!=='femenina')S.apariencia='masculina';
   if(!Number.isFinite(S.pts)||S.pts<0)S.pts=0;
   if(!Number.isFinite(S.xp)||S.xp<0)S.xp=0;
+  S.pts=Math.min(S.pts,TOPE_NUM);S.xp=Math.min(S.xp,TOPE_NUM);
   if(typeof S.nombre!=='string')S.nombre=String(S.nombre==null?'':S.nombre);
+  S.nombre=Array.from(S.nombre).slice(0,24).join('');   // el campo de nombre admite 10; aquí sobra margen y no parte un emoji
   if(typeof S.acc!=='string'||(S.acc&&!ACCS.some(a=>a.id===S.acc)))S.acc='';
   /* migración: partidas viejas de 10 días se extienden a 15 */
   if(!Array.isArray(S.dias))S.dias=Array(TOT_DIAS).fill(-1);
   while(S.dias.length<TOT_DIAS)S.dias.push(-1);
   S.dias=S.dias.slice(0,TOT_DIAS).map(d=>ent(d,-1,3)?d:-1);
-  if(typeof S.dif!=='number'||S.dif<0||S.dif>2)S.dif=1;
+  if(!ent(S.dif,0,2))S.dif=1;
   if(typeof S.mus!=='boolean')S.mus=true;
   if(typeof S.t2!=='boolean')S.t2=false;
   if(typeof S.legible!=='boolean')S.legible=false;
@@ -96,16 +122,19 @@ function sanear(){
     .map(r=>({n:r.n.slice(0,10),p:r.p,x:Number.isFinite(r.x)?r.x:0,...(r.yo?{yo:1}:{})}));
   /* No va en DEF a propósito: los arrays de DEF se copian por referencia y
      S.vistos.push() acabaría escribiendo dentro de DEF. Aquí nace uno nuevo. */
-  if(!Array.isArray(S.vistos))S.vistos=[];
+  S.vistos=listaIds(S.vistos);
   /* Marcas del modo libre, por minijuego y dificultad. Tampoco va en DEF:
      Object.assign copia el objeto por referencia y escribir una marca
      acabaría dentro de DEF. */
-  S.mejores=ajeno(S.mejores);
-  if(typeof S.mejorSinFin!=='number'||!(S.mejorSinFin>=0))S.mejorSinFin=0;
+  S.mejores=mapaNum(S.mejores);
+  if(!Number.isFinite(S.mejorSinFin)||S.mejorSinFin<0)S.mejorSinFin=0;
+  S.mejorSinFin=Math.min(S.mejorSinFin,TOPE_NUM);
+  /* Repaso espaciado (js/reto.js): solo entran pesos enteros de 1 a PESO_MAX, que es lo único que marcar() escribe. */
+  S.pesos=mapaNum(S.pesos,PESO_MAX,true,1);
   /* Código de aula: mayúsculas, dígitos, 3 a 8 caracteres. Se sanea aquí
      porque puede venir de un código de guardado escrito a mano. */
   S.grupo=String(S.grupo||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
-  S.stats=Object.assign({},STATS0,ajeno(S.stats));
+  S.stats=Object.assign({},STATS0,mapaNum(S.stats));
 }
 /** Lo guardado puede ser cualquier cosa (una versión vieja, datos rotos):
     sanear() lo deja en forma. @type {any} */
@@ -224,13 +253,21 @@ function exportarCodigo(){
   const b64=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
   return 'PA4.'+sumaCod(b64)+'.'+b64;
 }
-function importarCodigo(cod){
+/** La partida que lleva un código, o null si el código no vale. No cambia nada: sirve para comprobar antes de pedir confirmación. */
+function leerCodigo(cod){
   try{
     const p=String(cod||'').trim().split('.');
-    if(p.length!==3||p[0]!=='PA4')return false;
-    if(sumaCod(p[2])!==p[1])return false;
+    if(p.length!==3||p[0]!=='PA4')return null;
+    if(sumaCod(p[2])!==p[1])return null;
     const d=JSON.parse(decodeURIComponent(escape(atob(p[2]))));
-    if(!d||typeof d!=='object'||!Array.isArray(d.dias))return false;
+    if(!d||typeof d!=='object'||!Array.isArray(d.dias))return null;
+    return d;
+  }catch(e){return null}
+}
+function importarCodigo(cod){
+  try{
+    const d=leerCodigo(cod);
+    if(!d)return false;
     /* Un ensayo de la consola (js/consola.js) guarda una copia de la partida y
        no escribe en disco: importar encima lo dejaba a medias —el nombre
        sobrevivía y el progreso no—. Primero se termina el ensayo. Va aquí, tras

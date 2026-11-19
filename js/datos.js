@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.17';
+const VERSION='v40.18';
 const NOVEDADES=[
+  {v:'v40.18', fecha:'2026-11-19',
+   es:['Más seguridad al importar una partida: el código de guardado ahora se revisa dato por dato antes de usarlo, y para importar hay que tocar el botón dos veces, porque reemplaza tu partida. Tu partida de siempre se importa igual que antes.'],
+   en:['Safer save import: the save code is now checked piece by piece before it is used, and importing takes two taps because it replaces your save. Your regular save imports exactly as before.']},
   {v:'v40.17', fecha:'2026-11-18',
    es:['La respiración del aprendiz y de la aprendiz parados es más natural: sube rápido y baja con una pausa, en un ciclo de 3 segundos. No cambia nada más del juego.'],
    en:['The apprentice, both of them, breathe more naturally when standing: a quick rise and a slower fall with a pause, in a 3-second cycle. Nothing else in the game changes.']},
@@ -1038,7 +1041,7 @@ const TXT={
   compartexto:'Terminé Aprendiz en apuros con {p} pts como {r} 🎓 ¡Juégalo!',
   jefefase:'FASE',avisolaser:'¡LÁSER!',
   guardado:'💾 CÓDIGO DE GUARDADO',exportar:'📤 EXPORTAR PARTIDA',importar:'📥 IMPORTAR',
-  pegacodigo:'Pega aquí tu código PA4...',impok:'¡PARTIDA IMPORTADA!',impmal:'CÓDIGO INVÁLIDO',
+  pegacodigo:'Pega aquí tu código PA4...',impok:'¡PARTIDA IMPORTADA!',impmal:'CÓDIGO INVÁLIDO',imp_seguro:'⚠️ ¿SEGURO? REEMPLAZA TU PARTIDA',
   guardatxt:'Exporta tu partida y pégala en otro dispositivo para continuar allí.',
   t1sec:'📚 ETAPA LECTIVA',t2sec:'💼 ETAPA PRODUCTIVA',
   /* el pasillo (js/pasillo.js) */
@@ -1178,7 +1181,7 @@ const TXT={
   compartexto:'I finished Aprendiz en apuros with {p} pts as {r} 🎓 Play it!',
   jefefase:'PHASE',avisolaser:'LASER!',
   guardado:'💾 SAVE CODE',exportar:'📤 EXPORT SAVE',importar:'📥 IMPORT',
-  pegacodigo:'Paste your PA4 code here...',impok:'SAVE IMPORTED!',impmal:'INVALID CODE',
+  pegacodigo:'Paste your PA4 code here...',impok:'SAVE IMPORTED!',impmal:'INVALID CODE',imp_seguro:'⚠️ SURE? IT REPLACES YOUR SAVE',
   guardatxt:'Export your save and paste it on another device to continue there.',
   t1sec:'📚 TRAINING STAGE',t2sec:'💼 WORKPLACE STAGE',
   /* the hallway (js/pasillo.js) */
