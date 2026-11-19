@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.19';
+const VERSION='v40.20';
 const NOVEDADES=[
+  {v:'v40.20', fecha:'2026-11-19',
+   es:['Los LOGROS SECRETOS ya traen una pista en la tarjeta, visible desde el principio: te insinúa cómo conseguirlos sin decírtelo del todo. Los que todavía no se pueden ganar dicen «Aún no disponible».'],
+   en:['SECRET ACHIEVEMENTS now carry a hint on the card, visible from the start: it nudges you toward how to earn them without giving it all away. The ones that cannot be earned yet say "Not available yet".']},
   {v:'v40.19', fecha:'2026-11-19',
    es:['Aparecen los LOGROS SECRETOS: diez tarjetas con un ❓ y sus estrellas de dificultad, y cinco ya se pueden conseguir (CÓDIGO CLÁSICO, NOCTÁMBULO, TERCO, EXPEDIENTE PERFECTO y SIN UN RASGUÑO). Cada uno regala una camisa nueva para Mi Avatar. Los 19 logros de siempre llevan ahora su dificultad, y los avisos de logro salen uno detrás de otro en vez de pisarse.'],
    en:['SECRET ACHIEVEMENTS arrive: ten cards with a ❓ and their difficulty stars, and five can already be earned (CLASSIC CODE, NIGHT OWL, PERSISTENT, PERFECT RECORD and UNSCATHED). Each one unlocks a new shirt for My Avatar. The 19 regular achievements now show their difficulty, and achievement pop-ups play one after another instead of overlapping.']},
@@ -305,13 +308,15 @@ const SKINS=['#f4c898','#d99b66','#a86a3c','#6f4526'];
 const CAMISAS=['#39a900','#13648c','#8c3df0','#c22e44'];
 
 /* Los premios secretos solo cambian la apariencia. Los demás secretos se
-   muestran ocultos hasta que llegue su fase de implementación. */
+   muestran ocultos hasta que llegue su fase de implementación.
+   pes/pen = la condición (se enseña al ganarlo); hes/hen = la pista críptica
+   que se ve desde el principio. Sin hes/hen = todavía no se puede conseguir. */
 const LOGROS_SECRETOS=[
- {id:'s10',ico:'🎮',es:'CÓDIGO CLÁSICO',en:'CLASSIC CODE',pes:'Escribe ↑↑↓↓←→←→BA en la portada',pen:'Type ↑↑↓↓←→←→BA on the title screen',dif:1,obj:'terminal'},
- {id:'s6',ico:'🌙',es:'NOCTÁMBULO',en:'NIGHT OWL',pes:'Aprueba un día entre las 00:00 y las 04:59',pen:'Clear a day between 00:00 and 04:59',dif:1,obj:'medianoche'},
- {id:'s7',ico:'🔁',es:'TERCO',en:'PERSISTENT',pes:'Falla tres veces el mismo día y luego apruébalo',pen:'Fail the same day three times, then clear it',dif:1,obj:'calabaza'},
- {id:'s4',ico:'🌟',es:'EXPEDIENTE PERFECTO',en:'PERFECT RECORD',pes:'Obtén tres estrellas en los 15 días',pen:'Get three stars on all 15 days',dif:3,obj:'dorada'},
- {id:'s3',ico:'❤️',es:'SIN UN RASGUÑO',en:'UNSCATHED',pes:'Termina la campaña nueva sin perder vidas',pen:'Complete a new campaign without losing lives',dif:4,obj:'plateada'},
+ {id:'s10',ico:'🎮',es:'CÓDIGO CLÁSICO',en:'CLASSIC CODE',pes:'Escribe ↑↑↓↓←→←→BA en la portada',pen:'Type ↑↑↓↓←→←→BA on the title screen',hes:'Los videojuegos de antes escondían un secreto en la portada… prueba con las flechas.',hen:'Old-school games hid a secret on the title screen… try the arrow keys.',dif:1,obj:'terminal'},
+ {id:'s6',ico:'🌙',es:'NOCTÁMBULO',en:'NIGHT OWL',pes:'Aprueba un día entre las 00:00 y las 04:59',pen:'Clear a day between 00:00 and 04:59',hes:'Los mejores bugs se cazan cuando el resto duerme.',hen:'The best bugs get caught while everyone else sleeps.',dif:1,obj:'medianoche'},
+ {id:'s7',ico:'🔁',es:'TERCO',en:'PERSISTENT',pes:'Falla tres veces el mismo día y luego apruébalo',pen:'Fail the same day three times, then clear it',hes:'Caer tres veces el mismo día… y aun así levantarse.',hen:'Fall three times in one day… and still get back up.',dif:1,obj:'calabaza'},
+ {id:'s4',ico:'🌟',es:'EXPEDIENTE PERFECTO',en:'PERFECT RECORD',pes:'Obtén tres estrellas en los 15 días',pen:'Get three stars on all 15 days',hes:'Tres estrellas en cada uno de los 15 días: ni una menos.',hen:'Three stars on each of the 15 days: not one less.',dif:3,obj:'dorada'},
+ {id:'s3',ico:'❤️',es:'SIN UN RASGUÑO',en:'UNSCATHED',pes:'Termina la campaña nueva sin perder vidas',pen:'Complete a new campaign without losing lives',hes:'Una campaña nueva de principio a fin sin perder una sola vida.',hen:'A new campaign, start to finish, without losing a single life.',dif:4,obj:'plateada'},
  {id:'s5',ico:'💣',es:'DESACTIVADOR',en:'DEFUSER',dif:2,obj:'gatonegro'},
  {id:'s9',ico:'📅',es:'CONSTANTE',en:'CONSISTENT',dif:2,obj:'gatotigre'},
  {id:'s1',ico:'🛡️',es:'LEYENDA INTOCABLE',en:'UNTOUCHABLE LEGEND',dif:4,obj:'gatodorado'},

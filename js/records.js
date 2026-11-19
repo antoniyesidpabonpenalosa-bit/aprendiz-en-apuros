@@ -24,6 +24,7 @@ function rLogros(){
         const logrado=S.logros.includes(l.id);
         return `<div class="logro ${logrado?'on':''}"><span class="ico-lg">${logrado?l.ico:'❓'}</span>
           <p>${logrado?tj(l):'???'}</p><p class="pista">${'★'.repeat(l.dif)}</p>
+          ${logrado?'':`<p class="pista pista-sec">${(S.lang==='en'?l.hen:l.hes)||(S.lang==='en'?'🔜 Not available yet':'🔜 Aún no disponible')}</p>`}
           ${logrado?`<p class="pista">${tp(l)} · ${S.lang==='es'?'Camisa':'Shirt'} ${t('pe_camisa_'+(CAMISAS.length+CAMISAS_SECRETAS.findIndex(c=>c.logro===l.id)))}</p>`:''}</div>`;
       }).join('')}
     </div>

@@ -3038,6 +3038,25 @@ await caso('logros secretos · dos logros seguidos salen uno detrás de otro en 
   return [t.length === 2 && /PRIMER DÍA/.test(t[0]) && /LOGRO SECRETO/.test(t[1]) && /CÓDIGO CLÁSICO/.test(t[1]), JSON.stringify(t)];
 });
 
+await caso('logros secretos · cada tarjeta bloqueada enseña su pista (es y en), las cinco que aún no se pueden ganar dicen "Aún no disponible", y la ganada enseña su condición y no la pista', { ...LS_J, logros: ['s6'] }, async pg => {
+  const r = await pg.evaluate(async () => {
+    const espera = ms => new Promise(r => setTimeout(r, ms));
+    const leer = () => [...$$('.logros-grid')[1].querySelectorAll('.logro')].map(x => ({ on: x.classList.contains('on'), pistas: [...x.querySelectorAll('.pista-sec')].map(p => p.textContent.trim()), txt: x.textContent }));
+    rLogros(); await espera(300); const es = leer();
+    S.lang = 'en'; rLogros(); await espera(300); const en = leer(); S.lang = 'es';
+    return {
+      n: es.length,
+      esConPista: es.filter(x => x.pistas.length === 1 && !/Aún no/.test(x.pistas[0])).length,
+      esProximamente: es.filter(x => x.pistas.some(p => /Aún no disponible/.test(p))).length,
+      ganadaSinPista: es.filter(x => x.on && !x.pistas.length && /Aprueba un día/.test(x.txt)).length,
+      enConPista: en.filter(x => x.pistas.length === 1 && !/Not available/.test(x.pistas[0])).length,
+      enProximamente: en.filter(x => x.pistas.some(p => /Not available yet/.test(p))).length
+    };
+  });
+  const ok = r.n === 10 && r.esConPista === 4 && r.esProximamente === 5 && r.ganadaSinPista === 1 && r.enConPista === 4 && r.enProximamente === 5;
+  return [ok, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

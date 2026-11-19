@@ -62,3 +62,19 @@ test('TERCO necesita tres fallos acumulados del mismo día antes de aprobarlo',(
     assert.equal(g.eval('S.fallosDia[2]'),0);
   }
 });
+
+test('los cinco secretos que ya se consiguen llevan pista en es y en, distinta de la condición y sin dar la secuencia de S10',()=>{
+  const todos=[...juego().eval('LOGROS_SECRETOS')];
+  const vivos=todos.filter(l=>l.pes);
+  const futuros=todos.filter(l=>!l.pes);
+  assert.equal(vivos.length,5);
+  assert.equal(futuros.length,5);
+  for(const l of vivos){
+    assert.ok(l.hes&&l.hen,`${l.id} sin pista`);
+    assert.notEqual(l.hes,l.pes);
+    assert.notEqual(l.hen,l.pen);
+  }
+  for(const l of futuros)assert.ok(!l.hes&&!l.hen,`${l.id} aún no debe prometer pista`);
+  const s10=vivos.find(l=>l.id==='s10');
+  assert.ok(!/BA|↑|↓/.test(s10.hes+s10.hen),'la pista de S10 no debe dar la secuencia');
+});
