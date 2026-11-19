@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.20';
+const VERSION='v40.21';
 const NOVEDADES=[
+  {v:'v40.21', fecha:'2026-11-19',
+   es:['Arreglo de arte: la camisa de la protagonista ya no tiene puntitos azules sueltos que se quedaban con cualquier color de camisa, y la camisa TERMINAL es ahora un negro de verdad, sin tinte azul.'],
+   en:['Art fix: the main female character’s shirt no longer has stray blue dots that stayed blue with every shirt colour, and the TERMINAL shirt is now a true black with no blue tint.']},
   {v:'v40.20', fecha:'2026-11-19',
    es:['Los LOGROS SECRETOS ya traen una pista en la tarjeta, visible desde el principio: te insinúa cómo conseguirlos sin decírtelo del todo. Los que todavía no se pueden ganar dicen «Aún no disponible».'],
    en:['SECRET ACHIEVEMENTS now carry a hint on the card, visible from the start: it nudges you toward how to earn them without giving it all away. The ones that cannot be earned yet say "Not available yet".']},
@@ -324,7 +327,7 @@ const LOGROS_SECRETOS=[
  {id:'s2',ico:'⏱️',es:'CONTRARRELOJ',en:'AGAINST THE CLOCK',dif:3,obj:'reloj'}
 ];
 const CAMISAS_SECRETAS=[
- {logro:'s10',id:'terminal',color:'#111820'},
+ {logro:'s10',id:'terminal',color:'#16181b'},
  {logro:'s6',id:'medianoche',color:'#17234e'},
  {logro:'s7',id:'calabaza',color:'#d46b19'},
  {logro:'s4',id:'dorada',color:'#d7a630'},
