@@ -307,7 +307,7 @@ function retratoVivo(cv,o){
   tvez(parpadea,1200+Math.random()*3600);
 }
 const CARAS={
-  yo:(f)=>({protagonista:true,apariencia:S.apariencia,skin:SKINS[S.skin],camisa:CAMISAS[S.camisa],pelo:S.apariencia==='femenina'?'#67391f':'#2a1c10',femenina:S.apariencia==='femenina',feliz:f,
+  yo:(f)=>({protagonista:true,apariencia:S.apariencia,skin:SKINS[S.skin],camisa:(typeof colorCamisa==='function'?colorCamisa(S.camisa):CAMISAS[S.camisa]||CAMISAS[0]),pelo:S.apariencia==='femenina'?'#67391f':'#2a1c10',femenina:S.apariencia==='femenina',feliz:f,
     gafas:S.acc==='gafas',gorra:S.acc==='gorra',cafe:S.acc==='cafe',
     audifonos:S.acc==='audifonos',corbata:S.acc==='corbata',medalla:S.acc==='medalla',
     capa:S.acc==='capa',corona:S.acc==='corona',gato:S.acc==='gato'}),

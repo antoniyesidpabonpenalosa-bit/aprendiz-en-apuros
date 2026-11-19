@@ -220,7 +220,7 @@ function nvRunner(dia){
       }
       if(!conSprite){
       const fy=agachado?p.y-20:p.y-30-(enSuelo&&paso?1:0);
-      c.fillStyle=CAMISAS[S.camisa];
+      c.fillStyle=(typeof colorCamisa==='function'?colorCamisa(S.camisa):CAMISAS[S.camisa]||CAMISAS[0]);
       if(agachado){
         c.fillRect(p.x,fy+12,14,6);
         c.fillStyle='#d8dce8';c.fillRect(p.x,fy+18,4,2);c.fillRect(p.x+10,fy+18,4,2);

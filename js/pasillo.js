@@ -96,7 +96,7 @@ function rPasillo(zona=pasilloZonaAuto()){
       /* Respaldo sin imágenes si el atlas no ha terminado de cargar. */
       cx.fillStyle='#302019';cx.fillRect(13,6,18,13);
       cx.fillStyle=SKINS[S.skin]||'#f5cb9a';cx.fillRect(14,17,16,12);
-      cx.fillStyle=CAMISAS[S.camisa]||'#17689d';cx.fillRect(10,30,24,19);
+      cx.fillStyle=(typeof colorCamisa==='function'?colorCamisa(S.camisa):CAMISAS[S.camisa]||CAMISAS[0])||'#17689d';cx.fillRect(10,30,24,19);
       cx.fillStyle='#30395d';cx.fillRect(13,49,8,17);cx.fillRect(23,49,8,17);
       cx.fillStyle='#80513f';cx.fillRect(11,66,11,6);cx.fillRect(23,66,11,6);
     }

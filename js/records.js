@@ -6,8 +6,8 @@ function rLogros(){
   <div class="centro">
     <h2>🏆 ${t('logros')}</h2>
     <div class="tit-bloque">
-      <div class="barra tit-barra"><div class="barra-fill" style="width:${Math.round(S.logros.length/LOGROS.length*100)}%"></div></div>
-      <p class="xp-txt">${S.logros.length} / ${LOGROS.length} · ${Math.round(S.logros.length/LOGROS.length*100)}%</p>
+      <div class="barra tit-barra"><div class="barra-fill" style="width:${Math.round(LOGROS.filter(l=>S.logros.includes(l.id)).length/LOGROS.length*100)}%"></div></div>
+      <p class="xp-txt">${LOGROS.filter(l=>S.logros.includes(l.id)).length} / ${LOGROS.length} · ${Math.round(LOGROS.filter(l=>S.logros.includes(l.id)).length/LOGROS.length*100)}%</p>
     </div>
     <div class="logros-grid">
       ${LOGROS.map(l=>{
@@ -16,7 +16,16 @@ function rLogros(){
            consigue: un icono gris y nada más no le dice nada a nadie. */
         return `<div class="logro ${hecho?'on':''}">
         <span class="ico-lg">${l.ico}</span><p>${tj(l)}</p>
-        ${hecho?'':`<p class="pista">${tp(l)}</p>`}</div>`}).join('')}
+        <p class="pista">${'★'.repeat(l.dif||2)} ${hecho?'':tp(l)}</p></div>`}).join('')}
+    </div>
+    <h3>${S.lang==='es'?'🔒 SECRETOS':'🔒 SECRETS'} · ${LOGROS_SECRETOS.filter(l=>S.logros.includes(l.id)).length}/10</h3>
+    <div class="logros-grid">
+      ${LOGROS_SECRETOS.map(l=>{
+        const logrado=S.logros.includes(l.id);
+        return `<div class="logro ${logrado?'on':''}"><span class="ico-lg">${logrado?l.ico:'❓'}</span>
+          <p>${logrado?tj(l):'???'}</p><p class="pista">${'★'.repeat(l.dif)}</p>
+          ${logrado?`<p class="pista">${tp(l)} · ${S.lang==='es'?'Camisa':'Shirt'} ${t('pe_camisa_'+(CAMISAS.length+CAMISAS_SECRETAS.findIndex(c=>c.logro===l.id)))}</p>`:''}</div>`;
+      }).join('')}
     </div>
     <button class="btn btn2" id="lo-volver" type="button">${t('volver')}</button>
   </div>`,rLogros);
@@ -219,10 +228,7 @@ function rStats(){
     <button class="btn btn2" id="es-volver" type="button">${t('volver')}</button>
   </div>`,rStats);
   const aviso=(ico,txt)=>{
-    const p=$('#logro-popup');
-    p.querySelector('.ico-l').textContent=ico;
-    p.querySelector('p').textContent=txt;
-    p.hidden=false;setTimeout(()=>{p.hidden=true},2200);
+    mostrarAviso(ico,txt,2200);
   };
   if($('#es-repaso'))$('#es-repaso').onclick=()=>{SFX.click();rRepaso()};
   $('#es-exp').onclick=()=>{

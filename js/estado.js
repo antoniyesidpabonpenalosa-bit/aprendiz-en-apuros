@@ -7,7 +7,7 @@ const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',ski
   /* av32: el detalle del RETRATO (16×16 de siempre / 32×32 más fino), independiente
      de hd, que es la piel de la interfaz (retro CRT / OLED). Los dos se pueden
      combinar: no son un selector de tres, son dos interruptores. */
-  av32:false,version:'',stats:Object.assign({},STATS0)};
+  av32:false,version:'',limpio:false,campanaIniciada:false,fallosDia:Array(15).fill(0),stats:Object.assign({},STATS0)};
 /** La partida guardada. Con los campos escritos uno por uno, la comprobación
     de tipos (jsconfig.json) avisa si en cualquier archivo se escribe mal uno:
     S.dificultad en vez de S.dif, S.pst en vez de S.pts. (Un "typeof DEF" no
@@ -36,6 +36,9 @@ const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',ski
     @property {string} grupo       código de aula ('' = sin grupo)
     @property {number} dif         0, 1 o 2
     @property {boolean} av32
+    @property {boolean} limpio    campaña empezada con esta versión y sin vidas perdidas
+    @property {boolean} campanaIniciada  indica que se inició una campaña nueva
+    @property {number[]} fallosDia  fallos acumulados por día
     @property {string} version     la última versión del juego que vio este aparato
     @property {Object<string,number>} stats
     @property {string[]} vistos    ayudas ya enseñadas (abajo, en sanear)
@@ -96,7 +99,12 @@ function sanear(){
   for(const k of ['logros','accs','mejoras'])S[k]=listaIds(S[k]);
   const ent=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
   if(!ent(S.skin,0,SKINS.length-1))S.skin=0;
-  if(!ent(S.camisa,0,CAMISAS.length-1))S.camisa=0;
+  if(!ent(S.camisa,0,CAMISAS.length+CAMISAS_SECRETAS.length-1))S.camisa=0;
+  if(S.camisa>=CAMISAS.length&&!S.logros.includes(CAMISAS_SECRETAS[S.camisa-CAMISAS.length].logro))S.camisa=0;
+  S.limpio=S.limpio===true;
+  S.campanaIniciada=S.campanaIniciada===true;
+  if(!S.campanaIniciada)S.limpio=false;
+  S.fallosDia=Array.from({length:TOT_DIAS},(_,i)=>ent(S.fallosDia?.[i],0,1000)?S.fallosDia[i]:0);
   if(S.apariencia!=='femenina')S.apariencia='masculina';
   if(!Number.isFinite(S.pts)||S.pts<0)S.pts=0;
   if(!Number.isFinite(S.xp)||S.xp<0)S.xp=0;

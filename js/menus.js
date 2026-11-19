@@ -76,6 +76,7 @@ function aprendizPortada(cv,boton){
 }
 
 function rTitulo(){
+  if(S.dias.every(d=>d===3)&&!S.logros.includes('s4'))darLogro('s4');
   /* entrada suave solo al LLEGAR a la portada; repintarla (dificultad, HD, texto) no la repite */
   const entradaPortada=pantallaId!=='titulo'||!$('#screen .portada');
   const {sig,pc}=progresoXp();
@@ -195,6 +196,16 @@ function rTitulo(){
     </div>
   </div>`,rTitulo);
 
+  const secuencia=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let avance=0;
+  const codigoClasico=e=>{
+    if(pantallaId!=='titulo'||e.ctrlKey||e.altKey||e.metaKey||/INPUT|TEXTAREA/.test(e.target?.tagName||''))return;
+    const tecla=e.key.length===1?e.key.toLowerCase():e.key;
+    avance=tecla===secuencia[avance]?avance+1:(tecla===secuencia[0]?1:0);
+    if(avance===secuencia.length){avance=0;darLogro('s10');}
+  };
+  document.addEventListener('keydown',codigoClasico);
+  alLimpiar.push(()=>document.removeEventListener('keydown',codigoClasico));
   aprendizPortada($('#t-aprendiz'),$('#t-jugar'));
   /* retrato del avatar dentro de la tarjeta */
   const av=$('#t-av'); if(av)retratoVivo(av,CARAS.yo(true));
@@ -257,11 +268,7 @@ function rBorrar(){
     SFX.lose();
     rTitulo();
     /* aviso rápido de partida nueva */
-    const p=$('#logro-popup');
-    p.querySelector('.ico-l').textContent='🌱';
-    p.querySelector('p').textContent=t('borrado');
-    p.hidden=false;
-    setTimeout(()=>{p.hidden=true},2600);
+    mostrarAviso('🌱',t('borrado'),2600);
   };
 }
 
@@ -454,6 +461,7 @@ function empezarDia(i){
   if(i===10&&!S.t2){
     return rCutscene(T2_INTRO,()=>{S.t2=true;guardar();diaAct=i;vidas=maxVidas();rDialogo(i)});
   }
+  if(i===0&&S.dias.every(d=>d<0)&&!S.campanaIniciada){S.campanaIniciada=true;S.limpio=true;S.fallosDia.fill(0);guardar();}
   diaAct=i;vidas=maxVidas();
   rDialogo(i);
 }

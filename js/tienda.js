@@ -96,13 +96,13 @@ function peDibujaCuerpo(c,dir,paso,mueve,piel,camisa,apariencia,acc,alza=0){
    una segunda preferencia ni alteran inventario. El color es una pista extra,
    no el único identificador de cada tarjeta. */
 function peTarjetasColor(tipo){
-  const piel=tipo==='piel', paleta=piel?SKINS:CAMISAS, elegido=piel?S.skin:S.camisa;
+  const piel=tipo==='piel', secretos=typeof CAMISAS_SECRETAS==='undefined'?[]:CAMISAS_SECRETAS, paleta=piel?SKINS:[...CAMISAS,...secretos.map(c=>c.color)], elegido=piel?S.skin:S.camisa;
   return `<div class="pe-color-cab"><h3>${t(piel?'pe_tonos':'pe_colores')}</h3><span class="pe-gratis">${t('pe_gratis')}</span></div>
     <p class="pe-color-ayuda">${t(piel?'pe_ayuda_piel':'pe_ayuda_camisa')}</p>
     <div class="pe-color-grid" role="group" aria-label="${t(piel?'pe_tonos':'pe_colores')}">
-      ${paleta.map((color,i)=>`<button type="button" class="pe-color-op ${piel?'skin-op':'camisa-op'} ${elegido===i?'sel':''}" ${piel?'data-s':'data-c'}="${i}" aria-pressed="${elegido===i}" aria-label="${t('pe_'+tipo+'_'+i)}" style="--muestra:${color}">
+      ${paleta.map((color,i)=>`<button type="button" class="pe-color-op ${piel?'skin-op':'camisa-op'} ${elegido===i?'sel':''}" ${piel?'data-s':'data-c'}="${i}" aria-pressed="${elegido===i}" ${!piel&&i>=CAMISAS.length&&!S.logros.includes(secretos[i-CAMISAS.length].logro)?'disabled':''} aria-label="${!piel&&i>=CAMISAS.length&&!S.logros.includes(secretos[i-CAMISAS.length].logro)?'🎁 ???':t('pe_'+tipo+'_'+i)}" style="--muestra:${!piel&&i>=CAMISAS.length&&!S.logros.includes(secretos[i-CAMISAS.length].logro)?'#34344a':color}">
         <span class="pe-color-arte"><canvas width="${piel?32:44}" height="${piel?32:74}" aria-hidden="true"></canvas></span>
-        <span class="pe-color-info"><i class="pe-muestra" aria-hidden="true"></i><span class="pe-color-nom">${t('pe_'+tipo+'_'+i)}</span></span>
+        <span class="pe-color-info"><i class="pe-muestra" aria-hidden="true"></i><span class="pe-color-nom">${!piel&&i>=CAMISAS.length&&!S.logros.includes(secretos[i-CAMISAS.length].logro)?'🎁 ???':t('pe_'+tipo+'_'+i)}</span></span>
         <span class="pe-color-marca" aria-hidden="true">${elegido===i?'✓':''}</span>
         <span class="pe-color-estado" aria-hidden="true">${t(elegido===i?'pe_elegido':'pe_elegir')}</span>
       </button>`).join('')}
@@ -136,7 +136,7 @@ function rPerso(){
 
   const resumenColor=tipo=>`<div class="pe-resumen-bloque"><h4>${t(tipo==='piel'?'pe_tonos':'pe_colores')}</h4>
     <div class="pe-rapidos" role="group" aria-label="${t(tipo==='piel'?'pe_tonos':'pe_colores')}">
-      ${(tipo==='piel'?SKINS:CAMISAS).map((color,i)=>`<button type="button" class="pe-rapido" data-pe-quick="${tipo}" data-indice="${i}" style="--muestra:${color}" aria-label="${t('pe_'+tipo+'_'+i)}" aria-pressed="${(tipo==='piel'?S.skin:S.camisa)===i}"><span aria-hidden="true">${(tipo==='piel'?S.skin:S.camisa)===i?'✓':''}</span></button>`).join('')}
+      ${(tipo==='piel'?SKINS:[...CAMISAS,...(typeof CAMISAS_SECRETAS==='undefined'?[]:CAMISAS_SECRETAS).map(c=>c.color)]).map((color,i)=>`<button type="button" class="pe-rapido" data-pe-quick="${tipo}" data-indice="${i}" ${tipo==='camisa'&&i>=CAMISAS.length&&!S.logros.includes(CAMISAS_SECRETAS[i-CAMISAS.length].logro)?'disabled':''} style="--muestra:${tipo==='camisa'&&i>=CAMISAS.length&&!S.logros.includes(CAMISAS_SECRETAS[i-CAMISAS.length].logro)?'#34344a':color}" aria-label="${tipo==='camisa'&&i>=CAMISAS.length&&!S.logros.includes(CAMISAS_SECRETAS[i-CAMISAS.length].logro)?'🎁 ???':t('pe_'+tipo+'_'+i)}" aria-pressed="${(tipo==='piel'?S.skin:S.camisa)===i}"><span aria-hidden="true">${(tipo==='piel'?S.skin:S.camisa)===i?'✓':''}</span></button>`).join('')}
     </div><p class="pe-resumen-nom" id="pe-resumen-${tipo}"></p></div>`;
   pantalla('perso',`
   <div class="pe-wrap pe-definitivo">
@@ -206,7 +206,7 @@ function rPerso(){
         </div>
 
         <div class="pe-panel" id="pe-p-camisa" role="tabpanel" aria-labelledby="pe-t-camisa" ${pePestana==='camisa'?'':'hidden'}>
-          ${peTarjetasColor('camisa')}
+          ${peTarjetasColor('camisa')}<h3>${S.lang==='es'?'🔒 SECRETOS':'🔒 SECRETS'}</h3><p class="pe-color-ayuda">${CAMISAS_SECRETAS.map((c,i)=>S.logros.includes(c.logro)?t('pe_camisa_'+(CAMISAS.length+i)):'🎁 ???').join(' · ')}</p>
         </div>
 
         <div class="pe-panel" id="pe-p-acc" role="tabpanel" aria-labelledby="pe-t-acc" ${pePestana==='acc'?'':'hidden'}>
@@ -250,6 +250,7 @@ function rPerso(){
     b.querySelector('.pe-color-marca').textContent=elegido?'✓':'';
     b.querySelector('.pe-color-estado').textContent=t(elegido?'pe_elegido':'pe_elegir');
     if(piel){retrato(cv,{...CARAS.yo(false),skin:SKINS[i],av32:true});return}
+    if(b.disabled)return;
     const c=cv.getContext('2d');c.clearRect(0,0,44,74);
     peDibujaCuerpo(c,0,0,false,S.skin,i,S.apariencia,S.acc);
   });
@@ -343,8 +344,8 @@ function rPerso(){
   /* ── piel y camisa ── */
   $$('.pe-color-op').forEach(b=>b.onclick=()=>{
     const piel=b.dataset.s!==undefined, i=Number(piel?b.dataset.s:b.dataset.c),
-      paleta=piel?SKINS:CAMISAS, campo=piel?'skin':'camisa';
-    if(!Number.isInteger(i)||i<0||i>=paleta.length||S[campo]===i)return;
+      paleta=piel?SKINS:[...CAMISAS,...(typeof CAMISAS_SECRETAS==='undefined'?[]:CAMISAS_SECRETAS).map(c=>c.color)], campo=piel?'skin':'camisa';
+    if(!Number.isInteger(i)||i<0||i>=paleta.length||S[campo]===i||(!piel&&i>=CAMISAS.length&&!S.logros.includes(CAMISAS_SECRETAS[i-CAMISAS.length].logro)))return;
     S[campo]=i;guardar();SFX.click();
     pinta();if(!quieto())latido();avisar(t('pe_guardado'),'verde');
   });

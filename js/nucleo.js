@@ -1,14 +1,35 @@
 'use strict';
 /* ── LOGROS ── */
+const mostrarAviso = (() => {
+  const cola = [];
+  let activo = false;
+  function siguiente() {
+    const aviso = cola.shift();
+    activo = Boolean(aviso);
+    if (!aviso) return;
+    const p = $('#logro-popup');
+    if (!p) { cola.length = 0; activo = false; return; }      // sin burbuja (pantalla rara): no se atasca la cola
+    p.querySelector('.ico-l').textContent = aviso.icono;
+    p.querySelector('p').textContent = aviso.texto;
+    p.hidden = false;
+    if (aviso.sonido) SFX.logro();
+    setTimeout(() => {
+      p.hidden = true;
+      siguiente();
+    }, aviso.duracion);
+  }
+  return (icono, texto, duracion, sonido = false) => {
+    cola.push({icono, texto, duracion, sonido});
+    if (!activo) siguiente();
+  };
+})();
+
 function darLogro(id){
-  if(S.logros.includes(id))return;
+  if(S.logros.includes(id)||typeof LOGROS_SECRETOS!=='undefined'&&LOGROS_SECRETOS.some(l=>l.id===id)&&enEnsayo())return;
+  const L=LOGROS.find(l=>l.id===id)||(typeof LOGROS_SECRETOS!=='undefined'&&LOGROS_SECRETOS.find(l=>l.id===id));
+  if(!L)return;
   S.logros.push(id);guardar();
-  const L=LOGROS.find(l=>l.id===id);
-  const p=$('#logro-popup');
-  p.querySelector('.ico-l').textContent=L.ico;
-  p.querySelector('p').innerHTML=t('logro')+'<br>'+tj(L);
-  p.hidden=false;SFX.logro();
-  setTimeout(()=>{p.hidden=true},2800);
+  mostrarAviso(L.ico, (L.obj?(S.lang==='es'?'¡LOGRO SECRETO!':'SECRET ACHIEVEMENT!'):t('logro'))+'\n'+tj(L), 2800, true);
 }
 
 /* ── INTERRUPCIONES ── */
@@ -94,6 +115,11 @@ function resultado(i,stars,pts){
   if(i===0)darLogro('primer');
   if(stars===3){darLogro('perfecto');sumaStat('perfectos');}
   if(progreso()>=8)darLogro('mitad'); /* mitad de los 15 días */
+  if(S.dias.every(d=>d===3))darLogro('s4');
+  if(!repite&&S.fallosDia[i]>=3)darLogro('s7');
+  S.fallosDia[i]=0;
+  if(new Date().getHours()<5)darLogro('s6');
+  if(i===14&&S.limpio&&S.dias.every(d=>d>=1))darLogro('s3');   /* campaña empezada con la v40.19 y sin perder una vida */
   if(S.dif===2)darLogro('pesadilla');
   guardar();SFX.win();
   const {sig,pc}=progresoXp();
@@ -146,7 +172,7 @@ function fallo(i,reintento){
   if(sinFinActivo)return sinFinFin();    /* una sola vida: fallar acaba la racha */
   if(salaActiva)return salaRonda(0,0);   /* en la sala, como en el reto: cero y se sigue */
   PX.corazon(vidas);     /* el corazón que cae sale donde está en la cabecera: antes de quitarlo */
-  vidas--;hud();SFX.lose();
+  vidas--;S.limpio=false;S.fallosDia=S.fallosDia.map((n,d)=>d===i?n+1:0);guardar();hud();SFX.lose();
   if(vidas<=0){
     const pintarGO=()=>{
     pantalla('gameover',`
