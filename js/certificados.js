@@ -23,10 +23,7 @@ function compartir(){
   const txt=t('compartexto').replace('{p}',S.pts).replace('{r}',rangoNom())+' '+url;
   SFX.click();
   const aviso=()=>{
-    const p=$('#logro-popup');
-    p.querySelector('.ico-l').textContent='📤';
-    p.querySelector('p').textContent=t('copiado');
-    p.hidden=false;setTimeout(()=>{p.hidden=true},2200);
+    mostrarAviso('📤',t('copiado'),2200);
   };
   if(navigator.share){navigator.share({text:txt}).catch(()=>{});return}
   if(navigator.clipboard&&navigator.clipboard.writeText){

@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.18';
+const VERSION='v40.19';
 const NOVEDADES=[
+  {v:'v40.19', fecha:'2026-11-19',
+   es:['Aparecen los LOGROS SECRETOS: diez tarjetas con un ❓ y sus estrellas de dificultad, y cinco ya se pueden conseguir (CÓDIGO CLÁSICO, NOCTÁMBULO, TERCO, EXPEDIENTE PERFECTO y SIN UN RASGUÑO). Cada uno regala una camisa nueva para Mi Avatar. Los 19 logros de siempre llevan ahora su dificultad, y los avisos de logro salen uno detrás de otro en vez de pisarse.'],
+   en:['SECRET ACHIEVEMENTS arrive: ten cards with a ❓ and their difficulty stars, and five can already be earned (CLASSIC CODE, NIGHT OWL, PERSISTENT, PERFECT RECORD and UNSCATHED). Each one unlocks a new shirt for My Avatar. The 19 regular achievements now show their difficulty, and achievement pop-ups play one after another instead of overlapping.']},
   {v:'v40.18', fecha:'2026-11-19',
    es:['Más seguridad al importar una partida: el código de guardado ahora se revisa dato por dato antes de usarlo, y para importar hay que tocar el botón dos veces, porque reemplaza tu partida. Tu partida de siempre se importa igual que antes.'],
    en:['Safer save import: the save code is now checked piece by piece before it is used, and importing takes two taps because it replaces your save. Your regular save imports exactly as before.']},
@@ -300,6 +303,30 @@ const az=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
 /* ── DATOS ── */
 const SKINS=['#f4c898','#d99b66','#a86a3c','#6f4526'];
 const CAMISAS=['#39a900','#13648c','#8c3df0','#c22e44'];
+
+/* Los premios secretos solo cambian la apariencia. Los demás secretos se
+   muestran ocultos hasta que llegue su fase de implementación. */
+const LOGROS_SECRETOS=[
+ {id:'s10',ico:'🎮',es:'CÓDIGO CLÁSICO',en:'CLASSIC CODE',pes:'Escribe ↑↑↓↓←→←→BA en la portada',pen:'Type ↑↑↓↓←→←→BA on the title screen',dif:1,obj:'terminal'},
+ {id:'s6',ico:'🌙',es:'NOCTÁMBULO',en:'NIGHT OWL',pes:'Aprueba un día entre las 00:00 y las 04:59',pen:'Clear a day between 00:00 and 04:59',dif:1,obj:'medianoche'},
+ {id:'s7',ico:'🔁',es:'TERCO',en:'PERSISTENT',pes:'Falla tres veces el mismo día y luego apruébalo',pen:'Fail the same day three times, then clear it',dif:1,obj:'calabaza'},
+ {id:'s4',ico:'🌟',es:'EXPEDIENTE PERFECTO',en:'PERFECT RECORD',pes:'Obtén tres estrellas en los 15 días',pen:'Get three stars on all 15 days',dif:3,obj:'dorada'},
+ {id:'s3',ico:'❤️',es:'SIN UN RASGUÑO',en:'UNSCATHED',pes:'Termina la campaña nueva sin perder vidas',pen:'Complete a new campaign without losing lives',dif:4,obj:'plateada'},
+ {id:'s5',ico:'💣',es:'DESACTIVADOR',en:'DEFUSER',dif:2,obj:'gatonegro'},
+ {id:'s9',ico:'📅',es:'CONSTANTE',en:'CONSISTENT',dif:2,obj:'gatotigre'},
+ {id:'s1',ico:'🛡️',es:'LEYENDA INTOCABLE',en:'UNTOUCHABLE LEGEND',dif:4,obj:'gatodorado'},
+ {id:'s8',ico:'♾️',es:'ULTRAMARATÓN',en:'ULTRAMARATHON',dif:3,obj:'banda'},
+ {id:'s2',ico:'⏱️',es:'CONTRARRELOJ',en:'AGAINST THE CLOCK',dif:3,obj:'reloj'}
+];
+const CAMISAS_SECRETAS=[
+ {logro:'s10',id:'terminal',color:'#111820'},
+ {logro:'s6',id:'medianoche',color:'#17234e'},
+ {logro:'s7',id:'calabaza',color:'#d46b19'},
+ {logro:'s4',id:'dorada',color:'#d7a630'},
+ {logro:'s3',id:'plateada',color:'#b7bdc9'}
+];
+const colorCamisa=i=>CAMISAS[i]||CAMISAS_SECRETAS[i-CAMISAS.length]?.color||CAMISAS[0];
+
 const ACCS=[
   {id:'cafe',    ico:'☕', precio:150},
   {id:'gafas',   ico:'🤓', precio:250},
@@ -847,45 +874,45 @@ const INTERRUPCIONES={
    nucleo.js, minijuegos.js y jefe.js), no inventadas: si una deja de coincidir
    es un error que hay que arreglar aquí. */
 const LOGROS=[
-  {id:'primer', ico:'🌱', es:'PRIMER DÍA',   en:'FIRST DAY',
+  {id:'primer',dif:1, ico:'🌱', es:'PRIMER DÍA',   en:'FIRST DAY',
    pes:'Pasa el día 1',              pen:'Clear day 1'},
-  {id:'perfecto',ico:'🌟',es:'DÍA PERFECTO', en:'PERFECT DAY',
+  {id:'perfecto',dif:2,ico:'🌟',es:'DÍA PERFECTO', en:'PERFECT DAY',
    pes:'Saca ★★★ en un día',         pen:'Get ★★★ on a day'},
-  {id:'mitad',  ico:'✅', es:'MEDIA ETAPA',  en:'HALFWAY',
+  {id:'mitad',dif:2,  ico:'✅', es:'MEDIA ETAPA',  en:'HALFWAY',
    pes:'Aprueba 8 días',             pen:'Clear 8 days'},
-  {id:'comprador',ico:'🛍️',es:'COMPRADOR',  en:'SHOPPER',
+  {id:'comprador',dif:1,ico:'🛍️',es:'COMPRADOR',  en:'SHOPPER',
    pes:'Compra algo en la tienda',   pen:'Buy anything in the shop'},
-  {id:'veloz',  ico:'⚡', es:'DEDOS VELOCES',en:'FAST FINGERS',
+  {id:'veloz',dif:2,  ico:'⚡', es:'DEDOS VELOCES',en:'FAST FINGERS',
    pes:'Las 8 palabras sin fallar',  pen:'All 8 words, no misses'},
-  {id:'cerebro',ico:'🧠', es:'MEMORIA ÉLITE',en:'ELITE MEMORY',
+  {id:'cerebro',dif:3,ico:'🧠', es:'MEMORIA ÉLITE',en:'ELITE MEMORY',
    pes:'Memoria en 22 giros o menos',pen:'Memory in 22 flips or less'},
-  {id:'gitmaster',ico:'🔀',es:'GIT MASTER',  en:'GIT MASTER',
+  {id:'gitmaster',dif:2,ico:'🔀',es:'GIT MASTER',  en:'GIT MASTER',
    pes:'Flujo de Git sin errores',   pen:'Git flow with no errors'},
-  {id:'revisor', ico:'🔍', es:'OJO DE HALCÓN',en:'HAWK EYE',
+  {id:'revisor',dif:2, ico:'🔍', es:'OJO DE HALCÓN',en:'HAWK EYE',
    pes:'Code review sin errores',    pen:'Code review with no errors'},
-  {id:'resolutor',ico:'🧬',es:'SIN CONFLICTOS',en:'NO CONFLICTS',
+  {id:'resolutor',dif:2,ico:'🧬',es:'SIN CONFLICTOS',en:'NO CONFLICTS',
    pes:'Merge sin errores',          pen:'Merge with no errors'},
-  {id:'jefe',   ico:'👾', es:'CAZA JEFES',   en:'BOSS HUNTER',
+  {id:'jefe',dif:3,   ico:'👾', es:'CAZA JEFES',   en:'BOSS HUNTER',
    pes:'Derrota al jefe final',      pen:'Beat the final boss'},
-  {id:'titulado',ico:'📝', es:'LECTIVA APROBADA',en:'TRAINING DONE',
+  {id:'titulado',dif:2,ico:'📝', es:'LECTIVA APROBADA',en:'TRAINING DONE',
    pes:'Termina el día 10 y sal a la productiva', pen:'Finish day 10 and head to the workplace'},
-  {id:'intacto', ico:'🛡️', es:'INTOCABLE',   en:'UNTOUCHABLE',
+  {id:'intacto',dif:3, ico:'🛡️', es:'INTOCABLE',   en:'UNTOUCHABLE',
    pes:'Al jefe sin recibir golpes', pen:'Beat the boss untouched'},
-  {id:'combo',   ico:'🔥', es:'EN RACHA',    en:'ON FIRE',
+  {id:'combo',dif:2,   ico:'🔥', es:'EN RACHA',    en:'ON FIRE',
    pes:'5 cafés seguidos en el runner',pen:'5 coffees in a row (runner)'},
-  {id:'coleccionista',ico:'🎁',es:'COLECCIONISTA',en:'COLLECTOR',
+  {id:'coleccionista',dif:3,ico:'🎁',es:'COLECCIONISTA',en:'COLLECTOR',
    pes:'Compra todos los accesorios',pen:'Buy every accessory'},
-  {id:'pesadilla',ico:'💀', es:'MODO PESADILLA',en:'NIGHTMARE MODE',
+  {id:'pesadilla',dif:3,ico:'💀', es:'MODO PESADILLA',en:'NIGHTMARE MODE',
    pes:'Aprueba un día en PESADILLA',pen:'Clear a day on NIGHTMARE'},
-  {id:'maraton', ico:'♾️', es:'MARATÓN',       en:'MARATHON',
+  {id:'maraton',dif:3, ico:'♾️', es:'MARATÓN',       en:'MARATHON',
    pes:'Aguanta 10 rondas en SIN FIN',pen:'Survive 10 rounds in ENDLESS'},
-  {id:'sql',     ico:'🗄', es:'DATA MASTER', en:'DATA MASTER',
+  {id:'sql',dif:2,     ico:'🗄', es:'DATA MASTER', en:'DATA MASTER',
    pes:'SQL sin errores',            pen:'SQL with no errors'},
-  {id:'regex',   ico:'🧩', es:'REGEX NINJA', en:'REGEX NINJA',
+  {id:'regex',dif:2,   ico:'🧩', es:'REGEX NINJA', en:'REGEX NINJA',
    pes:'Regex sin errores',          pen:'Regex with no errors'},
-  {id:'contrato',ico:'🎓', es:'TÉCNICO',     en:'TECHNICIAN',
+  {id:'contrato',dif:3,ico:'🎓', es:'TÉCNICO',     en:'TECHNICIAN',
    pes:'Termina el día 15 y titúlate',pen:'Finish day 15 and get qualified'},
-];
+ ];
 /* ── AYUDA DE CONTROLES ──
    Lo que se enseña la PRIMERA vez que entras a cada tipo de minijuego. El
    juego tiene cuatro formas de control (teclado, táctil, mando y giroscopio)
@@ -989,7 +1016,7 @@ const TXT={
  pe_apariencia:'APARIENCIA',pe_masculina:'MASCULINA',pe_femenina:'FEMENINA',pe_cuerpo:'CUERPO ENTERO',pe_retrato:'RETRATO',pe_girar:'GIRAR',pe_caminar:'CAMINAR',pe_detener:'DETENER',pe_vista:'VISTA PREVIA',
  pe_tonos:'TONO DE PIEL',pe_colores:'COLOR DE CAMISA',pe_gratis:'GRATIS',pe_elegido:'EQUIPADO',pe_elegir:'ELEGIR',
  pe_ayuda_piel:'Elige un tono. Tu retrato y personaje se actualizan al instante.',pe_ayuda_camisa:'Elige el color de tu camisa. Puedes cambiarlo cuando quieras.',
- pe_piel_0:'Claro',pe_piel_1:'Medio claro',pe_piel_2:'Medio oscuro',pe_piel_3:'Oscuro',pe_camisa_0:'Verde',pe_camisa_1:'Azul',pe_camisa_2:'Morado',pe_camisa_3:'Rojo',
+ pe_piel_0:'Claro',pe_piel_1:'Medio claro',pe_piel_2:'Medio oscuro',pe_piel_3:'Oscuro',pe_camisa_0:'Verde',pe_camisa_1:'Azul',pe_camisa_2:'Morado',pe_camisa_3:'Rojo',pe_camisa_4:'Terminal',pe_camisa_5:'Medianoche',pe_camisa_6:'Calabaza',pe_camisa_7:'Dorada',pe_camisa_8:'Plateada',
  personaje:'PERSONAJE',pe_guardado:'CAMBIOS GUARDADOS',pe_comprado:'COMPRADO',
  pe_probar_acc:'PROBAR ACCESORIOS',pe_prueba:'PROBADOR',pe_prueba_gratis:'Vista previa gratuita. No cambia tu inventario.',pe_activo:'Accesorio equipado. Cambios guardados.',pe_equipar:'EQUIPAR',pe_comprar_equipar:'COMPRAR Y EQUIPAR',
  pe_bloqueado:'BLOQUEADO',pe_ninguno:'SIN ACCESORIO',pe_comprar:'COMPRAR',
@@ -1129,7 +1156,7 @@ const TXT={
   pe_apariencia:'APPEARANCE',pe_masculina:'MASCULINE',pe_femenina:'FEMININE',pe_cuerpo:'FULL BODY',pe_retrato:'PORTRAIT',pe_girar:'ROTATE',pe_caminar:'WALK',pe_detener:'STOP',pe_vista:'PREVIEW',
   pe_tonos:'SKIN TONE',pe_colores:'SHIRT COLOR',pe_gratis:'FREE',pe_elegido:'SELECTED',pe_elegir:'SELECT',
   pe_ayuda_piel:'Choose a tone. Your portrait and character update instantly.',pe_ayuda_camisa:'Choose your shirt color. You can change it anytime.',
-  pe_piel_0:'Light',pe_piel_1:'Medium light',pe_piel_2:'Medium dark',pe_piel_3:'Dark',pe_camisa_0:'Green',pe_camisa_1:'Blue',pe_camisa_2:'Purple',pe_camisa_3:'Red',
+  pe_piel_0:'Light',pe_piel_1:'Medium light',pe_piel_2:'Medium dark',pe_piel_3:'Dark',pe_camisa_0:'Green',pe_camisa_1:'Blue',pe_camisa_2:'Purple',pe_camisa_3:'Red',pe_camisa_4:'Terminal',pe_camisa_5:'Midnight',pe_camisa_6:'Pumpkin',pe_camisa_7:'Gold',pe_camisa_8:'Silver',
   personaje:'CHARACTER',pe_guardado:'CHANGES SAVED',pe_comprado:'OWNED',
   pe_probar_acc:'TRY ON ACCESSORIES',pe_prueba:'TRY ON',pe_prueba_gratis:'Free preview. Your inventory is unchanged.',pe_activo:'Accessory equipped. Changes saved.',pe_equipar:'EQUIP',pe_comprar_equipar:'BUY AND EQUIP',
   pe_bloqueado:'LOCKED',pe_ninguno:'NO ACCESSORY',pe_comprar:'BUY',

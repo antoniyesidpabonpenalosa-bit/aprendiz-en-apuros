@@ -2649,22 +2649,25 @@ await caso('retratos protagonistas · una escena con el APRENDIZ lo pinta con su
 });
 
 /* ── IDENTIDAD, PARTE 4 (v40.3): tarjetas de piel y camisa ── */
-await caso('colores del avatar · 4 tarjetas de piel (retrato) y 4 de camisa (cuerpo), distintas en las dos apariencias; elegir guarda una vez, marca EQUIPADO y no toca puntos ni accesorio', ID_J, async pg => {
+await caso('colores del avatar · 4 tarjetas de piel (retrato) y 4 de camisa (cuerpo) más 5 camisas secretas bloqueadas, distintas en las dos apariencias; elegir guarda una vez, marca EQUIPADO y no toca puntos ni accesorio', ID_J, async pg => {
   await pg.waitForFunction(() => APRENDIZ.listaFemenina && APRENDIZ.listoPremium, null, { timeout: 5000 });
   const r = await pg.evaluate(async () => { const o = { distintas: {} };
     for (const ap of ['masculina', 'femenina']) { S.apariencia = ap;
       for (const tab of ['piel', 'camisa']) { pePestana = tab; rPerso(); await new Promise(r => setTimeout(r, 250));
-        o.distintas[ap + ' ' + tab] = new Set($$(`#pe-p-${tab} .pe-color-op canvas`).map(c => c.toDataURL())).size; } }
+        o.distintas[ap + ' ' + tab] = new Set($$(`#pe-p-${tab} .pe-color-op:not([disabled]) canvas`).map(c => c.toDataURL())).size; } }
+    pePestana = 'camisa'; rPerso(); await new Promise(r => setTimeout(r, 200));
+    /* v40.19: las 5 camisas secretas salen bloqueadas (sin su logro) y sin nombre */
+    o.bloqueadas = { n: $$('.camisa-op[disabled]').length, nombres: [...new Set($$('.camisa-op[disabled] .pe-color-nom').map(x => x.textContent.trim()))].join() };
     pePestana = 'camisa'; rPerso(); await new Promise(r => setTimeout(r, 200));
     let guardados = 0; const g = Storage.prototype.setItem; Storage.prototype.setItem = function (k, v) { if (k === 'pa3') guardados++; return g.call(this, k, v); };
     const b = $('.camisa-op[data-c="0"]'); b.click(); b.click(); $('.camisa-op[data-c="0"]').click(); Storage.prototype.setItem = g;
     const sel = $('.camisa-op.sel');
-    o.tras = { camisa: S.camisa, guardados, guardado: JSON.parse(localStorage.getItem('pa3')).camisa, sel: sel?.dataset.c, aria: $$('.camisa-op').map(x => x.getAttribute('aria-pressed')).join(),
+    o.tras = { camisa: S.camisa, guardados, guardado: JSON.parse(localStorage.getItem('pa3')).camisa, sel: sel?.dataset.c, aria: $$('.camisa-op:not([disabled])').map(x => x.getAttribute('aria-pressed')).join(),
       estado: sel?.querySelector('.pe-color-estado').textContent, marca: sel?.querySelector('.pe-color-marca').textContent, pts: S.pts, acc: S.acc, accs: S.accs.join() };
     S.lang = 'en'; rehacerPantalla(); o.en = $('.camisa-op[data-c="0"]').getAttribute('aria-label'); S.lang = 'es';
     return o; });
   const d = Object.values(r.distintas), t = r.tras;
-  const ok = d.length === 4 && d.every(n => n === 4) && t.camisa === 0 && t.guardados === 1 && t.guardado === 0 && t.sel === '0' && t.aria === 'true,false,false,false' && t.estado === 'EQUIPADO' && t.marca === '✓' && t.pts === 900 && t.acc === 'gafas' && t.accs === 'gafas' && r.en === 'Green';
+  const ok = d.length === 4 && d.every(n => n === 4) && r.bloqueadas.n === 5 && r.bloqueadas.nombres === '🎁 ???' && t.camisa === 0 && t.guardados === 1 && t.guardado === 0 && t.sel === '0' && t.aria === 'true,false,false,false' && t.estado === 'EQUIPADO' && t.marca === '✓' && t.pts === 900 && t.acc === 'gafas' && t.accs === 'gafas' && r.en === 'Green';
   return [ok, JSON.stringify(r)];
 });
 
@@ -2974,6 +2977,65 @@ await caso('seguridad · importar pide un segundo toque (el primero solo arma el
   const ok = !r.invalido.armado && r.invalido.pts && r.primero.armado && /SEGURO|SURE/.test(r.primero.texto) && r.primero.pts && r.primero.pantalla === 'stats'
     && r.segundo.pts === 777 && r.segundo.pantalla === 'titulo' && r.desarma.armado && !r.desarma.despues && !/SEGURO|SURE/.test(r.desarma.texto);
   return [ok, JSON.stringify(r)];
+});
+
+/* v40.19 · logros secretos, fase A */
+const LS_J = { ...ID_J, dias: Array(15).fill(-1), logros: [], camisa: 0 };
+const horaDel = h => `(() => { const D = Date, f = new D(2026, 10, 19, ${h}, ${h === 4 ? 59 : 0}, 0).getTime(); window.Date = class extends D { constructor(...a) { if (a.length) super(...a); else super(f); } static now() { return f; } }; })()`;
+await caso('logros secretos · S10 con la secuencia en la portada (y no fuera de ella ni cortada), S6 de 00:00 a 04:59, S7 con tres fallos seguidos del mismo día, S4 al abrir con 15 días de 3★, S3 solo en una campaña nueva sin perder vidas', LS_J, async pg => {
+  const o = {};
+  const secuencia = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+  await pg.evaluate(() => rTienda()); await pg.waitForTimeout(200);
+  for (const k of secuencia) await pg.keyboard.press(k);
+  o.s10 = { enTienda: await pg.evaluate(() => S.logros.includes('s10')) };
+  await pg.evaluate(() => rTitulo()); await pg.waitForTimeout(250);
+  for (const k of [...secuencia.slice(0, 5), 'x', ...secuencia.slice(5)]) await pg.keyboard.press(k);
+  o.s10.cortada = await pg.evaluate(() => S.logros.includes('s10'));
+  for (const k of secuencia) await pg.keyboard.press(k);
+  await pg.waitForTimeout(200);
+  o.s10.completa = await pg.evaluate(() => S.logros.includes('s10'));
+  o.s6 = {};
+  for (const [h, dia] of [[2, 0], [5, 1], [4, 2]]) {
+    await pg.evaluate(hora => { eval(hora); }, horaDel(h));
+    o.s6['h' + h] = await pg.evaluate(d => { diaAct = d; vidas = 3; resultado(d, 1, 100); return S.logros.includes('s6'); }, dia);
+    await pg.evaluate(() => { S.logros = S.logros.filter(x => x !== 's6'); });
+  }
+  o.s7 = await pg.evaluate(() => { const r = {}; diaAct = 5; vidas = 9;
+    fallo(5); fallo(5); resultado(5, 1, 100); r.dos = S.logros.includes('s7');
+    fallo(6); fallo(6); fallo(7); fallo(6); resultado(6, 1, 100); r.interrumpido = S.logros.includes('s7');
+    fallo(8); fallo(8); fallo(8); resultado(8, 1, 100); r.tres = S.logros.includes('s7'); return r; });
+  o.s3 = await pg.evaluate(() => { const r = {}; S.dias = Array(15).fill(-1); S.campanaIniciada = false; S.limpio = false; empezarDia(0); r.nueva = [S.campanaIniciada, S.limpio];
+    for (let i = 0; i < 15; i++) { diaAct = i; vidas = 3; resultado(i, 1, 100); } r.sinFallos = S.logros.includes('s3');
+    S.logros = S.logros.filter(x => x !== 's3'); S.dias = Array(15).fill(-1); S.campanaIniciada = false; S.limpio = false; empezarDia(0); fallo(0);
+    for (let i = 0; i < 15; i++) { diaAct = i; resultado(i, 1, 100); } r.conFallo = S.logros.includes('s3');
+    S.logros = S.logros.filter(x => x !== 's3'); S.dias = [3, 3, 1, ...Array(12).fill(-1)]; S.campanaIniciada = false; S.limpio = false; empezarDia(3);
+    for (let i = 3; i < 15; i++) { diaAct = i; resultado(i, 1, 100); } r.antigua = [S.campanaIniciada, S.logros.includes('s3')]; return r; });
+  o.s4 = await pg.evaluate(() => { S.logros = S.logros.filter(x => x !== 's4'); S.dias = Array(15).fill(3); rTitulo(); return S.logros.includes('s4'); });
+  o.lab = await pg.evaluate(() => { S.logros = []; LAB.ejecutar('vidas 5', {}); const en = LAB.ensayo(); darLogro('s10'); darLogro('s6'); const r = { ensayo: en, dio: S.logros.some(x => /^s\d/.test(x)) }; LAB.volverANormal(); return r; });
+  const ok = !o.s10.enTienda && !o.s10.cortada && o.s10.completa && o.s6.h2 && !o.s6.h5 && o.s6.h4 && !o.s7.dos && !o.s7.interrumpido && o.s7.tres
+    && o.s3.nueva.join() === 'true,true' && o.s3.sinFallos && !o.s3.conFallo && o.s3.antigua.join() === 'false,false' && o.s4 && o.lab.ensayo && !o.lab.dio;
+  return [ok, JSON.stringify(o)];
+});
+await caso('logros secretos · la pantalla enseña 10 tarjetas (❓ y estrellas), el contador sigue en x/19, y las camisas secretas salen bloqueadas hasta ganar su logro, persisten y vuelven a 0 sin él', { ...LS_J, logros: ['primer', 's10', 's6'], camisa: 4 }, async pg => {
+  const r = await pg.evaluate(async () => { const o = {}; const espera = ms => new Promise(r => setTimeout(r, ms));
+    rLogros(); await espera(400);
+    const tarjetas = $$('.logros-grid')[1] ? $$('.logros-grid')[1].querySelectorAll('.logro') : [];
+    o.tarjetas = tarjetas.length; o.hechas = [...tarjetas].filter(x => x.classList.contains('on')).length; o.interrogantes = [...tarjetas].filter(x => x.textContent.includes('???')).length;
+    o.contador = $('.xp-txt').textContent.trim(); o.titulo = [...document.querySelectorAll('h3')].map(x => x.textContent).find(x => /SECRET/.test(x));
+    pePestana = 'camisa'; rPerso(); await espera(500);
+    o.bloqueadas = $$('.camisa-op[disabled]').length; o.libres = $$('.camisa-op:not([disabled])').length;
+    $('.camisa-op[data-c="7"]').click(); o.clicBloqueada = S.camisa;
+    $('.camisa-op[data-c="5"]').click(); o.clicLibre = [S.camisa, JSON.parse(localStorage.getItem('pa3')).camisa];
+    S.camisa = 6; guardar(); const c = exportarCodigo(); S.logros = ['primer']; S.camisa = 0; importarCodigo(c); o.sinLogro = S.camisa;
+    return o; });
+  const ok = r.tarjetas === 10 && r.hechas === 2 && r.interrogantes === 8 && r.contador === '1 / 19 · 5%' && /2\/10/.test(r.titulo) && r.bloqueadas === 3 && r.libres === 6
+    && r.clicBloqueada === 4 && r.clicLibre.join() === '5,5' && r.sinLogro === 0;
+  return [ok, JSON.stringify(r)];
+});
+await caso('logros secretos · dos logros seguidos salen uno detrás de otro en la burbuja, en orden y con su sonido, y no se pisan', { ...LS_J }, async pg => {
+  const t = await pg.evaluate(async () => { const t = [], p = $('#logro-popup p'), pop = $('#logro-popup'); darLogro('primer'); darLogro('s10');
+    for (let i = 0; i < 16; i++) { await new Promise(r => setTimeout(r, 400)); const x = pop.hidden ? '' : p.textContent.replace('\n', ' | '); if (x && t[t.length - 1] !== x) t.push(x); } return t; });
+  return [t.length === 2 && /PRIMER DÍA/.test(t[0]) && /LOGRO SECRETO/.test(t[1]) && /CÓDIGO CLÁSICO/.test(t[1]), JSON.stringify(t)];
 });
 
 await nav.close();

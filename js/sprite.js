@@ -12,7 +12,7 @@
    así que el recoloreo de piel y camisa sirve para todos los cuadros.
 
    Recoloreado: el sprite viene con una piel y una camisa fijas; aquí se
-   remapean a las que eligió el jugador (SKINS[S.skin]/CAMISAS[S.camisa]), para
+   remapean a las que eligió el jugador (SKINS[S.skin]/(typeof colorCamisa==='function'?colorCamisa(S.camisa):CAMISAS[S.camisa]||CAMISAS[0])), para
    no perder la personalización que ya tienen el runner y el jefe. Se cachea por
    combinación (solo hay 4×4), calculando cada una una sola vez.
 
@@ -608,7 +608,7 @@ const APRENDIZ = (() => {
     try {
       /* c y s son el número de la camisa/piel del jugador, o un color "#rrggbb"
          suelto (los personajes del pasillo, js/consejos.js, usan el suyo) */
-      const camisa = hexRGB(typeof c === 'string' ? c : (CAMISAS[c] || CAMISAS[0]));
+      const camisa = hexRGB(typeof c === 'string' ? c : ((typeof colorCamisa==='function'?colorCamisa(c):CAMISAS[c]||CAMISAS[0]) || CAMISAS[0]));
       const piel = hexRGB(typeof s === 'string' ? s : (SKINS[s] || SKINS[0]));
       const d = cx.getImageData(0, 0, cv.width, cv.height), px = d.data;
       for (let i = 0; i < px.length; i += 4) {

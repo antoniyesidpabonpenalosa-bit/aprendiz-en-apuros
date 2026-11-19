@@ -18,13 +18,7 @@ let mandoAvisado=false;
 window.addEventListener('gamepadconnected',()=>{
   if(mandoAvisado)return;
   mandoAvisado=true;
-  const p=document.getElementById('logro-popup');
-  if(p){
-    p.querySelector('.ico-l').textContent='🎮';
-    p.querySelector('p').textContent=t('mando');
-    p.hidden=false;
-    setTimeout(()=>{p.hidden=true},2400);
-  }
+  mostrarAviso('🎮',t('mando'),2400);
 });
 
 /* Giroscopio: inclinar el teléfono mueve al jugador (gamma = eje izq/der).

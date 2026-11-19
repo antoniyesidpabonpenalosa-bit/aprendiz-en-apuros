@@ -25,12 +25,7 @@ let labFps = 0;            /* id del rAF del contador, 0 = apagado */
 /* Un aviso corto reusando la burbuja de los logros, que ya es una región
    "live" y se anuncia en el lector de pantalla. */
 function labAviso(ico, txt) {
-  const p = $('#logro-popup');
-  if (!p) return;
-  p.querySelector('.ico-l').textContent = ico;
-  p.querySelector('p').textContent = txt;
-  p.hidden = false;
-  setTimeout(() => { p.hidden = true; }, 2600);
+  mostrarAviso(ico,txt,2600);
 }
 
 /* La marca de ENSAYO de la cabecera. Se pinta desde cero cada vez para que

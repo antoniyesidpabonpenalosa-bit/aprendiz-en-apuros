@@ -236,7 +236,7 @@ const SALA = (() => {
     /* Yo me veo igual que en el resto del juego (apariencia, colores y accesorio de mi partida). Los demás siguen con el dibujo de siempre:
        el servidor no guarda su apariencia y no se toca (no hace falta cambiar la base). */
     if (yo && j.id === yo && typeof CARAS !== 'undefined' && typeof S !== 'undefined') return Object.assign(CARAS.yo(true), { av32: !!j.av32, feliz: true });
-    const o = { skin: SKINS[j.skin] || SKINS[0], camisa: CAMISAS[j.camisa] || CAMISAS[0],
+    const o = { skin: SKINS[j.skin] || SKINS[0], camisa: (typeof colorCamisa==='function'?colorCamisa(j.camisa):CAMISAS[j.camisa]||CAMISAS[0]) || CAMISAS[0],
                 pelo: '#2a1c10', feliz: true, av32: !!j.av32 };
     if (ACCS.some(a => a.id === j.acc)) o[j.acc] = true;
     return o;
