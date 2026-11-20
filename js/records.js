@@ -53,18 +53,18 @@ let soloGrupo=false;
 /** @type {'campana'|'sinfin'} */
 let tablaGlobal='campana';
 function tablaRecords(filas){
-  return `<table class="rec-tabla">
+  return `<div class="rec-tabla-marco"><table class="rec-tabla">
       <tr><th>#</th><th>${t('rec_nom')}</th><th>${t('rec_pts')}</th><th>${t('rec_rango')}</th></tr>
       ${filas.map((r,i)=>`<tr class="${r.yo?'yo':''}"><td>${i+1}</td><td>${r.ico?`<span class="rec-ico">${r.ico}</span>`:''}${esc(r.n)}</td><td>${r.p}</td><td>${tj(rangoDe(r.x))}</td></tr>`).join('')}
-    </table>`;
+    </table></div>`;
 }
 function rRecords(){
   const locales=[...S.records].sort((a,b)=>b.p-a.p).slice(0,8);
   pantalla('records',`
-  <div class="centro">
+  <div class="centro records-pantalla">
     <h2>📊 ${t('records')}</h2>
    <div class="col2">
-    <div class="col">
+    <section class="col records-col records-global">
     <h3>${t('glob_tit')}</h3>
     <div class="rec-filtros">
       <button class="rec-chip" data-tabla="campana" type="button">${pxi('🎓')} ${t('glob_campana')}</button>
@@ -82,20 +82,20 @@ function rRecords(){
         : `<span class="grupo-vacio">${t('grupo_no')}</span>
            <button class="rec-chip" id="g-cambiar" type="button">${t('grupo_unirse')}</button>`}
     </div>
-    <div id="rec-global"><p class="desc" style="text-align:center">${t('glob_carga')}</p></div>
-    </div>
-    <div class="col">
+    <div id="rec-global" aria-live="polite"><p class="desc rec-estado">${t('glob_carga')}</p></div>
+    </section>
+    <section class="col records-col records-local">
     <h3>${t('glob_loc')}</h3>
     ${locales.length
       ? tablaRecords(locales)
-      : `<p class="desc" style="text-align:center">${t('glob_locvacio')}</p>`}
+      : `<p class="desc rec-estado rec-estado-local"><span aria-hidden="true">☆</span>${t('glob_locvacio')}</p>`}
     <h3>${t('rangos')}</h3>
     <div class="rango-lista">
-      ${RANGOS.map(r=>{
+      ${RANGOS.map((r,i)=>{
         const cls=S.xp>=r.xp?(rangoDe(S.xp)===r?'act':'hecho'):'';
-        return `<div class="rango-fila ${cls}"><span>${tj(r)}</span><span>${r.xp} XP</span></div>`}).join('')}
+        return `<div class="rango-fila ${cls}"><span class="rango-nombre"><span class="rango-num" aria-hidden="true">${i+1}</span>${tj(r)}</span><span class="rango-pts">${r.xp} XP</span></div>`}).join('')}
     </div>
-    </div>
+    </section>
    </div>
     <button class="btn btn2" id="re-volver" type="button">${t('volver')}</button>
   </div>`,rRecords);
@@ -171,13 +171,13 @@ let peticionGlobal=0;
 async function pintarGlobal(){
   const mia=++peticionGlobal;
   const caja0=$('#rec-global');
-  if(caja0) caja0.innerHTML=`<p class="desc" style="text-align:center">${t('glob_carga')}</p>`;
+  if(caja0) caja0.innerHTML=`<p class="desc rec-estado">${t('glob_carga')}</p>`;
   const filas=await RANKING.top(8,filtroDif,soloGrupo?S.grupo:'',tablaGlobal);
   if(mia!==peticionGlobal) return;              // llegó tarde: ya hay otro filtro
   const caja=$('#rec-global');
   if(!caja) return;
-  if(!filas){ caja.innerHTML=`<p class="desc" style="text-align:center">${t('glob_sinred')}</p>`; return; }
-  if(!filas.length){ caja.innerHTML=`<p class="desc" style="text-align:center">${t('glob_vacio')}</p>`; return; }
+  if(!filas){ caja.innerHTML=`<p class="desc rec-estado rec-sinred"><span aria-hidden="true">↯</span>${t('glob_sinred')}</p>`; return; }
+  if(!filas.length){ caja.innerHTML=`<p class="desc rec-estado"><span aria-hidden="true">☆</span>${t('glob_vacio')}</p>`; return; }
   const mio=S.nombre||t('tu');
   caja.innerHTML=tablaRecords(filas.map(f=>({
     n:f.nombre,p:f.puntos,x:f.xp,yo:f.nombre===mio?1:0,

@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.23';
+const VERSION='v40.24';
 const NOVEDADES=[
+  {v:'v40.24', fecha:'2026-11-20',
+   es:['RÉCORDS estrena imagen: un salón de la fama de fondo y tres paneles bien separados, el marcador global, tus marcas y el escalafón de rangos. Los mensajes de carga, sin conexión y sin marcas también tienen su propio aspecto. Los puntos, rangos y filtros no cambian.'],
+   en:['RECORDS get a new look: a hall-of-fame backdrop and three clearly separate panels, the global leaderboard, your own marks and the rank ladder. The loading, offline and no-marks messages have their own look too. Scores, ranks and filters are unchanged.']},
   {v:'v40.23', fecha:'2026-11-20',
    es:['La TIENDA estrena imagen: una oficina nocturna de fondo, secciones de ACCESORIOS y MEJORAS, un dibujo propio para cada mejora, y tarjetas que distinguen a la primera si algo está disponible, te faltan puntos, ya lo compraste o lo llevas puesto. Precios, efectos y compras siguen igual.'],
    en:['The SHOP gets a new look: a night-office backdrop, ACCESSORIES and UPGRADES sections, its own drawing for each upgrade, and cards that show at a glance whether something is available, you lack points, you already own it or you are wearing it. Prices, effects and purchases are unchanged.']},

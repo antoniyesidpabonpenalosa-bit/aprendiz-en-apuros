@@ -3090,6 +3090,30 @@ await caso('tienda visual · cada tarjeta distingue disponible, sin puntos, comp
   return [ok, JSON.stringify(r)];
 });
 
+await caso('records visual · marcador global, marcas locales y escalafón en paneles aparte; con registros, vacío y sin conexión; el filtro de teclado sigue pidiendo lo mismo al servidor', { ...ID_J, nombre: 'ANTONI', records: [{ n: 'ANTONI', p: 4200, x: 6200, d: 1, t: 2 }, { n: 'ANTONI', p: 1800, x: 3000, d: 2, t: 0 }] }, async pg => {
+  const filas = ['MARIANA', 'ANTONI', 'LUCIA'].map((n, i) => ({ nombre: n, puntos: 5000 - i * 400, xp: 7000, dificultad: 1, temporada: 2 }));
+  let modo = 'filas'; const pedidas = [];
+  await pg.route('**/rest/v1/records*', route => { pedidas.push(route.request().url());
+    if (modo === 'caida') return route.abort();
+    return route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(modo === 'vacio' ? [] : filas) }); });
+  const pinta = async m => { modo = m; await pg.evaluate(() => rRecords()); await pg.waitForFunction(() => { const e = document.querySelector('#rec-global .rec-estado'); return !!document.querySelector('#rec-global .rec-tabla') || (!!e && e.textContent.trim().length > 0 && !/CONSULT|QUERY|LOAD/i.test(e.textContent)); }, null, { timeout: 8000 }); await new Promise(r => setTimeout(r, 200)); };
+  const leer = () => pg.evaluate(() => ({ paneles: document.querySelectorAll('.records-global, .records-local').length, marcos: document.querySelectorAll('.rec-tabla-marco').length,
+    filas: document.querySelectorAll('#rec-global .rec-tabla tr').length - (document.querySelector('#rec-global .rec-tabla') ? 1 : 0), yo: document.querySelectorAll('#rec-global tr.yo').length,
+    estado: !!document.querySelector('#rec-global .rec-estado'), sinred: !!document.querySelector('.rec-sinred'), ordinales: document.querySelectorAll('.rango-num').length, actual: document.querySelectorAll('.rango-fila.act').length,
+    fondo: /salon-de-la-fama\.webp/.test(getComputedStyle($('#screen')).backgroundImage) }));
+  await pinta('filas'); const a = await leer();
+  await pinta('vacio'); const b = await leer();
+  await pinta('caida'); const c = await leer();
+  await pinta('filas'); pedidas.length = 0;
+  await pg.evaluate(() => document.querySelector('.rec-chip[data-tabla="sinfin"]').focus()); await pg.keyboard.press('Enter'); await new Promise(r => setTimeout(r, 500));
+  const sinfin = pedidas.find(u => /temporada=eq\.3/.test(u)) || '';
+  const act = await pg.evaluate(() => document.querySelector('.rec-chip[data-tabla="sinfin"]').classList.contains('act'));
+  const o = { filas: a, vacio: b, caida: c, sinfin: /limit=8/.test(sinfin), act };
+  const base = x => x.paneles === 2 && x.ordinales === 6 && x.actual === 1 && x.fondo;
+  const ok = base(a) && a.marcos === 2 && a.filas === 3 && a.yo === 1 && !a.estado && base(b) && b.marcos === 1 && b.estado && !b.sinred && base(c) && c.sinred && c.marcos === 1 && o.sinfin && o.act;
+  return [ok, JSON.stringify(o)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);
