@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.21';
+const VERSION='v40.22';
 const NOVEDADES=[
+  {v:'v40.22', fecha:'2026-11-20',
+   es:['LOGROS estrena imagen: cada logro tiene su propio dibujo pixel art, los secretos enseñan un candado común mientras están ocultos y su icono propio al descubrirlos, y la pantalla tiene una sala arcade de fondo. Las condiciones, textos, progreso y recompensas son los de siempre.'],
+   en:['ACHIEVEMENTS get a new look: every achievement has its own pixel-art drawing, secrets show a shared padlock while hidden and their own icon once discovered, and the screen has an arcade-room backdrop. Conditions, texts, progress and rewards are unchanged.']},
   {v:'v40.21', fecha:'2026-11-19',
    es:['Arreglo de arte: la camisa de la protagonista ya no tiene puntitos azules sueltos que se quedaban con cualquier color de camisa, y la camisa TERMINAL es ahora un negro de verdad, sin tinte azul.'],
    en:['Art fix: the main female character’s shirt no longer has stray blue dots that stayed blue with every shirt colour, and the TERMINAL shirt is now a true black with no blue tint.']},

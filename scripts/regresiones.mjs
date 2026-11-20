@@ -3057,6 +3057,21 @@ await caso('logros secretos · cada tarjeta bloqueada enseña su pista (es y en)
   return [ok, JSON.stringify(r)];
 });
 
+await caso('logros visual · 29 sprites de 40×40 cargados (uno por logro), los secretos ocultos con el candado común y los descubiertos con su icono, el fondo de la sala puesto, y sin icono de respaldo', { ...LS_J, logros: ['primer', 'jefe', 's10', 's3'] }, async pg => {
+  const r = await pg.evaluate(async () => {
+    rLogros(); await new Promise(r => setTimeout(r, 500));
+    const imgs = [...document.querySelectorAll('.logro img.logro-sprite')];
+    await Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+    const sec = [...document.querySelectorAll('.logros-grid')][1];
+    const srcs = [...sec.querySelectorAll('.logro')].map(t => (t.querySelector('img') || { getAttribute: () => 'EMOJI' }).getAttribute('src'));
+    return { sprites: imgs.length, cargados: imgs.filter(i => i.naturalWidth === 40 && i.naturalHeight === 40).length, emojis: document.querySelectorAll('.logro .ico-lg').length,
+      s10: srcs[0], s6: srcs[1], s3: srcs[4], candados: srcs.filter(x => /secreto\.png$/.test(x)).length,
+      fondo: /sala-logros\.webp/.test(getComputedStyle($('#screen')).backgroundImage), contador: $('.xp-txt').textContent.trim() };
+  });
+  const ok = r.sprites === 29 && r.cargados === 29 && r.emojis === 0 && /s10\.png$/.test(r.s10) && /secreto\.png$/.test(r.s6) && /s3\.png$/.test(r.s3) && r.candados === 8 && r.fondo && r.contador === '2 / 19 · 11%';
+  return [ok, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

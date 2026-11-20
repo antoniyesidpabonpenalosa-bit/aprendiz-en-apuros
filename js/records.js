@@ -1,9 +1,16 @@
 'use strict';
 /* Logros, récords, código de aula y estadísticas (ver la lista en menus.js). */
-/* ── LOGROS ── */
+/* Una imagen propia por logro. Los secretos ocultos usan el candado común. */
+const SPRITES_LOGROS=new Set(['primer', 'perfecto', 'mitad', 'comprador', 'veloz', 'cerebro', 'gitmaster', 'revisor', 'resolutor', 'jefe', 'titulado', 'intacto', 'combo', 'coleccionista', 'pesadilla', 'maraton', 'sql', 'regex', 'contrato', 's10', 's6', 's7', 's4', 's3', 's5', 's9', 's1', 's8', 's2']);
+function iconoLogro(id,emoji,bloqueado=false){
+  const sprite=bloqueado?'secreto':SPRITES_LOGROS.has(id)?id:null;
+  return sprite
+    ? `<img class="logro-sprite${bloqueado?' logro-sprite-secreto':''}" src="img/logros/${sprite}.png" alt="" aria-hidden="true">`
+    : `<span class="ico-lg" aria-hidden="true">${emoji}</span>`;
+}
 function rLogros(){
   pantalla('logros',`
-  <div class="centro">
+  <div class="centro logros-pantalla">
     <h2>🏆 ${t('logros')}</h2>
     <div class="tit-bloque">
       <div class="barra tit-barra"><div class="barra-fill" style="width:${Math.round(LOGROS.filter(l=>S.logros.includes(l.id)).length/LOGROS.length*100)}%"></div></div>
@@ -15,14 +22,14 @@ function rLogros(){
         /* El conseguido se enseña tal cual. El que falta enseña CÓMO se
            consigue: un icono gris y nada más no le dice nada a nadie. */
         return `<div class="logro ${hecho?'on':''}">
-        <span class="ico-lg">${l.ico}</span><p>${tj(l)}</p>
+        ${iconoLogro(l.id,l.ico)}<p>${tj(l)}</p>
         <p class="pista">${'★'.repeat(l.dif||2)} ${hecho?'':tp(l)}</p></div>`}).join('')}
     </div>
     <h3>${S.lang==='es'?'🔒 SECRETOS':'🔒 SECRETS'} · ${LOGROS_SECRETOS.filter(l=>S.logros.includes(l.id)).length}/10</h3>
     <div class="logros-grid">
       ${LOGROS_SECRETOS.map(l=>{
         const logrado=S.logros.includes(l.id);
-        return `<div class="logro ${logrado?'on':''}"><span class="ico-lg">${logrado?l.ico:'❓'}</span>
+        return `<div class="logro ${logrado?'on':''}">${iconoLogro(l.id,logrado?l.ico:'❓',!logrado)}
           <p>${logrado?tj(l):'???'}</p><p class="pista">${'★'.repeat(l.dif)}</p>
           ${logrado?'':`<p class="pista pista-sec">${(S.lang==='en'?l.hen:l.hes)||(S.lang==='en'?'🔜 Not available yet':'🔜 Aún no disponible')}</p>`}
           ${logrado?`<p class="pista">${tp(l)} · ${S.lang==='es'?'Camisa':'Shirt'} ${t('pe_camisa_'+(CAMISAS.length+CAMISAS_SECRETAS.findIndex(c=>c.logro===l.id)))}</p>`:''}</div>`;

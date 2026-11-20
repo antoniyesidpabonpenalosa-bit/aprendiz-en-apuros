@@ -376,12 +376,23 @@ img.dibujo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
 .logro{display:flex;flex-direction:column;align-items:center;gap:6px;
   background:var(--void2);border:2px solid var(--bl);padding:11px 5px;text-align:center}
 .logro.on{border-color:var(--v3);background:var(--pan3)}
+.logro-sprite{width:40px;height:40px;object-fit:contain;image-rendering:pixelated;
+  flex:none;opacity:.82;filter:grayscale(.7) brightness(.9)}
+.logro.on .logro-sprite{opacity:1;filter:none}
+.logro .logro-sprite-secreto{opacity:.85;filter:none}
 .logro .ico-lg{font-size:22px;filter:grayscale(1);opacity:.3}
 .logro.on .ico-lg{filter:none;opacity:1}
 .logro p{font-size:9px;color:var(--tx2);line-height:1.6;overflow-wrap:anywhere}
 .logro.on p{color:var(--v4)}
 /* Pista del logro que aún no tienes: cómo se consigue. */
 .logro .pista{font-size:8px;color:var(--tx1);line-height:1.7;letter-spacing:0}
+/* Sala pixel art exclusiva de LOGROS. Las tarjetas mantienen su placa opaca
+   para que nombres y pistas se lean encima del fondo. */
+#screen:has(>.logros-pantalla){
+  background:#0b0e22 url('../img/logros/sala-logros.webp') center top / cover no-repeat;
+}
+.logros-pantalla .logro{background:rgba(9,13,32,.94)}
+.logros-pantalla .logro.on{background:rgba(34,40,76,.96)}
 /* ── ficha de controles ── */
 .ayuda-lista{list-style:none;display:flex;flex-direction:column;gap:12px;
   width:min(440px,100%);text-align:left;background:var(--void2);
