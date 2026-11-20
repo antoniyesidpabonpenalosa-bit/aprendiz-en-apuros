@@ -2142,6 +2142,65 @@ html.legible .pe-wrap .pe-acc-nom,html.legible .pe-wrap .pe-acc-estado,html.legi
 .tienda-acc-arte{display:block;width:32px;height:32px;image-rendering:pixelated;max-width:100%}
 .tienda-probar{display:block;margin:8px auto;max-width:100%;font-size:9px}
 
+/* Sala de la tienda: escaparate cálido y tarjetas legibles sobre el fondo. */
+#screen:has(>.tienda-pantalla){
+  background:#10152c url('../img/tienda/oficina-nocturna.webp') center center / cover no-repeat;
+}
+.tienda-pantalla{gap:16px;padding:16px 10px 22px;max-width:1060px;margin-inline:auto}
+.tienda-cab{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;
+  justify-content:center;width:100%;padding:10px;background:rgba(9,14,35,.92);
+  border:2px solid #596193;box-shadow:0 4px 0 #080b1b}
+.tienda-cab h2{width:100%;margin:0}
+.tienda-cab .moneda{color:#ffe184;background:#312949;border-color:#dba84e;
+  font-size:11px;line-height:1.6;white-space:nowrap}
+.tienda-cab .tienda-probar{margin:0;min-height:42px}
+.tienda-pantalla .col2{width:100%}
+.tienda-pantalla .tienda-seccion{width:100%;max-width:430px;min-height:35px;
+  padding:6px 8px;margin:0;color:#e8d9ff;background:rgba(11,17,42,.94);
+  border:1px solid #6c6297;font-size:10px;line-height:1.6}
+.tienda-pantalla .tienda-grid,.tienda-pantalla .mejoras-tienda{width:min(430px,100%);max-width:100%}
+.tienda-pantalla .item-tienda{position:relative;opacity:1;min-width:0;
+  color:#eee9ff;border-color:#596596;background:rgba(13,19,43,.96);
+  box-shadow:inset 0 1px rgba(170,186,244,.16),0 4px 0 #080d23;
+  transition:border-color .12s,background .12s,transform .12s}
+.tienda-pantalla .item-tienda:hover:not(:disabled){border-color:#f2cc70;background:#222344}
+.tienda-pantalla .item-tienda:focus-visible{outline:3px solid #7de7f0;outline-offset:2px}
+.tienda-pantalla .item-tienda:disabled{cursor:default}
+.tienda-pantalla .item-tienda.sin-pts{border-color:#3e4969;background:rgba(10,16,36,.95)}
+.tienda-pantalla .item-tienda.sin-pts .ico-t{filter:grayscale(.7);opacity:.7}
+.tienda-pantalla .item-tienda.activa{border-color:#6b9a54;background:rgba(21,39,35,.96)}
+.tienda-pantalla .item-tienda.equipado{border-color:#b0e574;background:rgba(25,57,38,.97);
+  box-shadow:inset 0 0 0 1px #a3d76a,0 4px 0 #081420}
+.tienda-pantalla .tienda-grid .item-tienda{gap:5px;min-height:136px;padding:10px 4px 8px}
+.tienda-pantalla .tienda-vitrina{display:grid;place-items:center;width:52px;height:48px;
+  background:#212a50;border:1px solid #6572a1;box-shadow:inset 0 -4px #161d3b}
+.tienda-pantalla .item-tienda.activa .tienda-vitrina{background:#253d3a;border-color:#66965e}
+.tienda-pantalla .nom-t{font-size:8px;line-height:1.45;min-height:23px;display:grid;place-items:center}
+.tienda-pantalla .precio{display:block;align-self:center;max-width:100%;color:#ffde84;
+  padding:4px 5px;background:#302940;border:1px solid #9c7649;font-size:8px;line-height:1.4;
+  overflow-wrap:anywhere;text-align:center}
+.tienda-pantalla .item-tienda.activa .precio{color:#c0f5a0;background:#1f3e31;border-color:#69a458}
+.tienda-pantalla .item-tienda.sin-pts .precio{color:#d9c9a7;background:#262636;border-color:#5b5660}
+.tienda-pantalla .mejoras-tienda .item-tienda{flex-direction:row;justify-content:space-between;
+  gap:9px;width:100%;min-height:86px;padding:9px 10px}
+.tienda-pantalla .tienda-mej-vitrina{flex:0 0 52px;display:grid;place-items:center;
+  width:52px;height:52px;background:#202b50;border:1px solid #6572a1}
+.tienda-pantalla .tienda-mej-arte{width:40px;height:40px;image-rendering:pixelated}
+.tienda-pantalla .mej-info{min-width:0;padding:0;gap:4px}
+.tienda-pantalla .mej-info .nom-t{display:block;min-height:0;text-align:left}
+.tienda-pantalla .mej-desc{font-size:15px;color:#c9d3ed;line-height:1.2}
+.tienda-pantalla .mejoras-tienda .precio{flex:0 0 auto;margin-left:auto}
+@media(max-width:360px){
+  .tienda-pantalla .tienda-grid{gap:6px}
+  .tienda-pantalla .tienda-grid .item-tienda{padding-inline:2px}
+  .tienda-pantalla .tienda-vitrina{width:44px}
+  .tienda-pantalla .mejoras-tienda .item-tienda{padding:8px 5px;gap:5px}
+  .tienda-pantalla .tienda-mej-vitrina{width:42px;flex-basis:42px}
+}
+html.legible .tienda-pantalla .nom-t{font-size:11px}
+html.legible .tienda-pantalla .mej-info .nom-t{font-size:11px}
+html.legible .tienda-pantalla .precio{font-size:10px}
+
 /* v40.5 · Vestidor RPG. Exclusivo de Mi Avatar: no altera el HUD ni el resto de pantallas. */
 .pe-wrap.pe-definitivo{container-type:inline-size;max-width:1090px;gap:13px;padding:8px 5px 12px;--pe-borde:#7866b4;--pe-oro:#ffcf3f;--pe-verde:#9aea63;--pe-cian:#6fd2f0;text-align:left}
 .pe-definitivo .pe-cab{padding:2px 2px 8px;border-bottom:1px solid #544a8066}

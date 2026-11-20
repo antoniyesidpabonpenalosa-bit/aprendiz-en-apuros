@@ -3072,6 +3072,24 @@ await caso('logros visual · 29 sprites de 40×40 cargados (uno por logro), los 
   return [ok, JSON.stringify(r)];
 });
 
+await caso('tienda visual · cada tarjeta distingue disponible, sin puntos, comprado y equipado; los cinco sprites de mejoras cargan; los accesorios siguen siendo el dibujo del avatar; el fondo está puesto y comprar sigue cobrando', { ...ID_J, pts: 420, accs: ['cafe', 'gafas'], acc: 'gafas', mejoras: ['vida'], logros: [] }, async pg => {
+  const r = await pg.evaluate(async () => {
+    rTienda(); await new Promise(r => setTimeout(r, 500));
+    const imgs = [...document.querySelectorAll('img.tienda-mej-arte')];
+    await Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+    const est = el => el.classList.contains('equipado') ? 'E' : el.classList.contains('activa') ? 'C' : el.classList.contains('sin-pts') ? 'S' : 'D';
+    const accs = [...document.querySelectorAll('.tienda-grid .item-tienda')].map(est).join('');
+    const mejs = [...document.querySelectorAll('.mejoras-tienda .item-tienda')].map(est).join('');
+    const o = { accs, mejs, sprites: imgs.filter(i => i.naturalWidth === 40 && i.naturalHeight === 40).length, canvas: document.querySelectorAll('.tienda-grid canvas.tienda-acc-arte').length,
+      fondo: /oficina-nocturna\.webp/.test(getComputedStyle($('#screen')).backgroundImage), textoEquipado: document.querySelector('.item-tienda.equipado .precio').textContent.trim() };
+    document.querySelector('[data-id="corbata"]').click(); await new Promise(r => setTimeout(r, 300));
+    o.trasComprar = { pts: S.pts, acc: S.acc, estado: est(document.querySelector('[data-id="corbata"]')) };
+    return o;
+  });
+  const ok = r.accs === 'CEDDSSSSS' && r.mejs === 'CSSSS' && r.sprites === 5 && r.canvas === 9 && r.fondo && /EQUIPADO/.test(r.textoEquipado) && r.trasComprar.pts === 70 && r.trasComprar.acc === 'corbata' && r.trasComprar.estado === 'E';
+  return [ok, JSON.stringify(r)];
+});
+
 await nav.close();
 if (srv) srv.kill();
 console.log(`\n${total - fallos}/${total} regresiones en verde`);

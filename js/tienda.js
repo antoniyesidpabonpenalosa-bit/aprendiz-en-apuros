@@ -11,12 +11,15 @@ function rTienda(){
   const nAcc=id=>t('acc_'+id);
   const nMej={vida:t('mejvida'),tiempo:t('mejtiempo'),doble:t('mejdoble'),iman:t('mejiman'),escudo:t('mejescudo')};
   pantalla('tienda',`
-  <div class="centro">
-    <h2>🛒 ${t('tienda')}</h2>
-    <span class="moneda">⛁ ${S.pts} PTS</span>
-    <button type="button" class="btn btn2 tienda-probar" id="ti-probar">${t('pe_probar_acc')}</button>
+  <div class="centro tienda-pantalla">
+    <header class="tienda-cab">
+      <h2>🛒 ${t('tienda')}</h2>
+      <span class="moneda" aria-live="polite">⛁ ${S.pts} PTS</span>
+      <button type="button" class="btn btn2 tienda-probar" id="ti-probar">${t('pe_probar_acc')}</button>
+    </header>
    <div class="col2">
-    <div class="col">
+    <div class="col tienda-col tienda-accs">
+    <h3 class="tienda-seccion">✦ ${S.lang==='es'?'ACCESORIOS':'ACCESSORIES'}</h3>
     <div class="tienda-grid">
       ${ACCS.map(a=>{
         const tiene=S.accs.includes(a.id);
@@ -24,16 +27,16 @@ function rTienda(){
         /* Botón de verdad, no un div: así se alcanza con el tabulador y un
            lector de pantalla lo anuncia. El que no alcanzas a pagar va
            `disabled`, que además lo saca del recorrido del teclado. */
-        return `<button class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')}" data-id="${a.id}"
+        return `<button class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')} ${S.acc===a.id?'equipado':''}" data-id="${a.id}"
           type="button" ${tiene||puede?'':'disabled'}>
-          <span class="ico-t"><canvas class="tienda-acc-arte" width="32" height="32" aria-hidden="true"></canvas></span>
+          <span class="ico-t tienda-vitrina"><canvas class="tienda-acc-arte" width="32" height="32" aria-hidden="true"></canvas></span>
           <span class="nom-t">${nAcc(a.id)}</span>
-          <span class="precio">${tiene?(S.acc===a.id?'✔ '+t('equipado'):'✔'):'⛁'+a.precio}</span>
+          <span class="precio">${tiene?(S.acc===a.id?'✔ '+t('equipado'):(S.lang==='es'?'✔ COMPRADO':'✔ OWNED')):'⛁ '+a.precio}</span>
         </button>`}).join('')}
     </div>
     </div>
-    <div class="col">
-    <p class="mej-titulo">⚙ ${t('mejoras')}</p>
+    <div class="col tienda-col tienda-mejoras">
+    <h3 class="tienda-seccion">⚙ ${t('mejoras')}</h3>
     <div class="mejoras-tienda">
       ${MEJORAS.map(m=>{
         const tiene=S.mejoras.includes(m.id);
@@ -42,13 +45,13 @@ function rTienda(){
            `disabled` igual que la que no alcanzas a pagar. */
         return `<button class="item-tienda ${tiene?'activa':(puede?'':'sin-pts')}" data-mej="${m.id}"
           type="button" ${tiene||!puede?'disabled':''}
-          style="flex-direction:row;justify-content:space-between;width:100%">
-          <span class="ico-t">${m.ico}</span>
+          >
+          <span class="ico-t tienda-mej-vitrina"><img class="tienda-mej-arte" src="img/tienda/${m.id}.png" alt="" aria-hidden="true"></span>
           <span class="mej-info">
-            <span class="nom-t" style="text-align:left">${nMej[m.id]}</span>
+            <span class="nom-t">${nMej[m.id]}</span>
             <span class="mej-desc">${t('d_'+m.id)}</span>
           </span>
-          <span class="precio">${tiene?'✔':'⛁'+m.precio}</span>
+          <span class="precio">${tiene?'✔':'⛁ '+m.precio}</span>
         </button>`}).join('')}
     </div>
     </div>

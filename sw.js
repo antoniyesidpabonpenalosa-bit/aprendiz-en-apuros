@@ -4,7 +4,7 @@
 /* Va a la par con VERSION de js/datos.js: scripts/validar.mjs falla si se
    separan, porque entonces el juego enseñaría unas novedades y la caché
    serviría otra versión. */
-const CACHE = 'pa4-v40.22';
+const CACHE = 'pa4-v40.23';
 /* Cuánto se espera a la red antes de servir la copia guardada. Con "red
    primero" a secas, una conexión mala (la del aula, un 3G flojo) dejaba cada
    archivo colgado hasta que el navegador se rindiera, aunque estuviera en
@@ -12,7 +12,7 @@ const CACHE = 'pa4-v40.22';
 const TOPE_RED = 3500;
 const BASE = [
   './', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png',
-  './css/estilos.css', './img/logros/primer.png', './img/logros/perfecto.png', './img/logros/mitad.png', './img/logros/secreto.png', './img/logros/sala-logros.webp', './img/logros/comprador.png', './img/logros/veloz.png', './img/logros/cerebro.png', './img/logros/gitmaster.png', './img/logros/revisor.png', './img/logros/resolutor.png', './img/logros/jefe.png', './img/logros/titulado.png', './img/logros/intacto.png', './img/logros/combo.png', './img/logros/coleccionista.png', './img/logros/pesadilla.png', './img/logros/maraton.png', './img/logros/sql.png', './img/logros/regex.png', './img/logros/contrato.png', './img/logros/s10.png', './img/logros/s6.png', './img/logros/s7.png', './img/logros/s4.png', './img/logros/s3.png', './img/logros/s5.png', './img/logros/s9.png', './img/logros/s1.png', './img/logros/s8.png', './img/logros/s2.png', './img/aprendiz-caminar.png', './img/npc/pasillo.png', './img/cine/formacion.webp', './img/cine/empresa.webp', './img/aprendiz-caminar-hd.png', './img/aprendiz-portada-hd.png', './img/aprendiz-femenina-caminar.png', './img/aprendiz-femenina-portada.png', './img/aprendiz-masculino-premium-caminar.png', './img/aprendiz-masculino-premium-portada.png',
+  './css/estilos.css', './img/tienda/oficina-nocturna.webp', './img/tienda/vida.png', './img/tienda/tiempo.png', './img/tienda/iman.png', './img/tienda/doble.png', './img/tienda/escudo.png', './img/logros/primer.png', './img/logros/perfecto.png', './img/logros/mitad.png', './img/logros/secreto.png', './img/logros/sala-logros.webp', './img/logros/comprador.png', './img/logros/veloz.png', './img/logros/cerebro.png', './img/logros/gitmaster.png', './img/logros/revisor.png', './img/logros/resolutor.png', './img/logros/jefe.png', './img/logros/titulado.png', './img/logros/intacto.png', './img/logros/combo.png', './img/logros/coleccionista.png', './img/logros/pesadilla.png', './img/logros/maraton.png', './img/logros/sql.png', './img/logros/regex.png', './img/logros/contrato.png', './img/logros/s10.png', './img/logros/s6.png', './img/logros/s7.png', './img/logros/s4.png', './img/logros/s3.png', './img/logros/s5.png', './img/logros/s9.png', './img/logros/s1.png', './img/logros/s8.png', './img/logros/s2.png', './img/aprendiz-caminar.png', './img/npc/pasillo.png', './img/cine/formacion.webp', './img/cine/empresa.webp', './img/aprendiz-caminar-hd.png', './img/aprendiz-portada-hd.png', './img/aprendiz-femenina-caminar.png', './img/aprendiz-femenina-portada.png', './img/aprendiz-masculino-premium-caminar.png', './img/aprendiz-masculino-premium-portada.png',
   /* los 20 retratos dibujados (4 personajes × 5 gestos): son su único estilo,
      así que tienen que estar también sin conexión */
   './img/retratos/instructor-normal.webp', './img/retratos/instructor-feliz.webp', './img/retratos/instructor-enojado.webp', './img/retratos/instructor-sorprendido.webp', './img/retratos/instructor-preocupado.webp',
