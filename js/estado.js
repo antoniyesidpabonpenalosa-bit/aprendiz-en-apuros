@@ -118,7 +118,7 @@ function sanear(){
   if(typeof S.mus!=='boolean')S.mus=true;
   if(typeof S.t2!=='boolean')S.t2=false;
   if(typeof S.legible!=='boolean')S.legible=false;
-  delete S.hd;   // v40.25: el modo OLED ya no existe; las partidas y los códigos viejos que lo traían se limpian
+  delete /** @type {any} */(S).hd;   // v40.25: el modo OLED ya no existe; las partidas y los códigos viejos que lo traían se limpian
   if(typeof S.av32!=='boolean')S.av32=false;
   if(typeof S.version!=='string')S.version='';
   /* Marcas locales: solo entran las que traen nombre y números. Un código de
