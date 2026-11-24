@@ -1,7 +1,7 @@
 /* Los botones de la portada (v30, css/estilos.css + js/menus.js): lo que se puede comprobar
    sin navegador. Que el CSS nuevo esté acotado a la portada (no toca las demás pantallas ni
    la tarjeta Mi Avatar), que no meta recursos nuevos y que rTitulo() marque la dificultad con
-   aria-pressed y devuelva el foco al repintar. Cómo se VE (escritorio, móvil, HD, legible,
+   aria-pressed y devuelva el foco al repintar. Cómo se VE (escritorio, móvil, texto legible,
    movimiento reducido, teclado) lo prueban los casos "botones de la portada" de
    scripts/regresiones.mjs en un navegador real. */
 import { test } from 'node:test';

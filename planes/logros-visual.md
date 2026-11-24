@@ -1,5 +1,7 @@
 # LOGROS · renovación visual (piloto v40.21, integrado en v40.22)
 
+> **Nota (v40.25):** el modo 4K HD OLED se quitó del juego. Lo que este plan dice de él ya no aplica; el resto sigue vigente.
+
 ## Realizado en esta entrega
 
 - Fondo exclusivo de sala arcade nocturna para LOGROS, con zona inferior violeta y tarjetas sobre placas oscuras. Asset `img/logros/sala-logros.webp`, incluido en la caché offline.
