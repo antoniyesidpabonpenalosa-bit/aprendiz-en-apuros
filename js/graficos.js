@@ -57,7 +57,7 @@ function encajeDe(aw,ah){
 /* Densidad para los canvas: la de la pantalla por el zoom del marco, para
    que un runner escalado a un monitor grande no se vea emborronado. La
    del dispositivo sigue topada en 2 como siempre (en un móvil de 3x el
-   búfer se iba a 1440 px de ancho con el HD, y se pinta 60 veces por
+   búfer se iba a 1440 px de ancho, y se pinta 60 veces por
    segundo); el zoom solo suma en pantallas que ya tienen máquina. */
 const densidad=()=>Math.min(3,Math.min(2,window.devicePixelRatio||1)*escPantalla);
 

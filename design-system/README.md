@@ -22,14 +22,12 @@ desincronice del juego real.
 design-system/
 ├── src/                    → fuente de verdad de cada fragmento (HTML del <body>)
 │   ├── foundations/         tipografía (la paleta se genera, no tiene fuente propia)
-│   ├── components/          botones, HUD, mapa, minijuegos, tienda, feedback...
-│   └── temas/                comparativa RETRO vs OLED
+│   └── components/          botones, HUD, mapa, minijuegos, tienda, feedback...
 └── dist/                   → generado, NO editar a mano
     ├── base.css              css/estilos.css real + un armónico de previsualización
     ├── foundations/*.html    una tarjeta por archivo, con marcador @dsCard
     ├── components/*.html
-    ├── temas/*.html
-    └── index.html            galería de una sola página con las 18 tarjetas
+    └── index.html            galería de una sola página con las 17 tarjetas
 ```
 
 `scripts/build-ui-kit.mjs` (en la raíz del repo) hace la generación:

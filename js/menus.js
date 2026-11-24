@@ -11,9 +11,8 @@
 /* ── EL TÍTULO DE LA PORTADA (v28) ──
    El título es un dibujo en pixel art (img/titulo/, hecho con la tipografía del juego,
    con sus guiones y su raya de colores integrados). El <h1> de texto SIGUE ahí: es lo que
-   leen los lectores de pantalla y lo que se ve si la imagen no carga o en el modo HD
-   (que cambia la tipografía de todo el juego). Con el dibujo cargado y fuera del modo HD,
-   el texto se esconde solo a la vista (clase con-imagen en .tit-logo; ver css/estilos.css),
+   leen los lectores de pantalla y lo que se ve si la imagen no carga. Con el dibujo
+   cargado, el texto se esconde solo a la vista (clase con-imagen en .tit-logo; ver css/estilos.css),
    así que nunca se ven los dos. Se pide la imagen una vez, al abrir el juego. */
 const TITULO_IMG='img/titulo/titulo-aprendiz-en-apuros.png';
 let tituloListo=false;
@@ -77,7 +76,7 @@ function aprendizPortada(cv,boton){
 
 function rTitulo(){
   if(S.dias.every(d=>d===3)&&!S.logros.includes('s4'))darLogro('s4');
-  /* entrada suave solo al LLEGAR a la portada; repintarla (dificultad, HD, texto) no la repite */
+  /* entrada suave solo al LLEGAR a la portada; repintarla (dificultad, texto) no la repite */
   const entradaPortada=pantallaId!=='titulo'||!$('#screen .portada');
   const {sig,pc}=progresoXp();
   const racha=RETO.rachaViva();
@@ -155,10 +154,9 @@ function rTitulo(){
       ${fila('t-logros','🏆',t('logros'))}
       ${fila('t-records','📊',t('records'))}
     </div>
-    <div class="tit-rejilla c3">
+    <div class="tit-rejilla c2">
       ${/* etiqueta corta: con tres columnas, ESTADÍSTICAS no cabe y se partía */''}
       ${fila('t-stats','📈',t('estad_corto'))}
-      ${fila('t-modo',S.hd?'🕹':'✨',S.hd?t('modo_retro'):t('modo_hd'))}
       ${fila('t-texto',S.legible?'🕹':'🔤',S.legible?t('texto_pixel'):t('texto_legible'))}
     </div>
 
@@ -219,7 +217,6 @@ function rTitulo(){
     if(teclado)elegida?.focus({preventScroll:true});
   });
   $('#t-stats').onclick=()=>{SFX.click();rStats()};
-  $('#t-modo').onclick=()=>{S.hd=!S.hd;guardar();aplicarModo();SFX.moneda();rTitulo()};
   $('#t-texto').onclick=()=>{S.legible=!S.legible;guardar();aplicarModo();SFX.click();rTitulo()};
   $('#t-borrar').onclick=()=>{SFX.click();rBorrar()};
   $('#t-lab').onclick=()=>{if(typeof abrirLab==='function')abrirLab()};
@@ -261,7 +258,7 @@ function rBorrar(){
        sin borrar en disco (guardar() no escribe en ensayo) y la copia volvía
        al salir. Primero se termina el ensayo. */
     if(typeof LAB!=='undefined'&&LAB.ensayo())LAB.volverANormal();
-    const prefs={lang:S.lang,snd:S.snd,hd:S.hd,av32:S.av32};
+    const prefs={lang:S.lang,snd:S.snd,av32:S.av32};
     S=Object.assign({},DEF,{dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],mejoras:[],records:[],vistos:[],pesos:{},reto:{},mejores:{},mejorSinFin:0,stats:Object.assign({},STATS0)},prefs);
     sanear();guardar();
     vidas=maxVidas();

@@ -26,14 +26,14 @@ test('rTitulo() conserva el <h1> de texto con sus dos líneas (con un espacio en
   assert.ok(js.includes("const TITULO_IMG='img/titulo/titulo-aprendiz-en-apuros.png'"));
 });
 
-test('el CSS esconde el texto solo con la imagen cargada y fuera del modo HD, sin quitarlo del HTML', () => {
+test('el CSS esconde el texto solo con la imagen cargada, sin quitarlo del HTML', () => {
   const css = leer('css/estilos.css');
   assert.ok(/^\.tit-img\{display:none\}/m.test(css), 'sin la clase con-imagen no se ve la imagen');
-  assert.ok(css.includes('html:not(.hd) .tit-logo.con-imagen .tit-img{display:block'), 'la imagen se ve solo con con-imagen y fuera de HD');
-  const h1 = css.slice(css.indexOf('html:not(.hd) .tit-logo.con-imagen .tit-h1{'));
+  assert.ok(css.includes('.tit-logo.con-imagen .tit-img{display:block'), 'la imagen se ve solo con con-imagen');
+  const h1 = css.slice(css.indexOf('.tit-logo.con-imagen .tit-h1{'));
   assert.ok(h1.includes('clip:rect(0 0 0 0)') && h1.includes('position:absolute') && !h1.slice(0, 220).includes('display:none'),
     'el h1 se esconde a la vista (queda para los lectores de pantalla), no con display:none');
-  assert.ok(css.includes('html:not(.hd) .tit-logo.con-imagen .guion{display:none}'), 'los guiones ya van dentro del dibujo');
+  assert.ok(css.includes('.tit-logo.con-imagen .guion{display:none}'), 'los guiones ya van dentro del dibujo');
   assert.ok(css.includes('image-rendering:pixelated'));
 });
 

@@ -498,13 +498,13 @@ html.legible .pe-nombre{font-family:'VT323',monospace;font-size:19px}
 .tit-logo .guion.der i:nth-child(2){margin-left:0}
 .tit-logo .guion.der i:nth-child(3){margin-left:auto}
 
-/* Título en imagen (v28, js/menus.js): con el dibujo cargado y fuera del modo HD se ve el PNG
-   y el <h1> de texto pasa a "solo lectores de pantalla"; sin él (o en HD) se ve el texto de
-   siempre con sus guiones. image-rendering:pixelated mantiene el borde de los píxeles. */
+/* Título en imagen (v28, js/menus.js): con el dibujo cargado se ve el PNG y el <h1> de texto
+   pasa a "solo lectores de pantalla"; sin él se ve el texto de siempre con sus guiones.
+   image-rendering:pixelated mantiene el borde de los píxeles. */
 .tit-img{display:none}
-html:not(.hd) .tit-logo.con-imagen .tit-img{display:block;width:min(100%,460px);height:auto;margin:0 auto;image-rendering:pixelated}
-html:not(.hd) .tit-logo.con-imagen .guion{display:none}
-html:not(.hd) .tit-logo.con-imagen .tit-h1{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+.tit-logo.con-imagen .tit-img{display:block;width:min(100%,460px);height:auto;margin:0 auto;image-rendering:pixelated}
+.tit-logo.con-imagen .guion{display:none}
+.tit-logo.con-imagen .tit-h1{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
   clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .tit-logo{position:relative}
 .tit-h1{font-size:clamp(19px,6.2vw,30px);line-height:1.28;letter-spacing:1px;text-align:center}
@@ -628,7 +628,6 @@ html:not(.hd) .tit-logo.con-imagen .tit-h1{position:absolute;width:1px;height:1p
 .flojo-fila .barra{flex:1}
 .flojo-fila .f-num{font-family:'VT323',monospace;font-size:16px;color:var(--y2);
   flex:0 0 42px;text-align:right}
-html.hd .flojo-fila .f-nom{font-size:11px}
 
 /* pie con líneas a los lados */
 .tit-pie{display:flex;align-items:center;gap:12px;width:min(420px,100%);opacity:.75}
@@ -962,92 +961,6 @@ canvas.juego{width:100%;aspect-ratio:16/9;image-rendering:pixelated;display:bloc
 .btn-r:active{transform:translateY(4px);box-shadow:inset 0 3px 0 var(--r3),inset 0 -3px 0 var(--r1)}
 .conflicto-marca{font-family:'VT323',monospace;font-size:17px;color:var(--o3);text-align:left}
 
-/* ══════════════════════════════════════════════
-   MODO ✨ 4K HD PRO OLED ✨
-   negros profundos · neón · sin píxeles
-   ══════════════════════════════════════════════ */
-html.hd .crt,html.hd #fx64{display:none}
-html.hd body{font-family:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',sans-serif;
-  background:radial-gradient(130% 120% at 50% -10%,#131b38 0%,#04050c 68%,#000 100%)}
-html.hd #app{border-radius:26px;border:1px solid rgba(140,160,255,.14);padding:14px;
-  background:linear-gradient(165deg,#111631 0%,#0a0e20 55%,#0c1226 100%);
-  box-shadow:0 30px 80px rgba(0,0,0,.8),0 0 70px rgba(57,169,0,.07),inset 0 1px 0 rgba(255,255,255,.06)}
-html.hd #hud{border-bottom:1px solid rgba(84,196,26,.5);font-size:12px}
-html.hd .b-sys{border-radius:12px;box-shadow:none;
-  border:1px solid rgba(140,160,255,.2);background:rgba(255,255,255,.05)}
-html.hd h1{font-weight:800;font-size:clamp(26px,7.5vw,42px);line-height:1.2;
-  text-shadow:0 0 26px rgba(255,207,63,.4)}
-html.hd h2{font-weight:800;text-shadow:0 0 18px rgba(255,207,63,.35)}
-html.hd h3{font-weight:700;font-size:14px}
-html.hd .mini,html.hd .desc,html.hd .linea,html.hd .pregunta,html.hd .op,
-html.hd .term-line,html.hd .xp-txt,html.hd .rec-tabla td,html.hd .rango-fila,
-html.hd .cv-msg,html.hd .code-line,html.hd .conflicto-marca{font-family:inherit}
-html.hd .sub{font-size:13px;letter-spacing:2px}
-html.hd .dia{font-size:13px}
-html.hd .hablante{font-size:11px}
-html.hd .tope{font-size:13px}
-html.hd .pts-final{font-size:20px;text-shadow:0 0 16px rgba(255,207,63,.5)}
-html.hd .rango{text-shadow:0 0 24px rgba(138,255,79,.55)}
-html.hd .stars-row{font-size:18px}
-html.hd .stars-row .on{text-shadow:0 0 16px rgba(255,207,63,.85)}
-html.hd .logo-px{font-size:11px;font-weight:700}
-html.hd .modo{font-size:11px}
-html.hd .tit-fila3 .btn{font-size:19px;min-height:68px;border-radius:14px}
-html.hd .tit-fila3 .btn span{font-size:10px}
-html.hd .rango-badge{font-size:11px}
-html.hd .rango-badge.grande{font-size:13px}
-html.hd .moneda{font-size:12px}
-html.hd .logro p{font-size:10px}
-html.hd .item-tienda .nom-t{font-size:11px}
-html.hd .item-tienda .precio{font-size:12px}
-html.hd .stats-grid span{font-size:10px}
-html.hd .stats-grid b{font-size:18px}
-html.hd .rec-tabla th{font-size:11px}
-html.hd .reto-chip{font-size:11px;border-radius:10px;box-shadow:none;
-  border:1px solid rgba(140,160,255,.2);background:rgba(255,255,255,.05)}
-html.hd .reto-racha{border-radius:18px;box-shadow:none;
-  border:1px solid rgba(140,160,255,.14);background:rgba(255,255,255,.04)}
-html.hd .reto-num{font-size:26px}
-html.hd .rec-chip{font-size:11px;border-radius:10px;box-shadow:none;
-  border:1px solid rgba(140,160,255,.2);background:rgba(255,255,255,.05)}
-html.hd .rec-chip.act{color:var(--g3);border-color:rgba(84,196,26,.5);background:rgba(84,196,26,.12)}
-html.hd .mej-titulo{font-size:13px}
-html.hd .acc-precio{font-family:inherit;font-size:9px}
-html.hd .etapa-num{font-size:13px}
-html.hd .cut-prog,html.hd .cut-skip{font-size:12px;font-family:inherit}
-html.hd .btn,html.hd .btn2,html.hd .btn3,html.hd .btn-r{border-radius:14px;border:none;
-  font-weight:700;font-size:14px;text-shadow:none;font-family:inherit}
-html.hd .btn{background:linear-gradient(180deg,#5ad124,#2c8a06);box-shadow:0 10px 28px rgba(57,169,0,.4)}
-html.hd .btn2{background:linear-gradient(180deg,#3c4577,#242b52);box-shadow:0 10px 26px rgba(0,0,0,.45)}
-html.hd .btn3{background:linear-gradient(180deg,#a86bff,#7326e0);box-shadow:0 10px 26px rgba(140,61,240,.4)}
-html.hd .btn-r{background:linear-gradient(180deg,#e0475e,#a01c30);box-shadow:0 10px 26px rgba(194,46,68,.4)}
-html.hd .btn:active,html.hd .btn2:active,html.hd .btn3:active,html.hd .btn-r:active{
-  transform:scale(.96);box-shadow:none}
-html.hd .dialogo,html.hd .term,html.hd .cert,html.hd .item-tienda,html.hd .logro,
-html.hd .celda,html.hd .carta,html.hd .op,html.hd .entrada,html.hd .modo,
-html.hd .logo-px,html.hd .rango-badge,html.hd .moneda,html.hd .menu-inner,
-html.hd #logro-popup,html.hd #interrupcion,html.hd .acc-op,html.hd .skin-op,
-html.hd .camisa-op,html.hd .dp,html.hd .cmd,html.hd .stats-grid>div,
-html.hd .rango-fila{border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.4)}
-html.hd .barra,html.hd .xp-bar{border-radius:99px;border:1px solid rgba(140,160,255,.18);overflow:hidden}
-html.hd .barra-fill,html.hd .xp-fill{border-radius:99px;box-shadow:0 0 14px rgba(84,196,26,.6)}
-html.hd .barra-fill.peligro{box-shadow:0 0 14px rgba(255,84,104,.7)}
-html.hd .entrada{border-radius:12px;font-family:inherit;letter-spacing:1px}
-html.hd .op{border-radius:12px;font-size:16px}
-html.hd .carta{font-size:14px;font-weight:700}
-html.hd .cmd{font-size:12px;font-weight:700;opacity:.8}
-html.hd .cmd.activo{box-shadow:0 0 26px rgba(255,255,255,.35)}
-html.hd .palabra{letter-spacing:3px;font-weight:700}
-html.hd .code-line{font-size:clamp(17px,5vw,22px)}
-html.hd .cert{border-radius:20px;border-style:solid;border-width:1px;
-  border-color:rgba(84,196,26,.5);box-shadow:0 0 40px rgba(57,169,0,.15)}
-html.hd canvas.juego{image-rendering:auto;border-radius:16px;
-  border:1px solid rgba(140,160,255,.22);box-shadow:0 18px 46px rgba(0,0,0,.55)}
-html.hd .etapa-card{border-radius:16px;border-width:1px;background:rgba(255,255,255,.03)}
-html.hd .etapa-card.ok{background:rgba(57,169,0,.1)}
-html.hd .etapa-card.open{box-shadow:0 0 22px rgba(255,210,60,.22)}
-html.hd .ico{filter:drop-shadow(0 0 18px rgba(255,255,255,.2))}
-
 /* ── CAPA 64-BIT: iluminación de pantalla ── */
 #fx64{position:fixed;inset:0;pointer-events:none;z-index:15;
   background:
@@ -1370,14 +1283,6 @@ html.apaisado .sp-main .sj-carta .sj-nom{font-size:23px}
 .sala-cuenta.late{animation:sala-late .8s steps(6)}
 @keyframes sala-late{from{transform:scale(1.6);opacity:.2}to{transform:none;opacity:1}}
 
-/* ── piel OLED ── */
-html.hd .sala-caja,html.hd .sj-carta,html.hd .sj-fila,html.hd .sp-codigo b,
-html.hd .sp-reglas>span{border-radius:14px}
-html.hd .sp-cap{font-size:11px;font-weight:700}
-html.hd .sj-nom,html.hd .pd-nom,html.hd .sp-url,html.hd .sp-estado{font-family:inherit;font-size:15px}
-html.hd .sp-codigo{font-weight:800}
-html.hd .pd-base{border-radius:12px 12px 0 0}
-
 @media(prefers-reduced-motion:reduce){
   .sj-carta.entra,.sj-fila.entra,.puntos-anim i,.sala-cuenta.late{animation:none}
   .sj-fila,.sj-barra i{transition:none}
@@ -1405,7 +1310,7 @@ html.apaisado .mapa-aprendiz{top:0;right:8px;width:58px;height:99px}
    Un terminal de fósforo verde por encima del juego. No usa la tipografía de
    píxeles: un terminal se lee en monoespaciada, y VT323 ya está cargada. El
    verde es el --g4 del juego, no un verde nuevo, para que siga siendo el mismo
-   mundo; con la piel OLED (html.hd) se apagan las rayas y el brillo. */
+   mundo. */
 #lab{z-index:60;padding:10px;touch-action:auto}
 .lab-caja{
   display:flex;flex-direction:column;width:min(560px,100%);max-height:100%;
@@ -1478,13 +1383,6 @@ html.apaisado .mapa-aprendiz{top:0;right:8px;width:58px;height:99px}
   pointer-events:none;
 }
 
-/* Piel OLED: sin rayas de barrido y con el texto un punto más nítido */
-html.hd .lab-caja::after{display:none}
-html.hd .lab-caja{background:#061a0f;border-radius:10px}
-html.hd .lab-chip{border-radius:6px}
-html.hd .lab-in{border-radius:6px}
-html.hd #lab-marca{border-radius:6px}
-
 /* Pantalla estrecha: el subtítulo de la barra no cabe y se cortaba a media
    palabra. El título ya dice qué es esto, y la propia consola lo repite al
    abrirse por primera vez. */
@@ -1534,8 +1432,7 @@ html.hd #lab-marca{border-radius:6px}
 #aviso-ver .av-x:hover,#aviso-ver .av-x:focus-visible{color:#fff}
 /* La marca de ENSAYO vive en el mismo rincón: si salen las dos, esta sube */
 #lab-marca:not([hidden])~#aviso-ver{bottom:34px}
-html.hd #aviso-ver{border-radius:10px}
-html.hd #aviso-ver .av-btn{border-radius:6px}
+
 @media(max-width:360px){
   #aviso-ver .av-txt{font-size:15px}
   #aviso-ver .av-btn{font-size:7px;padding:8px}
@@ -1557,7 +1454,6 @@ button.rp-fila{width:100%;background:var(--pan);border:2px solid var(--bl);
 button.rp-fila:hover,button.rp-fila:focus-visible{border-color:var(--g3)}
 button.rp-fila:active{transform:translateY(3px);box-shadow:none}
 #rp-lista{display:flex;flex-direction:column;gap:9px;width:min(440px,100%)}
-html.hd button.rp-fila,html.hd .repaso-entrada{border-radius:10px}
 
 /* ── RONDA EN VIVO y PANEL DEL INSTRUCTOR ── */
 .sv-caja,.sv-alumno{display:flex;flex-direction:column;gap:12px}
@@ -1817,9 +1713,7 @@ html.apaisado .tit-aprendiz{width:clamp(56px,10vh,100px)}
   transform:translateY(2px);box-shadow:inset 0 2px 0 #07080f55,0 1px 0 var(--bd);
 }
 /* HD conserva sus esquinas suaves; texto legible conserva sus tamaños y fuente. */
-html.hd .portada .menu-fila,html.hd .portada .dif-op{border-radius:12px}
-html.hd .portada .menu-fila .m-ico{border-radius:6px}
-html.hd .portada .btn-jugar{border-radius:14px}
+
 html.legible .portada .menu-fila .m-txt{font-size:17px}
 html.legible .portada .dif-op{font-size:15px}
 @media(max-width:560px){
@@ -1873,8 +1767,7 @@ html.legible .portada .dif-op{font-size:15px}
 @media(hover:hover){.portada .tit-avatar:hover{border-color:var(--y2);box-shadow:inset 0 2px 0 #c8a3ff55,0 0 0 2px var(--bd),0 4px 0 #080a17,0 0 12px #a86bff33}}
 .portada .tit-avatar:focus-visible{outline:3px solid var(--y2);outline-offset:3px}
 .portada .tit-avatar:active{transform:translateY(2px);box-shadow:0 0 0 2px var(--bd),0 2px 0 #080a17}
-html.hd .portada .tit-avatar{border-radius:12px}
-html.hd .portada .tit-av-portrait{border-radius:6px}
+
 html.legible .portada .tit-av-txt b{font-size:17px}
 html.legible .portada .tit-av-txt .av-rango{font-size:14px}
 html.legible .portada .tit-prog-fila .p-lbl,html.legible .portada .tit-prog-fila .p-pc{font-size:13px}
@@ -1938,7 +1831,7 @@ html.legible .portada .tit-prog-fila .p-lbl,html.legible .portada .tit-prog-fila
 /* v35: placa oscura detrás del bloque de XP. Las cifras quedaban sobre ventanas encendidas del
    fondo animado y bajaban a 2,6:1 de contraste; con la placa se leen siempre. */
 .portada .tit-bloque.rpg-xp-bloque{padding:5px 8px 6px;background:#080c1bc4;box-shadow:0 0 0 1px #080c1b80}
-html.hd .portada .tit-bloque.rpg-xp-bloque{border-radius:6px}
+
 .rpg-xp-cab{width:100%;display:flex;align-items:baseline;justify-content:space-between;gap:6px;color:#bcb4e6;font-family:'VT323',monospace;font-size:17px;line-height:1.1}
 .rpg-xp-cab b{color:#d8b8ff;font-weight:400;letter-spacing:1px}
 .rpg-xp-cab strong{color:#ffcf3f;font-weight:400;white-space:nowrap}
@@ -1951,7 +1844,7 @@ html.hd .portada .tit-bloque.rpg-xp-bloque{border-radius:6px}
 .rpg-resultado .xp-txt{text-align:center;line-height:1.3}
 .rpg-medidor[data-animar="true"] .rpg-relleno{animation:rpg-ganancia 780ms cubic-bezier(.2,.7,.3,1) both}
 @keyframes rpg-ganancia{from{width:var(--rpg-desde)}to{width:var(--rpg-hasta)}}
-html.hd .rpg-medidor{border-radius:4px}
+
 html.legible .rpg-xp-cab,html.legible .portada .rpg-xp-bloque .xp-txt{font-family:inherit;font-size:15px;letter-spacing:0}
 @media(max-width:470px){.hud-titulo .rpg-medidor{width:48px;height:10px}.portada .tit-prog-fila .rpg-medidor{height:13px}.portada .rpg-xp-bloque .rpg-medidor{height:17px}}
 @media(prefers-reduced-motion:reduce){.rpg-medidor[data-animar="true"] .rpg-relleno{animation:none;transition:none}}
@@ -2052,7 +1945,6 @@ html.legible .cine .cine-nombre,html.legible .cine .cine-titulo,html.legible .ci
 .cine-simbolo-jefe:has(.cine-jefe)>:not(.cine-jefe){visibility:hidden}
 .cine-simbolo-jefe .cine-jefe{transform:translateY(-22%) scale(2);image-rendering:pixelated}
 
-
 /* v40 RC · identidad del protagonista y probador de cuerpo entero.
    Acotado a Mi Avatar; no cambia los paneles ni los botones de otros menús. */
 .pe-wrap .pe-lado{justify-content:flex-start;border-color:#7061aa;background:linear-gradient(160deg,#1d2850,#0d1229 75%);box-shadow:inset 0 1px #9f8ee055,0 3px #080b18}
@@ -2109,7 +2001,7 @@ html.legible .pe-wrap .pe-apariencia-op span{font-family:'VT323',monospace;font-
 @media(hover:hover){.pe-wrap .pe-color-op:not(.sel):hover{border-color:#a3a0e5;background:linear-gradient(145deg,#374971,#161d37)}}
 @media(min-width:900px){.pe-wrap .pe-color-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 html.legible .pe-wrap .pe-color-cab h3,html.legible .pe-wrap .pe-gratis,html.legible .pe-wrap .pe-color-estado{font:18px/1.15 'VT323',monospace}
-html.hd .pe-wrap .pe-color-op{border-radius:6px}
+
 @media(max-width:390px){.pe-wrap .pe-color-grid{gap:8px}.pe-wrap .pe-color-op{padding:5px}.pe-wrap .pe-color-arte{height:100px}.pe-wrap .camisa-op .pe-color-arte canvas{width:55px;height:92.5px}.pe-wrap .pe-color-nom{font-size:17px}}
 @media(prefers-reduced-motion:reduce){.pe-wrap .pe-color-op,.pe-wrap .pe-color-arte canvas,.pe-wrap .pe-pum{animation:none!important;transition:none!important}}
 
@@ -2337,7 +2229,7 @@ html.legible .records-pantalla .rec-tabla th{font-size:10px}
 @media(hover:hover){.pe-definitivo .pe-apariencia-op:not(.sel):hover,.pe-definitivo .pe-atajo-acc:hover,.pe-definitivo .pe-tab:not(.act):hover{border-color:#bcacf4;background:#30385a}.pe-definitivo .pe-rapido:hover{outline:1px solid #fff;outline-offset:1px}}
 @container (min-width:720px){.pe-definitivo .pe-cuerpo{grid-template-columns:minmax(0, .9fr) minmax(0,1.7fr)}.pe-definitivo .pe-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}.pe-definitivo .pe-overview{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}.pe-definitivo .pe-apariencia-op{min-height:230px}.pe-definitivo .pe-apariencia-op canvas{width:min(100%,88px)}.pe-definitivo .pe-color-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.pe-definitivo .pe-acc-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @container (max-width:390px){.pe-definitivo .pe-lado,.pe-definitivo .pe-custom{padding:8px}.pe-definitivo .pe-panel{padding:8px}.pe-definitivo .pe-visor{min-height:178px;padding:10px 7px 26px}.pe-definitivo #pe-cuerpo-av,.pe-definitivo .pe-visor[data-vista='cuerpo'] #pe-cuerpo-av{width:min(100%,88px);max-width:none}.pe-definitivo .pe-visor[data-vista='retrato'] .pe-mini-retrato .pe-av{max-width:110px}.pe-definitivo .pe-escena-tag{font-size:13px}.pe-definitivo .pe-visor-controles{grid-template-columns:30px minmax(0,1fr) 30px minmax(54px,1fr)}.pe-definitivo .pe-nombre{font-size:11px}.pe-definitivo .pe-apariencia-op canvas{width:min(100%,77px)}.pe-definitivo .pe-apariencia-op{min-height:155px}.pe-definitivo .pe-color-arte{height:100px}.pe-definitivo .camisa-op .pe-color-arte canvas{height:92px;width:55px}.pe-definitivo .pe-cab .moneda{padding:7px;font-size:8px}}
-html.legible .pe-definitivo .pe-apariencia-cab h3,html.legible .pe-definitivo .pe-rango,html.legible .pe-definitivo .pe-nombre{font:20px/1.15 'VT323',monospace}html.hd .pe-definitivo .pe-lado,html.hd .pe-definitivo .pe-custom,html.hd .pe-definitivo .pe-panel{border-radius:8px}
+html.legible .pe-definitivo .pe-apariencia-cab h3,html.legible .pe-definitivo .pe-rango,html.legible .pe-definitivo .pe-nombre{font:20px/1.15 'VT323',monospace}
 html.pestana-oculta .pe-definitivo .pe-plataforma::before{animation-play-state:paused}
 @media(prefers-reduced-motion:reduce){.pe-definitivo .pe-plataforma::before,.pe-definitivo .pe-pum,.pe-definitivo.pe-pum{animation:none!important;transition:none!important}}
 /* El visor va primero en móvil, seguido por las opciones; el perfil no

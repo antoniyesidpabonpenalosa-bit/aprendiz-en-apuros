@@ -59,8 +59,8 @@ verás el aviso **🎮 ¡MANDO CONECTADO!**
 
 ## ✨ Características
 
-- **2 modos visuales**: 🕹 RETRO 32-BIT (pixel art + CRT) y ✨ 4K HD PRO OLED
-  (negros profundos, neón y alta resolución) — cambia desde la pantalla de título
+- **Look retro 32-BIT** (pixel art + CRT) y un modo de 🔤 **texto legible** (VT323
+  en vez de la tipografía de píxeles) — se cambia desde la pantalla de título
 - **3 niveles de dificultad**: 🌱 Práctica, ⚔️ Normal y 💀 Pesadilla — ajustan
   vidas, tiempo y la agresividad del jefe final
 - **15 días en las 2 etapas reales de la formación**: 📚 **Etapa Lectiva**
@@ -127,7 +127,7 @@ aprendiz-en-apuros/
 │   └── retratos/         → retratos dibujados (WebP): Gustavo, Valentina, Andrés y Don Jairo × 5 gestos
 ├── portada.png           → vista previa al compartir el enlace (Open Graph)
 ├── css/
-│   └── estilos.css       → todos los estilos (temas retro y 4K OLED)
+│   └── estilos.css       → todos los estilos
 └── js/
     ├── datos.js          → constantes: niveles, textos ES/EN, quiz, diálogos
     ├── estado.js         → partida guardada, temporizadores y utilidades

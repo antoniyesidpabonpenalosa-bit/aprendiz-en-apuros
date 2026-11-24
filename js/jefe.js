@@ -28,7 +28,6 @@ function nvJefe(dia,ptsBase){
     </div>
   </div>`);
   const cv=$('#j-cv'),c=cv.getContext('2d');
-  const HD=!!S.hd;
   /* LA ARENA. En la última etapa (día 15, la revancha nocturna) la pelea es en
      un espacio más grande y con aire de terminal hacker: más ancho y MUCHO más
      alto, así las ❌ tardan más en caer y hay margen para esquivar. El resto de
@@ -40,11 +39,9 @@ function nvJefe(dia,ptsBase){
   if(FINAL)$('.cv-wrap').classList.add('jefe-final');
   /* El lienzo se dibuja SIEMPRE en el espacio lógico de 320×180: el búfer se
      agranda según la densidad real de la pantalla y el transform lo compensa,
-     así que ninguna coordenada del juego cambia. Antes esto era todo o nada
-     (solo con el modo HD), y sin HD el navegador estiraba un búfer de 320 px
-     en un móvil de alta densidad: borroso. El modo HD sigue sumando nitidez
-     encima, ahora como multiplicador. */
-  const dpr=densidad()*(HD?1.5:1);
+     así que ninguna coordenada del juego cambia. Sin esto el navegador
+     estiraba un búfer de 320 px en un móvil de alta densidad: borroso. */
+  const dpr=densidad();
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
   c.setTransform(dpr,0,0,dpr,0,0);
   modoJefe=true; /* activa el tema musical tenso */
@@ -126,21 +123,17 @@ function nvJefe(dia,ptsBase){
       c.fillStyle='#000a03';c.fillRect(0,0,W,H);
       matrix();
     }else{
-      if(HD){
-        const g=c.createLinearGradient(0,0,0,H);
-        g.addColorStop(0,'#1a0f2e');g.addColorStop(.7,'#08050f');g.addColorStop(1,'#030208');
-        c.fillStyle=g;
-      }else c.fillStyle='#120a20';
+      c.fillStyle='#120a20';
       c.fillRect(0,0,W,H);
       /* lluvia digital de fondo */
-      c.fillStyle=HD?'rgba(140,61,240,.16)':'#241048';
+      c.fillStyle='#241048';
       for(let k=0;k<8;k++){const y=(frame*2+k*47)%200;c.fillRect(20+k*40,y-20,2,12)}
     }
     /* barra de vida del jefe (en la última etapa, verde de terminal) */
     const bx=(W-200)/2;
     c.fillStyle=FINAL?'#001a07':'#07080f';c.fillRect(bx,6,200,8);
     c.fillStyle=jefe.hp>33?(FINAL?'#00ff41':'#c22e44'):'#ff5468';
-    if(HD||FINAL){c.shadowColor=jefe.hp>33&&FINAL?'#00ff41':'#ff5468';c.shadowBlur=8}
+    if(FINAL){c.shadowColor=jefe.hp>33&&FINAL?'#00ff41':'#ff5468';c.shadowBlur=8}
     c.fillRect(bx,6,jefe.hp*2,8);
     c.shadowBlur=0;
     if(FINAL){c.strokeStyle='#00ff41';c.lineWidth=1;c.strokeRect(bx-.5,5.5,201,9)}
@@ -169,10 +162,8 @@ function nvJefe(dia,ptsBase){
       c.restore();
     }
     /* balas (commits) */
-    if(HD){c.shadowColor='#54c41a';c.shadowBlur=6}
     c.fillStyle=FINAL?'#7dffa0':'#54c41a';
     balas.forEach(b=>c.fillRect(b.x,b.y,3,8));
-    c.shadowBlur=0;
     /* errores que caen */
     errores.forEach(o=>pxiDibujar(c,'❌',o.x-6,o.y-11));
     /* láser del jefe: aviso parpadeante y luego rayo */
@@ -183,10 +174,8 @@ function nvJefe(dia,ptsBase){
       c.textAlign='start';
     }else if(laserEstado===2){
       const w=10+(laserT%4<2?2:0);
-      if(HD){c.shadowColor='#ff5468';c.shadowBlur=14}
       c.fillStyle='#ff5468';c.fillRect(laserX-w/2,jefe.y+8,w,H-10-jefe.y);
       c.fillStyle='#ffd0d6';c.fillRect(laserX-2,jefe.y+8,4,H-10-jefe.y);
-      c.shadowBlur=0;
     }
     /* jugador (parpadea si invulnerable). El aprendiz de cuerpo entero mira
        hacia donde se mueve; si el sprite no cargó, cae al bloque de siempre. */

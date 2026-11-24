@@ -28,13 +28,6 @@ const estilos = readFileSync(join(RAIZ, 'css', 'estilos.css'), 'utf8');
 const raiz = estilos.match(/:root\s*\{([^}]*)\}/);
 if (!raiz) throw new Error('css/estilos.css no tiene un bloque :root { ... }');
 
-/* La galería reusa el bloque del tema OLED del juego. Se valida aquí, antes de
-   escribir nada, para no dejar dist/ a medio regenerar si el comentario cambia. */
-const MARCA_OLED = 'MODO ✨';
-const bloqueOled = estilos.split(MARCA_OLED)[1];
-if (bloqueOled === undefined)
-  throw new Error(`css/estilos.css no contiene el marcador "${MARCA_OLED}" que delimita el tema OLED.\n` +
-    'Si renombraste ese comentario, actualiza MARCA_OLED en scripts/build-ui-kit.mjs.');
 const tokens = [...raiz[1].matchAll(/--([a-z0-9]+)\s*:\s*([^;]+);/gi)]
   .map(m => ({ nombre: m[1] }));
 
@@ -70,7 +63,6 @@ const ARMONICO = `
 /* ═══ ARMÓNICO DE PREVISUALIZACIÓN (solo para el design system, no afecta al juego) ═══ */
 html,body{height:auto!important;overflow:visible!important}
 body{display:block!important;padding:26px!important;background:var(--void)!important;align-items:stretch!important;justify-content:flex-start!important}
-html.hd body{background:radial-gradient(130% 120% at 50% -10%,#131b38 0%,#04050c 68%,#000 100%)!important}
 .pv-h{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--y2);margin:0 0 6px;letter-spacing:1px;text-shadow:2px 2px 0 var(--bd)}
 .pv-note{font-family:'VT323',monospace;font-size:16px;color:var(--tx2);margin:0 0 20px;line-height:1.3}
 .pv-lbl{font-family:'VT323',monospace;font-size:15px;color:var(--tx1);width:100%;margin:16px 0 6px;letter-spacing:1px;text-transform:uppercase}
@@ -79,9 +71,9 @@ html.hd body{background:radial-gradient(130% 120% at 50% -10%,#131b38 0%,#04050c
 `;
 const BASE_CSS = estilos + '\n' + ARMONICO;
 
-function doc(titulo, bodyHtml, { hd = false } = {}) {
+function doc(titulo, bodyHtml) {
   return `<!doctype html>
-<html lang="es"${hd ? ' class="hd"' : ''}>
+<html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -141,7 +133,6 @@ const TARJETAS = [
   { out: 'components/runner-jefe.html', titulo: 'Runner y jefe final', grupo: 'Componentes', src: 'components/runner-jefe.html' },
   { out: 'components/certificado-records.html', titulo: 'Certificado y récords', grupo: 'Componentes', src: 'components/certificado-records.html' },
   { out: 'components/personalizacion.html', titulo: 'Personalización y dificultad', grupo: 'Componentes', src: 'components/personalizacion.html' },
-  { out: 'temas/retro-vs-oled.html', titulo: 'Temas RETRO vs OLED', grupo: 'Temas', src: 'temas/temas.html' },
 ];
 
 /* Se vacía primero para que un componente renombrado o eliminado no deje su
@@ -155,11 +146,6 @@ for (const t of TARJETAS) {
   const marcador = `<!-- @dsCard group="${t.grupo}" title="${t.titulo}" -->\n`;
   escribir(t.out, marcador + doc(t.titulo, body));
 }
-
-/* frames de tema (sin tarjeta propia, los usan retro-vs-oled.html y la galería) */
-const demoTema = leer('temas/theme-demo.html');
-escribir('temas/_retro.html', doc('Demo retro', demoTema));
-escribir('temas/_oled.html', doc('Demo OLED', demoTema, { hd: true }));
 
 /* ── 4 · index.html: galería de una sola página con todas las tarjetas ── */
 const CSS_GALERIA = `
@@ -177,51 +163,32 @@ body{background:#080a15!important;padding:0!important}
 .spec.wide{grid-column:1/-1}
 .spec::before{content:attr(data-n);position:absolute;top:10px;right:12px;font-family:'VT323','Courier New',monospace;
   font-size:16px;color:var(--tx1);letter-spacing:1px}
-.themes-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:640px){.themes-2{grid-template-columns:1fr}}
-.themes-2 .cap{font-size:9px;letter-spacing:1px;color:var(--tx2);margin-bottom:10px}
 .gal-foot{margin-top:30px;font-family:'VT323','Courier New',monospace;font-size:16px;color:var(--tx1);text-align:center;line-height:1.5}
 `;
-const OLED_SCOPE = bloqueOled.replace(/html\.hd/g, '.oled-scope');
 
-const noTemas = TARJETAS.filter(t => t.grupo !== 'Temas');
 /* Las etiquetas de la cabecera se cuentan por grupo real: antes decían
    "17 COMPONENTES" incluyendo las dos tarjetas de Fundamentos. */
 const cuenta = g => TARJETAS.filter(t => t.grupo === g).length;
 let n = 1;
-const specs = noTemas.map(t => {
+const specs = TARJETAS.map(t => {
   const body = t.body ?? leer(t.src);
   return `    <div class="spec" data-n="${String(n++).padStart(2, '0')}">\n${body}\n    </div>`;
 }).join('\n');
 
-const specTemas = `    <div class="spec wide" data-n="${String(n++).padStart(2, '0')}">
-      <h1 class="pv-h">🎛 Temas · RETRO vs 4K OLED</h1>
-      <p class="pv-note">El mismo componente en las dos pieles. RETRO: pixel, bordes duros, sombras sólidas. OLED: negros profundos, degradados, esquinas redondeadas y neón.</p>
-      <div class="themes-2">
-        <div><p class="cap">🕹 RETRO 32-BIT</p>${demoTema}</div>
-        <div class="oled-scope"><p class="cap" style="color:#9fb0d8">✨ 4K HD PRO OLED</p>${demoTema}</div>
-      </div>
-    </div>`;
-
 const galeriaBody = `<div class="gal">
   <header class="gal-hd">
     <h1>🎮 APRENDIZ EN APUROS · UI KIT</h1>
-    <p class="k">Sistema de diseño extraído del juego: los mismos tokens, tipografías y componentes que ves en pantalla, catalogados y generados directamente desde <code>css/estilos.css</code>. Un solo mundo arcade — pixel, verde SENA y alto contraste — en sus dos pieles: RETRO 32-BIT y 4K HD PRO OLED.</p>
-    <div class="tags"><span>${cuenta('Fundamentos')} FUNDAMENTOS</span><span>${cuenta('Componentes')} COMPONENTES</span><span>2 TEMAS</span><span>HTML/CSS PURO</span><span>GENERADO CON scripts/build-ui-kit.mjs</span></div>
+    <p class="k">Sistema de diseño extraído del juego: los mismos tokens, tipografías y componentes que ves en pantalla, catalogados y generados directamente desde <code>css/estilos.css</code>. Un solo mundo arcade: pixel, verde SENA y alto contraste.</p>
+    <div class="tags"><span>${cuenta('Fundamentos')} FUNDAMENTOS</span><span>${cuenta('Componentes')} COMPONENTES</span><span>HTML/CSS PURO</span><span>GENERADO CON scripts/build-ui-kit.mjs</span></div>
   </header>
   <section class="gal-grid">
 ${specs}
-${specTemas}
   </section>
   <p class="gal-foot">Generado desde css/estilos.css · node scripts/build-ui-kit.mjs · Aprendiz en apuros · SENA</p>
 </div>`;
 
 const galeriaCss = `${BASE_CSS}
-${CSS_GALERIA}
-.oled-scope{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-  background:radial-gradient(130% 120% at 50% -10%,#131b38 0%,#04050c 68%,#000 100%);
-  border-radius:20px;padding:18px}
-${OLED_SCOPE}`;
+${CSS_GALERIA}`;
 
 escribir('index.html', `<!doctype html>
 <html lang="es">
@@ -262,6 +229,5 @@ if (CHECK) {
   console.log('✓ design-system/dist/ está sincronizado con src/ y css/estilos.css');
 } else {
   console.log(`✓ ${TARJETAS.length} tarjetas de componente generadas en design-system/dist/`);
-  console.log('✓ 2 frames de tema (_retro.html, _oled.html)');
   console.log('✓ Galería local en design-system/dist/index.html');
 }

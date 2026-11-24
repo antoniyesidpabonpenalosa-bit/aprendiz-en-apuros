@@ -20,8 +20,11 @@
    (v21.1, v21.2…). Antes cada publicación subía uno (llegó a v44); se
    renumeró todo con esta regla y la equivalencia vieja → nueva está en
    VERSIONES.md, porque los mensajes de commit conservan los números viejos. */
-const VERSION='v40.24';
+const VERSION='v40.25';
 const NOVEDADES=[
+  {v:'v40.25', fecha:'2026-11-24',
+   es:['Se quita el MODO 4K HD OLED: el juego se ve siempre con su look retro de 32 bits, y el botón de la pantalla de título ya no está. El TEXTO LEGIBLE sigue igual. Tu partida, tus puntos y tus ajustes no cambian.'],
+   en:['The 4K HD OLED MODE is gone: the game always uses its 32-bit retro look and the title-screen button is removed. LEGIBLE TEXT stays as it was. Your save, your points and your settings are unchanged.']},
   {v:'v40.24', fecha:'2026-11-20',
    es:['RÉCORDS estrena imagen: un salón de la fama de fondo y tres paneles bien separados, el marcador global, tus marcas y el escalafón de rangos. Los mensajes de carga, sin conexión y sin marcas también tienen su propio aspecto. Los puntos, rangos y filtros no cambian.'],
    en:['RECORDS get a new look: a hall-of-fame backdrop and three clearly separate panels, the global leaderboard, your own marks and the rank ladder. The loading, offline and no-marks messages have their own look too. Scores, ranks and filters are unchanged.']},
@@ -1063,7 +1066,6 @@ const TXT={
   combo:'RACHA',perfecto_fx:'¡PERFECTO!',rango_fx:'NUEVO RANGO!',
   aprobar:'✔ APROBAR',rechazar:'✘ RECHAZAR',lineasrev:'LÍNEAS',
   eligebuena:'Toca la línea que SÍ compila',
-  modo_hd:'✨ MODO 4K HD OLED',modo_retro:'🕹 MODO RETRO 32-BIT',
   texto_legible:'🔤 TEXTO LEGIBLE',texto_pixel:'🕹 TEXTO PIXEL',
   ayuda_tit:'CÓMO SE JUEGA',ayuda_ok:'ENTENDIDO',ayuda_nota:'Solo se enseña la primera vez',
   grupo_tit:'CÓDIGO DE AULA',grupo_no:'Sin grupo',grupo_unirse:'UNIRME',grupo_cambiar:'CAMBIAR',
@@ -1203,7 +1205,6 @@ const TXT={
   combo:'STREAK',perfecto_fx:'PERFECT!',rango_fx:'NEW RANK!',
   aprobar:'✔ APPROVE',rechazar:'✘ REJECT',lineasrev:'LINES',
   eligebuena:'Tap the line that DOES compile',
-  modo_hd:'✨ 4K HD OLED MODE',modo_retro:'🕹 RETRO 32-BIT MODE',
   texto_legible:'🔤 READABLE TEXT',texto_pixel:'🕹 PIXEL TEXT',
   ayuda_tit:'HOW TO PLAY',ayuda_ok:'GOT IT',ayuda_nota:'Shown only the first time',
   grupo_tit:'CLASS CODE',grupo_no:'No group',grupo_unirse:'JOIN',grupo_cambiar:'CHANGE',

@@ -41,7 +41,7 @@ h1 .b{color:#8aff4f;text-shadow:5px 5px 0 #1f5a00,7px 8px 0 #050716}
 .estrellas{position:absolute;left:84px;top:66px;font:26px P;color:#ffcf3f;letter-spacing:6px}
 </style>
 <div class="estrellas">★★★</div>
-<div class="chip">SENA · 32-BIT / 4K OLED</div>
+<div class="chip">SENA · 32-BIT</div>
 <h1><span class="a">APRENDIZ</span><br><span class="b">EN APUROS</span></h1>
 <p class="sub">LA AVENTURA DEL APRENDIZ</p>
 <div class="btn">▶ JUGAR GRATIS</div>

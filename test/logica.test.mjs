@@ -17,7 +17,7 @@ const arr = x => [...x];
 test('el código de guardado sobrevive la ida y vuelta', () => {
   const a = cargarJuego();
   Object.assign(a.S, {
-    pts: 4820, xp: 3100, nombre: 'ANTONI', dif: 2, hd: true,
+    pts: 4820, xp: 3100, nombre: 'ANTONI', dif: 2,
     dias: [3, 2, 3, 1, 3, 2, 2, 3, 3, 1, 2, 3, 1, 2, 3],
     logros: ['primer', 'perfecto'], mejoras: ['doble', 'vida'], acc: 'capa',
   });
@@ -39,24 +39,32 @@ test('el código de guardado sobrevive la ida y vuelta', () => {
   assert.equal(b.S.acc, 'capa');
 });
 
-test('av32 es independiente de hd: los dos se combinan, no se excluyen', () => {
+test('av32 es un interruptor propio y un valor roto en el guardado cae al default seguro', () => {
   const a = cargarJuego();
   assert.equal(a.S.av32, false, 'por defecto el retrato sigue siendo el de 16 de toda la vida');
-  assert.equal(a.S.hd, false);
-
-  /* Combinación 32 + retro CRT: hd se queda apagado a propósito. */
   a.S.av32 = true;
-  assert.equal(a.S.hd, false, 'activar el detalle del retrato no enciende la piel OLED');
-
-  /* Combinación 16 + OLED: la inversa, tampoco se arrastran entre sí. */
-  const b = cargarJuego();
-  b.S.hd = true;
-  assert.equal(b.S.av32, false, 'activar la piel OLED no enciende el retrato de 32 por su cuenta');
+  assert.equal(a.S.av32, true);
 
   /* Un valor roto en el guardado (partida escrita a mano, versión vieja)
      cae al mismo default seguro que el resto de banderas de S. */
-  const c = cargarJuego({ guardado: { av32: 'sí', hd: 1 } });
+  const c = cargarJuego({ guardado: { av32: 'sí' } });
   assert.equal(c.S.av32, false);
+});
+
+test('el modo OLED ya no existe: una partida o un código viejos que traían hd se limpian sin romperse', () => {
+  const v = cargarJuego({ guardado: { hd: true, pts: 321, nombre: 'ANTONI' } });
+  assert.equal('hd' in v.S, false, 'la partida vieja pierde la marca hd al cargarse');
+  assert.equal(v.S.pts, 321, 'y el resto de la partida queda intacto');
+  assert.equal(v.S.nombre, 'ANTONI');
+  v.guardar();
+  assert.equal('hd' in JSON.parse(v._localStorage.getItem('pa3')), false, 'tampoco se vuelve a guardar');
+
+  const a = cargarJuego();
+  a.S.hd = true;                                   // un código exportado por una versión que aún lo tenía
+  const codigo = a.exportarCodigo();
+  const b = cargarJuego();
+  assert.equal(b.importarCodigo(codigo), true, 'el código viejo se sigue aceptando');
+  assert.equal('hd' in b.S, false);
 });
 
 test('av32 sobrevive el código de guardado entre dispositivos', () => {
