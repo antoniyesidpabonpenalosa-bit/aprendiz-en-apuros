@@ -1,5 +1,7 @@
 # Plan: el título del menú principal (paso 2 del rediseño de la portada)
 
+> **Nota (v40.25):** el modo 4K HD OLED se quitó del juego. Lo que este plan dice de él ya no aplica; el resto sigue vigente.
+
 > Estado: **hecho (v28)**: solo el título. El fondo animado (v27) se conserva; el subtítulo, los
 > botones, los datos y la lógica de `rTitulo()` no cambian. Siguen pendientes los demás pasos del
 > rediseño de la portada.

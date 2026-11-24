@@ -1,8 +1,7 @@
 /* El título de la portada (v28): un dibujo en pixel art con el <h1> de texto como respaldo.
    Aquí: que el recurso sea el del paquete, que el texto accesible siga en el HTML, que el
-   CSS no deje ver los dos a la vez ni toque el modo HD, y que esté en la caché sin
-   conexión. Lo que hay que VER (que quepa, que no tape nada, HD, legible, fallo de
-   carga) lo prueban los casos "título del menú" de scripts/regresiones.mjs. */
+   CSS no deje ver los dos a la vez, y que esté en la caché sin conexión. Lo que hay
+   que VER (que quepa, que no tape nada, texto legible, fallo de carga) lo prueban los casos "título del menú" de scripts/regresiones.mjs. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

@@ -1,5 +1,7 @@
 # Plan: botones e iconos de la portada (paso 4 del rediseño de la portada)
 
+> **Nota (v40.25):** el modo 4K HD OLED se quitó del juego. Lo que este plan dice de él ya no aplica; el resto sigue vigente.
+
 > Estado: **hecho (v30)**. Paquete del autor (parche sobre la v26.1). El parche no aplicaba solo
 > (el CSS cambió con el fondo, el título y el aprendiz), así que se hizo como pedía su LEEME:
 > el bloque de `botones-portada.css` se añadió **una vez** al final de `css/estilos.css` y las dos
