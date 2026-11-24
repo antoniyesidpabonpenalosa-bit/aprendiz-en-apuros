@@ -237,14 +237,14 @@ await caso('consola · con un ensayo no se entra a una sala', null, async pg => 
 
 /* ── CRUCES ── */
 await caso('consola × ajustes · volver a lo normal conserva idioma, sonido, piel y dificultad', null, async pg => {
-  await prep(pg, { lang: 'es', snd: true, hd: false, dif: 1, pts: 100 });
+  await prep(pg, { lang: 'es', snd: true, av32: false, dif: 1, pts: 100 });
   const r = await pg.evaluate(() => {
     LAB.ejecutar('vidas 9', {});
-    S.lang = 'en'; aplicarIdioma(); S.snd = false; S.hd = true; S.dif = 2; S.pts = 99999;
+    S.lang = 'en'; aplicarIdioma(); S.snd = false; S.av32 = true; S.dif = 2; S.pts = 99999;
     LAB.ejecutar('normal', {});
-    return { lang: S.lang, html: document.documentElement.lang, snd: S.snd, hd: S.hd, dif: S.dif, pts: S.pts };
+    return { lang: S.lang, html: document.documentElement.lang, snd: S.snd, av32: S.av32, dif: S.dif, pts: S.pts };
   });
-  return [r.lang === 'en' && r.html === 'en' && !r.snd && r.hd && r.dif === 2 && r.pts === 100, JSON.stringify(r)];
+  return [r.lang === 'en' && r.html === 'en' && !r.snd && r.av32 && r.dif === 2 && r.pts === 100, JSON.stringify(r)];
 });
 
 await caso('pausa × idioma · el menú de pausa se traduce con la pausa abierta', null, async pg => {
@@ -659,7 +659,7 @@ await caso('jefe · sin conexión: el service worker guarda los dibujos y se sir
 await caso('jefe · la arena del día 15 es más grande y la del día 10 no cambia', null, async pg => {
   await prep(pg);
   const r = await pg.evaluate(() => { const o = {};
-    for (const d of [9, 14]) { diaAct = d; vidas = 3; nvJefe(d, 0); const c = $('#j-cv'); o[d] = [c.width / (densidad() * (S.hd ? 1.5 : 1)), c.height / (densidad() * (S.hd ? 1.5 : 1))].map(Math.round).join('x'); }
+    for (const d of [9, 14]) { diaAct = d; vidas = 3; nvJefe(d, 0); const c = $('#j-cv'); o[d] = [c.width / densidad(), c.height / densidad()].map(Math.round).join('x'); }
     return o; });
   return [r[9] === '320x180' && r[14] === '400x270', JSON.stringify(r)];
 });
@@ -1351,7 +1351,7 @@ await caso('fondo del menú · con el campus, el menú se ve y los botones respo
 /* ── EL TÍTULO DE LA PORTADA (v28) ──
    Un dibujo en pixel art en vez del texto, con el <h1> de siempre como respaldo y para los
    lectores de pantalla. Lo que no puede romperse: que nunca se vean los dos, que quepa y no
-   tape el subtítulo ni los botones, que el modo HD siga con su título de texto, que el modo
+   tape el subtítulo ni los botones, que el texto
    legible y las pantallas estrechas funcionen, y que si el dibujo no carga salga el texto. */
 const TITULO = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v28', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
 const esperaTitulo = pg => pg.waitForFunction(() => document.querySelector('.tit-logo')?.classList.contains('con-imagen'), null, { timeout: 5000 });
@@ -1381,12 +1381,6 @@ await caso('título del menú · cabe sin deformarse, sin desbordar y sin tapar 
     if (!(e.imgVisible && e.dentro && e.subLibre && e.sinScroll && Math.abs(e.ratio - 920 / 360) < .02)) mal.push(`${w}×${h}: ${JSON.stringify(e)}`);
   }
   return [mal.length === 0, mal.length ? mal.join(' · ') : '6 tamaños: dentro de su caja, relación 920:360, sin scroll y sin tapar el subtítulo'];
-});
-
-await caso('título del menú · el modo HD conserva el título de texto de siempre (sin dibujo)', { ...TITULO, hd: true }, async pg => {
-  await pg.evaluate(() => rTitulo()); await pausa(900);
-  const e = await estadoTitulo(pg);
-  return [!e.imgVisible && e.textoVisible && e.guionVisible && e.nombre === 'APRENDIZ EN APUROS', JSON.stringify(e)];
 });
 
 await caso('título del menú · con el texto legible se ve el dibujo y el subtítulo sigue en su tipografía legible', { ...TITULO, legible: true }, async pg => {
@@ -1568,15 +1562,15 @@ await caso('aprendiz de la portada · al salir de la portada no queda ningún bu
   return [ok, `fuera de la portada: ${base} temporizadores; en 10 vueltas ${JSON.stringify(salidas.slice(0, 3))}…`];
 });
 
-await caso('aprendiz de la portada · con el modo HD y con el texto legible sigue en su sitio, sin desbordar', PORTADA_J, async pg => {
+await caso('aprendiz de la portada · con el texto legible sigue en su sitio, sin desbordar', PORTADA_J, async pg => {
   const mal = [];
-  for (const modo of [{ hd: true }, { legible: true }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); rTitulo(); }, modo); await listoAprendiz(pg); await pausa(300);
+  for (const modo of [{ legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false }, m); aplicarModo(); rTitulo(); }, modo); await listoAprendiz(pg); await pausa(300);
     const r = await pg.evaluate(() => { const a = document.querySelector('#t-aprendiz').getBoundingClientRect(), b = document.querySelector('.jugar-marco').getBoundingClientRect(), sc = document.querySelector('#screen'); return { izq: a.right <= b.left + 2, sinScroll: sc.scrollWidth <= sc.clientWidth, ancho: Math.round(a.width) }; });
     if (!(r.izq && r.sinScroll && r.ancho >= 40)) mal.push(JSON.stringify(modo) + ' ' + JSON.stringify(r));
   }
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
-  return [mal.length === 0, mal.length ? mal.join(' · ') : 'HD y legible: a la izquierda de JUGAR, sin scroll'];
+  await pg.evaluate(() => { Object.assign(S, { legible: false }); aplicarModo(); });
+  return [mal.length === 0, mal.length ? mal.join(' · ') : 'legible: a la izquierda de JUGAR, sin scroll'];
 });
 
 await caso('aprendiz de la portada · las demás pantallas no cambian: ninguna lleva el lienzo ni sus reglas', PORTADA_J, async pg => {
@@ -1589,17 +1583,17 @@ await caso('aprendiz de la portada · las demás pantallas no cambian: ninguna l
 /* ── LOS BOTONES DE LA PORTADA (v30) ──
    Lo que no puede romperse: que las nueve tarjetas, JUGAR, el reto diario, las tres
    dificultades, la consola y borrar sigan haciendo lo de siempre; que los iconos sigan siendo
-   los de pixel art; que todo quepa en móvil, escritorio, HD y texto legible; que el teclado no
+   los de pixel art; que todo quepa en móvil, escritorio y texto legible; que el teclado no
    pierda el foco al elegir dificultad; y que nada de esto salga de la portada. */
 const BOTONES_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v30', dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
 
-await caso('botones de la portada · las 9 tarjetas llevan su icono de pixel art (no emoji) a 36 px, y 32 px en móvil (v34)', BOTONES_J, async pg => {
+await caso('botones de la portada · las 8 tarjetas llevan su icono de pixel art (no emoji) a 36 px, y 32 px en móvil (v34)', BOTONES_J, async pg => {
   const mide = async (w, h) => { await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(400);
     return pg.evaluate(() => { const f = [...document.querySelectorAll('.portada .menu-fila')]; const ico = f.map(b => b.querySelector('.m-ico img.pxi')?.getBoundingClientRect().width || 0);
       const d = [...document.querySelectorAll('.portada .dif-op .dif-ico img.pxi')].length;
       return { filas: f.length, conPxi: ico.filter(x => x > 0).length, min: Math.min(...ico), dif: d }; }); };
   const m = await mide(390, 760), g = await mide(1280, 800);
-  return [m.filas === 9 && m.conPxi === 9 && m.dif === 3 && m.min >= 31 && m.min <= 33 && g.conPxi === 9 && g.min >= 35, `móvil ${JSON.stringify(m)} · escritorio ${JSON.stringify(g)}`];
+  return [m.filas === 8 && m.conPxi === 8 && m.dif === 3 && m.min >= 31 && m.min <= 33 && g.conPxi === 8 && g.min >= 35, `móvil ${JSON.stringify(m)} · escritorio ${JSON.stringify(g)}`];
 });
 
 await caso('botones de la portada · cada acceso sigue llevando a su pantalla', BOTONES_J, async pg => {
@@ -1614,14 +1608,13 @@ await caso('botones de la portada · cada acceso sigue llevando a su pantalla', 
   return [fuera.length === 0, fuera.length ? fuera.join(' · ') : '11 botones: todos cambian de pantalla'];
 });
 
-await caso('botones de la portada · HD y texto legible siguen funcionando (alternan y se repintan)', BOTONES_J, async pg => {
+await caso('botones de la portada · el texto legible sigue funcionando (alterna y se repinta) y el botón de modo OLED ya no existe', BOTONES_J, async pg => {
   await pg.evaluate(() => rTitulo()); await pausa(200);
-  await pg.evaluate(() => document.getElementById('t-modo').click()); await pausa(200);
-  const hd = await pg.evaluate(() => ({ hd: S.hd, clase: document.documentElement.classList.contains('hd'), pant: pantallaId }));
+  const sinOled = await pg.evaluate(() => !document.getElementById('t-modo'));
   await pg.evaluate(() => document.getElementById('t-texto').click()); await pausa(200);
   const lg = await pg.evaluate(() => ({ legible: S.legible, clase: document.documentElement.classList.contains('legible'), pant: pantallaId }));
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
-  return [hd.hd && hd.clase && hd.pant === 'titulo' && lg.legible && lg.clase && lg.pant === 'titulo', JSON.stringify({ hd, lg })];
+  await pg.evaluate(() => { Object.assign(S, { legible: false }); aplicarModo(); });
+  return [sinOled && lg.legible && lg.clase && lg.pant === 'titulo', JSON.stringify({ sinOled, lg })];
 });
 
 await caso('botones de la portada · la dificultad se elige y se guarda, con aria-pressed y en dorado', BOTONES_J, async pg => {
@@ -1645,10 +1638,10 @@ await caso('botones de la portada · con teclado, al elegir dificultad el foco s
   return [a.dif === 0 && a.activo === '0' && b.dif === 2 && b.activo === '2', JSON.stringify({ a, b })];
 });
 
-await caso('botones de la portada · se reparte bien en 7 tamaños, también con HD y con texto legible: sin desbordar ni cortar textos', BOTONES_J, async pg => {
+await caso('botones de la portada · se reparte bien en 7 tamaños, también con texto legible: sin desbordar ni cortar textos', BOTONES_J, async pg => {
   const mal = [];
-  for (const modo of [{}, { hd: true }, { legible: true }, { hd: true, legible: true }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); }, modo);
+  for (const modo of [{}, { legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false }, m); aplicarModo(); }, modo);
     for (const [w, h] of [[320, 568], [360, 640], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
       await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(350);
       const r = await pg.evaluate(() => { const sc = document.querySelector('#screen');
@@ -1659,7 +1652,7 @@ await caso('botones de la portada · se reparte bien en 7 tamaños, también con
       if (!(r.sinScrollX && r.corta.length === 0 && !r.pisa && r.minAlto >= 60 && r.minAncho >= 100)) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
     }
   }
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  await pg.evaluate(() => { Object.assign(S, { legible: false }); aplicarModo(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 4).join(' · ') : '4 modos × 7 tamaños: sin desbordar, cortar ni solaparse'];
 });
 
@@ -1782,10 +1775,10 @@ await caso('ficha de la portada · el retrato lleva lo que eliges en Mi Avatar: 
   return [distintas && pasos.every(p => p.p === 'titulo') && s.skin === 2 && s.camisa === 3 && s.acc === 'gafas' && s.av32 && s.ancho === 32 && h0.startsWith('16:'), JSON.stringify({ s, pasos: pasos.map(p => p.nombre + '→' + p.p + ' ' + p.h.split(':')[0]) })];
 });
 
-await caso('ficha de la portada · se reparte bien en 7 tamaños, con HD y texto legible, en ES y EN: sin desbordar ni salirse', FICHA_J, async pg => {
+await caso('ficha de la portada · se reparte bien en 7 tamaños, con texto legible, en ES y EN: sin desbordar ni salirse', FICHA_J, async pg => {
   const mal = [];
-  for (const modo of [{}, { hd: true }, { legible: true }, { hd: true, legible: true }, { lang: 'en', av32: true }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false, lang: 'es', av32: false }, m); aplicarModo(); }, modo);
+  for (const modo of [{}, { legible: true }, { lang: 'en', av32: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false, lang: 'es', av32: false }, m); aplicarModo(); }, modo);
     for (const [w, h] of [[320, 568], [360, 640], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
       await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(300);
       const r = await pg.evaluate(() => { const sc = document.querySelector('#screen'), b = document.querySelector('#t-perso'), bb = b.getBoundingClientRect();
@@ -1796,7 +1789,7 @@ await caso('ficha de la portada · se reparte bien en 7 tamaños, con HD y texto
       if (!(r.sinScrollX && !r.fuera.length && !r.corta.length && r.retrato >= 40 && r.barra >= 40)) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
     }
   }
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es', av32: false }); aplicarModo(); });
+  await pg.evaluate(() => { Object.assign(S, { legible: false, lang: 'es', av32: false }); aplicarModo(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 4).join(' · ') : '5 modos × 7 tamaños: todo dentro de la ficha, sin scroll horizontal'];
 });
 
@@ -1836,16 +1829,16 @@ const activa = async (pg, sel, modo) => {
   return pg.evaluate(() => ({ n: FX._vivas(), pant: pantallaId }));
 };
 
-await caso('transiciones de la portada · la portada entra con fundido solo al llegar, no al repintarla (dificultad, HD, idioma)', TRANS_J, async pg => {
+await caso('transiciones de la portada · la portada entra con fundido solo al llegar, no al repintarla (dificultad, texto, idioma)', TRANS_J, async pg => {
   const lee = () => pg.evaluate(() => { const p = document.querySelector('#screen>.portada'); return { entrada: p.classList.contains('portada-entrada'), anim: getComputedStyle(p).animationName, screen: getComputedStyle(document.getElementById('screen')).animationName }; });
   await pg.evaluate(() => rTienda()); await pausa(100); await pg.evaluate(() => rTitulo()); await pausa(50);
   const llegar = await lee();
   await pg.click('.dif-op[data-dif="2"]'); await pausa(50); const dif = await lee();
-  await pg.evaluate(() => document.getElementById('t-modo').click()); await pausa(50); const hd = await lee();
-  await pg.evaluate(() => { S.hd = false; aplicarModo(); S.lang = 'en'; rehacerPantalla(); }); await pausa(50); const idioma = await lee();
+  await pg.evaluate(() => document.getElementById('t-texto').click()); await pausa(50); const texto = await lee();
+  await pg.evaluate(() => { S.legible = false; aplicarModo(); S.lang = 'en'; rehacerPantalla(); }); await pausa(50); const idioma = await lee();
   await pg.evaluate(() => { S.lang = 'es'; rTienda(); rTitulo(); }); await pausa(50); const volver = await lee();
-  const ok = llegar.entrada && llegar.anim === 'portada-entrada' && llegar.screen === 'none' && !dif.entrada && dif.anim === 'none' && dif.screen === 'none' && !hd.entrada && !idioma.entrada && volver.entrada;
-  return [ok, JSON.stringify({ llegar, dif, hd, idioma, volver })];
+  const ok = llegar.entrada && llegar.anim === 'portada-entrada' && llegar.screen === 'none' && !dif.entrada && dif.anim === 'none' && dif.screen === 'none' && !texto.entrada && !idioma.entrada && volver.entrada;
+  return [ok, JSON.stringify({ llegar, dif, texto, idioma, volver })];
 });
 
 await caso('transiciones de la portada · un grupo de chispas por activación: 6 con ratón, toque o teclado (no 12)', TRANS_J, async pg => {
@@ -2033,23 +2026,23 @@ await caso('aprendiz nuevo · la camisa y la piel elegidas se aplican (el azul y
 });
 
 /* ── LOS ICONOS DE 32×32 DE LA PORTADA (v34) ──
-   Lo que no puede romperse: que la portada enseñe los 15 dibujos nuevos (incrustados: ninguna
+   Lo que no puede romperse: que la portada enseñe los 14 dibujos nuevos (incrustados: ninguna
    petición de red), que el resto del juego siga con los de siempre, que se vean a un tamaño
    legible en móvil y escritorio y que nada desborde. */
 const ICONOS_J = { intro: true, nombre: 'R', pts: 900, xp: 1700, version: 'v34', t2: true, dias: [3, 2, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
 const clavesPortada = () => pg => pg.evaluate(() => [...document.querySelectorAll('#screen .pxi-portada')].map(i => Object.keys(PXI_PORTADA).find(k => PXI_PORTADA[k] === i.getAttribute('src'))));
 
-await caso('iconos de la portada · salen los 15 dibujos de 32×32 (el joystick, al activar HD o texto pixel), cargados y sin pedir nada a la red', ICONOS_J, async pg => {
+await caso('iconos de la portada · salen los 14 dibujos de 32×32 (el joystick, al activar el texto legible), cargados y sin pedir nada a la red', ICONOS_J, async pg => {
   const pedidos = []; pg.on('request', q => { if (/iconos|recursos|\.png/.test(q.url()) && !/aprendiz|titulo|fondo|jefe|retratos|icon-180|img\/portada\/|pasillo-hd/.test(q.url())) pedidos.push(q.url()); });
   const vistas = new Set();
-  for (const modo of [{}, { hd: true, legible: true }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); rTitulo(); }, modo); await pausa(400);
+  for (const modo of [{}, { legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false }, m); aplicarModo(); rTitulo(); }, modo); await pausa(400);
     (await clavesPortada()(pg)).forEach(k => vistas.add(k));
   }
   const cargados = await pg.evaluate(() => [...document.querySelectorAll('.pxi-portada')].every(i => i.complete && i.naturalWidth === 32 && i.naturalHeight === 32));
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  await pg.evaluate(() => { Object.assign(S, { legible: false }); aplicarModo(); });
   const faltan = await pg.evaluate(v => Object.keys(PXI_PORTADA).filter(k => !v.includes(k)), [...vistas]);
-  return [faltan.length === 0 && cargados && pedidos.length === 0, `vistos ${vistas.size}/15${faltan.length ? ' · faltan ' + faltan.join(' ') : ''} · cargados a 32×32: ${cargados} · peticiones: ${pedidos.length}`];
+  return [faltan.length === 0 && cargados && pedidos.length === 0, `vistos ${vistas.size}/14${faltan.length ? ' · faltan ' + faltan.join(' ') : ''} · cargados a 32×32: ${cargados} · peticiones: ${pedidos.length}`];
 });
 
 await caso('iconos de la portada · la llama de la racha y el resto del juego siguen con los iconos de siempre', ICONOS_J, async pg => {
@@ -2141,10 +2134,10 @@ await caso('barras RPG · con "reducir movimiento" la barra del resultado no se 
   return [m.anim === 'none' && n.anim === 'rpg-ganancia', `reducido: ${m.anim} · normal: ${n.anim}`];
 });
 
-await caso('barras RPG · caben en 6 tamaños y con HD y texto legible, sin desbordar', BARRAS_J, async pg => {
+await caso('barras RPG · caben en 6 tamaños y con texto legible, sin desbordar', BARRAS_J, async pg => {
   const mal = [];
-  for (const modo of [{}, { hd: true, legible: true }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); }, modo);
+  for (const modo of [{}, { legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false }, m); aplicarModo(); }, modo);
     for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
       await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(250);
       const r = await pg.evaluate(() => { const sc = document.querySelector('#screen'); const cab = document.querySelector('.rpg-xp-cab');
@@ -2154,7 +2147,7 @@ await caso('barras RPG · caben en 6 tamaños y con HD y texto legible, sin desb
       if (r.scroll || r.cabCorta || r.hudFuera || r.anchos.some(a => a < 40)) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
     }
   }
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  await pg.evaluate(() => { Object.assign(S, { legible: false }); aplicarModo(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '2 modos × 6 tamaños: barras dentro, cabecera sin cortar'];
 });
 
@@ -2162,7 +2155,7 @@ await caso('barras RPG · caben en 6 tamaños y con HD y texto legible, sin desb
    Lo que no puede romperse: que cada zona lleve su ambiente (formación cálida, empresa fría)
    con sus 3 capas y su puerta, que al entrar gire la hoja y no el botón, que con "reducir
    movimiento" no haya giro, que si el arte no carga quede el pasillo de CSS de siempre y todo
-   siga funcionando, y que quepa en móvil, escritorio, HD y texto legible. */
+   siga funcionando, y que quepa en móvil, escritorio y texto legible. */
 const PASILLO_HD = { intro: true, nombre: 'R', pts: 50, xp: 6065, version: 'v37', t2: true, dias: [3, 3, 3, 2, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0] };
 const capasPasillo = pg => pg.evaluate(() => { const e = $('#pasillo-escena'); const fondo = s => getComputedStyle($(s), '::after').backgroundImage.match(/pasillo-hd\/([\w-]+)\./)?.[1] || 'ninguna';
   return { clases: e.className.replace('pasillo-escena ', ''), techo: fondo('.pasillo-techo'), muro: fondo('.pasillo-muro'), suelo: fondo('.pasillo-suelo'),
@@ -2210,10 +2203,10 @@ await caso('pasillo HD · si el arte no carga, queda el pasillo de CSS de siempr
   return [r.muro && r.puerta !== 'rgba(0, 0, 0, 0)' && r.puertas === 5 && fin.pantalla === 'dialogo' && fin.dia === esperado, JSON.stringify({ ...r, fin, esperado })];
 });
 
-await caso('pasillo HD · cabe en 6 tamaños, con HD y texto legible: puertas, letreros y zonas dentro, sin cortar', PASILLO_HD, async pg => {
+await caso('pasillo HD · cabe en 6 tamaños, con texto legible: puertas, letreros y zonas dentro, sin cortar', PASILLO_HD, async pg => {
   const mal = [];
-  for (const modo of [{}, { hd: true, legible: true }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); }, modo);
+  for (const modo of [{}, { legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false }, m); aplicarModo(); }, modo);
     for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
       await pg.setViewportSize({ width: w, height: h });
       for (const z of [1, 2]) {
@@ -2226,7 +2219,7 @@ await caso('pasillo HD · cabe en 6 tamaños, con HD y texto legible: puertas, l
       }
     }
   }
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  await pg.evaluate(() => { Object.assign(S, { legible: false }); aplicarModo(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '2 modos × 6 tamaños × 2 ambientes: todo dentro, sin cortar'];
 });
 
@@ -2444,10 +2437,10 @@ await caso('diálogos cine · ¡EMPEZAR! lleva al minijuego del día una sola ve
   return [r.n === 1 && r.dia === 5, JSON.stringify(r)];
 });
 
-await caso('diálogos cine · caben en 6 tamaños y con HD y texto legible: retrato, texto y botones dentro, sin desbordar', CINE_J, async pg => {
+await caso('diálogos cine · caben en 6 tamaños y con texto legible: retrato, texto y botones dentro, sin desbordar', CINE_J, async pg => {
   const mal = [];
-  for (const modo of [{}, { hd: true, legible: true }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false }, m); aplicarModo(); }, modo);
+  for (const modo of [{}, { legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false }, m); aplicarModo(); }, modo);
     for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
       await pg.setViewportSize({ width: w, height: h });
       for (const que of ['dia', 'cut']) {
@@ -2459,7 +2452,7 @@ await caso('diálogos cine · caben en 6 tamaños y con HD y texto legible: retr
       }
     }
   }
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false }); aplicarModo(); });
+  await pg.evaluate(() => { Object.assign(S, { legible: false }); aplicarModo(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '2 modos × 6 tamaños × día y escena: todo dentro, sin desbordar'];
 });
 
@@ -2570,10 +2563,10 @@ await caso('identidad · comprar un accesorio con la confirmación repetida no c
   return [!r.sinConfirmar && r.cobro === r.precio && r.veces === 1, JSON.stringify(r)];
 });
 
-await caso('identidad · Mi Avatar con la pestaña APARIENCIA cabe en 6 tamaños, con HD y texto legible, en ES y EN, sin desbordar', ID_J, async pg => {
+await caso('identidad · Mi Avatar con la pestaña APARIENCIA cabe en 6 tamaños, con texto legible, en ES y EN, sin desbordar', ID_J, async pg => {
   const mal = [];
-  for (const modo of [{}, { hd: true, legible: true }, { lang: 'en', legible: true }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
+  for (const modo of [{}, { legible: true }, { lang: 'en', legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
     for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
       await pg.setViewportSize({ width: w, height: h });
       await pg.evaluate(() => { pePestana = 'apariencia'; rPerso(); }); await pausa(200);
@@ -2584,7 +2577,7 @@ await caso('identidad · Mi Avatar con la pestaña APARIENCIA cabe en 6 tamaños
       if (r.scroll || r.fuera.length || r.corta.length) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
     }
   }
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es' }); aplicarModo(); });
+  await pg.evaluate(() => { Object.assign(S, { legible: false, lang: 'es' }); aplicarModo(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '3 modos × 6 tamaños: todo dentro, sin desbordar ni cortar'];
 });
 
@@ -2671,10 +2664,10 @@ await caso('colores del avatar · 4 tarjetas de piel (retrato) y 4 de camisa (cu
   return [ok, JSON.stringify(r)];
 });
 
-await caso('colores del avatar · las pestañas PIEL y CAMISA caben en 6 tamaños, con HD y texto legible, en ES y EN, sin desbordar ni cortar', ID_J, async pg => {
+await caso('colores del avatar · las pestañas PIEL y CAMISA caben en 6 tamaños, con texto legible, en ES y EN, sin desbordar ni cortar', ID_J, async pg => {
   const mal = [];
-  for (const modo of [{}, { hd: true, legible: true }, { lang: 'en', legible: true }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
+  for (const modo of [{}, { legible: true }, { lang: 'en', legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
     for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
       await pg.setViewportSize({ width: w, height: h });
       for (const tab of ['piel', 'camisa']) {
@@ -2687,7 +2680,7 @@ await caso('colores del avatar · las pestañas PIEL y CAMISA caben en 6 tamaño
       }
     }
   }
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es' }); aplicarModo(); });
+  await pg.evaluate(() => { Object.assign(S, { legible: false, lang: 'es' }); aplicarModo(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '3 modos × 6 tamaños × 2 pestañas: todo dentro, sin cortar'];
 });
 
@@ -2818,10 +2811,10 @@ await caso('accesorios · la tienda pinta los 9 iconos pixel (distintos) y PROBA
   return [r.iconos === 9 && r.distintos === 9 && r.vacios === 0 && r.pantalla === 'perso' && r.tab === 'acc', JSON.stringify(r)];
 });
 
-await caso('accesorios · la pestaña de accesorios cabe en 6 tamaños, con HD y texto legible, en ES y EN, sin desbordar ni cortar', ACC_J, async pg => {
+await caso('accesorios · la pestaña de accesorios cabe en 6 tamaños, con texto legible, en ES y EN, sin desbordar ni cortar', ACC_J, async pg => {
   const mal = [];
-  for (const modo of [{}, { hd: true, legible: true }, { lang: 'en', legible: true }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
+  for (const modo of [{}, { legible: true }, { lang: 'en', legible: true }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
     for (const [w, h] of [[320, 568], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
       await pg.setViewportSize({ width: w, height: h });
       await pg.evaluate(() => { pePestana = 'acc'; rPerso(); $('.acc-op[data-a="capa"]').click(); }); await pausa(150);
@@ -2832,7 +2825,7 @@ await caso('accesorios · la pestaña de accesorios cabe en 6 tamaños, con HD y
       if (r.scroll || r.fuera.length || r.corta.length) mal.push(`${JSON.stringify(modo)} ${w}×${h}: ${JSON.stringify(r)}`);
     }
   }
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es' }); aplicarModo(); });
+  await pg.evaluate(() => { Object.assign(S, { legible: false, lang: 'es' }); aplicarModo(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '3 modos × 6 tamaños: todo dentro, sin cortar'];
 });
 
@@ -2880,10 +2873,10 @@ await caso('vestidor · al comprar y equipar, puntos, colección (2/9) y su barr
   return [ok, JSON.stringify(r)];
 });
 
-await caso('vestidor · Mi Avatar entero cabe en 7 tamaños × 4 pestañas × 3 vistas, con HD y texto legible, en ES y EN, sin desbordar ni cortar', ID_J, async pg => {
+await caso('vestidor · Mi Avatar entero cabe en 7 tamaños × 4 pestañas × 3 vistas, con texto legible, en ES y EN, sin desbordar ni cortar', ID_J, async pg => {
   const mal = [];
-  for (const modo of [{}, { hd: true, legible: true }, { lang: 'en' }]) {
-    await pg.evaluate(m => { Object.assign(S, { hd: false, legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
+  for (const modo of [{}, { legible: true }, { lang: 'en' }]) {
+    await pg.evaluate(m => { Object.assign(S, { legible: false, lang: 'es' }, m); aplicarModo(); }, modo);
     for (const [w, h] of [[320, 568], [360, 640], [390, 760], [844, 390], [820, 1100], [1280, 800], [1920, 1080]]) {
       await pg.setViewportSize({ width: w, height: h });
       for (const tab of ['apariencia', 'piel', 'camisa', 'acc']) for (const vista of ['ambos', 'retrato', 'cuerpo']) {
@@ -2896,7 +2889,7 @@ await caso('vestidor · Mi Avatar entero cabe en 7 tamaños × 4 pestañas × 3 
       }
     }
   }
-  await pg.evaluate(() => { Object.assign(S, { hd: false, legible: false, lang: 'es' }); aplicarModo(); $('[data-pe-vista="ambos"]')?.click(); });
+  await pg.evaluate(() => { Object.assign(S, { legible: false, lang: 'es' }); aplicarModo(); $('[data-pe-vista="ambos"]')?.click(); });
   return [mal.length === 0, mal.length ? mal.slice(0, 3).join(' · ') : '3 modos × 7 tamaños × 4 pestañas × 3 vistas: todo dentro, sin cortar'];
 });
 

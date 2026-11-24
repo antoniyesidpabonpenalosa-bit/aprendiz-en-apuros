@@ -4,8 +4,8 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 const read=f=>readFileSync(new URL('../'+f,import.meta.url),'utf8');
 const E=runInNewContext(read('js/iconos.js')+'\n({PXI_PORTADA,pxiPortada,pxi,pxiTam})',{encodeURIComponent});
-const claves=['🎮','♾️','🏫','🌱','⚔️','💀','🛒','🏆','📊','📈','✨','🔤','🎓','🗓','🕹'];
-test('portada: 15 PNG RGBA de 32×32 y alternativa clásica intacta',()=>{
+const claves=['🎮','♾️','🏫','🌱','⚔️','💀','🛒','🏆','📊','📈','🔤','🎓','🗓','🕹'];
+test('portada: 14 PNG RGBA de 32×32 y alternativa clásica intacta',()=>{
  assert.deepEqual(Object.keys(E.PXI_PORTADA).sort(),claves.slice().sort());
  for(const clave of claves){
   const data=E.PXI_PORTADA[clave];

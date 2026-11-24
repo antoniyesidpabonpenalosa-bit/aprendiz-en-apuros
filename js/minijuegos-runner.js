@@ -21,14 +21,11 @@ function nvRunner(dia){
     </div>
   </div>`);
   const cv=$('#r-cv'),c=cv.getContext('2d');
-  const HD=!!S.hd;
   /* El lienzo se dibuja SIEMPRE en el espacio lógico de 320×180: el búfer se
      agranda según la densidad real de la pantalla y el transform lo compensa,
-     así que ninguna coordenada del juego cambia. Antes esto era todo o nada
-     (solo con el modo HD), y sin HD el navegador estiraba un búfer de 320 px
-     en un móvil de alta densidad: borroso. El modo HD sigue sumando nitidez
-     encima, ahora como multiplicador. */
-  const dpr=densidad()*(HD?1.5:1);
+     así que ninguna coordenada del juego cambia. Sin esto el navegador
+     estiraba un búfer de 320 px en un móvil de alta densidad: borroso. */
+  const dpr=densidad();
   cv.width=Math.round(320*dpr); cv.height=Math.round(180*dpr);
   c.setTransform(dpr,0,0,dpr,0,0);
   const SUELO=140;
@@ -160,25 +157,18 @@ function nvRunner(dia){
       return resultado(dia,stars,pts+400+cafes*20);
     }
     /* dibujo (paleta nocturna en la etapa productiva) */
-    if(HD){
-      const g=c.createLinearGradient(0,0,0,180);
-      if(noche){g.addColorStop(0,'#0d0620');g.addColorStop(.7,'#050310');g.addColorStop(1,'#020108')}
-      else{g.addColorStop(0,'#131c3a');g.addColorStop(.7,'#070a16');g.addColorStop(1,'#03040a')}
-      c.fillStyle=g;
-    }else c.fillStyle=noche?'#070312':'#0b0e22';
+    c.fillStyle=noche?'#070312':'#0b0e22';
     c.fillRect(0,0,320,180);
     if(noche){ /* estrellas + luna */
       c.fillStyle='#e8e4ff';
       for(let k=0;k<14;k++)c.fillRect((k*53+((k*k)%29))%320,(k*29)%70+6,1,1);
       c.fillStyle='#f4f0d8';c.beginPath();c.arc(276,26,10,0,7);c.fill();
-      c.fillStyle=noche&&!HD?'#070312':'#0d0620';c.beginPath();c.arc(280,23,8,0,7);c.fill();
+      c.fillStyle='#070312';c.beginPath();c.arc(280,23,8,0,7);c.fill();
     }
-    c.fillStyle=noche?'rgba(120,80,200,.15)':(HD?'rgba(90,110,200,.14)':'#141a38');
+    c.fillStyle=noche?'rgba(120,80,200,.15)':'#141a38';
     for(let k=0;k<5;k++){const bx=(320-((frame*.5+k*90)%400));c.fillRect(bx,40+k*8%30,34,60)}
-    if(HD){c.shadowColor=noche?'#a86bff':'#39a900';c.shadowBlur=10}
     c.fillStyle=noche?'#7a3bd0':'#39a900';c.fillRect(0,SUELO+2,320,3);
-    c.shadowBlur=0;
-    c.fillStyle=noche?'#0a0518':(HD?'#0a0d1c':'#11152a');c.fillRect(0,SUELO+5,320,40);
+    c.fillStyle=noche?'#0a0518':'#11152a';c.fillRect(0,SUELO+5,320,40);
     /* jugador · es el sprite del aprendiz (js/sprite.js) mirando a la derecha:
        en el suelo recorre los 4 cuadros de la caminata, uno cada 8 fotogramas
        (el mismo ritmo de 135 ms del arte, pero contado en fotogramas para que

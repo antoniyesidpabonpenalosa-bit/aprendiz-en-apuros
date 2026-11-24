@@ -301,8 +301,7 @@ function rPerso(){
   const latido=()=>{const a=$('#pe-escena-av')||$('#pe-cara');if(quieto())return;a.classList.remove('pe-pum');void a.offsetWidth;a.classList.add('pe-pum')};
 
   /* ── detalle del retrato: 16 de siempre / 32 más fino ──
-     Es aparte de S.hd (la piel retro/OLED): los dos se combinan, no se
-     excluyen. Cambia aquí mismo y no en el título porque este es el sitio
+     Es un interruptor propio (S.av32). Cambia aquí mismo y no en el título porque este es el sitio
      donde se ve el avatar grande, así el cambio se nota al instante. */
   $('#pe-d16').onclick=()=>{
     if(!S.av32)return;

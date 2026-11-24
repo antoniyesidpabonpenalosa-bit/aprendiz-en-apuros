@@ -266,14 +266,14 @@ test('una línea vacía no hace nada', () => {
    dificultad, nombre) sobrevive a volver a lo normal; el progreso, no. */
 test('volver a lo normal conserva los ajustes del jugador pero no el progreso', () => {
   const v = cargarJuego();
-  Object.assign(v.S, { lang: 'es', snd: true, hd: false, dif: 1, pts: 100, xp: 100 });
+  Object.assign(v.S, { lang: 'es', snd: true, av32: false, dif: 1, pts: 100, xp: 100 });
   v.guardar();
   correr(v, 'vidas 9');
-  Object.assign(v.S, { lang: 'en', snd: false, hd: true, dif: 2, pts: 99999 });
+  Object.assign(v.S, { lang: 'en', snd: false, av32: true, dif: 2, pts: 99999 });
   correr(v, 'normal');
   assert.equal(v.S.lang, 'en');
   assert.equal(v.S.snd, false);
-  assert.equal(v.S.hd, true);
+  assert.equal(v.S.av32, true);
   assert.equal(v.S.dif, 2);
   assert.equal(v.S.pts, 100, 'el progreso del ensayo no sobrevive');
   assert.match(v._localStorage.getItem('pa3'), /"lang":"en"/, 'y los ajustes quedan guardados');

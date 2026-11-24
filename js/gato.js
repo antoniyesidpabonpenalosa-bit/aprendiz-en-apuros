@@ -94,7 +94,7 @@ const GATO = (()=>{
       if(!activo()){ el.style.display = 'none'; st.x = null; return; }
       const rc = o.contenedor.getBoundingClientRect(), rb = o.cuerpo.getBoundingClientRect();
       if(!rb.width || !rb.height){ el.style.display = 'none'; return; }
-      /* la página puede estar ampliada (modo HD, zoom del navegador, transformaciones): se trabaja en píxeles CSS del contenedor */
+      /* la página puede estar ampliada (zoom del navegador, transformaciones): se trabaja en píxeles CSS del contenedor */
       const k = (rc.width && o.contenedor.offsetWidth) ? rc.width/o.contenedor.offsetWidth : 1;
       const s = rb.height/k/(o.alto||74), ms = performance.now();
       const hx = (rb.left - rc.left + rb.width/2)/k + (o.dx||0)*s, hy = (rb.bottom - rc.top)/k + (o.dy||0)*s;

@@ -3,10 +3,9 @@
 const STATS0={bugs:0,cafes:0,palabras:0,jefes:0,perfectos:0,racha:0,partidas:0,retos:0};
 const TOT_DIAS=NIVELES.length; /* 15: etapa lectiva (10) + etapa productiva (5) */
 const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',skin:0,camisa:0,apariencia:'masculina',
-  mejoras:[],records:[],lang:'es',snd:true,mus:true,intro:false,t2:false,nombre:'',hd:false,legible:false,grupo:'',dif:1,
-  /* av32: el detalle del RETRATO (16×16 de siempre / 32×32 más fino), independiente
-     de hd, que es la piel de la interfaz (retro CRT / OLED). Los dos se pueden
-     combinar: no son un selector de tres, son dos interruptores. */
+  mejoras:[],records:[],lang:'es',snd:true,mus:true,intro:false,t2:false,nombre:'',legible:false,grupo:'',dif:1,
+  /* av32: el detalle del RETRATO (16×16 de siempre / 32×32 más fino). Es un
+     interruptor propio, independiente del modo de texto legible. */
   av32:false,version:'',limpio:false,campanaIniciada:false,fallosDia:Array(15).fill(0),stats:Object.assign({},STATS0)};
 /** La partida guardada. Con los campos escritos uno por uno, la comprobación
     de tipos (jsconfig.json) avisa si en cualquier archivo se escribe mal uno:
@@ -31,7 +30,6 @@ const DEF={pts:0,xp:0,dias:Array(TOT_DIAS).fill(-1),logros:[],accs:[],acc:'',ski
     @property {boolean} intro
     @property {boolean} t2
     @property {string} nombre
-    @property {boolean} hd
     @property {boolean} legible
     @property {string} grupo       código de aula ('' = sin grupo)
     @property {number} dif         0, 1 o 2
@@ -120,6 +118,7 @@ function sanear(){
   if(typeof S.mus!=='boolean')S.mus=true;
   if(typeof S.t2!=='boolean')S.t2=false;
   if(typeof S.legible!=='boolean')S.legible=false;
+  delete S.hd;   // v40.25: el modo OLED ya no existe; las partidas y los códigos viejos que lo traían se limpian
   if(typeof S.av32!=='boolean')S.av32=false;
   if(typeof S.version!=='string')S.version='';
   /* Marcas locales: solo entran las que traen nombre y números. Un código de
@@ -181,7 +180,6 @@ function limpiarT(){tms.forEach(i=>{clearTimeout(i);clearInterval(i)});tms=[];
   alLimpiar.forEach(f=>{try{f()}catch(e){}});alLimpiar=[];}
 
 const aplicarModo=()=>{
-  document.documentElement.classList.toggle('hd',!!S.hd);
   /* Modo de texto legible: cambia la tipografía de píxeles por VT323 en el
      texto pequeño (nombres de logro, niveles, artículos de la tienda). La
      prosa larga —diálogos, preguntas, opciones— ya iba en VT323. */
