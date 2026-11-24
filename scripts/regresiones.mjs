@@ -1685,11 +1685,11 @@ await caso('botones de la portada · ES y EN: los textos de las tarjetas salen y
     for (const [w, h] of [[320, 568], [390, 760], [1280, 800]]) {
       await pg.setViewportSize({ width: w, height: h }); await pg.evaluate(() => rTitulo()); await pausa(300);
       const r = await pg.evaluate(() => ({ txt: [...document.querySelectorAll('.portada .menu-fila .m-txt')].map(e => e.textContent.trim()), corta: [...document.querySelectorAll('.portada .menu-fila .m-txt,.portada .dif-op')].filter(e => e.scrollWidth > e.clientWidth + 1).length, sc: document.querySelector('#screen').scrollWidth <= document.querySelector('#screen').clientWidth }));
-      if (r.txt.length !== 9 || r.txt.some(x => !x) || r.corta || !r.sc) mal.push(`${lang} ${w}: ${JSON.stringify(r)}`);
+      if (r.txt.length !== 8 || r.txt.some(x => !x) || r.corta || !r.sc) mal.push(`${lang} ${w}: ${JSON.stringify(r)}`);
     }
   }
   await pg.evaluate(() => { S.lang = 'es'; guardar(); });
-  return [mal.length === 0, mal.length ? mal.join(' · ') : 'ES y EN × 3 tamaños: 9 textos, sin cortar'];
+  return [mal.length === 0, mal.length ? mal.join(' · ') : 'ES y EN × 3 tamaños: 8 textos, sin cortar'];
 });
 
 await caso('botones de la portada · fondo, título y aprendiz siguen ahí y las demás pantallas no cambian', BOTONES_J, async pg => {
