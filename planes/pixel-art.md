@@ -1,6 +1,6 @@
 # Plan: mejorar el estilo pixel art
 
-> Estado: **A, B y C hechas (v25).** D y E quedan abiertas, a decisión del autor.
+> Estado: **A, B y C hechas (v25).** D recortada (2026-11-26). E queda superada en la práctica por el pasillo HD (v37) y la respiración de los personajes (v40.16-17).
 > Se partió de mirar el juego en un móvil (2026-11-14): lo que desentonaba eran
 > los emojis del sistema, el jefe hecho de emojis y los retratos ilustrados.
 
@@ -33,7 +33,7 @@ de `test/iconos.test.mjs` dice qué se exige.
 
 ## Abierto
 
-- **D · Retratos en pixel.** Los 20 retratos son ilustraciones suaves y desentonan con
+- **D · Retratos en pixel.** *Recortado por el autor el 2026-11-26 (ver `planes/terminar.md`): los retratos ilustrados se quedan.* Los 20 retratos son ilustraciones suaves y desentonan con
   el resto. Idea: un script que los reduzca a ~64 px, los cuantice a la paleta y los
   escale sin suavizar; la ilustración queda como opción. Probar primero con uno.
 - **E · Pasillo dibujado en pixel:** baldosas con trama, luces, carteles, plantas y una
